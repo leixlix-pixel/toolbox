@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>고대 삼국의 식탁 이야기</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    background: #2b241d;
+    user-select: none;
+    overflow: hidden;
+  }
+  :root {
+    --bg-cream: #f6ecd9;
+    --bg-cream2: #efe1c4;
+    --ink: #2b241d;
+    --brown: #7a4a2b;
+    --brown-dark: #5a3620;
+    --red: #b5432f;
+    --gold: #c98a2c;
+    --green: #4d6b46;
+    --muted: #8a7c66;
+    --card: #fffaf0;
+  }
+
+  #deck {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .slide {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: none;
+    flex-direction: column;
+    background: var(--bg-cream);
+    background-image:
+      radial-gradient(circle at 90% 10%, rgba(201,138,44,0.10), transparent 45%),
+      radial-gradient(circle at 8% 90%, rgba(122,74,43,0.10), transparent 45%);
+    padding: 5% 7%;
+    overflow: hidden;
+  }
+  .slide.active { display: flex; }
+
+  .eyebrow {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--red);
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+  h1 {
+    font-size: 40px;
+    font-weight: 900;
+    color: var(--ink);
+    line-height: 1.3;
+    margin-bottom: 18px;
+  }
+  h1 span.hl { color: var(--red); }
+  h2.slide-title {
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--ink);
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .body-text {
+    font-size: 22px;
+    line-height: 1.75;
+    color: var(--ink);
+  }
+  .body-text b { color: var(--red); }
+
+  .flex-row { display: flex; gap: 24px; align-items: stretch; flex: 1; min-height: 0; }
+  .flex-col { display: flex; flex-direction: column; gap: 16px; flex: 1; min-height: 0; }
+
+  .card {
+    background: var(--card);
+    border-radius: 18px;
+    padding: 24px;
+    box-shadow: 0 4px 14px rgba(90,54,32,0.10);
+    border: 2px solid rgba(122,74,43,0.15);
+  }
+
+  .three-col { display: flex; gap: 20px; flex: 1; min-height: 0; }
+  .nation-card {
+    flex: 1;
+    border-radius: 20px;
+    padding: 22px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: 0 6px 16px rgba(90,54,32,0.12);
+  }
+  .nation-card.goguryeo { background: linear-gradient(160deg, #fbe9df, #f6d2bd); }
+  .nation-card.baekje   { background: linear-gradient(160deg, #eaf1e2, #d6e7c8); }
+  .nation-card.silla     { background: linear-gradient(160deg, #eef0fb, #d9deee); }
+
+  .nation-flag {
+    font-size: 15px;
+    font-weight: 700;
+    color: white;
+    padding: 5px 14px;
+    border-radius: 999px;
+    display: inline-block;
+    width: fit-content;
+  }
+  .goguryeo .nation-flag { background: var(--red); }
+  .baekje .nation-flag { background: var(--green); }
+  .silla .nation-flag { background: #4a5a8f; }
+
+  .nation-card h3 { font-size: 26px; font-weight: 900; color: var(--ink); }
+  .nation-card p { font-size: 18px; line-height: 1.6; color: var(--ink); }
+  .nation-card .icon { font-size: 44px; text-align: center; margin: 4px 0; }
+
+  .quote-box {
+    background: var(--brown-dark);
+    color: var(--bg-cream);
+    border-radius: 18px;
+    padding: 26px 30px;
+    font-size: 21px;
+    line-height: 1.75;
+    position: relative;
+  }
+  .quote-box .src { font-size: 16px; color: var(--gold); margin-top: 10px; font-weight: 700; }
+
+  .tag {
+    display: inline-block;
+    background: var(--gold);
+    color: white;
+    font-size: 15px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 999px;
+    margin-bottom: 4px;
+  }
+
+  ul.point-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  ul.point-list li {
+    font-size: 20px;
+    line-height: 1.6;
+    padding-left: 30px;
+    position: relative;
+  }
+  ul.point-list li::before {
+    content: "●";
+    color: var(--red);
+    font-size: 10px;
+    position: absolute;
+    left: 8px;
+    top: 8px;
+  }
+
+  .num-badge {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: var(--red);
+    color: white;
+    font-weight: 900;
+    font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .quiz-option {
+    background: var(--card);
+    border: 2px solid rgba(122,74,43,0.25);
+    border-radius: 14px;
+    padding: 14px 20px;
+    font-size: 21px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .quiz-option:active { transform: scale(0.98); }
+  .quiz-option.correct { background: #d9ecd2; border-color: var(--green); font-weight: 700; }
+  .quiz-option.wrong { background: #f6d9d2; border-color: var(--red); }
+
+  /* Nav */
+  .nav-btn {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: rgba(43,36,29,0.55);
+    color: white;
+    font-size: 22px;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 50;
+    border: none;
+    cursor: pointer;
+  }
+  #prevBtn { left: 14px; }
+  #nextBtn { right: 14px; }
+  .nav-btn:active { background: rgba(43,36,29,0.85); }
+
+  #progress {
+    position: fixed;
+    bottom: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 50;
+  }
+  #progress .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(43,36,29,0.25);
+  }
+  #progress .dot.on { background: var(--red); width: 22px; border-radius: 4px; }
+
+  #pageNum {
+    position: fixed;
+    top: 16px;
+    right: 22px;
+    font-size: 13px;
+    color: var(--muted);
+    z-index: 50;
+    background: rgba(255,255,255,0.6);
+    padding: 4px 12px;
+    border-radius: 999px;
+  }
+
+  .footer-cap {
+    margin-top: auto;
+    font-size: 12px;
+    color: var(--muted);
+    text-align: right;
+  }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; flex: 1; min-height: 0; }
+  .fact-card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    box-shadow: 0 3px 10px rgba(90,54,32,0.08);
+  }
+  .fact-card .emoji { font-size: 32px; }
+  .fact-card h4 { font-size: 20px; margin-bottom: 4px; }
+  .fact-card p { font-size: 17px; line-height: 1.6; color: #45392c; }
+
+  .title-illust { font-size: 90px; text-align: center; }
+</style>
+</head>
+<body>
+
+<div id="deck">
+
+  <!-- Slide 1: Title -->
+  <section class="slide active">
+    <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:14px;">
+      <div class="title-illust">🍖🥢🍚</div>
+      <div class="eyebrow">5학년 2학기 사회 ・ 읽을거리</div>
+      <h1 style="font-size:46px; text-align:center;">고대 삼국의 <span class="hl">식탁</span> 이야기</h1>
+      <p class="body-text" style="max-width:640px; text-align:center;">
+        고구려 귀족이 즐긴 고기구이 <b>'맥적'</b>에서 출발해,<br>
+        고구려・백제・신라 사람들이 무엇을 먹고 어떻게 살았는지 함께 알아볼까요?
+      </p>
+    </div>
+  </section>
+
+  <!-- Slide 2: 맥적 리캡 -->
+  <section class="slide">
+    <div class="eyebrow">1. 이야기의 시작</div>
+    <h2 class="slide-title" style="text-align:left;">고구려 귀족의 특별식, <span class="hl" style="color:var(--red)">맥적</span></h2>
+    <div class="flex-row">
+      <div class="card flex-col" style="flex:1.3; justify-content:center;">
+        <p class="body-text">
+          고구려 귀족은 <b>'맥적'</b>이라는 고기구이를 즐겨 먹었어요. 돼지고기를 된장이나 간장 양념에 재웠다가 불에 구워 먹는 음식으로, 당시로서는 매우 화려한 요리였답니다.
+        </p>
+        <p class="body-text">
+          맥적을 만들 때 쓰인 <b>장(醬)</b>은 콩을 발효해 만든 것으로, 고구려 사람들의 발효 음식 솜씨는 주변 나라에까지 소문이 날 정도였어요.
+        </p>
+      </div>
+      <div class="card flex-col" style="flex:1; align-items:center; justify-content:center; text-align:center; background:linear-gradient(160deg,#fbe9df,#f6d2bd);">
+        <div style="font-size:56px;">🥩🔥</div>
+        <p class="body-text" style="font-size:19px;"><b>맥적</b><br>돼지고기 + 장 양념 + 직화구이</p>
+        <div class="tag">오늘날 불고기의 유래?</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 3: 벽화 증거 -->
+  <section class="slide">
+    <div class="eyebrow">2. 벽화가 알려주는 것</div>
+    <h2 class="slide-title" style="text-align:left;">그림으로 남은 고구려의 부엌</h2>
+    <div class="flex-row">
+      <div class="quote-box" style="flex:1;">
+        『삼국사기』에는 고구려 귀족이 손님에게 고기 요리를 대접하려고 칼로 고기를 썰다가 손가락을 다쳤다는 이야기가 기록되어 있어요.
+        <div class="src">— 「삼국사기」 관련 기록</div>
+      </div>
+      <div class="card flex-col" style="flex:1;">
+        <p class="body-text">안악 3호분 벽화(황해도 안악군)에는 고구려 사람들의 생생한 부엌 풍경이 그려져 있어요.</p>
+        <ul class="point-list">
+          <li>시루에 요리하는 여인</li>
+          <li>그릇을 정리하는 여인</li>
+          <li>부엌 안에서 물을 긷는 여인</li>
+          <li>고기(돼지, 노루 등)를 매달아 보관하는 창고</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 4: 삼국 개관 3분할 -->
+  <section class="slide">
+    <div class="eyebrow">3. 이제 삼국을 비교해 볼까요</div>
+    <h2 class="slide-title" style="text-align:left;">고구려・백제・신라, 밥상은 달랐을까?</h2>
+    <div class="three-col">
+      <div class="nation-card goguryeo">
+        <span class="nation-flag">고구려</span>
+        <div class="icon">🏔️🐖</div>
+        <h3>산과 벌판의 나라</h3>
+        <p>추운 북방 기후와 목축이 발달해 <b>고기 요리와 발효 장류</b>가 특히 발달했어요. 안악 3호분 벽화에는 외양간・마구간도 그려져 있어요.</p>
+      </div>
+      <div class="nation-card baekje">
+        <span class="nation-flag">백제</span>
+        <div class="icon">🐟🌾</div>
+        <h3>강과 바다의 나라</h3>
+        <p>왕궁리 유적(화장실 흔적) 연구에 따르면 백제 사람들은 <b>육식보다 채소와 민물고기</b>를 즐겨 먹었다고 해요.</p>
+      </div>
+      <div class="nation-card silla">
+        <span class="nation-flag">신라</span>
+        <div class="icon">🐄🐑</div>
+        <h3>체계적인 목축 국가</h3>
+        <p>목숙전, 양전, 육전 같은 <b>가축을 전담하는 관청</b>을 따로 두었을 만큼 목축이 조직적으로 발달했어요.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 5: 공통점 - 쌀과 장 -->
+  <section class="slide">
+    <div class="eyebrow">4. 삼국의 공통점</div>
+    <h2 class="slide-title" style="text-align:left;">달라도 닮은 점이 있었어요</h2>
+    <div class="grid2">
+      <div class="fact-card">
+        <div class="emoji">🍚</div>
+        <div><h4>쌀농사의 정착</h4><p>벼농사가 자리 잡으면서 쌀은 삼국 공통의 주식으로 자리 잡기 시작했어요.</p></div>
+      </div>
+      <div class="fact-card">
+        <div class="emoji">🫙</div>
+        <div><h4>콩 발효 장류</h4><p>콩을 발효시켜 만든 장(된장・간장의 원조)이 단백질을 보충하는 중요한 부식이었어요.</p></div>
+      </div>
+      <div class="fact-card">
+        <div class="emoji">👑</div>
+        <div><h4>귀족식과 서민식의 분리</h4><p>신분제 사회였던 만큼, 같은 나라 안에서도 귀족이 먹는 음식과 서민이 먹는 음식이 크게 달랐어요.</p></div>
+      </div>
+      <div class="fact-card">
+        <div class="emoji">🔥</div>
+        <div><h4>조리 도구의 발달</h4><p>찌는 조리법에서 점차 가마솥을 이용한 오늘날의 '밥 짓기' 방식으로 발전해 갔어요.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 6: 통일신라 - 화려한 식문화 -->
+  <section class="slide">
+    <div class="eyebrow">5. 삼국을 하나로, 통일신라</div>
+    <h2 class="slide-title" style="text-align:left;">삼국의 맛이 만나 꽃피운 통일신라</h2>
+    <div class="flex-row">
+      <div class="card flex-col" style="flex:1;">
+        <p class="body-text">삼국을 통일한 신라는 고구려와 백제의 식문화까지 받아들여 <b>더욱 화려하고 다채로운 궁중 음식 문화</b>를 완성했어요.</p>
+        <p class="body-text">『삼국사기』에 따르면 궁궐에서 음식과 의식을 담당한 직책만 <b>24개, 총 104명</b>에 달했다고 해요.</p>
+      </div>
+      <div class="card flex-col" style="flex:1; background:linear-gradient(160deg,#eef0fb,#d9deee);">
+        <div class="tag">안압지 유적에서 발견된 식재료</div>
+        <p class="body-text" style="font-size:19px;">소, 말, 돼지, 사슴, 꿩, 오리, 닭, 조개류, 버섯, 잉어, 전복, 잣, 밤, 복숭아…</p>
+        <p class="body-text" style="font-size:17px; color:var(--muted);">오늘날엔 먹지 않는 개구리, 뱀 같은 흔적도 발견되었답니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 7: Quiz -->
+  <section class="slide">
+    <div class="eyebrow">6. 확인해 볼까요?</div>
+    <h2 class="slide-title" style="text-align:left;">퀴즈 타임!</h2>
+    <p class="body-text" style="margin-bottom:16px;">Q. 왕궁리 유적의 화장실 흔적 연구 결과, 육식보다 채소와 민물고기를 즐겼던 것으로 추정되는 나라는?</p>
+    <div style="display:flex; flex-direction:column; gap:12px;" id="quizArea">
+      <div class="quiz-option" onclick="checkAnswer(this, false)">① 고구려</div>
+      <div class="quiz-option" onclick="checkAnswer(this, true)">② 백제</div>
+      <div class="quiz-option" onclick="checkAnswer(this, false)">③ 신라</div>
+    </div>
+    <p id="quizFeedback" class="body-text" style="margin-top:16px; font-weight:700; min-height:26px;"></p>
+  </section>
+
+  <!-- Slide 8: 오늘날과의 연결 -->
+  <section class="slide">
+    <div class="eyebrow">7. 오늘날과 이어지는 맛</div>
+    <h2 class="slide-title" style="text-align:left;">1500년 전 밥상, 지금 우리 밥상</h2>
+    <div class="flex-row">
+      <div class="fact-card" style="flex:1;">
+        <div class="emoji">🥩</div>
+        <div><h4>맥적 → 불고기</h4><p>양념에 재워 구운 고기구이 문화는 오늘날 불고기의 뿌리로 여겨지기도 해요.</p></div>
+      </div>
+      <div class="fact-card" style="flex:1;">
+        <div class="emoji">🍚</div>
+        <div><h4>장류 → 된장・간장</h4><p>콩을 발효시켜 만든 삼국시대의 장은 지금 우리 밥상의 된장, 간장으로 이어지고 있어요.</p></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:18px;">
+      <p class="body-text">이렇게 완성된 한국의 음식 문화는 이후 <b>일본에도 영향</b>을 줄 만큼 독자적인 체계를 갖추게 되었답니다.</p>
+    </div>
+  </section>
+
+  <!-- Slide 9: 생각해보기 -->
+  <section class="slide">
+    <div class="eyebrow">8. 생각을 넓혀요</div>
+    <h2 class="slide-title" style="text-align:left;">함께 이야기해 볼까요?</h2>
+    <div class="flex-col" style="justify-content:center; gap:22px;">
+      <div class="card" style="display:flex; gap:16px; align-items:flex-start;">
+        <div class="num-badge">1</div>
+        <p class="body-text">고구려・백제・신라의 식문화가 서로 달랐던 까닭은 무엇 때문이었을까요? (지형, 기후 등을 떠올려 보세요)</p>
+      </div>
+      <div class="card" style="display:flex; gap:16px; align-items:flex-start;">
+        <div class="num-badge">2</div>
+        <p class="body-text">같은 나라 안에서도 귀족과 서민의 음식이 달랐던 것은 오늘날의 식생활과 비교하면 어떤 점이 다를까요?</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 10: 정리 -->
+  <section class="slide">
+    <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:18px;">
+      <div class="title-illust">🍲</div>
+      <h2 class="slide-title">오늘의 정리</h2>
+      <div class="grid2" style="max-width:720px; flex:none;">
+        <div class="fact-card"><div class="emoji">🔴</div><div><p><b>고구려</b> – 목축과 고기구이, 발효 장류 발달</p></div></div>
+        <div class="fact-card"><div class="emoji">🟢</div><div><p><b>백제</b> – 채식과 민물고기 중심의 식생활</p></div></div>
+        <div class="fact-card"><div class="emoji">🔵</div><div><p><b>신라</b> – 체계적인 목축 관청, 다양한 식재료</p></div></div>
+        <div class="fact-card"><div class="emoji">🟡</div><div><p><b>통일신라</b> – 삼국의 식문화가 하나로 융합</p></div></div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<button id="prevBtn" class="nav-btn" onclick="go(-1)">‹</button>
+<button id="nextBtn" class="nav-btn" onclick="go(1)">›</button>
+<div id="pageNum">1 / 10</div>
+<div id="progress"></div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let idx = 0;
+
+  const progress = document.getElementById('progress');
+  for (let i = 0; i < total; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' on' : '');
+    progress.appendChild(d);
+  }
+
+  function render() {
+    slides.forEach((s, i) => s.classList.toggle('active', i === idx));
+    document.querySelectorAll('#progress .dot').forEach((d, i) => d.classList.toggle('on', i === idx));
+    document.getElementById('pageNum').textContent = (idx + 1) + ' / ' + total;
+    document.getElementById('prevBtn').style.visibility = idx === 0 ? 'hidden' : 'visible';
+    document.getElementById('nextBtn').style.visibility = idx === total - 1 ? 'hidden' : 'visible';
+  }
+
+  function go(dir) {
+    idx = Math.min(total - 1, Math.max(0, idx + dir));
+    render();
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight') go(1);
+    if (e.key === 'ArrowLeft') go(-1);
+  });
+
+  let touchStartX = 0;
+  document.getElementById('deck').addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+  });
+  document.getElementById('deck').addEventListener('touchend', (e) => {
+    const dx = e.changedTouches[0].screenX - touchStartX;
+    if (dx > 50) go(-1);
+    if (dx < -50) go(1);
+  });
+
+  function checkAnswer(el, isCorrect) {
+    const options = document.querySelectorAll('#quizArea .quiz-option');
+    options.forEach(o => o.onclick = null);
+    if (isCorrect) {
+      el.classList.add('correct');
+      document.getElementById('quizFeedback').textContent = '정답이에요! 백제는 채소와 민물고기 중심의 식생활을 했어요. 🎉';
+      document.getElementById('quizFeedback').style.color = '#4d6b46';
+    } else {
+      el.classList.add('wrong');
+      options.forEach(o => { if (o.textContent.includes('②')) o.classList.add('correct'); });
+      document.getElementById('quizFeedback').textContent = '아쉬워요! 정답은 백제였어요.';
+      document.getElementById('quizFeedback').style.color = '#b5432f';
+    }
+  }
+
+  render();
+</script>
+
+</body>
+</html>

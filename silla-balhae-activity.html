@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>통일신라와 발해 - 교류와 문화</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    background: linear-gradient(135deg, #eef4f0 0%, #e3edf0 100%);
+    min-height: 100vh;
+    user-select: none;
+  }
+  :root {
+    --primary: #2f7d5f;
+    --primary-dark: #1e5a43;
+    --accent: #d98c3f;
+    --card: #ffffff;
+    --card2: #f4f1e8;
+    --muted: #7a8a80;
+    --text: #223228;
+    --danger: #c0554a;
+  }
+  .screen { display: none; min-height: 100vh; padding: 20px; }
+  .screen.active { display: flex; flex-direction: column; align-items: center; }
+
+  /* Title screen */
+  #title-screen { justify-content: center; text-align: center; }
+  .title-badge {
+    background: var(--primary);
+    color: white;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 6px 16px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+  }
+  h1.main-title {
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--primary-dark);
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+  .subtitle { font-size: 16px; color: var(--muted); margin-bottom: 32px; }
+  .stage-list {
+    background: var(--card);
+    border-radius: 20px;
+    padding: 24px;
+    max-width: 420px;
+    width: 100%;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    margin-bottom: 24px;
+  }
+  .stage-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 8px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+  }
+  .stage-item:last-child { border-bottom: none; }
+  .stage-num {
+    width: 32px; height: 32px;
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 15px;
+    flex-shrink: 0;
+  }
+  .stage-text { font-size: 15px; color: var(--text); font-weight: 500; }
+  .stage-sub { font-size: 12px; color: var(--muted); }
+  .btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    padding: 16px 40px;
+    border-radius: 16px;
+    min-height: 48px;
+    cursor: pointer;
+    box-shadow: 0 6px 16px rgba(47,125,95,0.3);
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-small {
+    font-size: 15px;
+    padding: 12px 24px;
+  }
+  .btn-outline {
+    background: white;
+    color: var(--primary);
+    border: 2px solid var(--primary);
+    box-shadow: none;
+  }
+
+  /* Common header */
+  .stage-header {
+    width: 100%;
+    max-width: 700px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .stage-title {
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--primary-dark);
+  }
+  .progress-pill {
+    background: var(--card2);
+    color: var(--primary-dark);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 20px;
+  }
+  .instruction {
+    max-width: 700px;
+    width: 100%;
+    background: #fff8ea;
+    border-left: 5px solid var(--accent);
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-size: 14px;
+    color: var(--text);
+    margin-bottom: 18px;
+    line-height: 1.5;
+  }
+
+  /* Stage 1: 교류 탐정 - drag/click matching */
+  .map-area {
+    max-width: 700px;
+    width: 100%;
+    background: var(--card);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  }
+  .clue-card {
+    background: var(--card2);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 14px;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--text);
+    border: 2px solid transparent;
+  }
+  .clue-card .clue-label {
+    font-weight: 900;
+    color: var(--primary);
+    font-size: 13px;
+    margin-bottom: 6px;
+    display: block;
+  }
+  .option-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+  .option-btn {
+    flex: 1;
+    min-width: 130px;
+    background: white;
+    border: 2px solid #d5ddd8;
+    border-radius: 10px;
+    padding: 12px 10px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    min-height: 48px;
+    cursor: pointer;
+  }
+  .option-btn.correct { background: #e3f4e8; border-color: var(--primary); color: var(--primary-dark); }
+  .option-btn.wrong { background: #fbe9e7; border-color: var(--danger); color: var(--danger); }
+  .option-btn.disabled { pointer-events: none; opacity: 0.6; }
+  .feedback-box {
+    margin-top: 10px;
+    font-size: 13px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    display: none;
+    line-height: 1.5;
+  }
+  .feedback-box.show { display: block; }
+  .feedback-box.ok { background: #e3f4e8; color: var(--primary-dark); }
+  .feedback-box.no { background: #fbe9e7; color: var(--danger); }
+
+  /* Stage 2: 기와 비교 */
+  .compare-area {
+    max-width: 700px;
+    width: 100%;
+    background: var(--card);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  }
+  .compare-imgs {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .compare-imgs > div {
+    flex: 1;
+    background: var(--card2);
+    border-radius: 14px;
+    padding: 14px;
+    text-align: center;
+  }
+  .compare-imgs .tile {
+    width: 90px; height: 90px;
+    border-radius: 50%;
+    margin: 0 auto 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+  }
+  .tile.gogu { background: #f0e0c8; }
+  .tile.balhae { background: #d9e8dd; }
+  .compare-imgs .cap { font-size: 13px; font-weight: 700; color: var(--text); }
+  .word-bank {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+    justify-content: center;
+    background: var(--card2);
+    padding: 12px;
+    border-radius: 12px;
+  }
+  .word-chip {
+    background: white;
+    border: 2px solid var(--primary);
+    color: var(--primary-dark);
+    font-weight: 700;
+    font-size: 13px;
+    padding: 8px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    min-height: 40px;
+  }
+  .word-chip.used { opacity: 0.35; pointer-events: none; }
+  .drop-zones { display: flex; gap: 14px; margin-bottom: 10px; }
+  .drop-zone {
+    flex: 1;
+    min-height: 90px;
+    border: 2px dashed #b9c7bd;
+    border-radius: 12px;
+    padding: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-content: flex-start;
+  }
+  .drop-zone-label { width: 100%; font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 4px; }
+  .dropped-chip {
+    background: var(--primary);
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 6px 10px;
+    border-radius: 14px;
+  }
+
+  /* Stage 3: 무인상 추리 */
+  .detective-area {
+    max-width: 700px;
+    width: 100%;
+    background: var(--card);
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    text-align: center;
+  }
+  .statue-icon { font-size: 70px; margin-bottom: 8px; }
+  .clue-list { text-align: left; max-width: 420px; margin: 0 auto 18px; }
+  .clue-list li { font-size: 14px; color: var(--text); margin-bottom: 6px; line-height: 1.5; }
+  textarea.answer-box {
+    width: 100%;
+    max-width: 500px;
+    min-height: 90px;
+    border: 2px solid #d5ddd8;
+    border-radius: 12px;
+    padding: 12px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 15px;
+    resize: none;
+  }
+
+  /* Stage 4: 마무리 퀴즈 - letter collection */
+  .quiz-grid {
+    max-width: 700px;
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .quiz-tile {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+    border: 3px solid transparent;
+  }
+  .quiz-tile.solved { border-color: var(--primary); background: #eef8f0; }
+  .quiz-num-badge {
+    background: var(--accent);
+    color: white;
+    font-weight: 900;
+    font-size: 13px;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 8px;
+  }
+  .quiz-q { font-size: 13px; color: var(--text); line-height: 1.5; margin-bottom: 10px; min-height: 55px; }
+  .quiz-btns { display: flex; gap: 8px; }
+  .quiz-btn {
+    flex: 1;
+    background: var(--card2);
+    border: none;
+    border-radius: 8px;
+    padding: 10px;
+    font-weight: 700;
+    font-size: 14px;
+    min-height: 44px;
+    cursor: pointer;
+  }
+  .quiz-letter { font-weight: 900; color: var(--primary-dark); font-size: 16px; }
+
+  .final-word-box {
+    max-width: 700px;
+    width: 100%;
+    background: var(--card);
+    border-radius: 16px;
+    padding: 18px;
+    margin-top: 14px;
+    text-align: center;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+  }
+  .letter-slots { display: flex; gap: 10px; justify-content: center; margin: 12px 0; }
+  .letter-slot {
+    width: 44px; height: 44px;
+    border: 2px solid var(--primary);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 20px;
+    color: var(--primary-dark);
+    background: #eef8f0;
+  }
+  .letter-slot.empty { background: white; color: #ccc; }
+
+  .footer-nav {
+    max-width: 700px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+
+  .final-screen { text-align: center; }
+  .final-emoji { font-size: 60px; margin-bottom: 12px; }
+
+  @media (max-width: 480px) {
+    h1.main-title { font-size: 24px; }
+    .compare-imgs { flex-direction: column; }
+    .drop-zones { flex-direction: column; }
+    .quiz-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TITLE SCREEN -->
+<div class="screen active" id="title-screen">
+  <div class="title-badge">사회 · 5학년 2학기</div>
+  <h1 class="main-title">통일신라와 발해<br>교류와 문화 탐험</h1>
+  <p class="subtitle">삼국 통일 이후, 우리는 세계와 어떻게 만났을까요?</p>
+  <div class="stage-list">
+    <div class="stage-item">
+      <div class="stage-num">1</div>
+      <div><div class="stage-text">교류 탐정단</div><div class="stage-sub">통일신라의 국제 교류 단서 찾기</div></div>
+    </div>
+    <div class="stage-item">
+      <div class="stage-num">2</div>
+      <div><div class="stage-text">기와 속 닮은꼴</div><div class="stage-sub">고구려와 발해 문화 비교하기</div></div>
+    </div>
+    <div class="stage-item">
+      <div class="stage-num">3</div>
+      <div><div class="stage-text">무인상 추리 노트</div><div class="stage-sub">원성왕릉 무인상의 비밀 써보기</div></div>
+    </div>
+    <div class="stage-item">
+      <div class="stage-num">4</div>
+      <div><div class="stage-text">주제 마무리 퀴즈</div><div class="stage-sub">글자를 모아 단어 완성하기</div></div>
+    </div>
+  </div>
+  <button class="btn" onclick="goToStage(1)">시작하기 🚀</button>
+</div>
+
+<!-- STAGE 1 -->
+<div class="screen" id="stage1-screen">
+  <div class="stage-header">
+    <div class="stage-title">1️⃣ 교류 탐정단</div>
+    <div class="progress-pill" id="s1-progress">0 / 3</div>
+  </div>
+  <div class="instruction">📜 아래 단서를 읽고, 통일신라와 교류한 나라를 찾아보세요. 정답을 누르면 설명이 나와요.</div>
+  <div class="map-area" id="s1-container"></div>
+  <div class="footer-nav">
+    <button class="btn btn-outline btn-small" onclick="goToStage(0)">처음으로</button>
+    <button class="btn btn-small" id="s1-next" onclick="goToStage(2)" disabled>다음 단계 ▶</button>
+  </div>
+</div>
+
+<!-- STAGE 2 -->
+<div class="screen" id="stage2-screen">
+  <div class="stage-header">
+    <div class="stage-title">2️⃣ 기와 속 닮은꼴</div>
+    <div class="progress-pill" id="s2-progress">0 / 6</div>
+  </div>
+  <div class="instruction">🏺 발해는 고구려 문화를 이어받았어요. 아래 단어 칩을 알맞은 나라 상자로 옮겨보세요.</div>
+  <div class="compare-area">
+    <div class="compare-imgs">
+      <div><div class="tile gogu">🏛️</div><div class="cap">고구려</div></div>
+      <div><div class="tile balhae">🗿</div><div class="cap">발해</div></div>
+    </div>
+    <div class="word-bank" id="s2-bank"></div>
+    <div class="drop-zones">
+      <div class="drop-zone" id="dz-both">
+        <div class="drop-zone-label">🤝 둘 다 해당</div>
+      </div>
+      <div class="drop-zone" id="dz-balhae">
+        <div class="drop-zone-label">🗿 발해만 해당</div>
+      </div>
+    </div>
+    <div class="feedback-box" id="s2-feedback"></div>
+  </div>
+  <div class="footer-nav">
+    <button class="btn btn-outline btn-small" onclick="goToStage(1)">◀ 이전</button>
+    <button class="btn btn-small" id="s2-next" onclick="goToStage(3)" disabled>다음 단계 ▶</button>
+  </div>
+</div>
+
+<!-- STAGE 3 -->
+<div class="screen" id="stage3-screen">
+  <div class="stage-header">
+    <div class="stage-title">3️⃣ 무인상 추리 노트</div>
+    <div class="progress-pill">✍️ 서술형</div>
+  </div>
+  <div class="detective-area">
+    <div class="statue-icon">🗿</div>
+    <p style="font-size:15px; color:var(--text); margin-bottom:14px; font-weight:700;">경주 원성왕릉 앞 무인상, 왜 이런 얼굴을 하고 있을까요?</p>
+    <ul class="clue-list">
+      <li>🔍 단서1: 눈이 깊고 코가 크며, 곱슬머리와 수염이 있어요.</li>
+      <li>🔍 단서2: 통일신라는 당, 일본뿐 아니라 서역(아라비아 등)과도 교류했어요.</li>
+      <li>🔍 단서3: 서역 상인들이 통일신라를 오가며 무역을 했어요.</li>
+    </ul>
+    <p style="font-size:14px; color:var(--muted); margin-bottom:10px;">✏️ 무인상의 생김새를 보면 알 수 있는 사실을 써 보세요.</p>
+    <textarea class="answer-box" id="s3-answer" placeholder="예: 무인상의 생김새로 보아 통일신라가 서역과도 활발히 교류했음을 알 수 있다..."></textarea>
+    <div style="margin-top:14px;">
+      <button class="btn btn-small" onclick="s3Check()">다 썼어요!</button>
+    </div>
+    <div class="feedback-box" id="s3-feedback"></div>
+  </div>
+  <div class="footer-nav">
+    <button class="btn btn-outline btn-small" onclick="goToStage(2)">◀ 이전</button>
+    <button class="btn btn-small" id="s3-next" onclick="goToStage(4)" disabled>다음 단계 ▶</button>
+  </div>
+</div>
+
+<!-- STAGE 4 -->
+<div class="screen" id="stage4-screen">
+  <div class="stage-header">
+    <div class="stage-title">4️⃣ 주제 마무리 퀴즈</div>
+    <div class="progress-pill" id="s4-progress">0 / 6</div>
+  </div>
+  <div class="instruction">🧩 O, X를 눌러 맞는 설명을 고르면 글자를 얻어요. 모으면 단어가 완성돼요!</div>
+  <div class="quiz-grid" id="s4-grid"></div>
+  <div class="final-word-box">
+    <div style="font-weight:700; color:var(--muted); font-size:13px;">완성한 단어</div>
+    <div class="letter-slots" id="final-slots"></div>
+  </div>
+  <div class="footer-nav">
+    <button class="btn btn-outline btn-small" onclick="goToStage(3)">◀ 이전</button>
+    <button class="btn btn-small" id="s4-next" onclick="goToStage(5)" disabled>결과 보기 ▶</button>
+  </div>
+</div>
+
+<!-- FINAL SCREEN -->
+<div class="screen final-screen" id="stage5-screen">
+  <div class="final-emoji">🎉</div>
+  <h1 class="main-title">모든 탐험 완료!</h1>
+  <p class="subtitle">통일신라와 발해는 각각 주변 나라들과 활발히 교류하며<br>독자적인 문화를 발전시켰어요.</p>
+  <button class="btn" onclick="goToStage(0)">처음부터 다시하기</button>
+</div>
+
+<script>
+function goToStage(n){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const ids = ['title-screen','stage1-screen','stage2-screen','stage3-screen','stage4-screen','stage5-screen'];
+  document.getElementById(ids[n]).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+/* ===== STAGE 1: 교류 탐정단 ===== */
+const s1Data = [
+  {
+    label: "단서 A",
+    text: "통일신라는 이 나라에 승려와 유학생을 자주 보냈어요. 이들은 그 나라의 문물을 배워와 신라 문화 발전에 큰 영향을 주었습니다.",
+    options: ["당(중국)", "일본", "발해"],
+    answer: "당(중국)",
+    explain: "정답! 통일신라는 당에 많은 승려와 유학생을 보내 선진 문물을 배워왔어요. 당을 오가는 상인도 늘어 신라인 마을이 생기기도 했어요."
+  },
+  {
+    label: "단서 B",
+    text: "통일신라와 이 나라는 주로 무역을 통해 교류했어요. 바다 건너 물건을 사고파는 관계였습니다.",
+    options: ["일본", "서역", "당(중국)"],
+    answer: "일본",
+    explain: "정답! 통일신라와 일본은 주로 무역을 통해 교류했어요."
+  },
+  {
+    label: "단서 C",
+    text: "이 지역의 상인들은 먼 길을 오가며 통일신라와 교류했어요. 경주 원성왕릉의 무인상이 이 지역 사람의 얼굴을 하고 있어요.",
+    options: ["서역", "발해", "가야"],
+    answer: "서역",
+    explain: "정답! 멀리 서역(아라비아 지역)의 상인들도 통일신라를 왕래하며 교류했어요."
+  }
+];
+let s1Solved = 0;
+function renderS1(){
+  const c = document.getElementById('s1-container');
+  c.innerHTML = '';
+  s1Data.forEach((item, idx)=>{
+    const div = document.createElement('div');
+    div.className = 'clue-card';
+    div.id = 's1-card-'+idx;
+    div.innerHTML = `
+      <span class="clue-label">🔎 ${item.label}</span>
+      ${item.text}
+      <div class="option-row" id="s1-opts-${idx}"></div>
+      <div class="feedback-box" id="s1-fb-${idx}"></div>
+    `;
+    c.appendChild(div);
+    const optRow = document.getElementById(`s1-opts-${idx}`);
+    const shuffled = shuffle([...item.options]);
+    shuffled.forEach(opt=>{
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.textContent = opt;
+      btn.onclick = ()=> s1Check(idx, opt, btn);
+      optRow.appendChild(btn);
+    });
+  });
+}
+function s1Check(idx, chosen, btnEl){
+  const item = s1Data[idx];
+  const optRow = document.getElementById(`s1-opts-${idx}`);
+  const fb = document.getElementById(`s1-fb-${idx}`);
+  const allBtns = optRow.querySelectorAll('.option-btn');
+  allBtns.forEach(b=>b.classList.add('disabled'));
+  if(chosen === item.answer){
+    btnEl.classList.add('correct');
+    fb.className = 'feedback-box ok show';
+    fb.textContent = '✅ ' + item.explain;
+    s1Solved++;
+    document.getElementById('s1-progress').textContent = s1Solved + ' / 3';
+    if(s1Solved === s1Data.length){
+      document.getElementById('s1-next').disabled = false;
+    }
+  } else {
+    btnEl.classList.add('wrong');
+    allBtns.forEach(b=>{ if(b.textContent===item.answer) b.classList.add('correct'); });
+    fb.className = 'feedback-box no show';
+    fb.textContent = '❌ 다시 생각해봐요. 정답은 ' + item.answer + '입니다. ' + item.explain;
+  }
+}
+function shuffle(array){
+  for(let i=array.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [array[i],array[j]]=[array[j],array[i]];
+  }
+  return array;
+}
+renderS1();
+
+/* ===== STAGE 2: 기와 속 닮은꼴 (drag & drop, tap fallback) ===== */
+const s2Words = shuffle([
+  { text: "온돌 사용", zone: "both" },
+  { text: "기와 문양 비슷", zone: "both" },
+  { text: "불교문화 발달", zone: "both" },
+  { text: "고구려 문화 계승", zone: "both" },
+  { text: "신분 제도(귀족·평민)", zone: "balhae" },
+  { text: "독자적 문화 발전", zone: "balhae" }
+]);
+let s2SolvedCount = 0;
+let s2SelectedChip = null;
+function renderS2(){
+  const bank = document.getElementById('s2-bank');
+  bank.innerHTML = '';
+  s2Words.forEach((w, idx)=>{
+    const chip = document.createElement('div');
+    chip.className = 'word-chip';
+    chip.id = 's2-chip-'+idx;
+    chip.textContent = w.text;
+    chip.onclick = ()=> s2SelectChip(idx, chip);
+    bank.appendChild(chip);
+  });
+  document.getElementById('dz-both').addEventListener('click', ()=> s2Drop('both'));
+  document.getElementById('dz-balhae').addEventListener('click', ()=> s2Drop('balhae'));
+}
+function s2SelectChip(idx, el){
+  if(el.classList.contains('used')) return;
+  document.querySelectorAll('.word-chip').forEach(c=>c.style.outline='none');
+  s2SelectedChip = idx;
+  el.style.outline = '3px solid var(--accent)';
+}
+function s2Drop(zone){
+  if(s2SelectedChip === null){
+    const fb = document.getElementById('s2-feedback');
+    fb.className='feedback-box no show';
+    fb.textContent = '👆 먼저 위에서 단어 칩을 하나 선택한 뒤, 상자를 눌러주세요.';
+    return;
+  }
+  const w = s2Words[s2SelectedChip];
+  const chipEl = document.getElementById('s2-chip-'+s2SelectedChip);
+  const fb = document.getElementById('s2-feedback');
+  if(w.zone === zone){
+    chipEl.classList.add('used');
+    const dz = document.getElementById(zone === 'both' ? 'dz-both' : 'dz-balhae');
+    const dropped = document.createElement('div');
+    dropped.className = 'dropped-chip';
+    dropped.textContent = w.text;
+    dz.appendChild(dropped);
+    fb.className = 'feedback-box ok show';
+    fb.textContent = '✅ 맞아요! ' + w.text + '은(는) ' + (zone==='both' ? '고구려와 발해 둘 다' : '발해만의 특징') + '이에요.';
+    s2SolvedCount++;
+    document.getElementById('s2-progress').textContent = s2SolvedCount + ' / 6';
+    if(s2SolvedCount === s2Words.length){
+      document.getElementById('s2-next').disabled = false;
+    }
+  } else {
+    fb.className = 'feedback-box no show';
+    fb.textContent = '❌ 다시 생각해봐요. "' + w.text + '"는 그 상자가 아니에요. 교과서 힌트: 발해는 고구려 문화를 계승했지만, 신분 제도나 독자적 발전은 발해만의 이야기예요.';
+  }
+  s2SelectedChip = null;
+  document.querySelectorAll('.word-chip').forEach(c=>c.style.outline='none');
+}
+renderS2();
+
+/* ===== STAGE 3 ===== */
+function s3Check(){
+  const val = document.getElementById('s3-answer').value.trim();
+  const fb = document.getElementById('s3-feedback');
+  if(val.length < 8){
+    fb.className = 'feedback-box no show';
+    fb.textContent = '✍️ 조금 더 자세히 써볼까요? 단서를 참고해서 문장으로 완성해보세요.';
+    return;
+  }
+  fb.className = 'feedback-box ok show';
+  fb.textContent = '✅ 잘 썼어요! 선생님께 보여주고 이야기 나눠봐요.';
+  document.getElementById('s3-next').disabled = false;
+}
+
+/* ===== STAGE 4: 마무리 퀴즈 (글자 모으기) ===== */
+const s4Data = shuffle([
+  { q: "고구려, 백제, 신라는 왕을 중심으로 나라의 제도를 갖추면서 발전했다.", answer: true, letter: "고" },
+  { q: "백제는 화랑도를 통해 유능한 인재를 길렀다.", answer: false, letter: "백" },
+  { q: "삼국 시대는 신분 차별이 없는 평등한 사회였다.", answer: false, letter: "삼" },
+  { q: "삼국 시대 사람들은 불교를 받아들여 절, 탑, 불상 등을 만들었다.", answer: true, letter: "국" },
+  { q: "통일신라 때 지어진 불국사는 화강암을 쌓아 동그랗게 만든 절이다.", answer: true, letter: "통" },
+  { q: "발해는 당, 일본 등 주변 나라들과 활발히 교류하며 발전했다.", answer: true, letter: "일" }
+]);
+let s4Solved = 0;
+const collectedLetters = [];
+function renderS4(){
+  const grid = document.getElementById('s4-grid');
+  grid.innerHTML = '';
+  s4Data.forEach((item, idx)=>{
+    const tile = document.createElement('div');
+    tile.className = 'quiz-tile';
+    tile.id = 's4-tile-'+idx;
+    tile.innerHTML = `
+      <div class="quiz-num-badge">${idx+1}</div>
+      <div class="quiz-q">${item.q}</div>
+      <div class="quiz-btns">
+        <button class="quiz-btn" onclick="s4Check(${idx}, true, this)">O</button>
+        <button class="quiz-btn" onclick="s4Check(${idx}, false, this)">X</button>
+      </div>
+    `;
+    grid.appendChild(tile);
+  });
+  const slots = document.getElementById('final-slots');
+  slots.innerHTML = '';
+  for(let i=0;i<6;i++){
+    const s = document.createElement('div');
+    s.className = 'letter-slot empty';
+    s.id = 'slot-'+i;
+    slots.appendChild(s);
+  }
+}
+function s4Check(idx, chosen, btnEl){
+  const item = s4Data[idx];
+  const tile = document.getElementById('s4-tile-'+idx);
+  if(tile.classList.contains('solved')) return;
+  const btns = tile.querySelectorAll('.quiz-btn');
+  btns.forEach(b=>b.disabled = true);
+  if(chosen === item.answer){
+    tile.classList.add('solved');
+    btnEl.style.background = 'var(--primary)';
+    btnEl.style.color = 'white';
+    s4Solved++;
+    document.getElementById('s4-progress').textContent = s4Solved + ' / 6';
+    collectedLetters.push(item.letter);
+    updateSlots();
+    if(s4Solved === s4Data.length){
+      document.getElementById('s4-next').disabled = false;
+    }
+  } else {
+    btnEl.style.background = 'var(--danger)';
+    btnEl.style.color = 'white';
+    setTimeout(()=>{ btns.forEach(b=>b.disabled=false); btnEl.style.background=''; btnEl.style.color=''; }, 700);
+  }
+}
+function updateSlots(){
+  collectedLetters.forEach((l, i)=>{
+    const slot = document.getElementById('slot-'+i);
+    if(slot){
+      slot.textContent = l;
+      slot.classList.remove('empty');
+    }
+  });
+}
+renderS4();
+</script>
+</body>
+</html>

@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>설문 그래프 만들기</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    background: #f4f6fb;
+    color: #1f2937;
+    min-height: 100vh;
+    padding: 16px;
+  }
+  :root {
+    --primary: #4361ee;
+    --primary-light: #e8ecfd;
+    --accent: #f77f00;
+    --card: #ffffff;
+    --border: #e2e5f1;
+    --muted: #6b7280;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; }
+
+  header {
+    background: linear-gradient(135deg, #4361ee, #3a56d4);
+    color: white;
+    border-radius: 18px;
+    padding: 22px 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 6px 18px rgba(67,97,238,0.25);
+  }
+  header h1 { font-size: 22px; font-weight: 900; margin-bottom: 4px; }
+  header p { font-size: 14px; opacity: 0.9; }
+
+  .card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    border: 1px solid var(--border);
+  }
+  .card h2 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card h2 .num {
+    background: var(--primary);
+    color: white;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+  }
+
+  label { font-size: 13px; font-weight: 500; color: var(--muted); display: block; margin-bottom: 6px; }
+  input[type="text"] {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-size: 16px;
+    font-family: inherit;
+    min-height: 48px;
+  }
+  input[type="text"]:focus { outline: none; border-color: var(--primary); }
+
+  .row2 { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; align-items: end; }
+  .row2 .field { margin-bottom: 10px; }
+
+  #itemList { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+  .item-row {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--primary-light);
+    border-radius: 10px;
+    padding: 10px 14px;
+  }
+  .item-row .item-name { flex: 1; font-weight: 700; font-size: 15px; }
+  .item-row .item-value { font-weight: 900; font-size: 16px; color: var(--primary); min-width: 32px; text-align: right; }
+  .item-row button {
+    background: #ff5c5c;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    width: 32px; height: 32px;
+    font-size: 16px;
+    min-height: unset;
+    cursor: pointer;
+  }
+
+  button {
+    font-family: inherit;
+    min-height: 48px;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 12px 20px;
+  }
+  .btn-add {
+    width: 100%;
+    background: var(--primary);
+    color: white;
+    margin-top: 4px;
+  }
+  .btn-add:active { background: #3a56d4; }
+
+  .tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .tab-btn {
+    flex: 1;
+    min-width: 90px;
+    background: white;
+    border: 2px solid var(--border);
+    color: var(--muted);
+  }
+  .tab-btn.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+  }
+
+  .graph-card { text-align: center; }
+  #graphTitleDisplay {
+    font-size: 18px;
+    font-weight: 900;
+    margin-bottom: 16px;
+    color: #1f2937;
+  }
+  #graphArea {
+    width: 100%;
+    min-height: 340px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    background: #fafbff;
+    border-radius: 12px;
+    padding: 20px 10px 10px;
+  }
+  .empty-msg { color: var(--muted); font-size: 14px; padding: 60px 0; }
+
+  .actions { display: flex; gap: 10px; margin-top: 16px; }
+  .btn-reset { background: #f1f2f6; color: #555; flex: 1; }
+  .btn-capture { background: var(--accent); color: white; flex: 2; }
+
+  .toast {
+    position: fixed;
+    bottom: 24px; left: 50%;
+    transform: translateX(-50%);
+    background: #1f2937;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 14px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    z-index: 999;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; }
+
+  svg text { font-family: 'Noto Sans KR', sans-serif; user-select: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>📊 설문 그래프 만들기</h1>
+    <p>모둠 설문 결과를 입력하고, 막대·원·꺾은선 그래프로 바로 확인해보세요</p>
+  </header>
+
+  <div class="card">
+    <h2><span class="num">1</span>기본 정보</h2>
+    <div class="field">
+      <label>설문 주제 (예: 좋아하는 계절)</label>
+      <input type="text" id="graphTitle" placeholder="설문 주제를 입력하세요" value="좋아하는 계절">
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="num">2</span>항목별 인원 입력</h2>
+    <div class="row2">
+      <div class="field">
+        <label>항목 이름</label>
+        <input type="text" id="itemName" placeholder="예: 봄" maxlength="8">
+      </div>
+      <div class="field">
+        <label>인원 수</label>
+        <input type="text" id="itemValue" inputmode="numeric" placeholder="예: 5">
+      </div>
+    </div>
+    <button class="btn-add" onclick="addItem()">＋ 항목 추가하기</button>
+    <div id="itemList"></div>
+  </div>
+
+  <div class="card graph-card">
+    <h2 style="justify-content:center;"><span class="num">3</span>그래프 확인</h2>
+    <div class="tabs">
+      <button class="tab-btn active" data-type="bar" onclick="setGraphType('bar')">📊 막대그래프</button>
+      <button class="tab-btn" data-type="pie" onclick="setGraphType('pie')">🥧 원그래프</button>
+      <button class="tab-btn" data-type="line" onclick="setGraphType('line')">📈 꺾은선그래프</button>
+    </div>
+    <div id="graphTitleDisplay"></div>
+    <div id="graphArea"><div class="empty-msg">항목을 추가하면 그래프가 나타나요</div></div>
+    <div class="actions">
+      <button class="btn-reset" onclick="resetAll()">전체 초기화</button>
+      <button class="btn-capture" onclick="showCaptureTip()">📸 캔바에 넣는 방법</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let items = [];
+let graphType = 'bar';
+
+const COLORS = ['#4361ee','#f77f00','#06a77d','#e63946','#8338ec','#ffb703','#219ebc','#fb8500'];
+
+function addItem() {
+  const nameInput = document.getElementById('itemName');
+  const valueInput = document.getElementById('itemValue');
+  const name = nameInput.value.trim();
+  const value = parseInt(valueInput.value, 10);
+
+  if (!name) { toast('항목 이름을 입력해주세요'); nameInput.focus(); return; }
+  if (isNaN(value) || value < 0) { toast('인원 수를 숫자로 입력해주세요'); valueInput.focus(); return; }
+
+  items.push({ name, value });
+  nameInput.value = '';
+  valueInput.value = '';
+  nameInput.focus();
+  renderItemList();
+  renderGraph();
+}
+
+function removeItem(idx) {
+  items.splice(idx, 1);
+  renderItemList();
+  renderGraph();
+}
+
+function renderItemList() {
+  const list = document.getElementById('itemList');
+  list.innerHTML = items.map((it, idx) => `
+    <div class="item-row">
+      <div style="width:14px;height:14px;border-radius:4px;background:${COLORS[idx % COLORS.length]}"></div>
+      <div class="item-name">${escapeHtml(it.name)}</div>
+      <div class="item-value">${it.value}명</div>
+      <button onclick="removeItem(${idx})">×</button>
+    </div>
+  `).join('');
+}
+
+function setGraphType(type) {
+  graphType = type;
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.type === type);
+  });
+  renderGraph();
+}
+
+function resetAll() {
+  if (items.length === 0) return;
+  if (confirm('입력한 항목을 모두 지울까요?')) {
+    items = [];
+    renderItemList();
+    renderGraph();
+  }
+}
+
+document.getElementById('graphTitle').addEventListener('input', renderGraph);
+
+function renderGraph() {
+  const title = document.getElementById('graphTitle').value.trim() || '제목 없음';
+  document.getElementById('graphTitleDisplay').textContent = title;
+
+  const area = document.getElementById('graphArea');
+  if (items.length === 0) {
+    area.innerHTML = '<div class="empty-msg">항목을 추가하면 그래프가 나타나요</div>';
+    return;
+  }
+
+  if (graphType === 'bar') area.innerHTML = renderBar();
+  else if (graphType === 'pie') area.innerHTML = renderPie();
+  else area.innerHTML = renderLine();
+}
+
+function renderBar() {
+  const W = 640, H = 340, padL = 50, padB = 50, padT = 20, padR = 20;
+  const chartW = W - padL - padR;
+  const chartH = H - padT - padB;
+  const maxVal = Math.max(...items.map(i => i.value), 1);
+  const niceMax = Math.ceil(maxVal / 5) * 5 || 5;
+  const barGap = 18;
+  const barW = (chartW - barGap * (items.length + 1)) / items.length;
+
+  let bars = '';
+  let labels = '';
+  items.forEach((it, idx) => {
+    const h = (it.value / niceMax) * chartH;
+    const x = padL + barGap + idx * (barW + barGap);
+    const y = padT + chartH - h;
+    bars += `<rect x="${x}" y="${y}" width="${barW}" height="${h}" rx="6" fill="${COLORS[idx % COLORS.length]}"/>`;
+    bars += `<text x="${x + barW/2}" y="${y - 8}" text-anchor="middle" font-size="16" font-weight="900" fill="#1f2937">${it.value}</text>`;
+    labels += `<text x="${x + barW/2}" y="${H - padB + 22}" text-anchor="middle" font-size="13" font-weight="700" fill="#374151">${escapeHtml(it.name)}</text>`;
+  });
+
+  let gridlines = '';
+  const steps = 5;
+  for (let s = 0; s <= steps; s++) {
+    const val = (niceMax / steps) * s;
+    const y = padT + chartH - (val / niceMax) * chartH;
+    gridlines += `<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="#eef0f7" stroke-width="1"/>`;
+    gridlines += `<text x="${padL - 8}" y="${y + 4}" text-anchor="end" font-size="11" fill="#9ca3af">${Math.round(val)}</text>`;
+  }
+
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:640px;height:auto;">
+    ${gridlines}
+    <line x1="${padL}" y1="${padT + chartH}" x2="${W-padR}" y2="${padT + chartH}" stroke="#374151" stroke-width="1.5"/>
+    ${bars}
+    ${labels}
+  </svg>`;
+}
+
+function renderPie() {
+  const total = items.reduce((s, i) => s + i.value, 0);
+  if (total === 0) return '<div class="empty-msg">인원 수를 입력해주세요</div>';
+
+  const cx = 170, cy = 170, r = 130;
+  let angleStart = -90;
+  let paths = '';
+  let legend = '';
+
+  items.forEach((it, idx) => {
+    const pct = it.value / total;
+    const angle = pct * 360;
+    const angleEnd = angleStart + angle;
+    const largeArc = angle > 180 ? 1 : 0;
+
+    const x1 = cx + r * Math.cos(angleStart * Math.PI / 180);
+    const y1 = cy + r * Math.sin(angleStart * Math.PI / 180);
+    const x2 = cx + r * Math.cos(angleEnd * Math.PI / 180);
+    const y2 = cy + r * Math.sin(angleEnd * Math.PI / 180);
+
+    if (items.length === 1) {
+      paths += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${COLORS[idx % COLORS.length]}"/>`;
+    } else {
+      paths += `<path d="M${cx},${cy} L${x1},${y1} A${r},${r} 0 ${largeArc} 1 ${x2},${y2} Z" fill="${COLORS[idx % COLORS.length]}" stroke="white" stroke-width="2"/>`;
+    }
+
+    const midAngle = (angleStart + angleEnd) / 2;
+    const labelR = r * 0.65;
+    const lx = cx + labelR * Math.cos(midAngle * Math.PI / 180);
+    const ly = cy + labelR * Math.sin(midAngle * Math.PI / 180);
+    if (pct > 0.04) {
+      paths += `<text x="${lx}" y="${ly}" text-anchor="middle" font-size="14" font-weight="900" fill="white">${Math.round(pct*100)}%</text>`;
+    }
+
+    legend += `<div style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;">
+      <div style="width:12px;height:12px;border-radius:3px;background:${COLORS[idx % COLORS.length]}"></div>
+      ${escapeHtml(it.name)} (${it.value}명)
+    </div>`;
+
+    angleStart = angleEnd;
+  });
+
+  return `<div style="display:flex;flex-direction:column;align-items:center;gap:16px;width:100%;">
+    <svg viewBox="0 0 340 340" style="width:280px;height:280px;">${paths}</svg>
+    <div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;max-width:500px;">${legend}</div>
+  </div>`;
+}
+
+function renderLine() {
+  const W = 640, H = 340, padL = 50, padB = 50, padT = 30, padR = 30;
+  const chartW = W - padL - padR;
+  const chartH = H - padT - padB;
+  const maxVal = Math.max(...items.map(i => i.value), 1);
+  const niceMax = Math.ceil(maxVal / 5) * 5 || 5;
+
+  const stepX = items.length > 1 ? chartW / (items.length - 1) : 0;
+  const points = items.map((it, idx) => {
+    const x = padL + (items.length > 1 ? idx * stepX : chartW / 2);
+    const y = padT + chartH - (it.value / niceMax) * chartH;
+    return { x, y, it };
+  });
+
+  const pathD = points.map((p, i) => (i === 0 ? 'M' : 'L') + `${p.x},${p.y}`).join(' ');
+
+  let gridlines = '';
+  const steps = 5;
+  for (let s = 0; s <= steps; s++) {
+    const val = (niceMax / steps) * s;
+    const y = padT + chartH - (val / niceMax) * chartH;
+    gridlines += `<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="#eef0f7" stroke-width="1"/>`;
+    gridlines += `<text x="${padL - 8}" y="${y + 4}" text-anchor="end" font-size="11" fill="#9ca3af">${Math.round(val)}</text>`;
+  }
+
+  let dots = '', labels = '', vals = '';
+  points.forEach((p, idx) => {
+    dots += `<circle cx="${p.x}" cy="${p.y}" r="6" fill="${COLORS[idx % COLORS.length]}" stroke="white" stroke-width="2"/>`;
+    vals += `<text x="${p.x}" y="${p.y - 14}" text-anchor="middle" font-size="14" font-weight="900" fill="#1f2937">${p.it.value}</text>`;
+    labels += `<text x="${p.x}" y="${H - padB + 22}" text-anchor="middle" font-size="13" font-weight="700" fill="#374151">${escapeHtml(p.it.name)}</text>`;
+  });
+
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:640px;height:auto;">
+    ${gridlines}
+    <line x1="${padL}" y1="${padT + chartH}" x2="${W-padR}" y2="${padT + chartH}" stroke="#374151" stroke-width="1.5"/>
+    <path d="${pathD}" fill="none" stroke="#4361ee" stroke-width="3"/>
+    ${dots}${vals}${labels}
+  </svg>`;
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function showCaptureTip() {
+  toast('그래프 영역을 스크린샷(캡처)한 뒤, 캔바에 이미지로 붙여넣으세요 📸');
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+document.getElementById('itemValue').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addItem();
+});
+document.getElementById('itemName').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('itemValue').focus();
+});
+
+renderGraph();
+</script>
+</body>
+</html>

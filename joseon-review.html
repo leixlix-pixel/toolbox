@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>시간을 건너온 문물 — 소단원 정리</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  :root {
+    --ink: #2B2118;
+    --sepia: #8C5B3F;
+    --sand: #F3EBE0;
+    --deep: #3A2C24;
+    --accent: #C0662E;
+    --line: #E0D4C4;
+    --green: #4E7A3F;
+    --red: #A8443C;
+    --card: #FFFFFF;
+  }
+  html, body { margin:0; padding:0; }
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--sand);
+    color: var(--ink);
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 16px; }
+  .screen { display: none; }
+  .screen.on { display: block; }
+
+  /* 타이틀 */
+  .title-card { background: var(--deep); border-radius: 20px; padding: 32px 24px; text-align: center; color: #FFE7CF; margin-top: 12px; }
+  .title-card h1 { font-size: 32px; margin: 8px 0 4px; line-height: 1.35; }
+  .title-card .sub { font-size: 17px; color: #E8D9C6; margin-bottom: 20px; }
+  .chip { display:inline-block; background: var(--accent); color:#fff; font-size:15px; font-weight:700; padding:7px 16px; border-radius:20px; }
+  .icons { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; margin: 18px 0 6px; }
+  .icons span { background:#4C3A2E; border:1px solid #6B513F; border-radius:12px; padding:10px 14px; font-size:16px; font-weight:700; color:#FFE7CF; }
+
+  .btn {
+    display:block; width:100%; min-height:56px; margin-top:14px;
+    font-family:inherit; font-size:20px; font-weight:700;
+    border:none; border-radius:14px; padding:14px 20px;
+    background: var(--accent); color:#fff; cursor:pointer;
+  }
+  .btn:active { transform: scale(0.985); }
+  .btn.ghost { background: var(--card); color: var(--sepia); border:2px solid var(--line); }
+
+  /* 진행 바 */
+  .topbar { display:flex; align-items:center; justify-content:space-between; gap:12px; margin: 6px 0 12px; }
+  .topbar .step { font-size:16px; font-weight:700; color: var(--sepia); }
+  .topbar .score { font-size:16px; font-weight:700; color: var(--accent); }
+  .bar { height:10px; background:#E4D8C8; border-radius:6px; overflow:hidden; }
+  .bar > i { display:block; height:100%; width:0%; background: var(--sepia); border-radius:6px; transition: width .25s; }
+
+  /* 문제 */
+  .qcard { background: var(--card); border:1px solid var(--line); border-radius:18px; padding:22px 20px; margin-top:14px; box-shadow:0 2px 8px rgba(0,0,0,.06); }
+  .qtag { display:inline-block; font-size:14px; font-weight:700; color:#fff; background: var(--sepia); border-radius:14px; padding:5px 13px; margin-bottom:12px; }
+  .qtag.sort { background: var(--green); }
+  .qtext { font-size:22px; font-weight:700; line-height:1.5; }
+  .qhint { font-size:16px; color:#7A6A5A; margin-top:8px; }
+
+  .opts { margin-top:16px; display:grid; gap:12px; }
+  .opts.two { grid-template-columns: 1fr 1fr; }
+  .opt {
+    min-height:60px; font-family:inherit; font-size:19px; font-weight:700;
+    background:#FDF8F2; color:var(--ink); border:2px solid var(--line);
+    border-radius:14px; padding:14px 16px; cursor:pointer; text-align:center;
+  }
+  .opt.correct { background:#E8F1E4; border-color:var(--green); color:var(--green); }
+  .opt.wrong { background:#F7E4E2; border-color:var(--red); color:var(--red); }
+  .opt.dim { opacity:.5; }
+
+  .feedback { margin-top:14px; border-radius:14px; padding:14px 16px; font-size:18px; line-height:1.5; display:none; }
+  .feedback.on { display:block; }
+  .feedback.ok { background:#E8F1E4; color:#31502A; }
+  .feedback.no { background:#F7E4E2; color:#7E332C; }
+
+  /* 결과 */
+  .result-hero { background: var(--deep); border-radius:20px; padding:28px 20px; text-align:center; color:#FFE7CF; }
+  .result-hero .big { font-size:52px; font-weight:700; line-height:1.1; }
+  .result-hero .msg { font-size:19px; margin-top:10px; color:#E8D9C6; }
+  .review { background:var(--card); border:1px solid var(--line); border-radius:18px; padding:18px; margin-top:14px; }
+  .review h3 { font-size:20px; margin:0 0 12px; color:var(--sepia); }
+  .review .item { border-top:1px solid #EFE6DA; padding:12px 0; font-size:17px; line-height:1.5; }
+  .review .item:first-of-type { border-top:none; }
+  .review .item b { color:var(--accent); }
+
+  .qr { text-align:center; margin-top:22px; }
+  .qr img { width:118px; height:118px; border-radius:12px; border:3px solid #4C3A2E; }
+  .qr .lbl { font-size:13px; color:#E8D9C6; margin-bottom:7px; }
+  .qr .url { font-size:11px; color:#C9B49E; margin-top:6px; word-break:break-all; }
+
+  @media (max-width: 520px) {
+    .title-card h1 { font-size: 26px; }
+    .qtext { font-size:20px; }
+    .opt { font-size:18px; }
+    .opts.two { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- 타이틀 -->
+  <section id="s-title" class="screen on">
+    <div class="title-card">
+      <div class="chip">사회 5학년 · 소단원 정리</div>
+      <h1>시간을 건너온 문물</h1>
+      <div class="sub">조선 후기부터 개항 이후까지, 배운 내용을 확인해 봅시다</div>
+      <div class="icons">
+        <span>💰 조선 후기</span><span>🎭 서민 문화</span><span>🚢 개항</span><span>🚋 근대 문물</span>
+      </div>
+      <div class="qr">
+        <div class="lbl">📱 태블릿에서 바로 열기</div>
+        <img src="data:image/png;base64,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" alt="QR코드">
+        <div class="url">https://leixlix-pixel.github.io/toolbox/joseon-review.html</div>
+      </div>
+    </div>
+    <button class="btn" onclick="startGame()">시작하기</button>
+  </section>
+
+  <!-- 문제 -->
+  <section id="s-play" class="screen">
+    <div class="topbar">
+      <div class="step" id="step">1 / 16</div>
+      <div class="score" id="score">0점</div>
+    </div>
+    <div class="bar"><i id="bar"></i></div>
+
+    <div class="qcard">
+      <span class="qtag" id="qtag">개념 확인</span>
+      <div class="qtext" id="qtext"></div>
+      <div class="qhint" id="qhint"></div>
+      <div class="opts" id="opts"></div>
+      <div class="feedback" id="fb"></div>
+    </div>
+    <button class="btn" id="nextBtn" style="display:none" onclick="nextQ()">다음 문제</button>
+  </section>
+
+  <!-- 결과 -->
+  <section id="s-end" class="screen">
+    <div class="result-hero">
+      <div class="big" id="finalScore">0 / 16</div>
+      <div class="msg" id="finalMsg"></div>
+    </div>
+    <div class="review" id="review"></div>
+    <button class="btn" onclick="startGame()">다시 도전하기</button>
+    <button class="btn ghost" onclick="goTitle()">처음으로</button>
+  </section>
+
+</div>
+
+<script>
+/* ---------- 문제 데이터 ---------- */
+// type: 'sort' = 시대 분류, 'quiz' = 4지선다
+var BANK = [
+  // 시대 분류
+  { type:'sort', word:'상평통보', answer:'조선 후기', why:'조선 후기에 전국에서 사용된 화폐입니다.' },
+  { type:'sort', word:'판소리',   answer:'조선 후기', why:'소리꾼이 노래·말·몸동작으로 이야기를 풀어 가는 공연입니다.' },
+  { type:'sort', word:'민화',     answer:'조선 후기', why:'백성의 생활 모습과 바람을 담아 그린 그림입니다.' },
+  { type:'sort', word:'한글 소설', answer:'조선 후기', why:'한글을 아는 사람이 늘면서 널리 읽혔습니다.' },
+  { type:'sort', word:'탈춤',     answer:'조선 후기', why:'탈을 쓰고 하는 공연으로, 백성들이 즐겼습니다.' },
+  { type:'sort', word:'전차',     answer:'개항 이후', why:'한성에 전기 회사를 세우고 만들어 운행했습니다.' },
+  { type:'sort', word:'소학교',   answer:'개항 이후', why:'개항 이후 세워진 학교로, 오늘날 초등학교에 해당합니다.' },
+  { type:'sort', word:'신문',     answer:'개항 이후', why:'나라 안팎의 새로운 소식을 전했습니다.' },
+  { type:'sort', word:'짜장면',   answer:'개항 이후', why:'중국 음식점이 생기면서 인천을 중심으로 인기를 끌었습니다.' },
+  { type:'sort', word:'전화 교환수', answer:'개항 이후', why:'전화가 들어오면서 새로 생긴 직업입니다.' },
+
+  // 4지선다
+  { type:'quiz', q:'‘사람이 곧 하늘’임을 내세운 종교는 무엇인가요?',
+    a:'동학', d:['실학','서학','북학'], why:'동학은 사람이 곧 하늘이라는 생각을 내세웠습니다.' },
+  { type:'quiz', q:'조선 후기에 현실의 사회 문제를 해결하려 한 학문은 무엇인가요?',
+    a:'실학', d:['동학','성리학','국학'], why:'실학은 백성의 삶과 연결된 현실 문제를 다루었습니다.' },
+  { type:'quiz', q:'조선이 외국과 맺은 최초의 근대적 조약은 무엇인가요?',
+    a:'강화도 조약', d:['한성 조약','제물포 조약','통상 조약'], why:'강화도 조약은 최초의 근대적 조약이지만 불평등한 조약이었습니다.' },
+  { type:'quiz', q:'항구를 열어 외국 배의 출입을 허가하는 것을 무엇이라고 하나요?',
+    a:'개항', d:['통상','교린','수교'], why:'개항은 외국과 통상할 수 있게 항구를 여는 것입니다.' },
+  { type:'quiz', q:'문자나 숫자를 전기 신호로 바꾸어 주고받는 통신 수단은 무엇인가요?',
+    a:'전신', d:['전등','전차','유성기'], why:'전신이 등장해 소식을 빠르게 주고받을 수 있게 되었습니다.' },
+  { type:'quiz', q:'개항 이후 커피를 부르던 이름은 무엇인가요?',
+    a:'가비차', d:['향다차','서양차','유성차'], why:'당시에는 커피를 ‘가비차’ 또는 ‘가배차’라고 불렀습니다.' }
+];
+
+var QCOUNT = 16;
+
+/* ---------- 유틸 ---------- */
+function shuffle(arr){
+  for (var i = arr.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+  }
+  return arr;
+}
+function show(id){
+  var els = document.querySelectorAll('.screen');
+  for (var i=0;i<els.length;i++) els[i].classList.remove('on');
+  document.getElementById(id).classList.add('on');
+  window.scrollTo(0,0);
+}
+
+/* ---------- 게임 상태 ---------- */
+var queue = [], idx = 0, score = 0, wrongList = [], locked = false;
+
+function startGame(){
+  queue = shuffle(BANK.slice()).slice(0, QCOUNT);
+  idx = 0; score = 0; wrongList = [];
+  show('s-play');
+  renderQ();
+}
+function goTitle(){ show('s-title'); }
+
+function renderQ(){
+  locked = false;
+  var q = queue[idx];
+  document.getElementById('step').textContent = (idx+1) + ' / ' + queue.length;
+  document.getElementById('score').textContent = score + '점';
+  document.getElementById('bar').style.width = (idx / queue.length * 100) + '%';
+  document.getElementById('nextBtn').style.display = 'none';
+
+  var fb = document.getElementById('fb');
+  fb.className = 'feedback'; fb.textContent = '';
+
+  var tag = document.getElementById('qtag');
+  var opts = document.getElementById('opts');
+  opts.innerHTML = '';
+
+  if (q.type === 'sort') {
+    tag.textContent = '시대 분류'; tag.className = 'qtag sort';
+    document.getElementById('qtext').textContent = q.word;
+    document.getElementById('qhint').textContent = '언제의 모습일까요?';
+    opts.className = 'opts two';
+    shuffle(['조선 후기','개항 이후']).forEach(function(label){
+      opts.appendChild(makeOpt(label, label === q.answer, q));
+    });
+  } else {
+    tag.textContent = '개념 확인'; tag.className = 'qtag';
+    document.getElementById('qtext').textContent = q.q;
+    document.getElementById('qhint').textContent = '';
+    opts.className = 'opts';
+    var list = shuffle([q.a].concat(q.d));
+    list.forEach(function(label){
+      opts.appendChild(makeOpt(label, label === q.a, q));
+    });
+  }
+}
+
+function makeOpt(label, isCorrect, q){
+  var b = document.createElement('button');
+  b.className = 'opt';
+  b.textContent = label;
+  b.onclick = function(){ pick(b, isCorrect, label, q); };
+  return b;
+}
+
+function pick(btn, isCorrect, label, q){
+  if (locked) return;
+  locked = true;
+
+  var all = document.querySelectorAll('#opts .opt');
+  for (var i=0;i<all.length;i++) all[i].classList.add('dim');
+  btn.classList.remove('dim');
+
+  var fb = document.getElementById('fb');
+  if (isCorrect) {
+    score++;
+    btn.classList.add('correct');
+    fb.className = 'feedback on ok';
+    fb.textContent = '⭕ 정답이에요! ' + q.why;
+  } else {
+    btn.classList.add('wrong');
+    var right = (q.type === 'sort') ? q.answer : q.a;
+    for (var j=0;j<all.length;j++) {
+      if (all[j].textContent === right) { all[j].classList.remove('dim'); all[j].classList.add('correct'); }
+    }
+    fb.className = 'feedback on no';
+    fb.textContent = '❌ 정답은 “' + right + '”예요. ' + q.why;
+    wrongList.push({
+      q: (q.type === 'sort') ? q.word : q.q,
+      right: right,
+      why: q.why
+    });
+  }
+  document.getElementById('score').textContent = score + '점';
+  var nb = document.getElementById('nextBtn');
+  nb.textContent = (idx === queue.length - 1) ? '결과 보기' : '다음 문제';
+  nb.style.display = 'block';
+}
+
+function nextQ(){
+  idx++;
+  if (idx >= queue.length) { finish(); return; }
+  renderQ();
+}
+
+function finish(){
+  document.getElementById('finalScore').textContent = score + ' / ' + queue.length;
+  var rate = score / queue.length;
+  var msg = '';
+  if (rate === 1) msg = '완벽해요! 조선 후기부터 개항 이후까지 모두 이해했어요.';
+  else if (rate >= 0.75) msg = '잘했어요! 헷갈린 문제만 한 번 더 살펴봅시다.';
+  else if (rate >= 0.5) msg = '절반 넘게 맞혔어요. 아래 내용을 다시 확인해 봅시다.';
+  else msg = '교과서를 한 번 더 살펴보고 다시 도전해 볼까요?';
+  document.getElementById('finalMsg').textContent = msg;
+
+  var rv = document.getElementById('review');
+  if (wrongList.length === 0) {
+    rv.innerHTML = '<h3>다시 볼 내용</h3><div class="item">틀린 문제가 없어요. 아주 잘했습니다! 👏</div>';
+  } else {
+    var html = '<h3>다시 볼 내용 (' + wrongList.length + '개)</h3>';
+    wrongList.forEach(function(w){
+      html += '<div class="item">' + w.q + '<br><b>' + w.right + '</b> — ' + w.why + '</div>';
+    });
+    rv.innerHTML = html;
+  }
+  show('s-end');
+}
+</script>
+</body>
+</html>

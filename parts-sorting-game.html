@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>수송 수단 부품 분류 게임</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root{
+  --drive:#1f9d55; --steer:#2563eb; --brake:#dc2626; --none:#78716c;
+  --ink:#1f2937; --muted:#6b7280; --line:#e5e7eb;
+  --bg:#eef2f7; --card:#ffffff; --card2:#dbe3ee;
+}
+html,body{height:100%;}
+body{
+  font-family:'Noto Sans KR',sans-serif; color:var(--ink);
+  background:var(--bg);
+  touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+  user-select:none; -webkit-user-select:none;
+  display:flex; flex-direction:column; align-items:center;
+  min-height:100%; padding:14px;
+}
+.screen{display:none; width:100%; max-width:900px; flex:1; flex-direction:column;}
+.screen.on{display:flex;}
+button{font-family:inherit; cursor:pointer; border:none; background:none; color:inherit;}
+
+/* ---------- 홈 ---------- */
+.home-wrap{flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; gap:6px; padding:10px 0;}
+.badge{display:inline-block; background:#0a1628; color:#fff; font-size:13px; font-weight:700; padding:6px 14px; border-radius:999px; letter-spacing:.5px;}
+h1{font-size:34px; font-weight:900; margin-top:12px; line-height:1.25;}
+h1 .sub{display:block; font-size:19px; font-weight:700; color:var(--muted); margin-top:6px;}
+.legend{display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin:18px 0 6px;}
+.chip{font-size:15px; font-weight:700; color:#fff; padding:8px 14px; border-radius:10px;}
+.c-drive{background:var(--drive);} .c-steer{background:var(--steer);}
+.c-brake{background:var(--brake);} .c-none{background:var(--none);}
+.btns{display:flex; flex-direction:column; gap:10px; width:100%; max-width:330px; margin-top:20px;}
+.btn{min-height:56px; border-radius:14px; font-size:19px; font-weight:700; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 3px 0 rgba(0,0,0,.12);}
+.btn:active{transform:translateY(2px); box-shadow:0 1px 0 rgba(0,0,0,.12);}
+.btn-main{background:#0a1628; color:#fff;}
+.btn-go{background:#f59e0b; color:#231400;}
+.btn-go.locked{background:#cbd5e1; color:#7b8794; box-shadow:none;}
+.btn-ghost{background:var(--card); color:var(--ink); border:2px solid var(--card2); box-shadow:none;}
+.hint{font-size:13px; color:var(--muted); margin-top:10px; line-height:1.6;}
+.qr{margin-top:22px;}
+.qr .lab{font-size:12px; color:var(--muted); margin-bottom:8px;}
+.qr img{width:124px; height:124px; border-radius:12px; border:3px solid var(--card2); background:#fff;}
+.qr .url{font-size:11px; color:var(--muted); margin-top:6px; word-break:break-all;}
+.best-tag{font-size:14px; font-weight:700; color:#b45309; background:#fef3c7; padding:6px 14px; border-radius:999px; margin-top:14px; display:inline-block;}
+
+/* ---------- 공통 헤더 ---------- */
+.top{display:flex; align-items:center; gap:10px; margin-bottom:12px;}
+.top h2{font-size:20px; font-weight:900; flex:1;}
+.back{font-size:14px; font-weight:700; color:var(--muted); padding:10px 12px; border-radius:10px; background:var(--card); min-height:44px; display:flex; align-items:center;}
+.prog{font-size:14px; font-weight:700; color:#fff; background:#0a1628; padding:7px 12px; border-radius:999px;}
+
+/* ---------- 공부 ---------- */
+.grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px;}
+.pcard{position:relative; height:172px; perspective:900px;}
+.inner{position:relative; width:100%; height:100%; transition:transform .45s; transform-style:preserve-3d;}
+.pcard.flip .inner{transform:rotateY(180deg);}
+.face{position:absolute; inset:0; backface-visibility:hidden; -webkit-backface-visibility:hidden;
+  border-radius:14px; padding:10px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px;}
+.front{background:var(--card); border:2px solid var(--card2);}
+.front.seen{border-color:#94a3b8;}
+.front svg{width:74px; height:74px;}
+.front .nm{font-size:16px; font-weight:700; line-height:1.25;}
+.front .tap{font-size:11px; color:var(--muted);}
+.back-f{transform:rotateY(180deg); color:#fff; padding:12px;}
+.back-f .cat{font-size:13px; font-weight:900; background:rgba(255,255,255,.25); padding:4px 10px; border-radius:999px;}
+.back-f .nm{font-size:16px; font-weight:900;}
+.back-f .desc{font-size:13px; line-height:1.45; font-weight:500;}
+.bg-drive{background:var(--drive);} .bg-steer{background:var(--steer);}
+.bg-brake{background:var(--brake);} .bg-none{background:var(--none);}
+.study-foot{margin:14px 0 4px; text-align:center;}
+.bar{height:10px; background:var(--card2); border-radius:99px; overflow:hidden; margin-bottom:10px;}
+.bar > i{display:block; height:100%; background:#0a1628; width:0%; transition:width .3s;}
+
+/* ---------- 도전 ---------- */
+.play-top{display:flex; align-items:center; gap:8px; margin-bottom:10px;}
+.timer{font-size:30px; font-weight:900; font-variant-numeric:tabular-nums; letter-spacing:-1px;}
+.timer.pen{color:var(--brake);}
+.pen-fly{position:absolute; right:12px; top:44px; font-size:20px; font-weight:900; color:var(--brake); opacity:0; pointer-events:none;}
+.pen-fly.go{animation:fly .9s ease-out;}
+@keyframes fly{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-34px)}}
+.stage{flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:14px; position:relative; min-height:250px;}
+.qcard{background:var(--card); border:3px solid var(--card2); border-radius:20px; width:100%; max-width:380px;
+  padding:18px 14px; display:flex; flex-direction:column; align-items:center; gap:8px; box-shadow:0 6px 0 rgba(0,0,0,.07);}
+.qcard svg{width:104px; height:104px;}
+.qcard .nm{font-size:26px; font-weight:900;}
+.qcard.right{border-color:var(--drive); background:#f0fdf4;}
+.qcard.wrong{border-color:var(--brake); background:#fef2f2; animation:shake .35s;}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-9px)}75%{transform:translateX(9px)}}
+.verdict{min-height:26px; font-size:17px; font-weight:700; text-align:center; line-height:1.4;}
+.answers{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px;}
+.ans{min-height:74px; border-radius:16px; color:#fff; font-size:20px; font-weight:900; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; box-shadow:0 4px 0 rgba(0,0,0,.18);}
+.ans span{font-size:12px; font-weight:500; opacity:.9;}
+.ans:active{transform:translateY(2px); box-shadow:0 2px 0 rgba(0,0,0,.18);}
+.ans[disabled]{opacity:.55;}
+.ask{font-size:16px; font-weight:700; color:var(--muted);}
+.dots{display:flex; gap:6px; flex-wrap:wrap; justify-content:center;}
+.dots i{width:9px; height:9px; border-radius:50%; background:var(--card2);}
+.dots i.done{background:#0a1628;}
+.dots i.miss{background:var(--brake);}
+.dots i.now{background:#f59e0b; transform:scale(1.35);}
+.reset{font-size:12px; color:var(--muted); text-decoration:underline; padding:10px; min-height:40px;}
+.countdown{position:fixed; inset:0; background:rgba(10,22,40,.94); color:#fff; display:none; align-items:center; justify-content:center; flex-direction:column; gap:10px; z-index:50;}
+.countdown.on{display:flex;}
+.countdown .n{font-size:110px; font-weight:900; line-height:1;}
+.countdown .t{font-size:18px; font-weight:700; opacity:.85;}
+
+/* ---------- 결과 ---------- */
+.res-wrap{flex:1; display:flex; flex-direction:column; justify-content:center; gap:12px; text-align:center;}
+.res-time{font-size:56px; font-weight:900; line-height:1; font-variant-numeric:tabular-nums;}
+.res-sub{font-size:16px; color:var(--muted); font-weight:700;}
+.res-box{background:var(--card); border-radius:16px; padding:14px; display:flex; justify-content:space-around;}
+.res-box div b{display:block; font-size:24px; font-weight:900;}
+.res-box div span{font-size:13px; color:var(--muted);}
+.new-best{background:#fef3c7; color:#b45309; font-weight:900; font-size:17px; padding:10px; border-radius:12px;}
+.review{background:var(--card); border-radius:16px; padding:12px; text-align:left; max-height:210px; overflow-y:auto;}
+.review h3{font-size:15px; margin-bottom:8px; color:var(--brake);}
+.review .row{display:flex; align-items:center; gap:8px; padding:7px 0; border-bottom:1px solid var(--line); font-size:14px; line-height:1.4;}
+.review .row:last-child{border:none;}
+.review .row svg{width:34px; height:34px; flex:none;}
+.review .row b{font-weight:900;}
+.tag{font-size:11px; color:#fff; padding:2px 8px; border-radius:99px; font-weight:700; flex:none;}
+@media(min-width:600px){
+  .qcard{max-width:520px; padding:28px 20px;}
+  .qcard svg{width:148px; height:148px;}
+  .qcard .nm{font-size:34px;}
+  .ans{min-height:92px; font-size:24px;}
+  .ans span{font-size:14px;}
+  .answers{gap:14px; margin-top:16px;}
+  .ask{font-size:19px;}
+  .timer{font-size:36px;}
+  .stage{gap:18px;}
+  .pcard{height:196px;}
+  .front svg{width:86px; height:86px;}
+  .front .nm{font-size:17px;}
+  .back-f .desc{font-size:14px;}
+  .review{max-height:330px;}
+  .res-time{font-size:64px;}
+}
+@media(max-width:420px){
+  h1{font-size:28px;} .qcard .nm{font-size:22px;} .ans{font-size:18px; min-height:66px;}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(132px,1fr));} .pcard{height:160px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= 홈 ================= -->
+<section class="screen on" id="s-home">
+  <div class="home-wrap">
+    <span class="badge">5학년 실과 · 4. 생활과 수송</span>
+    <h1>수송 수단 부품 분류<span class="sub">이 부품은 무슨 장치일까?</span></h1>
+    <div class="legend">
+      <span class="chip c-drive">구동</span>
+      <span class="chip c-steer">조향</span>
+      <span class="chip c-brake">제동</span>
+      <span class="chip c-none">해당 없음</span>
+    </div>
+    <div id="bestTag"></div>
+    <div class="btns">
+      <button class="btn btn-main" onclick="goStudy()">1단계 · 부품 공부하기</button>
+      <button class="btn btn-go locked" id="goBtn" onclick="tryPlay()">2단계 · 기록 도전 🔒</button>
+    </div>
+    <p class="hint">부품 카드 18장을 모두 공부하면 도전이 열려요.<br>도전은 12장을 빠르게 분류하고, 틀리면 <b>+3초</b>!</p>
+    <button class="reset" onclick="resetAll()">기록·공부 상태 지우기</button>
+    <div class="qr">
+      <div class="lab">📱 태블릿에서 바로 열기</div>
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAYgAAAGICAYAAABbQ3cmAAAAAklEQVR4AewaftIAABE5SURBVO3BsZEkQY5FwT+w4iAAZID+wkAGCAB6bui1WBAXlpbVvc/9z99/BADAfzABAHBgAgDgwAQAwIEJAIADEwAAByYAAA5MAAAcmAAAODABAHBgAgDgwAQAwIEJAIADEwAAByYAAA5MAAAcfHTJI/WbTZdueKQ206WNR+pJ06WNR2ozXbrhkdpMlzYeqTdNlzYeqc10aeOR+mbTpY1HajNduuGR2kyXNh6p32y6dMMEAMCBCQCAAxMAAAcmAAAOTAAAHJgAADgwAQBw8NHDpkvfzCP1k02XNh6pG9OljUdqM13aTJduTJc2HqkneaSeNF16kkdqM116k0dqM1160nTpm3mknmQCAODABADAgQkAgAMTAAAHJgAADkwAAByYAAA4+OhlHqknTZe+mUdqM116k0dqM13aeKRuTJc2HqnNdOmGR2ozXdp4pDYeqc10aeOR2kyXbnikbkyXfjOP1JOmS28yAQBwYAIA4MAEAMCBCQCAAxMAAAcmAAAOTAAAHHyEV02XNh6pzXRpM13aeKRueKQ206UbHqnNdOk380htpksbj9STpksbj9RmunTDI7WZLuH/zwQAwIEJAIADEwAAByYAAA5MAAAcmAAAODABAHDwEa54pDbTpZ9surTxSN3wSG2mSxuP1Js8Upvp0sYj9aTp0g2P1MYjdcMjhe9lAgDgwAQAwIEJAIADEwAAByYAAA5MAAAcmAAAOPjoZdOln2y69KTp0sYjtZkubaZLG4/UZrq08Ujd8EjdmC49ySO18UjdmC5tPFJPmi5tPFKb6dJvNl36zUwAAByYAAA4MAEAcGACAODABADAgQkAgAMTAAAHHz3MI/WbeaQ206WNR2ozXXqSR2ozXdp4pDbTpY1HajNd2nikbnikNtOlG9OljUfqSdOljUfqTR6pzXRp45HaTJdueKT+l5kAADgwAQBwYAIA4MAEAMCBCQCAAxMAAAcmAAAOPro0XcJ/55HaTJduTJc2HqnNdOlJHqlvNl36Zh6pzXRp45HaTJc2HqnNdGnjkXrSdOnGdAn/nQkAgAMTAAAHJgAADkwAAByYAAA4MAEAcGACAODgo5d5pG5Ml254pL6ZR2ozXdpMl540Xdp4pDbTpSd5pL7ZdOmGR2ozXdp4pDbTpSdNl254pJ40Xdp4pDbTpZ/MBADAgQkAgAMTAAAHJgAADkwAAByYAAA4MAEAcPDRL+eR2kyXNh6pzXTphkfqJ/NIbaZLNzxS32y6dMMjtZku3fBIPckj9ZNNl57kkdpMl254pDbTpRsmAAAOTAAAHJgAADgwAQBwYAIA4MAEAMCBCQCAg48e5pHaTJc2HqmNR+qGR+o380htpksbj9Sbpksbj9RmunTDI3XDI/Wk6dLGI/Wm6dLGI7WZLt2YLt3wSG2mSxuP1MYjtZkuvckEAMCBCQCAAxMAAAcmAAAOTAAAHJgAADgwAQBw8NElj9QNj9RmurTxSN2YLm08Uj/ZdGnjkdpMl57kkfrJPFKb6dLGI/Wm6dLGI3XDI/Wk6dLGI7WZLr1purTxSG2mS08yAQBwYAIA4MAEAMCBCQCAAxMAAAcmAAAOTAAAHPz5+48ueKQ206UbHqnNdGnjkboxXdp4pG5MlzYeqc106Ukeqc10aeOR2kyXNh6pJ02XbnikNtOljUfqSdOljUfqxnTpSR6pzXTpf5lHajNdumECAODABADAgQkAgAMTAAAHJgAADkwAAByYAAA4+PP3H13wSN2YLt3wSG2mSzc8Um+aLn0zj9RmuvSTeaQ206WNR2ozXfrJPFI3pktP8kg9abq08Ug9abr0JBMAAAcmAAAOTAAAHJgAADgwAQBwYAIA4MAEAMDBn7//6EEeqRvTpRseqSdNl254pG5MlzYeqc10aeOR2kyXNh6pJ02XnuSR2kyXbniknjRd2nikNtOljUdqM1264ZG6MV3aeKQ206WNR2ozXfrJTAAAHJgAADgwAQBwYAIA4MAEAMCBCQCAAxMAAAcfPWy6tPFIvWm6tPFIbTxSN6ZLT5oubTxSNzxSN6ZLNzxST5oufbPp0sYjtZku/WTTpRvTpY1H6oZH6sZ06U0mAAAOTAAAHJgAADgwAQBwYAIA4MAEAMCBCQCAg48e5pG64ZF6kkdqM13aeKQ206UneaQ206XNdGnjkdpMl36y6dKbpks3PFJP8kh9M4/UZrq08UjdmC7d8Eh9MxMAAAcmAAAOTAAAHJgAADgwAQBwYAIA4MAEAMDBn7//6IJH6sZ0aeORetJ06U0eqc10aeORujFd2nikNtOljUfqxnTphkfqxnTphkdqM13aeKQ206U3eaTeNF36yTxST5ou3TABAHBgAgDgwAQAwIEJAIADEwAAByYAAA5MAAAcfPSw6dI380jdmC5tPFKb6dI3my7dmC7d8Ehtpkub6dLGI7XxSN2YLm08Upvp0sYjtZkubTxSN6ZLG4/UjenSxiO1mS5tPFKb6dLGI/Wm6dKTTAAAHJgAADgwAQBwYAIA4MAEAMCBCQCAAxMAAAcf/XDTpY1HajNd+smmS2/ySN2YLm2mS0+aLm08Upvp0o3p0sYj9abp0ps8Uk+aLm08UjemS0/ySG2mSzdMAAAcmAAAODABAHBgAgDgwAQAwIEJAIADEwAABx9dmi5tPFJP8kjd8Eg9abr0Jo/UZrr0pOnSkzxSb/JI3Zgu3Zgu/WbTpY1HauORepNH6sZ06U0mAAAOTAAAHJgAADgwAQBwYAIA4MAEAMCBCQCAg4++3HRp45HaTJee5JHaeKQ206Vv5pG64ZF603TpSR6pGx6pGx6pG9OljUdqM13aTJdueKRuTJee5JH6zUwAAByYAAA4MAEAcGACAODABADAgQkAgAMTAAAHH71suvQmj9RmunRjunTDI3VjurTxSG2mSxuP1I3p0sYj9SSP1Ga6dGO6tPFI/WQeqZ/MI7WZLt2YLt3wSL3JBADAgQkAgAMTAAAHJgAADkwAAByYAAA4MAEAcPDRJY/UZrp0wyP1pOnSkzxSm+nSZrp0wyP1zTxSm+nSxiN1Y7r0k02Xbnik3jRduuGRujFdepJHajNd2kyXNh6pJ5kAADgwAQBwYAIA4MAEAMCBCQCAAxMAAAcmAAAO/vz9Rxc8Upvp0sYjtZkubTxS32y6tPFIbaZLG4/UZrr0m3mk8N9Nl254pDbTpY1H6sZ0aeOR+mbTpRseqRvTpRsmAAAOTAAAHJgAADgwAQBwYAIA4MAEAMCBCQCAgz9//9GDPFKb6dINj9RmuvQmj9RmurTxSL1punTDI7WZLr3JI/WbTZc2HqnNdGnjkboxXXqSR+pJ06UbHqnNdOlNJgAADkwAAByYAAA4MAEAcGACAODABADAgQkAgIOPvpxHajNd2nikbkyXNh6pzXRp45HaTJfe5JHaTJee5JHaTJfeNF3aeKRuTJdueKSeNF16kkdqM13aTJdueKQ2HqnfzAQAwIEJAIADEwAAByYAAA5MAAAcmAAAODABAHDw5+8/uuCRetN06Ukeqc10aeOR2kyXNh6pJ02XNh6pzXRp45G6MV264ZHaTJc2Hqkb06WNR+rGdOmGR+pJ06WNR+rGdOmGR2ozXdp4pN40XXqSCQCAAxMAAAcmAAAOTAAAHJgAADgwAQBwYAIA4OCjLzddepJH6knTpY1HajNd2nikNtOljUdqM13aeKQ206WNR+qGR2ozXfpm06WNR2rjkdpMlzbTpY1H6oZH6kkeqc106YZH6sZ0aeOR2kyX3mQCAODABADAgQkAgAMTAAAHJgAADkwAAByYAAA4+PP3H13wSG2mSzc8Upvp0sYjtZkubTxSm+nSmzxSN6ZLT/JIbaZLT/JI3Zgu3fBIbaZLNzxST5oubTxST5oubTxSP9l06YZHajNdumECAODABADAgQkAgAMTAAAHJgAADkwAAByYAAA4+PP3H73II7WZLm08Uk+aLm08UjemSxuP1JumS2/ySH2z6dLGI7WZLt3wSG2mSzc8Ut9surTxSG2mSxuP1Ga6tPFIbaZLG4/UZrr0JBMAAAcmAAAOTAAAHJgAADgwAQBwYAIA4MAEAMDBR5c8UjemS2+aLm08Upvp0sYjtfFIbaZLT/JIbTxSm+nSxiN1Y7q08Uhtpksbj9QNj9RmurTxSN2YLm08UjemSzc8UjemSxuPFJ5jAgDgwAQAwIEJAIADEwAAByYAAA5MAAAcmAAAOPjoYdOljUdqM126MV3aeKRueKRuTJe+2XRp45G6MV16kkfqSdOljUdqM13aeKR+sunSxiN1Y7q08UjdmC7dmC5tPFKb6dLGI7WZLt0wAQBwYAIA4MAEAMCBCQCAAxMAAAcmAAAOTAAAHHz0MI/UDY/Uk6ZLT/JI3fBIbaZLN6ZLG4/UjenSm6ZLG4/UZrr0JI/Um6ZLG4/Uk6ZLv5lH6iczAQBwYAIA4MAEAMCBCQCAAxMAAAcmAAAOTAAAHHx0abr0Jo/UDY/UZrq08Ui9ySP1pOnSxiO18Ug9abp0Y7p0wyN1Y7q08UhtPFKb6dLGI3VjunTDI3VjunTDI3VjunRjurTxSL3JBADAgQkAgAMTAAAHJgAADkwAAByYAAA4MAEAcPDRwzxS32y6tPFIbaZLNzxST5oubTxSG4/UZrq08Ui9ySO1mS5tPFKb6dLGI/WbeaRuTJc2Hin8d9OlJ5kAADgwAQBwYAIA4MAEAMCBCQCAAxMAAAcmAAAOPrrkkdpMl254pJ7kkbrhkboxXdp4pL6ZR2ozXXqSR+qGR+qGR2ozXdp4pG5Ml940XbrhkdpMlzYeqTd5pH4zEwAAByYAAA5MAAAcmAAAODABAHBgAgDgwAQAwMFHl6ZLT5ouPWm6dMMj9abp0sYjdWO69JNNl57kkXqTR+pJ06UbHqnNdOlJ06UneaRueKQ206U3mQAAODABAHBgAgDgwAQAwIEJAIADEwAAByYAAA4+uuSR+s2mSzemSxuP1JOmSxuP1MYjtZkubTxSm+nSmzxSm+nSk6ZLb/JI3fBIbaZLNzxST/JIbaZLN6ZLP5kJAIADEwAAByYAAA5MAAAcmAAAODABAHBgAgDg4KOHTZe+mUfqxnTpxnRp45HaeKRuTJdueKQ206WNR2ozXXrSdOlJHqkb06WNR2ozXdpMl57kkdpMl940XXqTR2ozXXqTCQCAAxMAAAcmAAAOTAAAHJgAADgwAQBwYAIA4OCjl3mknjRdepNH6knTpY1H6knTpRvTpSd5pN40XbrhkdpMl57kkXqSR2ozXdp4pDYeqTd5pH4yEwAAByYAAA5MAAAcmAAAODABAHBgAgDgwAQAwMFHuOKR2kyX3jRd2nik3jRdetN06YZH6oZH6oZHajNdetJ0aeORuuGRetJ06SfzSG2mSzdMAAAcmAAAODABAHBgAgDgwAQAwIEJAIADEwAABx/hUR6pzXRp45HaTJc2Hqkb06UneaQ206VvNl3aeKQ206UneaSe5JH6yTxSm+nSN5suPckEAMCBCQCAAxMAAAcmAAAOTAAAHJgAADgwAQBw8NHLpks/2XTphkfqhkdqM13aeKT+l3mkNtOlJ3mkbkyXbkyXNh6pzXTphkdqM116kkfqSR6pzXTphkdqM126YQIA4MAEAMCBCQCAAxMAAAcmAAAOTAAAHJgAADj46GEeqf9lHqnNdGnjkdpMlzYeqTd5pG54pJ40XbrhkdpMlzYeqc106cZ0aeOR2kyXvplHajNdepJHajNd2nikNtOlzXTpSSYAAA5MAAAcmAAAODABAHBgAgDgwAQAwIEJAICDP3//EQAA/8EEAMCBCQCAAxMAAAcmAAAOTAAAHJgAADgwAQBwYAIA4MAEAMCBCQCAAxMAAAcmAAAOTAAAHJgAADgwAQBw8H8a35xbByYHvwAAAABJRU5ErkJggg==" alt="QR코드">
+      <div class="url">https://leixlix-pixel.github.io/toolbox/parts-sorting-game.html</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 공부 ================= -->
+<section class="screen" id="s-study">
+  <div class="top">
+    <button class="back" onclick="show('s-home')">← 처음</button>
+    <h2>부품 공부하기</h2>
+    <span class="prog" id="studyProg">0 / 18</span>
+  </div>
+  <div class="bar"><i id="studyBar"></i></div>
+  <div class="grid" id="studyGrid"></div>
+  <div class="study-foot">
+    <p class="hint" id="studyHint">카드를 눌러 뒤집어 보세요. 18장을 모두 보면 도전이 열립니다.</p>
+    <div class="btns" style="margin:12px auto 0;">
+      <button class="btn btn-go locked" id="goBtn2" onclick="tryPlay()">기록 도전하러 가기 🔒</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 도전 ================= -->
+<section class="screen" id="s-play">
+  <div class="play-top">
+    <button class="back" onclick="quitPlay()">← 그만</button>
+    <span class="prog" id="playProg">1 / 12</span>
+    <div style="flex:1"></div>
+    <div class="timer" id="timer">0.0</div>
+    <div class="pen-fly" id="penFly">+3초</div>
+  </div>
+  <div class="dots" id="dots"></div>
+  <div class="stage">
+    <div class="ask">이 부품은 무슨 장치일까?</div>
+    <div class="qcard" id="qcard"></div>
+    <div class="verdict" id="verdict"></div>
+  </div>
+  <div class="answers" id="answers">
+    <button class="ans c-drive" onclick="answer('drive')">구동 장치<span>힘을 만들어 전달</span></button>
+    <button class="ans c-steer" onclick="answer('steer')">조향 장치<span>방향을 바꿈</span></button>
+    <button class="ans c-brake" onclick="answer('brake')">제동 장치<span>속도를 줄이거나 멈춤</span></button>
+    <button class="ans c-none" onclick="answer('none')">해당 없음<span>편의·안전을 위한 것</span></button>
+  </div>
+</section>
+
+<!-- ================= 결과 ================= -->
+<section class="screen" id="s-result">
+  <div class="res-wrap">
+    <div class="res-sub">기록</div>
+    <div class="res-time" id="resTime">0.0초</div>
+    <div id="newBest"></div>
+    <div class="res-box">
+      <div><b id="resRight">0</b><span>맞은 개수</span></div>
+      <div><b id="resWrong">0</b><span>틀린 개수</span></div>
+      <div><b id="resBest">-</b><span>내 최고 기록</span></div>
+    </div>
+    <div id="reviewBox"></div>
+    <div class="btns" style="margin:6px auto 0;">
+      <button class="btn btn-go" onclick="startPlay()">다시 도전</button>
+      <button class="btn btn-ghost" onclick="goStudy()">부품 다시 보기</button>
+      <button class="btn btn-ghost" onclick="show('s-home')">처음 화면</button>
+    </div>
+  </div>
+</section>
+
+<div class="countdown" id="cd"><div class="n" id="cdN">3</div><div class="t">준비!</div></div>
+
+<script>
+/* ================= 부품 아이콘 (인라인 SVG) ================= */
+const S = (inner) => '<svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">' + inner + '</svg>';
+const ICON = {
+  pedal: S('<circle cx="34" cy="62" r="9"/><line x1="34" y1="62" x2="66" y2="40"/><rect x="58" y="26" width="26" height="13" rx="3"/><line x1="63" y1="39" x2="63" y2="45"/><line x1="79" y1="39" x2="79" y2="45"/>'),
+  chain: S('<circle cx="32" cy="60" r="15"/><circle cx="32" cy="60" r="5"/><circle cx="74" cy="42" r="8"/><circle cx="74" cy="42" r="2.5"/><path d="M32 45 L74 34"/><path d="M32 75 Q56 73 74 50"/><circle cx="43" cy="42" r="2.5"/><circle cx="53" cy="40" r="2.5"/><circle cx="64" cy="37" r="2.5"/>'),
+  gear: S('<circle cx="50" cy="50" r="21"/><circle cx="50" cy="50" r="7"/><rect x="44" y="16" width="12" height="11" rx="2"/><rect x="44" y="73" width="12" height="11" rx="2"/><rect x="16" y="44" width="11" height="12" rx="2"/><rect x="73" y="44" width="11" height="12" rx="2"/><rect x="66" y="22" width="12" height="11" rx="2" transform="rotate(45 72 27.5)"/><rect x="22" y="67" width="12" height="11" rx="2" transform="rotate(45 28 72.5)"/><rect x="66" y="67" width="12" height="11" rx="2" transform="rotate(-45 72 72.5)"/><rect x="22" y="22" width="12" height="11" rx="2" transform="rotate(-45 28 27.5)"/>'),
+  engine: S('<rect x="22" y="44" width="46" height="34" rx="4"/><rect x="30" y="30" width="10" height="14"/><rect x="50" y="30" width="10" height="14"/><line x1="30" y1="24" x2="60" y2="24"/><path d="M68 54 h12 v14 h-12"/><line x1="80" y1="61" x2="88" y2="61"/>'),
+  motor: S('<rect x="24" y="34" width="42" height="34" rx="6"/><line x1="66" y1="51" x2="84" y2="51"/><circle cx="84" cy="51" r="4"/><path d="M46 40 l-8 12 h10 l-6 10"/><line x1="18" y1="44" x2="24" y2="44"/><line x1="18" y1="58" x2="24" y2="58"/>'),
+  handlebar: S('<path d="M22 44 h56"/><path d="M22 44 v14 M78 44 v14"/><rect x="15" y="56" width="14" height="9" rx="3"/><rect x="71" y="56" width="14" height="9" rx="3"/><line x1="50" y1="44" x2="50" y2="62"/><circle cx="50" cy="66" r="5"/>'),
+  wheelst: S('<circle cx="50" cy="52" r="27"/><circle cx="50" cy="52" r="8"/><line x1="50" y1="44" x2="50" y2="25"/><line x1="43" y1="57" x2="27" y2="68"/><line x1="57" y1="57" x2="73" y2="68"/>'),
+  fork: S('<line x1="50" y1="18" x2="50" y2="38"/><path d="M50 38 L32 74"/><path d="M50 38 L68 74"/><line x1="38" y1="20" x2="62" y2="20"/><circle cx="32" cy="78" r="4"/><circle cx="68" cy="78" r="4"/>'),
+  rudder: S('<path d="M18 46 h50 l-8 18 H26 Z"/><path d="M70 40 v34"/><path d="M70 46 h14 v22 h-14"/><path d="M14 80 q10 -6 20 0 t20 0 t20 0"/>'),
+  lever: S('<path d="M20 38 h34"/><rect x="14" y="34" width="12" height="9" rx="3"/><path d="M54 38 q22 4 26 22"/><circle cx="54" cy="38" r="5"/><path d="M54 46 v14"/>'),
+  pad: S('<path d="M50 20 a30 30 0 0 1 0 60" stroke-dasharray="4 6"/><rect x="26" y="36" width="14" height="20" rx="3"/><rect x="26" y="60" width="14" height="20" rx="3"/><path d="M40 46 h10 M40 70 h10"/><line x1="20" y1="46" x2="26" y2="46"/><line x1="20" y1="70" x2="26" y2="70"/>'),
+  pedalbrake: S('<path d="M40 22 L40 58"/><rect x="26" y="14" width="28" height="14" rx="3"/><path d="M40 58 q0 12 14 14"/><line x1="18" y1="78" x2="82" y2="78"/><path d="M62 66 l12 -8" stroke-dasharray="3 5"/>'),
+  disc: S('<circle cx="46" cy="52" r="26"/><circle cx="46" cy="52" r="8"/><circle cx="46" cy="32" r="3"/><circle cx="46" cy="72" r="3"/><circle cx="26" cy="52" r="3"/><circle cx="66" cy="52" r="3"/><path d="M72 38 h12 v22 h-12"/>'),
+  saddle: S('<path d="M18 48 q22 -14 46 -6 q14 5 10 12 q-4 7 -18 4 q-20 -4 -38 4 Z"/><line x1="40" y1="60" x2="46" y2="82"/><line x1="36" y1="82" x2="56" y2="82"/>'),
+  basket: S('<path d="M24 34 h52 l-8 44 h-36 Z"/><line x1="26" y1="50" x2="74" y2="50"/><line x1="40" y1="34" x2="44" y2="78"/><line x1="60" y1="34" x2="56" y2="78"/><path d="M36 34 q14 -16 28 0"/>'),
+  light: S('<rect x="24" y="38" width="34" height="26" rx="8"/><path d="M58 44 l14 -8 v30 l-14 -8"/><line x1="80" y1="38" x2="88" y2="32"/><line x1="82" y1="51" x2="92" y2="51"/><line x1="80" y1="64" x2="88" y2="70"/><line x1="34" y1="64" x2="34" y2="76"/>'),
+  bell: S('<path d="M32 60 q0 -26 18 -26 t18 26"/><line x1="24" y1="60" x2="76" y2="60"/><path d="M44 60 q0 10 6 10 t6 -10"/><line x1="50" y1="28" x2="50" y2="34"/><path d="M78 40 q6 6 0 12" /><path d="M22 40 q-6 6 0 12"/>'),
+  mirror: S('<rect x="26" y="26" width="48" height="30" rx="10"/><line x1="35" y1="48" x2="50" y2="33" stroke-dasharray="4 5"/><line x1="47" y1="50" x2="62" y2="35" stroke-dasharray="4 5"/><path d="M50 56 v10"/><path d="M34 78 q16 -12 32 0"/>')
+};
+
+/* ================= 부품 데이터 ================= */
+const CAT = {
+  drive:{name:'구동 장치', cls:'drive'},
+  steer:{name:'조향 장치', cls:'steer'},
+  brake:{name:'제동 장치', cls:'brake'},
+  none:{name:'해당 없음', cls:'none'}
+};
+const PARTS = [
+  {id:'pedal', nm:'페달', cat:'drive', ic:'pedal', d:'발로 밟아 힘을 만들어 냅니다. 이 힘이 크랭크를 돌려 자전거를 움직여요.'},
+  {id:'chain', nm:'체인', cat:'drive', ic:'chain', d:'페달에서 만든 힘을 뒷바퀴까지 전달합니다. 힘을 "전달"하니 구동 장치예요.'},
+  {id:'gear', nm:'기어(변속기)', cat:'drive', ic:'gear', d:'톱니 크기를 바꿔 전달하는 힘과 속도를 조절합니다. 오르막에서 가볍게 밟히는 이유예요.'},
+  {id:'engine', nm:'엔진', cat:'drive', ic:'engine', d:'연료를 태워 자동차를 움직이는 힘을 만듭니다.'},
+  {id:'motor', nm:'전기 모터', cat:'drive', ic:'motor', d:'전기 에너지로 바퀴를 돌리는 힘을 만듭니다. 전기 자동차·전기 자전거에 들어 있어요.'},
+  {id:'handlebar', nm:'자전거 핸들', cat:'steer', ic:'handlebar', d:'앞바퀴가 향하는 쪽을 바꿔 가고 싶은 방향으로 갑니다.'},
+  {id:'wheelst', nm:'자동차 운전대', cat:'steer', ic:'wheelst', d:'돌리면 앞바퀴의 방향이 바뀝니다. 자전거 핸들과 하는 일이 같아요.'},
+  {id:'fork', nm:'앞바퀴 포크', cat:'steer', ic:'fork', d:'핸들의 움직임을 앞바퀴에 그대로 전달해 주는 두 갈래 기둥입니다.'},
+  {id:'rudder', nm:'배의 방향타(키)', cat:'steer', ic:'rudder', d:'배 뒤쪽에서 물살을 밀어 방향을 바꿉니다. 수상 수송 수단의 조향 장치예요.'},
+  {id:'lever', nm:'브레이크 레버', cat:'brake', ic:'lever', d:'손으로 잡아당기면 그 힘이 줄을 타고 가서 바퀴를 멈춥니다.'},
+  {id:'pad', nm:'브레이크 패드', cat:'brake', ic:'pad', d:'바퀴를 양쪽에서 꽉 눌러, 마찰로 속도를 줄입니다.'},
+  {id:'pedalbrake', nm:'브레이크 페달', cat:'brake', ic:'pedalbrake', d:'자동차에서 발로 밟아 속도를 줄이거나 멈춥니다. 같은 "페달"이라도 하는 일이 반대예요!'},
+  {id:'disc', nm:'브레이크 디스크', cat:'brake', ic:'disc', d:'바퀴와 함께 도는 쇠 원판입니다. 패드가 이 원판을 물어 잡아 멈춰요.'},
+  {id:'saddle', nm:'안장', cat:'none', ic:'saddle', d:'앉는 자리입니다. 편하게 타기 위한 것이라 세 장치에 들어가지 않아요.'},
+  {id:'basket', nm:'바구니', cat:'none', ic:'basket', d:'짐을 싣는 곳입니다. 움직임·방향·멈춤 어디에도 관여하지 않아요.'},
+  {id:'light', nm:'전조등', cat:'none', ic:'light', d:'어두운 길을 비추고 내 위치를 알립니다. 안전을 돕지만 속도를 줄이지는 않아요.'},
+  {id:'bell', nm:'벨(경적)', cat:'none', ic:'bell', d:'소리로 사람들에게 알립니다. 안전 장치이지 제동 장치가 아니에요.'},
+  {id:'mirror', nm:'백미러', cat:'none', ic:'mirror', d:'뒤쪽을 보여 주는 거울입니다. 방향을 "바꾸는" 것이 아니라 "보는" 것이라 조향 장치가 아니에요.'}
+];
+const TOTAL_STUDY = PARTS.length;
+const ROUND = 12;          // 도전 문제 수
+const PENALTY = 3;         // 오답 벌칙(초)
+const K_BEST = 'partsSort_best_v2';
+const K_SEEN = 'partsSort_seen_v2';
+
+/* ================= 저장소 (사생활 모드 대비) ================= */
+function load(k, def){ try{ const v = localStorage.getItem(k); return v===null ? def : JSON.parse(v); }catch(e){ return def; } }
+function save(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+
+let seen = new Set(load(K_SEEN, []));
+let best = load(K_BEST, null);
+
+function shuffle(a){
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  window.scrollTo(0,0);
+}
+function fmt(sec){ return sec.toFixed(1) + '초'; }
+
+/* ================= 잠금 상태 ================= */
+function refreshLock(){
+  const done = seen.size >= TOTAL_STUDY;
+  const b1 = document.getElementById('goBtn'), b2 = document.getElementById('goBtn2');
+  b1.classList.toggle('locked', !done);
+  b2.classList.toggle('locked', !done);
+  b1.textContent = done ? '2단계 · 기록 도전 ▶' : '2단계 · 기록 도전 🔒';
+  b2.textContent = done ? '기록 도전하러 가기 ▶' : '기록 도전하러 가기 🔒';
+  const tag = document.getElementById('bestTag');
+  tag.innerHTML = best===null ? '' : '<span class="best-tag">🏅 내 최고 기록 ' + fmt(best) + '</span>';
+}
+function tryPlay(){
+  if(seen.size < TOTAL_STUDY){
+    const left = TOTAL_STUDY - seen.size;
+    goStudy();
+    document.getElementById('studyHint').innerHTML =
+      '<b style="color:#dc2626">아직 ' + left + '장을 안 봤어요.</b> 남은 카드를 눌러 뒤집어 보세요.';
+    return;
+  }
+  startPlay();
+}
+
+/* ================= 1단계 · 부품 공부 ================= */
+function goStudy(){
+  renderStudy();
+  show('s-study');
+}
+function renderStudy(){
+  const g = document.getElementById('studyGrid');
+  g.innerHTML = PARTS.map(function(p,i){
+    return '<div class="pcard' + (seen.has(p.id)?' flip':'') + '" id="pc'+i+'" onclick="flip('+i+')">'
+    + '<div class="inner">'
+    + '<div class="face front' + (seen.has(p.id)?' seen':'') + '">' + ICON[p.ic]
+    + '<div class="nm">'+p.nm+'</div><div class="tap">눌러서 확인</div></div>'
+    + '<div class="face back-f bg-'+CAT[p.cat].cls+'"><div class="cat">'+CAT[p.cat].name+'</div>'
+    + '<div class="nm">'+p.nm+'</div><div class="desc">'+p.d+'</div></div>'
+    + '</div></div>';
+  }).join('');
+  updateStudyProg();
+}
+function flip(i){
+  const el = document.getElementById('pc'+i);
+  const p = PARTS[i];
+  el.classList.toggle('flip');
+  if(el.classList.contains('flip') && !seen.has(p.id)){
+    seen.add(p.id);
+    save(K_SEEN, Array.from(seen));
+    el.querySelector('.front').classList.add('seen');
+    updateStudyProg();
+    refreshLock();
+  }
+}
+function updateStudyProg(){
+  const n = seen.size;
+  document.getElementById('studyProg').textContent = n + ' / ' + TOTAL_STUDY;
+  document.getElementById('studyBar').style.width = (n/TOTAL_STUDY*100) + '%';
+  if(n >= TOTAL_STUDY){
+    document.getElementById('studyHint').innerHTML =
+      '<b style="color:#1f9d55">공부 끝! 이제 도전할 수 있어요.</b> 헷갈리는 카드는 몇 번 더 뒤집어 보세요.';
+  }
+}
+
+/* ================= 2단계 · 기록 도전 ================= */
+var queue = [], idx = 0, t0 = 0, penalty = 0, tick = null, wrongList = [], rightCnt = 0, locked = false, dotState = [];
+
+function pickQuestions(){
+  const byCat = {drive:[], steer:[], brake:[], none:[]};
+  PARTS.forEach(function(p){ byCat[p.cat].push(p); });
+  let q = [];
+  Object.keys(byCat).forEach(function(c){ q = q.concat(shuffle(byCat[c].slice()).slice(0,3)); });
+  return shuffle(q);
+}
+function startPlay(){
+  queue = pickQuestions(); idx = 0; penalty = 0; wrongList = []; rightCnt = 0; locked = true; dotState = [];
+  document.getElementById('verdict').textContent = '';
+  document.getElementById('timer').textContent = '0.0';
+  document.getElementById('timer').classList.remove('pen');
+  show('s-play');
+  renderQ();
+  countdown(3);
+}
+function countdown(n){
+  const cd = document.getElementById('cd'), cdn = document.getElementById('cdN');
+  cd.classList.add('on');
+  cdn.textContent = n;
+  if(n === 0){
+    cdn.textContent = '시작!';
+    setTimeout(function(){ cd.classList.remove('on'); beginTimer(); }, 450);
+    return;
+  }
+  setTimeout(function(){ countdown(n-1); }, 750);
+}
+function beginTimer(){
+  t0 = performance.now(); locked = false;
+  clearInterval(tick);
+  tick = setInterval(function(){
+    document.getElementById('timer').textContent = elapsed().toFixed(1);
+  }, 100);
+}
+function elapsed(){ return (performance.now() - t0)/1000 + penalty; }
+function renderDots(){
+  let s = '';
+  for(let i=0;i<ROUND;i++){
+    let cls = '';
+    if(dotState[i] !== undefined) cls = dotState[i] ? 'done' : 'miss';
+    else if(i === idx) cls = 'now';
+    s += '<i class="' + cls + '"></i>';
+  }
+  document.getElementById('dots').innerHTML = s;
+}
+function resetAll(){
+  seen = new Set(); best = null;
+  save(K_SEEN, []);
+  try{ localStorage.removeItem(K_BEST); }catch(e){}
+  refreshLock();
+}
+function renderQ(){
+  const p = queue[idx];
+  const c = document.getElementById('qcard');
+  c.className = 'qcard';
+  c.innerHTML = ICON[p.ic] + '<div class="nm">' + p.nm + '</div>';
+  document.getElementById('playProg').textContent = (idx+1) + ' / ' + ROUND;
+  renderDots();
+  document.querySelectorAll('.ans').forEach(function(b){ b.disabled = false; });
+}
+function answer(cat){
+  if(locked) return;
+  locked = true;
+  const p = queue[idx];
+  const c = document.getElementById('qcard');
+  const v = document.getElementById('verdict');
+  document.querySelectorAll('.ans').forEach(function(b){ b.disabled = true; });
+  let wait;
+  dotState[idx] = (cat === p.cat);
+  if(cat === p.cat){
+    rightCnt++;
+    c.classList.add('right');
+    v.innerHTML = '<span style="color:#1f9d55">맞았어요!</span>';
+    wait = 420;
+  }else{
+    penalty += PENALTY;
+    wrongList.push({p:p, chose:cat});
+    c.classList.add('wrong');
+    v.innerHTML = '<span style="color:#dc2626">아쉬워요. ' + p.nm + ' → <b>' + CAT[p.cat].name + '</b></span>';
+    const fly = document.getElementById('penFly');
+    fly.classList.remove('go'); void fly.offsetWidth; fly.classList.add('go');
+    const tm = document.getElementById('timer');
+    tm.classList.add('pen');
+    setTimeout(function(){ tm.classList.remove('pen'); }, 600);
+    wait = 1100;
+  }
+  renderDots();
+  setTimeout(function(){
+    idx++;
+    if(idx >= ROUND){ endPlay(); return; }
+    document.getElementById('verdict').textContent = '';
+    renderQ();
+    locked = false;
+  }, wait);
+}
+function quitPlay(){ clearInterval(tick); locked = true; show('s-home'); }
+
+/* ================= 결과 ================= */
+function endPlay(){
+  clearInterval(tick);
+  const t = elapsed();
+  document.getElementById('resTime').textContent = fmt(t);
+  document.getElementById('resRight').textContent = rightCnt;
+  document.getElementById('resWrong').textContent = wrongList.length;
+  const isBest = (best === null || t < best);
+  if(isBest){ best = t; save(K_BEST, best); }
+  document.getElementById('resBest').textContent = fmt(best);
+  document.getElementById('newBest').innerHTML = isBest ? '<div class="new-best">🎉 새 최고 기록!</div>' : '';
+  const box = document.getElementById('reviewBox');
+  if(wrongList.length === 0){
+    box.innerHTML = '<div class="review"><h3 style="color:#1f9d55">전부 맞았어요! 👏</h3>'
+      + '<div style="font-size:14px;line-height:1.5;color:#6b7280">벌칙 시간 없이 '
+      + fmt(t) + ' 만에 끝냈습니다. 더 빠르게 도전해 보세요.</div></div>';
+  }else{
+    box.innerHTML = '<div class="review"><h3>다시 볼 부품 ' + wrongList.length
+      + '개 (+' + (wrongList.length*PENALTY) + '초)</h3>'
+      + wrongList.map(function(w){
+          return '<div class="row">' + ICON[w.p.ic]
+          + '<div><b>' + w.p.nm + '</b> · 내 답: ' + CAT[w.chose].name
+          + '<br><span style="color:#6b7280">' + w.p.d + '</span></div>'
+          + '<span class="tag c-' + CAT[w.p.cat].cls + '">' + CAT[w.p.cat].name + '</span></div>';
+        }).join('')
+      + '</div>';
+  }
+  show('s-result');
+  refreshLock();
+}
+
+/* ================= 시작 ================= */
+refreshLock();
+document.addEventListener('keydown', function(e){
+  if(!document.getElementById('s-play').classList.contains('on')) return;
+  const m = {'1':'drive','2':'steer','3':'brake','4':'none'};
+  if(m[e.key]) answer(m[e.key]);
+});
+</script>
+</body>
+</html>

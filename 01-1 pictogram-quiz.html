@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>픽토그램 퀴즈 — 그림으로 말하기</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1c2430; --navy:#123a63; --navy2:#1d5b95; --red:#c0392b;
+  --gold:#c8963e; --green:#2e7d5b; --paper:#f6f2e9; --line:#d9d2c4; --muted:#6d6b66;
+}
+html,body{height:100%}
+body{font-family:'Noto Sans KR',sans-serif;background:#0d1520;color:var(--ink);
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;
+  display:flex;align-items:center;justify-content:center;padding:12px}
+
+.wrap{width:100%;max-width:860px;background:var(--paper);border-radius:22px;
+  box-shadow:0 20px 60px rgba(0,0,0,.5);overflow:hidden;display:flex;flex-direction:column;
+  max-height:96vh}
+
+/* 상단 */
+.top{background:var(--navy);color:#fff;padding:14px 22px;display:flex;align-items:center;gap:14px}
+.top .t{font-size:20px;font-weight:900}
+.top .sc{margin-left:auto;font-size:20px;font-weight:900;color:#f3d79a}
+#pbar{height:6px;background:#dcd5c6}
+#pfill{height:100%;width:0;background:var(--gold);transition:width .25s}
+
+.body{padding:22px;overflow-y:auto;flex:1}
+
+/* 타이틀 화면 */
+.hero{text-align:center;padding:26px 20px}
+.hero h1{font-size:34px;font-weight:900;color:var(--navy);line-height:1.3}
+.hero p{font-size:19px;color:var(--muted);font-weight:500;margin-top:14px;line-height:1.6}
+.rules{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;
+  margin:20px auto 0;max-width:520px;text-align:left}
+.rules li{font-size:18px;line-height:1.7;margin-left:20px}
+.best{font-size:18px;font-weight:700;color:var(--gold);margin-top:14px}
+
+.btn{display:inline-block;background:var(--navy2);color:#fff;border:0;border-radius:14px;
+  padding:16px 40px;font-size:21px;font-weight:900;font-family:inherit;cursor:pointer;
+  min-height:56px;margin-top:22px}
+.btn.ghost{background:#fff;color:var(--navy2);border:3px solid var(--navy2)}
+
+/* 문제 */
+.qhead{font-size:17px;font-weight:900;color:var(--gold);letter-spacing:.02em}
+.qtext{font-size:25px;font-weight:900;color:var(--ink);line-height:1.4;margin-top:6px}
+.stage{display:flex;justify-content:center;gap:22px;margin:18px 0;flex-wrap:wrap}
+.stage svg{width:150px;height:150px;display:block}
+.stage .sub{font-size:17px;font-weight:700;color:var(--muted);text-align:center;margin-top:4px}
+
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.opt{background:#fff;border:3px solid var(--line);border-radius:14px;padding:15px 16px;
+  font-size:20px;font-weight:700;cursor:pointer;min-height:60px;display:flex;align-items:center;
+  gap:12px;text-align:left;line-height:1.35;font-family:inherit;color:var(--ink)}
+.opt .num{background:var(--line);color:#fff;font-weight:900;border-radius:9px;
+  width:32px;height:32px;display:flex;align-items:center;justify-content:center;flex:0 0 32px}
+.opt.pick-o{border-color:var(--green);background:#eaf6f0}
+.opt.pick-o .num{background:var(--green)}
+.opt.pick-x{border-color:var(--red);background:#fbeceb}
+.opt.pick-x .num{background:var(--red)}
+.opt.show-o{border-color:var(--green)}
+.opt svg{width:74px;height:74px;flex:0 0 74px}
+
+.fb{margin-top:16px;border-radius:14px;padding:15px 18px;font-size:19px;line-height:1.55;
+  font-weight:500;display:none}
+.fb.on{display:block}
+.fb.o{background:#eaf6f0;border-left:8px solid var(--green)}
+.fb.x{background:#fbeceb;border-left:8px solid var(--red)}
+.fb b{font-weight:900}
+
+.foot{padding:14px 22px;border-top:1px solid var(--line);display:flex;align-items:center;gap:12px;background:#fff}
+.foot .hint{font-size:16px;color:var(--muted);font-weight:600}
+
+/* 결과 */
+.res{text-align:center;padding:20px}
+.res .big{font-size:60px;font-weight:900;color:var(--navy)}
+.res .msg{font-size:22px;font-weight:700;margin-top:10px;line-height:1.5}
+.res .sm{font-size:18px;color:var(--muted);margin-top:14px;line-height:1.6}
+.url{font-size:14px;color:var(--muted);margin-top:18px;word-break:break-all}
+@media (max-width:560px){
+  .opts{grid-template-columns:1fr}
+  .qtext{font-size:21px}
+  .stage svg{width:120px;height:120px}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="top"><span class="t">픽토그램 퀴즈</span><span id="qn"></span><span class="sc" id="score"></span></div>
+  <div id="pbar"><div id="pfill"></div></div>
+  <div class="body" id="body"></div>
+  <div class="foot" id="foot"></div>
+</div>
+
+<script>
+/* ── 픽토그램 (직접 그린 SVG) ───────────────────────────── */
+const W = "#fff", K = "#1c2430";
+function svg(inner, bg){
+  return '<svg viewBox="0 0 100 100">' + (bg ? '<rect width="100" height="100" rx="10" fill="' + bg + '"/>' : "") + inner + '</svg>';
+}
+const manStand = (c) => '<circle cx="50" cy="24" r="10" fill="' + c + '"/>'
+  + '<path d="M50 36 q-14 0 -14 16 v14 h6 v22 h6 v-22 h4 v22 h6 v-22 h6 v-14 q0-16 -14-16z" fill="' + c + '"/>';
+const womanStand = (c) => '<circle cx="50" cy="24" r="10" fill="' + c + '"/>'
+  + '<path d="M50 36 q-13 0 -16 16 l-6 22 h44 l-6-22 q-3-16 -16-16z" fill="' + c + '"/>'
+  + '<rect x="41" y="74" width="6" height="14" fill="' + c + '"/><rect x="53" y="74" width="6" height="14" fill="' + c + '"/>';
+const manRun = (c) => '<circle cx="65" cy="18" r="9" fill="' + c + '"/>'
+  + '<g stroke="' + c + '" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" fill="none">'
+  + '<path d="M62 30 L51 48"/><path d="M60 34 L74 41"/><path d="M61 33 L45 28"/>'
+  + '<path d="M51 48 L65 58 L72 74"/><path d="M51 48 L34 55 L26 47"/></g>';
+const cigar = (c) => '<g fill="' + c + '"><rect x="18" y="54" width="42" height="13" rx="2"/>'
+  + '<rect x="62" y="54" width="14" height="13" rx="2" opacity=".45"/></g>'
+  + '<g stroke="' + c + '" stroke-width="6" stroke-linecap="round" fill="none">'
+  + '<path d="M28 44 q10-9 0-19"/><path d="M46 44 q10-9 0-19"/></g>';
+const fork = (c) => '<g fill="' + c + '">'
+  + '<rect x="21" y="18" width="6" height="25" rx="2"/><rect x="30" y="18" width="6" height="25" rx="2"/>'
+  + '<rect x="39" y="18" width="6" height="25" rx="2"/><rect x="21" y="38" width="24" height="10" rx="4"/>'
+  + '<rect x="30" y="44" width="7" height="38" rx="3"/>'
+  + '<path d="M58 18 L69 28 L69 50 L58 50 Z"/><rect x="60" y="48" width="6" height="34" rx="3"/></g>';
+const stairs = (c) => '<path d="M16 78 h16 v-14 h16 v-14 h16 v-14 h16 v-14 h6 v56 z" fill="' + c + '"/>';
+const bike = (c) => '<g stroke="' + c + '" stroke-width="6" fill="none">'
+  + '<circle cx="26" cy="64" r="17"/><circle cx="74" cy="64" r="17"/>'
+  + '<path d="M26 64 L44 38 h18 L74 64" stroke-linejoin="round"/>'
+  + '<path d="M50 64 L62 38"/><path d="M40 34 h12"/></g>';
+const rain = (c) => '<g fill="' + c + '"><path d="M10 50 q40-48 80 0 z"/>'
+  + '<rect x="45" y="48" width="10" height="30"/>'
+  + '<path d="M55 72 q0 20 -19 14 v-11 q9 3 9-6 z"/></g>'
+  + '<g stroke="' + c + '" stroke-width="7" stroke-linecap="round">'
+  + '<line x1="14" y1="62" x2="9" y2="80"/><line x1="88" y1="62" x2="83" y2="80"/></g>';
+const cam = (c) => '<g fill="' + c + '"><path d="M18 36 h16 l6-8 h20 l6 8 h16 q4 0 4 4 v30 q0 4 -4 4 h-64 q-4 0 -4-4 v-30 q0-4 4-4z"/></g>'
+  + '<circle cx="50" cy="55" r="13" fill="#fff"/><circle cx="50" cy="55" r="7" fill="' + c + '"/>';
+const deer = (c) => '<g fill="' + c + '">'
+  + '<ellipse cx="42" cy="55" rx="21" ry="12"/><path d="M54 53 L64 33 L75 38 L64 57 Z"/>'
+  + '<ellipse cx="75" cy="33" rx="12" ry="7" transform="rotate(-26 75 33)"/>'
+  + '<rect x="28" y="62" width="9" height="24" rx="4"/><rect x="42" y="62" width="9" height="24" rx="4"/>'
+  + '<rect x="55" y="60" width="9" height="26" rx="4"/><path d="M22 49 L9 40 L14 52 Z"/></g>'
+  + '<g stroke="' + c + '" stroke-width="8" stroke-linecap="round" fill="none">'
+  + '<path d="M70 25 L64 13"/><path d="M72 25 L83 15"/></g>';
+const bang = (c) => '<g fill="' + c + '"><rect x="43" y="20" width="14" height="42" rx="7"/>'
+  + '<circle cx="50" cy="76" r="8"/></g>';
+const dog = (c) => '<g fill="' + c + '">'
+  + '<ellipse cx="44" cy="54" rx="20" ry="11"/><path d="M56 52 L66 38 L74 44 L64 56 Z"/>'
+  + '<path d="M66 32 q14 0 16 10 l-4 8 q-12 2 -16-6 z"/>'
+  + '<rect x="30" y="61" width="8" height="24" rx="4"/><rect x="43" y="61" width="8" height="24" rx="4"/>'
+  + '<rect x="55" y="59" width="8" height="26" rx="4"/>'
+  + '<path d="M24 48 q-10-12 -4-18 6 4 8 14 z"/></g>';
+const drop = (c) => '<path d="M50 12 q22 30 22 44 a22 22 0 0 1 -44 0 q0-14 22-44z" fill="' + c + '"/>';
+
+const banFrame = (inner) => '<circle cx="50" cy="50" r="41" fill="#fff" stroke="#c0392b" stroke-width="11"/>'
+  + '<g transform="translate(50,50) scale(.74) translate(-50,-50)">' + inner + '</g>'
+  + '<line x1="21" y1="79" x2="79" y2="21" stroke="#c0392b" stroke-width="11" stroke-linecap="round"/>';
+const warnFrame = (inner) => '<path d="M50 8 L95 87 H5 Z" fill="#f5c518" stroke="#1c2430" stroke-width="7" stroke-linejoin="round"/>'
+  + '<g transform="translate(50,61) scale(.56) translate(-50,-50)">' + inner + '</g>';
+const orderFrame = (inner) => '<circle cx="50" cy="50" r="44" fill="#1d5b95"/>'
+  + '<g transform="translate(50,50) scale(.74) translate(-50,-50)">' + inner + '</g>';
+const infoFrame = (inner) => '<rect width="100" height="100" rx="8" fill="#2e7d5b"/>' + inner;
+
+const G = {
+  exit:      svg(manRun(W), "#2e7d5b"),
+  noSmoke:   svg(banFrame(cigar(K))),
+  food:      svg(fork(K)),
+  stairs:    svg(stairs(K)),
+  rain:      svg(rain(K)),
+  deerWarn:  svg(warnFrame(deer(K))),
+  bangWarn:  svg(warnFrame(bang(K))),
+  dogWarn:   svg(warnFrame(dog(K))),
+  banCam:    svg(banFrame(cam(K))),
+  banBike:   svg(banFrame(bike(K))),
+  banDog:    svg(banFrame(dog(K))),
+  banRun:    svg(banFrame(manRun(K))),
+  orderBike: svg(orderFrame(bike(W))),
+  orderMan:  svg(orderFrame(manStand(W))),
+  infoRun:   svg(infoFrame(manRun(W))),
+  infoStair: svg(infoFrame(stairs(W))),
+  man:       svg(manStand(K)),
+  woman:     svg(womanStand(K)),
+  drop:      svg(drop(K)),
+  banDrop:   svg(banFrame(drop(K))),
+  camPlain:  svg(cam(K)),
+  bikePlain: svg(bike(K)),
+};
+const badMan = '<svg viewBox="0 0 100 100"><g stroke="#1c2430" stroke-width="1.3" fill="none">'
+  + '<circle cx="50" cy="20" r="9"/><path d="M50 29 v30"/><path d="M50 35 l-13 10"/><path d="M50 35 l13 10"/>'
+  + '<path d="M50 59 l-9 24"/><path d="M50 59 l9 24"/><path d="M43 14 q7-7 14 0"/>'
+  + '<path d="M46 19 h2 M52 19 h2"/><path d="M46 24 q4 3 8 0"/><path d="M39 41 q11 7 22 0"/>'
+  + '<path d="M43 49 h14"/><path d="M40 71 h6 M54 71 h6"/></g></svg>';
+
+/* ── 문제 ────────────────────────────────────────────────
+   a: 정답 인덱스는 섞기 전 기준(항상 0번을 정답으로 쓰고 shuffle 한다) */
+const QUIZ = [
+  { pic:["exit"], q:"이 표지판은 무슨 뜻일까?",
+    o:["불이 나면 이쪽으로 나가세요","여기서 뛰어도 됩니다","운동장으로 가는 길","체육 시간 모이는 곳"],
+    e:"초록 네모는 <b>안내·안전</b>을 뜻한다. 전 세계가 같은 그림을 쓴다." },
+
+  { pic:["noSmoke"], q:"이 표지판은 무슨 뜻일까?",
+    o:["담배를 피우면 안 됩니다","불조심하세요","여기서 요리하면 안 됩니다","연기가 나면 알려 주세요"],
+    e:"빨간 동그라미에 사선이 그어지면 <b>무조건 금지</b>다." },
+
+  { pic:["orderBike","banBike"], q:"같은 자전거 그림인데 뜻이 다르다. 자전거를 타고 지나가도 되는 곳은?",
+    o:["왼쪽 — 파란 동그라미","오른쪽 — 빨간 사선","둘 다 된다","둘 다 안 된다"],
+    e:"그림은 똑같아도 <b>파란 동그라미는 하세요, 빨간 사선은 하지 마세요</b>다. 뜻을 정하는 것은 그림이 아니라 도형과 색이다." },
+
+  { pic:["bangWarn"], q:"노란 삼각형은 무슨 뜻일까?",
+    o:["조심하세요","하지 마세요","이쪽으로 가세요","여기 있어요"],
+    e:"노란 삼각형 = <b>경고</b>. 위험한 것이 있으니 조심하라는 뜻이다." },
+
+  { pic:["orderMan"], q:"파란 동그라미 안에 사람이 있다면?",
+    o:["걸어서 다니세요","사람이 다니면 안 됩니다","사람을 찾습니다","여기 사람이 삽니다"],
+    e:"파란 동그라미는 <b>지시</b> — 이렇게 하라는 뜻이다." },
+
+  { pic:["banRun"], q:"이 표지판이 붙은 복도에서 하면 안 되는 것은?",
+    o:["뛰어다니기","이야기하기","걸어다니기","가방 메고 지나가기"],
+    e:"같은 '뛰는 사람'이라도 <b>초록 네모면 비상구, 빨간 사선이면 뛰지 마시오</b>가 된다." },
+
+  { pic:["deerWarn"], q:"길에서 이 표지판을 보면 운전자는 어떻게 해야 할까?",
+    o:["동물이 튀어나올 수 있으니 천천히","동물원이 가까우니 구경하기","이 길로 가면 안 되니 돌아가기","동물에게 먹이를 주기"],
+    e:"우리나라는 고라니·사슴을 그리지만, 호주에서는 <b>캥거루</b>가 그려져 있다." },
+
+  { pic:["food"], q:"이 그림이 가리키는 곳은?",
+    o:["밥을 먹는 곳","칼을 파는 곳","요리를 배우는 곳","설거지하는 곳"],
+    e:"포크와 나이프 하나로 전 세계 어디서나 <b>식당</b>이 된다." },
+
+  { pic:[], q:"'물을 마시지 마시오'를 만든다면 어떤 도형과 색이 맞을까?",
+    o:["빨간 동그라미에 사선","노란 삼각형","파란 동그라미","초록 네모"],
+    e:"하지 말라는 뜻은 언제나 <b>빨간 동그라미 + 사선</b>이다." },
+
+  { pic:["man","woman"], q:"이 두 그림이 나란히 붙어 있는 곳은?",
+    o:["화장실","교무실","보건실","급식실"],
+    e:"몸의 모양 차이 하나만으로 구별한다. 눈·코·입은 <b>없어도 통한다</b>." },
+
+  { pic:["man","badMan"], q:"멀리서도 잘 보이는 픽토그램은 어느 쪽일까?",
+    o:["왼쪽 — 덩어리로 그린 것","오른쪽 — 자세히 그린 것","둘 다 같다","오른쪽이 더 예쁘니까 오른쪽"],
+    e:"세부를 많이 그릴수록 <b>멀리서는 뭉개진다</b>. 픽토그램은 덩어리로 그린다." },
+
+  { pic:["infoStair"], q:"초록 네모 안에 계단이 있다면 무슨 뜻일까?",
+    o:["여기로 내려가면 밖으로 나갑니다","계단을 조심하세요","계단으로 다니면 안 됩니다","계단을 청소하세요"],
+    e:"초록은 <b>안내·안전</b>. 그래서 대피 통로 표시에 초록을 쓴다." },
+
+  { pic:["dogWarn","banDog"], q:"'개를 데리고 들어올 수 없습니다'는 어느 쪽일까?",
+    o:["오른쪽 — 빨간 사선","왼쪽 — 노란 삼각형","둘 다 맞다","둘 다 틀렸다"],
+    e:"노란 삼각형은 '개가 있으니 조심'이고, 빨간 사선이라야 <b>들어오지 마시오</b>가 된다." },
+
+  { pic:[], q:"픽토그램을 만들 때 지켜야 할 것이 아닌 것은?",
+    o:["내가 좋아하는 색으로 자유롭게 칠한다","단순하게 그린다","바탕과 색 차이를 크게 한다","약속된 도형을 쓴다"],
+    e:"색을 마음대로 바꾸면 <b>못 알아본다</b>. 픽토그램은 작품이기 전에 약속이다." },
+
+  { pic:[], q:"픽토그램이 처음 널리 쓰이기 시작한 때는?",
+    o:["1964년 도쿄올림픽","조선 시대","2002년 월드컵","스마트폰이 나온 뒤"],
+    e:"글자를 못 읽는 손님이 세계에서 몰려오자 <b>그림으로 안내</b>하기로 한 것이 시작이었다." },
+];
+
+/* ── 진행 ───────────────────────────────────────────────── */
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+let qs=[], idx=0, score=0, locked=false;
+const $body=document.getElementById("body"), $foot=document.getElementById("foot");
+const $pf=document.getElementById("pfill"), $sc=document.getElementById("score"), $qn=document.getElementById("qn");
+
+function best(){ try { return parseInt(localStorage.getItem("picto_best")||"0"); } catch(e){ return 0; } }
+function saveBest(v){ try { if(v>best()) localStorage.setItem("picto_best", v); } catch(e){} }
+
+function title(){
+  $qn.textContent=""; $sc.textContent=""; $pf.style.width="0";
+  const b=best();
+  $body.innerHTML='<div class="hero">'
+    + '<h1>그림 하나로 말이 통할까?</h1>'
+    + '<p>표지판을 보고 무슨 뜻인지 맞혀 보자.<br>모두 <b>' + QUIZ.length + '문제</b>다.</p>'
+    + '<div class="rules"><ul>'
+    + '<li>답을 고르면 바로 알려 준다</li>'
+    + '<li>틀려도 괜찮다 — 설명을 꼭 읽어 보자</li>'
+    + '<li>도형과 색을 잘 보면 절반은 맞힐 수 있다</li>'
+    + '</ul></div>'
+    + (b ? '<div class="best">내 최고 기록 ' + b + ' / ' + QUIZ.length + '</div>' : '')
+    + '<button class="btn" onclick="start()">시작하기</button>'
+    + '<div class="url">태블릿에서 열기 · leixlix-pixel.github.io/toolbox/pictogram-quiz.html</div>'
+    + '</div>';
+  $foot.innerHTML='<span class="hint">미술 6단원 · 시각 이미지로 소통하는 우리</span>';
+}
+
+function start(){
+  qs = shuffle(QUIZ.map(q => {
+    const opts = q.o.map((t,i) => ({t:t, ok:i===0}));
+    return { pic:q.pic, q:q.q, e:q.e, opts:shuffle(opts) };
+  }));
+  idx=0; score=0; render();
+}
+
+function render(){
+  locked=false;
+  const q=qs[idx];
+  $qn.textContent=(idx+1) + " / " + qs.length;
+  $sc.textContent=score + "점";
+  $pf.style.width=(idx/qs.length*100) + "%";
+
+  let pics="";
+  if (q.pic.length){
+    pics='<div class="stage">' + q.pic.map(k => '<div>' + (k==="badMan"?badMan:G[k]) + '</div>').join("") + '</div>';
+  }
+  $body.innerHTML='<div class="qhead">문제 ' + (idx+1) + '</div>'
+    + '<div class="qtext">' + q.q + '</div>'
+    + pics
+    + '<div class="opts" id="opts">'
+    + q.opts.map((o,i) => '<button class="opt" onclick="pick(' + i + ')" id="o' + i + '">'
+        + '<span class="num">' + (i+1) + '</span><span>' + o.t + '</span></button>').join("")
+    + '</div>'
+    + '<div class="fb" id="fb"></div>';
+  $foot.innerHTML='<span class="hint">답을 골라 보자</span>';
+}
+
+function pick(i){
+  if (locked) return;
+  locked=true;
+  const q=qs[idx], ok=q.opts[i].ok;
+  if (ok) score++;
+  q.opts.forEach((o,n) => {
+    const el=document.getElementById("o"+n);
+    if (n===i) el.classList.add(ok ? "pick-o" : "pick-x");
+    else if (o.ok) el.classList.add("show-o");
+  });
+  const fb=document.getElementById("fb");
+  fb.className="fb on " + (ok ? "o" : "x");
+  fb.innerHTML=(ok ? "<b>맞았다!</b> " : "<b>아쉽다.</b> ") + q.e;
+  $sc.textContent=score + "점";
+  $foot.innerHTML='<span class="hint">' + (idx+1) + ' / ' + qs.length + '</span>'
+    + '<button class="btn" style="margin:0 0 0 auto;padding:12px 28px;font-size:19px;min-height:48px" onclick="next()">'
+    + (idx===qs.length-1 ? "결과 보기" : "다음 문제") + '</button>';
+  fb.scrollIntoView({behavior:"smooth", block:"nearest"});
+}
+
+function next(){
+  idx++;
+  if (idx>=qs.length) result(); else render();
+}
+
+function result(){
+  $pf.style.width="100%";
+  saveBest(score);
+  const pct=score/qs.length;
+  let msg, sm;
+  if (pct===1){ msg="한 문제도 안 틀렸다!"; sm="이제 표지판을 직접 만들 차례다."; }
+  else if (pct>=.7){ msg="잘했다!"; sm="도형과 색의 약속을 거의 다 잡았다."; }
+  else if (pct>=.4){ msg="절반은 맞혔다"; sm="빨강·노랑·파랑·초록이 각각 무슨 뜻이었는지 다시 떠올려 보자."; }
+  else { msg="다시 한 번 해 보자"; sm="도형과 색만 알아도 훨씬 많이 맞힐 수 있다."; }
+  $body.innerHTML='<div class="res">'
+    + '<div class="big">' + score + ' / ' + qs.length + '</div>'
+    + '<div class="msg">' + msg + '</div>'
+    + '<div class="sm">' + sm + '</div>'
+    + '<div class="sm" style="margin-top:20px"><b>빨간 원+사선</b> 하지 마세요 · <b>노란 삼각형</b> 조심하세요<br>'
+    + '<b>파란 동그라미</b> 이렇게 하세요 · <b>초록 네모</b> 여기 있어요</div>'
+    + '<div class="best">최고 기록 ' + best() + ' / ' + qs.length + '</div>'
+    + '<button class="btn" onclick="start()">다시 하기</button> '
+    + '<button class="btn ghost" onclick="title()">처음으로</button>'
+    + '</div>';
+  $foot.innerHTML='<span class="hint">문제 순서와 답의 자리는 할 때마다 바뀐다</span>';
+}
+
+title();
+</script>
+</body>
+</html>

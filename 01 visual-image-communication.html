@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>시각 이미지로 소통하는 우리</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --ink:#1c2430; --navy:#123a63; --navy2:#1d5b95;
+  --red:#c0392b; --gold:#c8963e; --green:#2e7d5b; --plum:#7d4a86;
+  --paper:#f6f2e9; --line:#d9d2c4; --muted:#6d6b66;
+}
+
+html,body{height:100%;background:#0d1520;font-family:'Noto Sans KR',sans-serif;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;overflow:hidden}
+
+#stage{position:absolute;left:50%;top:50%;width:1280px;height:720px;
+  transform-origin:center center;background:var(--paper);overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,.6)}
+
+.slide{position:absolute;inset:0;padding:40px 54px;display:none;
+  flex-direction:column;background:var(--paper);--acc:var(--navy)}
+.slide.on{display:flex}
+.slide::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(circle at 12% 8%,rgba(200,150,62,.10),transparent 45%),
+             radial-gradient(circle at 92% 95%,rgba(18,58,99,.08),transparent 45%)}
+.slide>*{position:relative;z-index:1}
+
+.eyebrow{display:inline-block;font-size:21px;font-weight:700;color:#fff;
+  background:var(--acc);padding:6px 18px;border-radius:999px;margin-bottom:12px}
+h1.title{font-size:56px;font-weight:900;color:var(--navy);line-height:1.16;letter-spacing:-.02em}
+h2.stitle{font-size:40px;font-weight:900;color:var(--acc);line-height:1.2;letter-spacing:-.02em;margin-bottom:6px}
+.rule{width:92px;height:7px;border-radius:4px;
+  background:linear-gradient(90deg,var(--red),var(--gold));margin:10px 0 20px}
+p.body{font-size:27px;line-height:1.58;color:var(--ink);font-weight:500}
+p.body+p.body{margin-top:12px}
+.small{font-size:22px;line-height:1.5}
+.tiny{font-size:19px;line-height:1.5}
+
+b.hl{font-weight:900;color:var(--red);background:linear-gradient(transparent 62%,rgba(192,57,43,.20) 62%);padding:0 2px}
+b.hn{font-weight:900;color:var(--navy2);background:linear-gradient(transparent 62%,rgba(29,91,149,.18) 62%);padding:0 2px}
+b.hg{font-weight:900;color:var(--green);background:linear-gradient(transparent 62%,rgba(46,125,91,.18) 62%);padding:0 2px}
+
+.cols{display:flex;gap:30px;flex:1;min-height:0;align-items:center}
+.col{flex:1;min-width:0}
+
+.term{background:#fff;border-left:9px solid var(--gold);border-radius:8px;padding:14px 18px;
+  box-shadow:0 6px 16px rgba(30,25,15,.10)}
+.term .t{font-size:24px;font-weight:900;color:var(--gold);margin-bottom:3px}
+.term .d{font-size:22px;font-weight:500;color:var(--ink);line-height:1.5}
+
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;
+  box-shadow:0 6px 16px rgba(30,25,15,.09)}
+.card h3{font-size:22px;font-weight:900;color:var(--acc);margin-bottom:6px}
+
+.act{background:#fff;border:3px dashed var(--navy2);border-radius:18px;padding:18px 22px}
+.act-h{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.act-badge{background:var(--navy2);color:#fff;font-weight:900;font-size:20px;
+  padding:5px 15px;border-radius:999px;white-space:nowrap}
+.act-t{font-size:25px;font-weight:900;color:var(--navy)}
+
+.chip{display:inline-block;background:#fff;border:2px solid var(--acc);color:var(--acc);
+  font-weight:900;font-size:20px;border-radius:999px;padding:9px 20px;margin:6px 8px 0 0}
+.chipwrap{display:flex;flex-wrap:wrap}
+
+/* 픽토그램 전용 */
+.pgrid{display:flex;gap:22px;justify-content:center;align-items:center;flex-wrap:wrap;flex:1;min-height:0}
+.pitem{text-align:center;width:180px}
+.pitem svg{width:150px;height:150px;display:block;margin:0 auto}
+.pitem .plab{font-size:22px;font-weight:700;color:var(--ink);margin-top:8px;line-height:1.3}
+.pitem .pq{font-size:40px;font-weight:900;color:var(--muted);margin-top:6px}
+.prow{display:flex;gap:26px;align-items:center;justify-content:center;flex:1;min-height:0}
+.shape{text-align:center;width:216px}
+.shape svg{width:172px;height:172px;display:block;margin:0 auto}
+.shape .sn{font-size:23px;font-weight:900;margin-top:6px}
+.shape .sd{font-size:19px;color:var(--muted);font-weight:600;line-height:1.35;margin-top:3px}
+
+.vs{display:flex;gap:18px;align-items:stretch}
+.vs .vbox{flex:1;background:#fff;border-radius:14px;padding:14px 16px;border:1px solid var(--line);
+  box-shadow:0 6px 16px rgba(30,25,15,.09);text-align:center}
+.vs .vt{font-size:21px;font-weight:900;margin-bottom:6px}
+.vs svg{width:96px;height:96px}
+.vs .vc{font-size:17px;color:var(--muted);font-weight:600;margin-top:6px;line-height:1.35}
+
+.yr{display:inline-block;background:var(--acc);color:#fff;font-family:'Gaegu',sans-serif;
+  font-size:30px;padding:2px 16px;border-radius:8px;margin-bottom:8px}
+
+/* 표지 */
+.cover2{justify-content:center;align-items:center;text-align:center;background:linear-gradient(160deg,#123a63,#1d5b95 70%)}
+.cover2 .kicker{color:#f3d79a;font-size:22px;font-weight:700;margin-bottom:16px}
+.cover2 h1{color:#fff;font-size:50px;font-weight:900;line-height:1.28}
+.cover2 .sub{color:#d5dced;font-size:22px;font-weight:500;margin-top:18px}
+
+.divider{justify-content:center;align-items:center;text-align:center;background:linear-gradient(160deg,#1d5b95,#123a63 70%)}
+.divider .num{color:#f3d79a;font-size:26px;font-weight:900;margin-bottom:10px}
+.divider h1{color:#fff;font-size:46px;font-weight:900;line-height:1.25}
+
+.bar{position:fixed;left:0;right:0;bottom:0;height:46px;background:#0f1a29;color:#cfd8e6;
+  display:flex;align-items:center;gap:10px;padding:0 14px;font-size:15px;z-index:50}
+.bar button{background:#1d3350;color:#e8eef7;border:0;border-radius:7px;padding:7px 13px;
+  font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+#prog{position:fixed;left:0;top:0;height:4px;background:var(--navy2);z-index:60;transition:width .18s}
+.zone{position:fixed;top:0;bottom:46px;width:12%;z-index:40;cursor:pointer}
+#zl{left:0}#zr{right:0}
+</style>
+</head>
+<body>
+
+<div id="prog"></div>
+<div id="stage"></div>
+<div class="zone" id="zl"></div>
+<div class="zone" id="zr"></div>
+<div class="bar">
+  <button onclick="go(-1)">◀ 이전</button>
+  <button onclick="go(1)">다음 ▶</button>
+  <span id="counter">1 / 1</span>
+  <span style="margin-left:18px;opacity:.7">← → 이동 · F 전체화면</span>
+  <button style="margin-left:auto" onclick="fs()">⛶ 전체화면</button>
+</div>
+
+<script>
+/* ── 픽토그램은 전부 여기서 직접 그린다 (외부 이미지 없음) ───── */
+const W = "#fff", K = "#1c2430";
+function svg(inner, bg){
+  return '<svg viewBox="0 0 100 100">' + (bg ? '<rect width="100" height="100" rx="10" fill="' + bg + '"/>' : "") + inner + '</svg>';
+}
+const manStand = (c) => '<circle cx="50" cy="24" r="10" fill="' + c + '"/>'
+  + '<path d="M50 36 q-14 0 -14 16 v14 h6 v22 h6 v-22 h4 v22 h6 v-22 h6 v-14 q0-16 -14-16z" fill="' + c + '"/>';
+
+const manRun = (c) => '<circle cx="65" cy="18" r="9" fill="' + c + '"/>'
+  + '<g stroke="' + c + '" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" fill="none">'
+  + '<path d="M62 30 L51 48"/>'
+  + '<path d="M60 34 L74 41"/>'
+  + '<path d="M61 33 L45 28"/>'
+  + '<path d="M51 48 L65 58 L72 74"/>'
+  + '<path d="M51 48 L34 55 L26 47"/></g>';
+
+const cigar = (c) => '<g fill="' + c + '"><rect x="18" y="54" width="42" height="13" rx="2"/>'
+  + '<rect x="62" y="54" width="14" height="13" rx="2" opacity=".45"/></g>'
+  + '<g stroke="' + c + '" stroke-width="6" stroke-linecap="round" fill="none">'
+  + '<path d="M28 44 q10-9 0-19"/><path d="M46 44 q10-9 0-19"/></g>';
+
+const fork = (c) => '<g fill="' + c + '">'
+  + '<rect x="21" y="18" width="6" height="25" rx="2"/>'
+  + '<rect x="30" y="18" width="6" height="25" rx="2"/>'
+  + '<rect x="39" y="18" width="6" height="25" rx="2"/>'
+  + '<rect x="21" y="38" width="24" height="10" rx="4"/>'
+  + '<rect x="30" y="44" width="7" height="38" rx="3"/>'
+  + '<path d="M58 18 L69 28 L69 50 L58 50 Z"/>'
+  + '<rect x="60" y="48" width="6" height="34" rx="3"/></g>';
+
+const stairs = (c) => '<path d="M16 78 h16 v-14 h16 v-14 h16 v-14 h16 v-14 h6 v56 z" fill="' + c + '"/>';
+
+const bike = (c) => '<g stroke="' + c + '" stroke-width="6" fill="none">'
+  + '<circle cx="26" cy="64" r="17"/><circle cx="74" cy="64" r="17"/>'
+  + '<path d="M26 64 L44 38 h18 L74 64" stroke-linejoin="round"/>'
+  + '<path d="M50 64 L62 38"/><path d="M40 34 h12"/></g>';
+
+const rain = (c) => '<g fill="' + c + '">'
+  + '<path d="M10 50 q40-48 80 0 z"/>'
+  + '<rect x="45" y="48" width="10" height="30"/>'
+  + '<path d="M55 72 q0 20 -19 14 v-11 q9 3 9-6 z"/></g>'
+  + '<g stroke="' + c + '" stroke-width="7" stroke-linecap="round">'
+  + '<line x1="14" y1="62" x2="9" y2="80"/><line x1="88" y1="62" x2="83" y2="80"/></g>';
+
+const deer = (c) => '<g fill="' + c + '">'
+  + '<ellipse cx="42" cy="55" rx="21" ry="12"/>'
+  + '<path d="M54 53 L64 33 L75 38 L64 57 Z"/>'
+  + '<ellipse cx="75" cy="33" rx="12" ry="7" transform="rotate(-26 75 33)"/>'
+  + '<rect x="28" y="62" width="9" height="24" rx="4"/>'
+  + '<rect x="42" y="62" width="9" height="24" rx="4"/>'
+  + '<rect x="55" y="60" width="9" height="26" rx="4"/>'
+  + '<path d="M22 49 L9 40 L14 52 Z"/></g>'
+  + '<g stroke="' + c + '" stroke-width="8" stroke-linecap="round" fill="none">'
+  + '<path d="M70 25 L64 13"/><path d="M72 25 L83 15"/></g>';
+
+const question = (c) => '<text x="50" y="74" text-anchor="middle" font-size="62" font-weight="900"'
+  + ' font-family="Noto Sans KR, sans-serif" fill="' + c + '">?</text>';
+
+const bang = (c) => '<g fill="' + c + '"><rect x="43" y="20" width="14" height="42" rx="7"/>'
+  + '<circle cx="50" cy="76" r="8"/></g>';
+
+const cam = (c) => '<g fill="' + c + '"><path d="M18 36 h16 l6-8 h20 l6 8 h16 q4 0 4 4 v30 q0 4 -4 4 h-64 q-4 0 -4-4 v-30 q0-4 4-4z"/></g>'
+  + '<circle cx="50" cy="55" r="13" fill="#fff"/><circle cx="50" cy="55" r="7" fill="' + c + '"/>';
+
+/* 도형·색 약속 4종 */
+const banFrame = (inner) => '<circle cx="50" cy="50" r="41" fill="#fff" stroke="#c0392b" stroke-width="11"/>'
+  + '<g transform="translate(50,50) scale(.74) translate(-50,-50)">' + inner + '</g>'
+  + '<line x1="21" y1="79" x2="79" y2="21" stroke="#c0392b" stroke-width="11" stroke-linecap="round"/>';
+const warnFrame = (inner) => '<path d="M50 8 L95 87 H5 Z" fill="#f5c518" stroke="#1c2430" stroke-width="7" stroke-linejoin="round"/>'
+  + '<g transform="translate(50,61) scale(.56) translate(-50,-50)">' + inner + '</g>';
+const orderFrame = (inner) => '<circle cx="50" cy="50" r="44" fill="#1d5b95"/>'
+  + '<g transform="translate(50,50) scale(.74) translate(-50,-50)">' + inner + '</g>';
+const infoFrame = (inner) => '<rect width="100" height="100" rx="8" fill="#2e7d5b"/>' + inner;
+
+const P = {
+  exit:     svg(manRun(W), "#2e7d5b"),
+  noSmoke:  svg(banFrame(cigar(K))),
+  food:     svg(fork(K)),
+  stairs:   svg(stairs(K)),
+  rain:     svg(rain(K)),
+  deerWarn: svg(warnFrame(deer(K))),
+  bangWarn: svg(warnFrame(bang(K))),
+  quizWarn: svg(warnFrame(question(K))),
+  banCam:   svg(banFrame(cam(K))),
+  orderBike:svg(orderFrame(bike(W))),
+  manOk:    svg(manStand(K)),
+};
+
+/* 나쁜 예 — 선이 가늘고 세부가 많아 멀리서 뭉개진다 */
+const badMan = '<svg viewBox="0 0 100 100"><g stroke="#1c2430" stroke-width="1.3" fill="none">'
+  + '<circle cx="50" cy="20" r="9"/><path d="M50 29 v30"/><path d="M50 35 l-13 10"/><path d="M50 35 l13 10"/>'
+  + '<path d="M50 59 l-9 24"/><path d="M50 59 l9 24"/>'
+  + '<path d="M43 14 q7-7 14 0"/><path d="M46 19 h2 M52 19 h2"/><path d="M46 24 q4 3 8 0"/>'
+  + '<path d="M39 41 q11 7 22 0"/><path d="M43 49 h14"/><path d="M40 71 h6 M54 71 h6"/>'
+  + '<circle cx="50" cy="44" r="1.5"/><circle cx="50" cy="50" r="1.5"/></g></svg>';
+
+/* ── 슬라이드 ─────────────────────────────────────────────── */
+const pit = (k, lab) => '<div class="pitem">' + P[k] + '<div class="plab">' + lab + '</div></div>';
+const pq  = (k) => '<div class="pitem">' + P[k] + '<div class="pq">?</div></div>';
+
+const SLIDES = [
+
+'<section class="slide cover2">'
++ '<div class="kicker">미술 6단원 · 1~2차시</div>'
++ '<h1>말이 통하지 않아도<br>알아들을 수 있을까?</h1>'
++ '<div class="sub">시각 이미지로 소통하는 우리 · 교과서 44~45쪽</div>'
++ '</section>',
+
+'<section class="slide">'
++ '<div><span class="eyebrow">먼저 맞혀 보기</span></div>'
++ '<h2 class="stitle">이 그림들, 무슨 뜻일까?</h2>'
++ '<div class="rule"></div>'
++ '<p class="body small">글자는 한 자도 없다. 그런데도 읽힌다.</p>'
++ '<div class="pgrid" style="margin-top:24px">'
++ pq("exit") + pq("noSmoke") + pq("food") + pq("stairs") + pq("rain") + pq("deerWarn")
++ '</div></section>',
+
+'<section class="slide" style="--acc:var(--green)">'
++ '<div><span class="eyebrow">정답</span></div>'
++ '<h2 class="stitle">배운 적 없는데 다 맞혔다</h2>'
++ '<div class="rule"></div>'
++ '<div class="pgrid" style="margin-top:6px">'
++ pit("exit","비상구") + pit("noSmoke","금연") + pit("food","식당")
++ pit("stairs","계단") + pit("rain","비 조심") + pit("deerWarn","야생동물 주의")
++ '</div>'
++ '<p class="body small" style="margin-top:24px">시험 본 적도, 외운 적도 없다. '
++ '<b class="hg">그런데도 모두가 똑같이 읽는 그림</b> — 오늘은 이것이 어떻게 만들어졌는지 알아본다.</p>'
++ '</section>',
+
+'<section class="slide divider">'
++ '<div class="num">1964년 · 도쿄</div>'
++ '<h1>글자를 못 읽는 손님이<br>한꺼번에 몰려온다</h1>'
++ '</section>',
+
+'<section class="slide" style="--acc:var(--red)">'
++ '<div><span class="yr">1964</span></div>'
++ '<h2 class="stitle">올림픽을 앞둔 일본의 걱정</h2>'
++ '<div class="rule"></div>'
++ '<div class="cols"><div class="col">'
++ '<p class="body">전 세계에서 선수와 손님이 몰려오는데, '
++ '<b class="hl">일본 글자를 읽을 수 있는 사람이 거의 없었다.</b></p>'
++ '<p class="body">화장실이 어디인지, 어디서 밥을 먹는지 안내판에 아무리 써 붙여도 소용이 없다.</p>'
++ '<p class="body">그래서 일본은 <b class="hn">글자를 버리고 그림으로 안내하기로</b> 했다. 세계에서 처음 있는 일이었다.</p>'
++ '</div><div class="col">'
++ '<div class="pgrid">' + pit("food","식당") + pit("manOk","안내소") + '</div>'
++ '<div class="term" style="margin-top:20px">'
++ '<div class="t">픽토그램 (pictogram)</div>'
++ '<div class="d">그림(picture)과 전보(telegram)를 합친 말. <b>글자 없이 뜻만 전하는 그림</b>이라는 뜻이다.</div>'
++ '</div></div></div></section>',
+
+'<section class="slide" style="--acc:var(--gold)">'
++ '<div><span class="eyebrow">이야기 하나 더</span></div>'
++ '<h2 class="stitle">만든 사람들은 권리를 포기했다</h2>'
++ '<div class="rule"></div>'
++ '<p class="body">도쿄올림픽 픽토그램을 만든 디자이너들은 '
++ '<b class="hl">"이 그림은 누구나 마음대로 써도 좋다"</b>고 선언했다.</p>'
++ '<p class="body">덕분에 이 그림들은 전 세계 공항·역·병원으로 퍼져 나갔다. '
++ '지금 우리 학교 복도에 붙은 그림도 여기서 시작된 것이다.</p>'
++ '<div class="act" style="margin-top:22px">'
++ '<div class="act-h"><span class="act-badge">생각해 보기</span>'
++ '<span class="act-t">돈이 될 그림을 왜 거저 내주었을까?</span></div>'
++ '<p class="body small">한 사람만 가지고 있으면 그냥 그림이지만, '
++ '<b class="hn">모두가 함께 쓰면 약속이 된다.</b> 약속이 되어야 어디서 봐도 통한다.</p>'
++ '</div></section>',
+
+'<section class="slide" style="--acc:var(--green)">'
++ '<div><span class="eyebrow">우리 교실 문 위에도 있다</span></div>'
++ '<h2 class="stitle">초록색으로 뛰는 사람</h2>'
++ '<div class="rule"></div>'
++ '<div class="cols">'
++ '<div class="col" style="flex:0 0 250px;text-align:center">'
++ '<div style="width:220px;margin:0 auto">' + P.exit + '</div></div>'
++ '<div class="col">'
++ '<p class="body">1979년 일본에서 <b class="hn">비상구 표지 그림 공모전</b>이 열렸다. '
++ '불이 났을 때 연기 속에서도 한눈에 보이는 그림을 찾는 대회였다.</p>'
++ '<p class="body">거기서 뽑힌 그림이 이것이다. 8년 뒤에는 '
++ '<b class="hg">국제 표준이 되어 전 세계가 같은 그림을 쓰게</b> 되었다.</p>'
++ '<p class="body small" style="margin-top:16px;color:var(--muted)">'
++ '※ 지금 고개를 돌려 교실 문 위를 보자. 똑같은 그림이 붙어 있다.</p>'
++ '</div></div></section>',
+
+'<section class="slide divider">'
++ '<div class="num">약속 하나</div>'
++ '<h1>그림보다 도형과 색이<br>먼저 말한다</h1>'
++ '</section>',
+
+'<section class="slide" style="--acc:var(--plum)">'
++ '<div><span class="eyebrow">가장 중요</span></div>'
++ '<h2 class="stitle">무슨 그림인지 알기 전에 이미 안다</h2>'
++ '<div class="rule" style="margin-bottom:16px"></div>'
++ '<div class="prow">'
++ '<div class="shape">' + P.banCam + '<div class="sn" style="color:var(--red)">빨간 원 + 사선</div><div class="sd">하지 마세요<br>(금지)</div></div>'
++ '<div class="shape">' + P.bangWarn + '<div class="sn" style="color:#a8860b">노란 삼각형</div><div class="sd">조심하세요<br>(경고)</div></div>'
++ '<div class="shape">' + P.orderBike + '<div class="sn" style="color:var(--navy2)">파란 동그라미</div><div class="sd">이렇게 하세요<br>(지시)</div></div>'
++ '<div class="shape">' + P.exit + '<div class="sn" style="color:var(--green)">초록 네모</div><div class="sd">여기 있어요<br>(안내·안전)</div></div>'
++ '</div>'
++ '<p class="body small" style="margin-top:22px">그림을 알아보기 전에 '
++ '<b class="hl">색과 도형만으로 절반은 이미 전달된다.</b> 그래서 만들 때 이 약속을 지켜야 한다.</p>'
++ '</section>',
+
+'<section class="slide" style="--acc:var(--navy2)">'
++ '<div><span class="eyebrow">잘 통하는 그림의 조건</span></div>'
++ '<h2 class="stitle">왜 이렇게까지 단순할까?</h2>'
++ '<div class="rule"></div>'
++ '<div class="vs">'
++ '<div class="vbox" style="border:3px solid var(--green)">'
++ '<div class="vt" style="color:var(--green)">✓ 통한다</div>' + P.manOk
++ '<div class="vc">멀리서도, 뛰어가면서도,<br>연기 속에서도 보인다</div></div>'
++ '<div class="vbox" style="border:3px solid var(--red)">'
++ '<div class="vt" style="color:var(--red)">✗ 안 통한다</div>' + badMan
++ '<div class="vc">눈·코·입·단추까지 그렸더니<br>세 걸음만 떨어져도 뭉개진다</div></div>'
++ '<div class="col" style="flex:1.25;display:flex;flex-direction:column;justify-content:center;gap:10px">'
++ '<div class="card"><h3>① 덩어리로</h3><div class="small">가는 선이 아니라 <b>꽉 채운 덩어리</b>로 그린다</div></div>'
++ '<div class="card"><h3>② 대비를 세게</h3><div class="small">바탕과 <b>색 차이가 클수록</b> 멀리서 보인다</div></div>'
++ '<div class="card"><h3>③ 약속을 지켜</h3><div class="small">색과 도형을 내 맘대로 바꾸면 <b>못 알아본다</b></div></div>'
++ '</div></div></section>',
+
+'<section class="slide" style="--acc:var(--gold)">'
++ '<div><span class="eyebrow">그런데 말이야</span></div>'
++ '<h2 class="stitle">같은 뜻인데 그림이 달라진다</h2>'
++ '<div class="rule"></div>'
++ '<div class="prow" style="gap:70px">'
++ '<div class="shape">' + P.deerWarn + '<div class="sn">우리나라 · 유럽</div><div class="sd">고라니·사슴이 뛰어든다</div></div>'
++ '<div class="shape">' + P.quizWarn + '<div class="sn">호주에서는?</div><div class="sd">여기엔 무엇이 그려져<br>있을까?</div></div>'
++ '</div>'
++ '<p class="body" style="margin-top:22px">둘 다 <b class="hn">야생동물 주의</b>라는 똑같은 뜻이다. '
++ '호주는 캥거루, 캐나다는 큰사슴, 사막이 있는 나라는 낙타를 그린다.</p>'
++ '<p class="body small" style="margin-top:12px">'
++ '<b class="hl">그림은 저절로 통하는 것이 아니다.</b> 보는 사람이 아는 것을 그려야 통한다.</p>'
++ '</section>',
+
+'<section class="slide divider">'
++ '<div class="num">1999년 · 그리고 오늘</div>'
++ '<h1>주머니 속으로 들어온<br>시각 이미지</h1>'
++ '</section>',
+
+'<section class="slide" style="--acc:var(--plum)">'
++ '<div><span class="yr">1999</span></div>'
++ '<h2 class="stitle">이모지는 176개에서 시작했다</h2>'
++ '<div class="rule"></div>'
++ '<div class="cols"><div class="col">'
++ '<p class="body">일본의 한 통신 회사 직원이, 좁은 휴대전화 화면에 '
++ '<b class="hn">날씨와 기분을 짧게 전할 방법</b>을 고민하다가 '
++ '가로세로 12칸짜리 아주 작은 그림 176개를 그렸다.</p>'
++ '<p class="body">그것이 우리가 매일 쓰는 이모지의 시작이다. 지금은 '
++ '<b class="hl">3천 개가 넘고</b>, 처음 만든 176개는 뉴욕의 미술관에 작품으로 소장되어 있다.</p>'
++ '</div><div class="col">'
++ '<div class="term"><div class="t">이모지 · 이모티콘</div>'
++ '<div class="d">감정이나 상태를 나타내기 위해 쓰는 그림글자. 교과서 44쪽에 나온 그 말이다.</div></div>'
++ '<div class="act" style="margin-top:18px;border-color:var(--plum)">'
++ '<p class="body small">오늘 내가 보낸 메시지에 <b>이모티콘이 몇 개</b> 들어갔는지 세어 보자.</p>'
++ '</div></div></div></section>',
+
+'<section class="slide" style="--acc:var(--navy)">'
++ '<div><span class="eyebrow">정리</span></div>'
++ '<h2 class="stitle">둘은 하는 일이 다르다</h2>'
++ '<div class="rule"></div>'
++ '<div class="vs">'
++ '<div class="vbox" style="text-align:left;padding:20px 24px">'
++ '<div class="vt" style="color:var(--navy2);font-size:26px">픽토그램 · 표지판</div>'
++ '<p class="small" style="margin-top:10px">전하는 것 → <b>정보와 약속</b></p>'
++ '<p class="small" style="margin-top:8px">누가 보든 <b>똑같이</b> 읽혀야 한다</p>'
++ '<p class="small" style="margin-top:8px">틀리게 읽히면 <b class="hl">위험해진다</b></p></div>'
++ '<div class="vbox" style="text-align:left;padding:20px 24px">'
++ '<div class="vt" style="color:var(--plum);font-size:26px">이모티콘 · 이모지</div>'
++ '<p class="small" style="margin-top:10px">전하는 것 → <b>감정과 분위기</b></p>'
++ '<p class="small" style="margin-top:8px">사람마다 <b>다르게</b> 느껴도 괜찮다</p>'
++ '<p class="small" style="margin-top:8px">잘못 쓰면 <b class="hl">마음이 상한다</b></p></div>'
++ '</div>'
++ '<p class="body small" style="margin-top:22px">그래서 표지판은 <b class="hn">약속을 지켜</b> 만들고, '
++ '이모티콘은 <b class="hn">받는 사람을 생각해</b> 만든다.</p>'
++ '</section>',
+
+'<section class="slide" style="--acc:var(--green)">'
++ '<div><span class="eyebrow">오늘 할 일</span></div>'
++ '<h2 class="stitle">우리 학교를 눈으로 읽어 보자</h2>'
++ '<div class="rule"></div>'
++ '<div class="act">'
++ '<div class="act-h"><span class="act-badge">활동 1</span><span class="act-t">픽토그램 퀴즈 (태블릿)</span></div>'
++ '<p class="body small">표지판을 보고 뜻을 맞혀 본다. 도형과 색의 약속을 눈으로 확인하는 시간.</p></div>'
++ '<div class="act" style="margin-top:18px;border-color:var(--green)">'
++ '<div class="act-h"><span class="act-badge" style="background:var(--green)">활동 2</span>'
++ '<span class="act-t">학교 안 시각 이미지 찾기</span></div>'
++ '<p class="body small">복도·계단·급식실을 돌며 그림으로 말하는 것들을 찾아 적는다. '
++ '<b class="hg">"여기 하나 있으면 좋겠다" 싶은 자리도 함께 찾아 온다.</b></p></div>'
++ '<p class="body" style="margin-top:22px">다음 시간에는 그 자리에 붙일 표지판을 '
++ '<b class="hl">색상지로 직접 만든다.</b></p>'
++ '</section>',
+
+'<section class="slide cover2">'
++ '<div class="kicker">오늘의 한 문장</div>'
++ '<h1 style="font-size:44px">좋은 그림 하나는<br>백 마디 설명보다 빠르다</h1>'
++ '<div class="sub">단순하게 · 대비를 세게 · 약속을 지켜</div>'
++ '</section>'
+
+];
+
+const stage = document.getElementById("stage");
+stage.innerHTML = SLIDES.join("");
+const slides = [...stage.querySelectorAll(".slide")];
+
+let cur = 0;
+function show(i){
+  cur = Math.max(0, Math.min(slides.length - 1, i));
+  slides.forEach((s,n) => s.classList.toggle("on", n === cur));
+  document.getElementById("counter").textContent = (cur+1) + " / " + slides.length;
+  const p = document.getElementById("prog");
+  p.style.width = ((cur+1)/slides.length*100) + "%";
+  p.style.background = getComputedStyle(slides[cur]).getPropertyValue("--acc");
+}
+function go(d){ show(cur + d); }
+function fit(){
+  const s = Math.min(window.innerWidth/1280, (window.innerHeight-46)/720);
+  stage.style.transform = "translate(-50%,-50%) scale(" + s + ")";
+}
+function fs(){
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+  else document.exitFullscreen();
+}
+document.addEventListener("keydown", e => {
+  if (["ArrowRight","PageDown"," "].includes(e.key)) { e.preventDefault(); go(1); }
+  if (["ArrowLeft","PageUp"].includes(e.key)) { e.preventDefault(); go(-1); }
+  if (e.key === "Home") show(0);
+  if (e.key === "End") show(slides.length-1);
+  if (e.key === "f" || e.key === "F") fs();
+});
+document.getElementById("zl").onclick = () => go(-1);
+document.getElementById("zr").onclick = () => go(1);
+let tx=0, ty=0;
+document.addEventListener("touchstart", e => { tx=e.touches[0].clientX; ty=e.touches[0].clientY; }, {passive:true});
+document.addEventListener("touchend", e => {
+  const dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty;
+  if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) go(dx < 0 ? 1 : -1);
+}, {passive:true});
+window.addEventListener("resize", fit);
+fit();
+show(0);
+</script>
+</body>
+</html>

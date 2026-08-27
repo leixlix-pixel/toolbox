@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>이모티콘 만들기 — 움직이는 3컷</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1c2430; --navy:#123a63; --navy2:#1d5b95; --red:#c0392b;
+  --gold:#c8963e; --green:#2e7d5b; --plum:#7d4a86; --line:#d9d2c4; --muted:#6d6b66;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Noto Sans KR',sans-serif;background:#0d1520;color:var(--ink);
+  touch-action:none;-webkit-tap-highlight-color:transparent;user-select:none;
+  display:flex;flex-direction:column}
+
+/* 상단 */
+.top{background:var(--navy);color:#fff;display:flex;align-items:center;gap:8px;
+  padding:8px 12px;flex:0 0 auto;flex-wrap:wrap}
+.top .ttl{font-size:17px;font-weight:900;margin-right:4px}
+.cuts{display:flex;gap:6px}
+.cut{background:#1d3350;color:#c7d4e6;border:2px solid transparent;border-radius:9px;
+  min-width:52px;min-height:42px;font-size:15px;font-weight:900;font-family:inherit;cursor:pointer}
+.cut.on{background:#fff;color:var(--navy);border-color:var(--gold)}
+.cut .dot{display:block;font-size:10px;font-weight:700;opacity:.75}
+.tbtn{background:#1d3350;color:#e8eef7;border:0;border-radius:9px;padding:0 14px;
+  min-height:42px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer}
+.tbtn.play{background:var(--green)}
+.tbtn.save{background:var(--gold);color:#3a2c10}
+.tbtn.on{background:#fff;color:var(--navy)}
+.spacer{margin-left:auto}
+
+/* 무대 */
+.mid{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:10px}
+.stage{position:relative;width:300px;height:300px;background:#fff;
+  border-radius:14px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.5)}
+.stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.stage canvas.hide{display:none}
+.stage canvas.onion{opacity:.22}
+.pframe{position:absolute;border:3px dashed var(--navy2);border-radius:6px;display:none;
+  pointer-events:none;box-shadow:0 0 0 9999px rgba(18,58,99,.10)}
+.pframe.on{display:block}
+.hintbox{position:absolute;left:0;right:0;bottom:10px;text-align:center;pointer-events:none}
+.hintbox span{background:rgba(18,58,99,.82);color:#fff;font-size:14px;font-weight:700;
+  padding:6px 14px;border-radius:999px}
+
+/* 하단 도구 */
+.tools{flex:0 0 auto;background:#f6f2e9;padding:8px 10px 10px;display:flex;
+  flex-direction:column;gap:7px}
+.row{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.row.photo{background:#eef3f8;border:2px solid var(--navy2);border-radius:10px;padding:6px 8px;display:none}
+.row.photo.on{display:flex}
+.sw{width:38px;height:38px;border-radius:50%;border:3px solid #fff;cursor:pointer;
+  box-shadow:0 1px 4px rgba(0,0,0,.3);flex:0 0 auto}
+.sw.on{border-color:var(--navy);transform:scale(1.14)}
+.tool{background:#fff;border:2px solid var(--line);border-radius:10px;min-height:44px;
+  padding:0 13px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;color:var(--ink)}
+.tool.on{background:var(--navy2);color:#fff;border-color:var(--navy2)}
+.tool.warn{color:var(--red)}
+.sz{width:44px;height:44px;border-radius:10px;border:2px solid var(--line);background:#fff;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto}
+.sz.on{border-color:var(--navy2);background:#eaf1f8}
+.sz i{display:block;background:var(--ink);border-radius:50%}
+.txtin{border:2px solid var(--line);border-radius:10px;min-height:44px;padding:0 12px;
+  font-size:16px;font-family:inherit;width:150px}
+.lab{font-size:13px;font-weight:900;color:var(--muted);margin-right:2px}
+.lab.b{color:var(--navy2);font-size:14px}
+input[type=file]{display:none}
+input[type=range]{width:150px;height:44px;accent-color:var(--navy2)}
+.chk{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:700;color:var(--navy)}
+.chk input{width:22px;height:22px;accent-color:var(--navy2)}
+
+/* QR */
+.qrbtn{background:#fff;border:0;border-radius:9px;padding:4px;cursor:pointer;
+  width:44px;height:44px;flex:0 0 auto;line-height:0}
+.qrbtn svg{width:100%;height:100%;display:block}
+.qrmodal{position:fixed;inset:0;background:rgba(10,18,30,.93);z-index:200;
+  display:none;align-items:center;justify-content:center;padding:20px}
+.qrmodal.on{display:flex}
+.qrcard{background:#fff;border-radius:22px;padding:26px 26px 20px;text-align:center;max-width:96vw}
+.qrcard svg{width:min(66vmin,460px);height:min(66vmin,460px);display:block;margin:0 auto}
+.qrcard .qu{font-size:17px;font-weight:700;color:var(--navy);margin-top:14px;word-break:break-all}
+.qrcard .qh{font-size:15px;color:var(--muted);font-weight:600;margin-top:8px}
+
+@media (max-width:900px){ .top .ttl{display:none} }
+@media (max-width:700px){
+  .txtin{width:104px}
+  .tbtn{padding:0 10px;font-size:14px}
+  input[type=range]{width:104px}
+}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <span class="ttl">이모티콘 만들기</span>
+  <div class="cuts">
+    <button class="cut on" id="k0" onclick="setCut(0)">1<span class="dot">컷</span></button>
+    <button class="cut" id="k1" onclick="setCut(1)">2<span class="dot">컷</span></button>
+    <button class="cut" id="k2" onclick="setCut(2)">3<span class="dot">컷</span></button>
+  </div>
+  <button class="tbtn play" id="playBtn" onclick="togglePlay()">▶ 움직여 보기</button>
+  <button class="tbtn" id="onionBtn" onclick="toggleOnion()">앞 컷 비추기</button>
+  <span class="spacer"></span>
+  <button class="tbtn" onclick="pickPhoto()">사진 넣기</button>
+  <button class="tbtn save" onclick="saveStrip()">3컷 저장</button>
+  <button class="tbtn save" onclick="saveOne()">1장 저장</button>
+  <button class="qrbtn" onclick="qrOpen()" aria-label="이 도구 주소 QR 크게 보기"><svg viewBox="0 0 43 43" shape-rendering="crispEdges"><path fill="#ffffff" d="M0 0h43v43H0z"/><path stroke="#000000" d="M1 1.5h7m2 0h1m3 0h2m3 0h2m2 0h2m1 0h2m7 0h7M1 2.5h1m5 0h1m4 0h6m1 0h1m1 0h7m1 0h1m1 0h2m2 0h1m5 0h1M1 3.5h1m1 0h3m1 0h1m1 0h2m2 0h1m1 0h3m4 0h2m1 0h3m3 0h1m1 0h1m1 0h1m1 0h3m1 0h1M1 4.5h1m1 0h3m1 0h1m1 0h2m1 0h3m3 0h2m2 0h4m1 0h4m1 0h2m1 0h1m1 0h3m1 0h1M1 5.5h1m1 0h3m1 0h1m2 0h1m4 0h2m2 0h1m1 0h5m6 0h1m2 0h1m1 0h3m1 0h1M1 6.5h1m5 0h1m4 0h3m1 0h1m1 0h1m7 0h1m2 0h2m2 0h1m1 0h1m5 0h1M1 7.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M10 8.5h1m1 0h1m4 0h1m1 0h5m1 0h2m1 0h1m2 0h1M4 9.5h2m1 0h2m1 0h1m1 0h1m1 0h1m3 0h3m1 0h1m2 0h1m1 0h4m1 0h1m5 0h2M2 10.5h2m1 0h1m5 0h1m4 0h3m1 0h1m1 0h2m2 0h3m1 0h3m3 0h2M2 11.5h1m4 0h1m1 0h1m2 0h4m6 0h1m2 0h2m1 0h1m1 0h2m2 0h2m3 0h2M4 12.5h3m1 0h1m3 0h3m3 0h1m1 0h1m2 0h1m1 0h1m1 0h1m2 0h1m1 0h3m3 0h1m1 0h2M2 13.5h2m3 0h6m1 0h1m1 0h1m1 0h1m2 0h1m1 0h1m2 0h2m1 0h1m3 0h1m1 0h2m3 0h1M1 14.5h1m2 0h1m3 0h3m1 0h5m2 0h1m3 0h2m1 0h2m1 0h2m4 0h3m3 0h1M1 15.5h3m1 0h1m1 0h8m1 0h2m2 0h6m1 0h1m1 0h1m1 0h2m1 0h2m1 0h1m3 0h1M4 16.5h1m4 0h4m2 0h5m1 0h2m2 0h1m1 0h2m2 0h2m1 0h1m3 0h4M3 17.5h1m2 0h2m1 0h1m1 0h4m1 0h2m3 0h2m4 0h1m3 0h4m3 0h1m1 0h2M1 18.5h4m6 0h1m3 0h4m2 0h6m1 0h1m1 0h5m2 0h3M2 19.5h1m2 0h4m3 0h2m5 0h1m1 0h3m1 0h1m2 0h1m1 0h1m1 0h2m1 0h3m2 0h2M2 20.5h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m2 0h2m1 0h1m2 0h1m1 0h1m1 0h2m2 0h3M1 21.5h3m2 0h2m1 0h3m2 0h5m1 0h5m2 0h1m1 0h2m1 0h1m2 0h1m2 0h3M1 22.5h1m1 0h1m1 0h1m2 0h1m1 0h2m2 0h1m5 0h2m1 0h1m1 0h2m1 0h1m2 0h2m3 0h3M1 23.5h4m2 0h1m3 0h1m2 0h5m1 0h5m2 0h4m2 0h1m1 0h1m1 0h3M1 24.5h1m1 0h3m2 0h1m3 0h2m1 0h3m1 0h2m1 0h1m1 0h2m1 0h1m2 0h1m1 0h3m1 0h3m2 0h1M3 25.5h1m1 0h3m1 0h1m1 0h1m3 0h1m1 0h2m3 0h1m1 0h6m3 0h1m1 0h2m1 0h1m1 0h1M1 26.5h1m1 0h1m2 0h1m1 0h1m1 0h1m1 0h2m2 0h4m1 0h6m1 0h2m1 0h1m1 0h1m1 0h3m1 0h1m1 0h1M2 27.5h1m3 0h2m1 0h2m7 0h7m2 0h3m2 0h2m1 0h1m1 0h2m2 0h1M1 28.5h1m1 0h1m1 0h1m2 0h4m2 0h2m1 0h1m1 0h1m1 0h2m1 0h1m4 0h1m1 0h2m1 0h6M3 29.5h2m1 0h2m1 0h4m4 0h1m2 0h1m2 0h2m2 0h1m4 0h2m4 0h1m1 0h2M1 30.5h1m3 0h1m2 0h1m1 0h1m3 0h1m1 0h5m1 0h1m1 0h2m3 0h1m1 0h2m1 0h1m2 0h1M1 31.5h3m1 0h1m1 0h3m4 0h2m3 0h5m1 0h5m2 0h3m2 0h3m1 0h1M1 32.5h3m1 0h1m5 0h6m1 0h3m1 0h3m1 0h2m1 0h1m3 0h1m1 0h1m3 0h1m1 0h1M1 33.5h3m2 0h2m2 0h2m1 0h1m2 0h5m2 0h1m2 0h1m2 0h2m1 0h8M9 34.5h1m4 0h1m1 0h2m1 0h1m3 0h2m2 0h2m1 0h2m1 0h1m3 0h2m1 0h1M1 35.5h7m1 0h1m2 0h1m2 0h3m1 0h1m1 0h4m2 0h4m1 0h2m1 0h1m1 0h2M1 36.5h1m5 0h1m2 0h2m2 0h1m4 0h2m3 0h3m3 0h1m1 0h2m3 0h2m1 0h2M1 37.5h1m1 0h3m1 0h1m1 0h1m2 0h1m2 0h1m1 0h2m1 0h1m2 0h4m1 0h1m3 0h6m2 0h1M1 38.5h1m1 0h3m1 0h1m1 0h2m1 0h4m1 0h2m4 0h2m2 0h7m2 0h1m3 0h2M1 39.5h1m1 0h3m1 0h1m2 0h1m4 0h2m1 0h5m2 0h5m1 0h1m1 0h2m1 0h2m2 0h2M1 40.5h1m5 0h1m2 0h1m1 0h1m2 0h2m2 0h3m1 0h2m2 0h1m1 0h1m4 0h1m2 0h3m1 0h1M1 41.5h7m4 0h1m3 0h2m2 0h4m1 0h1m3 0h1m3 0h2m2 0h1"/></svg></button>
+</div>
+
+<div class="mid">
+  <div class="stage" id="stage">
+    <canvas id="b0"></canvas>
+    <canvas id="b1" class="hide"></canvas>
+    <canvas id="b2" class="hide"></canvas>
+    <canvas id="c0"></canvas>
+    <canvas id="c1" class="hide"></canvas>
+    <canvas id="c2" class="hide"></canvas>
+    <div class="pframe" id="pframe"></div>
+    <div class="hintbox" id="hint"></div>
+  </div>
+</div>
+
+<div class="tools">
+  <div class="row photo" id="photorow">
+    <span class="lab b">사진</span>
+    <button class="tool" onclick="photoStep(0,-24)">←</button>
+    <button class="tool" onclick="photoStep(0,24)">→</button>
+    <button class="tool" onclick="photoStep(1,-24)">↑</button>
+    <button class="tool" onclick="photoStep(1,24)">↓</button>
+    <span class="lab b">크기</span>
+    <input type="range" id="pscale" min="15" max="260" value="100" oninput="photoScale(this.value)">
+    <button class="tool" onclick="photoFill()">꽉 채우기</button>
+    <button class="tool on" id="pmoveBtn" onclick="togglePhotoMode()">옮기기 끝내고 그리기</button>
+    <button class="tool warn" onclick="clearBg()">사진 빼기</button>
+  </div>
+  <div class="row" id="swatches"></div>
+  <div class="row">
+    <span class="lab">굵기</span>
+    <button class="sz" onclick="setSize(7)" id="z7"><i style="width:7px;height:7px"></i></button>
+    <button class="sz on" onclick="setSize(16)" id="z16"><i style="width:16px;height:16px"></i></button>
+    <button class="sz" onclick="setSize(34)" id="z34"><i style="width:30px;height:30px"></i></button>
+    <button class="tool" id="eraserBtn" onclick="toggleEraser()">지우개</button>
+    <button class="tool" onclick="undo()">↩ 되돌리기</button>
+    <button class="tool warn" onclick="clearCut()">이 컷 지우기</button>
+    <span class="spacer"></span>
+    <input class="txtin" id="txt" placeholder="넣을 글자" maxlength="10">
+    <button class="tool" id="textBtn" onclick="armText()">글자 놓기</button>
+  </div>
+</div>
+
+<input type="file" id="file" accept="image/*">
+
+<div class="qrmodal" id="qrmodal" onclick="qrClose()">
+  <div class="qrcard">
+    <svg viewBox="0 0 43 43" shape-rendering="crispEdges"><path fill="#ffffff" d="M0 0h43v43H0z"/><path stroke="#000000" d="M1 1.5h7m2 0h1m3 0h2m3 0h2m2 0h2m1 0h2m7 0h7M1 2.5h1m5 0h1m4 0h6m1 0h1m1 0h7m1 0h1m1 0h2m2 0h1m5 0h1M1 3.5h1m1 0h3m1 0h1m1 0h2m2 0h1m1 0h3m4 0h2m1 0h3m3 0h1m1 0h1m1 0h1m1 0h3m1 0h1M1 4.5h1m1 0h3m1 0h1m1 0h2m1 0h3m3 0h2m2 0h4m1 0h4m1 0h2m1 0h1m1 0h3m1 0h1M1 5.5h1m1 0h3m1 0h1m2 0h1m4 0h2m2 0h1m1 0h5m6 0h1m2 0h1m1 0h3m1 0h1M1 6.5h1m5 0h1m4 0h3m1 0h1m1 0h1m7 0h1m2 0h2m2 0h1m1 0h1m5 0h1M1 7.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M10 8.5h1m1 0h1m4 0h1m1 0h5m1 0h2m1 0h1m2 0h1M4 9.5h2m1 0h2m1 0h1m1 0h1m1 0h1m3 0h3m1 0h1m2 0h1m1 0h4m1 0h1m5 0h2M2 10.5h2m1 0h1m5 0h1m4 0h3m1 0h1m1 0h2m2 0h3m1 0h3m3 0h2M2 11.5h1m4 0h1m1 0h1m2 0h4m6 0h1m2 0h2m1 0h1m1 0h2m2 0h2m3 0h2M4 12.5h3m1 0h1m3 0h3m3 0h1m1 0h1m2 0h1m1 0h1m1 0h1m2 0h1m1 0h3m3 0h1m1 0h2M2 13.5h2m3 0h6m1 0h1m1 0h1m1 0h1m2 0h1m1 0h1m2 0h2m1 0h1m3 0h1m1 0h2m3 0h1M1 14.5h1m2 0h1m3 0h3m1 0h5m2 0h1m3 0h2m1 0h2m1 0h2m4 0h3m3 0h1M1 15.5h3m1 0h1m1 0h8m1 0h2m2 0h6m1 0h1m1 0h1m1 0h2m1 0h2m1 0h1m3 0h1M4 16.5h1m4 0h4m2 0h5m1 0h2m2 0h1m1 0h2m2 0h2m1 0h1m3 0h4M3 17.5h1m2 0h2m1 0h1m1 0h4m1 0h2m3 0h2m4 0h1m3 0h4m3 0h1m1 0h2M1 18.5h4m6 0h1m3 0h4m2 0h6m1 0h1m1 0h5m2 0h3M2 19.5h1m2 0h4m3 0h2m5 0h1m1 0h3m1 0h1m2 0h1m1 0h1m1 0h2m1 0h3m2 0h2M2 20.5h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m2 0h2m1 0h1m2 0h1m1 0h1m1 0h2m2 0h3M1 21.5h3m2 0h2m1 0h3m2 0h5m1 0h5m2 0h1m1 0h2m1 0h1m2 0h1m2 0h3M1 22.5h1m1 0h1m1 0h1m2 0h1m1 0h2m2 0h1m5 0h2m1 0h1m1 0h2m1 0h1m2 0h2m3 0h3M1 23.5h4m2 0h1m3 0h1m2 0h5m1 0h5m2 0h4m2 0h1m1 0h1m1 0h3M1 24.5h1m1 0h3m2 0h1m3 0h2m1 0h3m1 0h2m1 0h1m1 0h2m1 0h1m2 0h1m1 0h3m1 0h3m2 0h1M3 25.5h1m1 0h3m1 0h1m1 0h1m3 0h1m1 0h2m3 0h1m1 0h6m3 0h1m1 0h2m1 0h1m1 0h1M1 26.5h1m1 0h1m2 0h1m1 0h1m1 0h1m1 0h2m2 0h4m1 0h6m1 0h2m1 0h1m1 0h1m1 0h3m1 0h1m1 0h1M2 27.5h1m3 0h2m1 0h2m7 0h7m2 0h3m2 0h2m1 0h1m1 0h2m2 0h1M1 28.5h1m1 0h1m1 0h1m2 0h4m2 0h2m1 0h1m1 0h1m1 0h2m1 0h1m4 0h1m1 0h2m1 0h6M3 29.5h2m1 0h2m1 0h4m4 0h1m2 0h1m2 0h2m2 0h1m4 0h2m4 0h1m1 0h2M1 30.5h1m3 0h1m2 0h1m1 0h1m3 0h1m1 0h5m1 0h1m1 0h2m3 0h1m1 0h2m1 0h1m2 0h1M1 31.5h3m1 0h1m1 0h3m4 0h2m3 0h5m1 0h5m2 0h3m2 0h3m1 0h1M1 32.5h3m1 0h1m5 0h6m1 0h3m1 0h3m1 0h2m1 0h1m3 0h1m1 0h1m3 0h1m1 0h1M1 33.5h3m2 0h2m2 0h2m1 0h1m2 0h5m2 0h1m2 0h1m2 0h2m1 0h8M9 34.5h1m4 0h1m1 0h2m1 0h1m3 0h2m2 0h2m1 0h2m1 0h1m3 0h2m1 0h1M1 35.5h7m1 0h1m2 0h1m2 0h3m1 0h1m1 0h4m2 0h4m1 0h2m1 0h1m1 0h2M1 36.5h1m5 0h1m2 0h2m2 0h1m4 0h2m3 0h3m3 0h1m1 0h2m3 0h2m1 0h2M1 37.5h1m1 0h3m1 0h1m1 0h1m2 0h1m2 0h1m1 0h2m1 0h1m2 0h4m1 0h1m3 0h6m2 0h1M1 38.5h1m1 0h3m1 0h1m1 0h2m1 0h4m1 0h2m4 0h2m2 0h7m2 0h1m3 0h2M1 39.5h1m1 0h3m1 0h1m2 0h1m4 0h2m1 0h5m2 0h5m1 0h1m1 0h2m1 0h2m2 0h2M1 40.5h1m5 0h1m2 0h1m1 0h1m2 0h2m2 0h3m1 0h2m2 0h1m1 0h1m4 0h1m2 0h3m1 0h1M1 41.5h7m4 0h1m3 0h2m2 0h4m1 0h1m3 0h1m3 0h2m2 0h1"/></svg>
+    <div class="qu">leixlix-pixel.github.io/toolbox/emoji-maker.html</div>
+    <div class="qh">태블릿 카메라로 찍으면 바로 열립니다 · 아무 곳이나 누르면 닫힘</div>
+  </div>
+</div>
+
+<script>
+const N = 700;                       /* 캔버스 실제 해상도 */
+const cv = [0,1,2].map(i => document.getElementById("c"+i));   /* 그림 층 */
+const bv = [0,1,2].map(i => document.getElementById("b"+i));   /* 사진 층 */
+const cx = cv.map(c => { c.width=N; c.height=N; return c.getContext("2d"); });
+const bx = bv.map(c => { c.width=N; c.height=N; return c.getContext("2d"); });
+
+/* 사진은 컷마다 따로 둔다 — 컷마다 다른 사진을 넣으면 사진으로도 움직인다 */
+const photos = [null,null,null];     /* {img, x, y, s} · x,y 는 가운데 자리 */
+
+let cut = 0, color = "#1c2430", size = 16, eraser = false, textMode = false;
+let playing = false, playTimer = null, onion = false, photoMode = false;
+const hist = [[],[],[]];
+
+/* ── 색 ─────────────────────────────────────────────── */
+const COLORS = ["#1c2430","#ffffff","#e74c3c","#e67e22","#f1c40f","#2ecc71",
+                "#1d5b95","#7d4a86","#ff8fb1","#8b5a2b","#f6c9a8"];
+document.getElementById("swatches").innerHTML =
+  '<span class="lab">색</span>' + COLORS.map((c,i) =>
+    '<button class="sw' + (i===0?" on":"") + '" id="sw'+i+'" style="background:'+c+'" onclick="setColor(\''+c+'\','+i+')"></button>'
+  ).join("");
+
+function setColor(c,i){
+  color=c; eraser=false;
+  document.getElementById("eraserBtn").classList.remove("on");
+  COLORS.forEach((_,n)=>document.getElementById("sw"+n).classList.toggle("on", n===i));
+}
+function setSize(s){
+  size=s;
+  [7,16,34].forEach(v=>document.getElementById("z"+v).classList.toggle("on", v===s));
+}
+function toggleEraser(){
+  eraser=!eraser;
+  document.getElementById("eraserBtn").classList.toggle("on", eraser);
+}
+
+/* ── 컷 ─────────────────────────────────────────────── */
+function setCut(i){
+  if (playing) togglePlay();
+  cut=i;
+  [0,1,2].forEach(n=>{
+    document.getElementById("k"+n).classList.toggle("on", n===i);
+    bv[n].classList.toggle("hide", n!==i);
+    cv[n].classList.toggle("hide", n!==i && !(onion && n===i-1));
+    cv[n].classList.toggle("onion", onion && n===i-1);
+  });
+  if (photoMode && !photos[cut]) setPhotoMode(false);
+  drawFrame();
+  if (i>0 && onion) hint("앞 컷이 흐리게 비친다 — 조금씩 바꿔 그려 보자");
+}
+function toggleOnion(){
+  onion=!onion;
+  document.getElementById("onionBtn").classList.toggle("on", onion);
+  setCut(cut);
+}
+
+/* ── 사진 ───────────────────────────────────────────── */
+function pickPhoto(){ document.getElementById("file").click(); }
+
+document.getElementById("file").addEventListener("change", e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const img=new Image();
+  img.onload=()=>{
+    photos[cut] = { img:img, x:N/2, y:N/2, s:1 };
+    redrawPhoto(cut);
+    setPhotoMode(true);
+    hint("사진을 끌어서 옮기고, 두 손가락으로 벌려 크기를 바꿔 보자");
+  };
+  img.src=URL.createObjectURL(f);
+  e.target.value="";
+});
+
+/* s = 1 이면 사진의 긴 쪽이 캔버스의 70% */
+function photoRect(p){
+  const base = N*0.7/Math.max(p.img.width, p.img.height);
+  const w = p.img.width*base*p.s, h = p.img.height*base*p.s;
+  return { x:p.x-w/2, y:p.y-h/2, w:w, h:h };
+}
+function redrawPhoto(i){
+  bx[i].clearRect(0,0,N,N);
+  const p=photos[i]; if(!p) return;
+  const r=photoRect(p);
+  bx[i].drawImage(p.img, r.x, r.y, r.w, r.h);
+  if (i===cut) drawFrame();
+}
+function drawFrame(){
+  const fr=document.getElementById("pframe");
+  const p=photos[cut];
+  if (!photoMode || !p || playing){ fr.classList.remove("on"); return; }
+  const r=photoRect(p), st=document.getElementById("stage");
+  const k=st.clientWidth/N;
+  fr.style.left=(r.x*k)+"px"; fr.style.top=(r.y*k)+"px";
+  fr.style.width=(r.w*k)+"px"; fr.style.height=(r.h*k)+"px";
+  fr.classList.add("on");
+}
+function setPhotoMode(on){
+  photoMode = on && !!photos[cut];
+  document.getElementById("photorow").classList.toggle("on", photoMode);
+  document.getElementById("pmoveBtn").classList.toggle("on", photoMode);
+  if (photoMode){
+    document.getElementById("pscale").value = Math.round(photos[cut].s*100);
+  }
+  drawFrame();
+}
+function togglePhotoMode(){
+  if (!photos[cut]){ hint("먼저 사진을 넣어 보자"); return; }
+  setPhotoMode(!photoMode);
+  hint(photoMode ? "사진을 끌어서 옮겨 보자" : "이제 사진 위에 그릴 수 있다");
+}
+function photoScale(v){
+  const p=photos[cut]; if(!p) return;
+  p.s = v/100; redrawPhoto(cut);
+}
+function photoStep(axis,d){
+  const p=photos[cut]; if(!p) return;
+  if (axis===0) p.x+=d; else p.y+=d;
+  redrawPhoto(cut);
+}
+function photoFill(){
+  const p=photos[cut]; if(!p) return;
+  const base = N*0.7/Math.max(p.img.width,p.img.height);
+  p.s = (N/Math.min(p.img.width,p.img.height))/base;   /* 짧은 쪽이 캔버스를 채운다 */
+  p.x=N/2; p.y=N/2;
+  document.getElementById("pscale").value=Math.round(p.s*100);
+  redrawPhoto(cut);
+  hint("사진이 화면을 꽉 채웠다");
+}
+function clearBg(){
+  photos[cut]=null; bx[cut].clearRect(0,0,N,N);
+  setPhotoMode(false);
+  hint((cut+1)+"컷의 사진을 뺐다");
+}
+
+/* ── 그리기 · 사진 옮기기 ───────────────────────────── */
+function pos(e){
+  const r = cv[cut].getBoundingClientRect();
+  return { x:(e.clientX-r.left)/r.width*N, y:(e.clientY-r.top)/r.height*N };
+}
+function push(){
+  const h=hist[cut];
+  h.push(cv[cut].toDataURL());
+  if (h.length>8) h.shift();
+}
+
+const ptrs = new Map();      /* 눌린 손가락들 — 두 개면 크기 조절 */
+let drawing=false, pinch=null, dragFrom=null;
+
+function down(e){
+  if (playing) return;
+  const p=pos(e);
+
+  if (photoMode && photos[cut]){
+    ptrs.set(e.pointerId, p);
+    if (ptrs.size===2){
+      const [a,b]=[...ptrs.values()];
+      pinch = { d:Math.hypot(a.x-b.x, a.y-b.y), s:photos[cut].s };
+      drawing=false;
+    } else {
+      dragFrom = { px:photos[cut].x, py:photos[cut].y, x:p.x, y:p.y };
+    }
+    try { cv[cut].setPointerCapture(e.pointerId); } catch(err) {}
+    return;
+  }
+
+  if (textMode){ placeText(p); return; }
+  push();
+  drawing=true;
+  const g=cx[cut];
+  g.globalCompositeOperation = eraser ? "destination-out" : "source-over";
+  g.strokeStyle=color; g.fillStyle=color;
+  g.lineWidth=size; g.lineCap="round"; g.lineJoin="round";
+  g.beginPath(); g.moveTo(p.x,p.y);
+  g.lineTo(p.x+0.01,p.y);
+  g.stroke();
+  try { cv[cut].setPointerCapture(e.pointerId); } catch(err) {}
+}
+
+function move(e){
+  const p=pos(e);
+
+  if (photoMode && photos[cut] && ptrs.size){
+    if (!ptrs.has(e.pointerId)) return;
+    ptrs.set(e.pointerId, p);
+    const ph=photos[cut];
+    if (ptrs.size>=2 && pinch){
+      const [a,b]=[...ptrs.values()];
+      const d=Math.hypot(a.x-b.x, a.y-b.y);
+      ph.s = Math.min(2.6, Math.max(0.15, pinch.s * (d/pinch.d)));
+      document.getElementById("pscale").value=Math.round(ph.s*100);
+    } else if (dragFrom){
+      ph.x = dragFrom.px + (p.x-dragFrom.x);
+      ph.y = dragFrom.py + (p.y-dragFrom.y);
+    }
+    redrawPhoto(cut);
+    return;
+  }
+
+  if (!drawing) return;
+  const g=cx[cut];
+  g.lineTo(p.x,p.y); g.stroke();
+}
+
+function up(e){
+  drawing=false;
+  if (e && ptrs.has(e.pointerId)) ptrs.delete(e.pointerId);
+  if (ptrs.size<2) pinch=null;
+  if (ptrs.size===0) dragFrom=null;
+}
+
+cv.forEach(c=>{
+  c.addEventListener("pointerdown", down);
+  c.addEventListener("pointermove", move);
+  c.addEventListener("pointerup", up);
+  c.addEventListener("pointercancel", up);
+  c.addEventListener("pointerleave", up);
+});
+
+function undo(){
+  const h=hist[cut];
+  if (!h.length){ hint("되돌릴 것이 없다"); return; }
+  const d=h.pop(), img=new Image();
+  img.onload=()=>{ cx[cut].globalCompositeOperation="source-over";
+    cx[cut].clearRect(0,0,N,N); cx[cut].drawImage(img,0,0); };
+  img.src=d;
+}
+function clearCut(){
+  push(); cx[cut].clearRect(0,0,N,N);
+  hint((cut+1)+"컷의 그림을 지웠다 — 되돌리기로 살릴 수 있다 (사진은 그대로)");
+}
+
+/* ── 글자 ───────────────────────────────────────────── */
+function armText(){
+  const t=document.getElementById("txt").value.trim();
+  if (!t){ hint("먼저 넣을 글자를 적어 보자"); return; }
+  if (photoMode) setPhotoMode(false);
+  textMode=true;
+  document.getElementById("textBtn").classList.add("on");
+  hint("글자를 놓을 자리를 톡 누르세요");
+}
+function placeText(p){
+  const t=document.getElementById("txt").value.trim();
+  if (!t) return;
+  push();
+  const g=cx[cut];
+  g.globalCompositeOperation="source-over";
+  g.font="900 " + Math.max(38, size*3.4) + "px 'Noto Sans KR', sans-serif";
+  g.textAlign="center"; g.textBaseline="middle";
+  g.lineWidth=Math.max(6, size*0.5); g.strokeStyle="#fff"; g.lineJoin="round";
+  g.strokeText(t,p.x,p.y);
+  g.fillStyle=color; g.fillText(t,p.x,p.y);
+  textMode=false;
+  document.getElementById("textBtn").classList.remove("on");
+  hint("");
+}
+
+/* ── 재생 ───────────────────────────────────────────── */
+function togglePlay(){
+  playing=!playing;
+  const b=document.getElementById("playBtn");
+  if (playing){
+    b.textContent="■ 멈추기"; b.classList.add("on");
+    [0,1,2].forEach(n=>cv[n].classList.remove("onion"));
+    drawFrame();
+    let i=0;
+    playTimer=setInterval(()=>{
+      [0,1,2].forEach(n=>{
+        bv[n].classList.toggle("hide", n!==i);
+        cv[n].classList.toggle("hide", n!==i);
+      });
+      i=(i+1)%3;
+    }, 420);
+    hint("세 컷이 차례로 바뀐다 — 이것이 움직이는 이모티콘이다");
+  } else {
+    b.textContent="▶ 움직여 보기"; b.classList.remove("on");
+    clearInterval(playTimer);
+    setCut(cut);
+    hint("");
+  }
+}
+
+/* ── 저장 ───────────────────────────────────────────── */
+function flat(i, g, ox){
+  g.fillStyle="#fff"; g.fillRect(ox,0,N,N);
+  g.drawImage(bv[i], ox, 0);
+  g.drawImage(cv[i], ox, 0);
+}
+function download(canvas, name){
+  const a=document.createElement("a");
+  a.download=name; a.href=canvas.toDataURL("image/png");
+  document.body.appendChild(a); a.click(); a.remove();
+  hint("그림 파일로 내려받았다");
+}
+function saveOne(){
+  const o=document.createElement("canvas"); o.width=N; o.height=N;
+  flat(cut, o.getContext("2d"), 0);
+  download(o, "emoticon-cut" + (cut+1) + ".png");
+}
+function saveStrip(){
+  const o=document.createElement("canvas"); o.width=N*3; o.height=N;
+  const g=o.getContext("2d");
+  [0,1,2].forEach(i=>flat(i,g,i*N));
+  g.strokeStyle="#d9d2c4"; g.lineWidth=6;
+  g.beginPath(); g.moveTo(N,0); g.lineTo(N,N); g.moveTo(N*2,0); g.lineTo(N*2,N); g.stroke();
+  download(o, "emoticon-3cut.png");
+}
+
+/* ── QR ─────────────────────────────────────────────── */
+function qrOpen(){ document.getElementById("qrmodal").classList.add("on"); }
+function qrClose(){ document.getElementById("qrmodal").classList.remove("on"); }
+document.addEventListener("keydown", e => { if (e.key === "Escape") qrClose(); });
+
+/* ── 안내 ───────────────────────────────────────────── */
+let hintTimer=null;
+function hint(t){
+  const h=document.getElementById("hint");
+  h.innerHTML = t ? "<span>" + t + "</span>" : "";
+  clearTimeout(hintTimer);
+  if (t) hintTimer=setTimeout(()=>{ h.innerHTML=""; }, 4600);
+}
+
+/* ── 무대를 언제나 정사각형으로 ─────────────────────────
+   CSS aspect-ratio 만으로는 세로 화면에서 눌려 그림이 왜곡된다. */
+const mid = document.querySelector(".mid");
+function fitStage(){
+  const s = Math.max(160, Math.min(mid.clientWidth, mid.clientHeight) - 20);
+  const st = document.getElementById("stage");
+  st.style.width = s + "px";
+  st.style.height = s + "px";
+  drawFrame();
+}
+if (window.ResizeObserver) new ResizeObserver(fitStage).observe(mid);
+window.addEventListener("resize", fitStage);
+window.addEventListener("orientationchange", fitStage);
+fitStage();
+
+hint("1컷을 그린 뒤 2·3컷을 조금씩 바꿔 그리면 움직인다");
+setCut(0);
+</script>
+</body>
+</html>

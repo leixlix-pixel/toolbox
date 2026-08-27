@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>친환경 에너지를 이용하는 수송 수단</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --ink:#1c2430; --navy:#123a63; --navy2:#1d5b95;
+  --red:#c0392b; --gold:#c8963e; --green:#2e7d5b; --plum:#7d4a86;
+  --paper:#f6f2e9; --line:#d9d2c4; --muted:#6d6b66;
+}
+
+html,body{height:100%;background:#0d1520;font-family:'Noto Sans KR',sans-serif;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;overflow:hidden}
+
+#stage{position:absolute;left:50%;top:50%;width:1280px;height:720px;
+  transform-origin:center center;background:var(--paper);overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,.6)}
+
+.slide{position:absolute;inset:0;padding:40px 54px;display:none;
+  flex-direction:column;background:var(--paper);--acc:var(--green)}
+.slide.on{display:flex}
+.slide::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(circle at 12% 8%,rgba(46,125,91,.10),transparent 45%),
+             radial-gradient(circle at 92% 95%,rgba(18,58,99,.08),transparent 45%)}
+.slide>*{position:relative;z-index:1}
+
+.eyebrow{display:inline-block;font-size:21px;font-weight:700;color:#fff;
+  background:var(--acc);padding:6px 18px;border-radius:999px;margin-bottom:12px}
+h2.stitle{font-size:40px;font-weight:900;color:var(--acc);line-height:1.2;letter-spacing:-.02em;margin-bottom:6px}
+.rule{width:92px;height:7px;border-radius:4px;
+  background:linear-gradient(90deg,var(--green),var(--gold));margin:10px 0 20px}
+p.body{font-size:27px;line-height:1.58;color:var(--ink);font-weight:500}
+p.body+p.body{margin-top:12px}
+.small{font-size:22px;line-height:1.5}
+.tiny{font-size:19px;line-height:1.5}
+
+b.hl{font-weight:900;color:var(--red);background:linear-gradient(transparent 62%,rgba(192,57,43,.20) 62%);padding:0 2px}
+b.hn{font-weight:900;color:var(--navy2);background:linear-gradient(transparent 62%,rgba(29,91,149,.18) 62%);padding:0 2px}
+b.hg{font-weight:900;color:var(--green);background:linear-gradient(transparent 62%,rgba(46,125,91,.18) 62%);padding:0 2px}
+
+.cols{display:flex;gap:30px;flex:1;min-height:0;align-items:center}
+.col{flex:1;min-width:0}
+
+.term{background:#fff;border-left:9px solid var(--gold);border-radius:8px;padding:14px 18px;
+  box-shadow:0 6px 16px rgba(30,25,15,.10)}
+.term .t{font-size:24px;font-weight:900;color:var(--gold);margin-bottom:3px}
+.term .d{font-size:22px;font-weight:500;color:var(--ink);line-height:1.5}
+
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;
+  box-shadow:0 6px 16px rgba(30,25,15,.09)}
+.card h3{font-size:23px;font-weight:900;color:var(--acc);margin-bottom:8px}
+.cardrow{display:flex;gap:16px}
+.cardrow>.card{flex:1}
+
+.act{background:#fff;border:3px dashed var(--green);border-radius:18px;padding:20px 24px}
+.act-h{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.act-badge{background:var(--green);color:#fff;font-weight:900;font-size:20px;
+  padding:5px 15px;border-radius:999px;white-space:nowrap}
+.act-t{font-size:26px;font-weight:900;color:var(--navy)}
+
+.chip{display:inline-block;background:#fff;border:2px solid var(--acc);color:var(--acc);
+  font-weight:900;font-size:21px;border-radius:999px;padding:10px 22px;margin:7px 9px 0 0}
+.chipwrap{display:flex;flex-wrap:wrap}
+
+.fig{display:flex;justify-content:center;align-items:center;flex:1;min-height:0}
+.fig svg{max-width:100%;max-height:100%}
+.figcap{font-size:18px;color:var(--muted);text-align:center;font-weight:600;margin-top:6px}
+
+.plan{display:flex;gap:16px;flex:1;min-height:0;align-items:stretch}
+.ph{flex:1;background:#fff;border-radius:16px;border:1px solid var(--line);padding:18px 20px;
+  box-shadow:0 6px 16px rgba(30,25,15,.09);display:flex;flex-direction:column}
+.ph .pn{font-family:'Gaegu',sans-serif;font-size:34px;color:var(--green);line-height:1}
+.ph .pt{font-size:24px;font-weight:900;color:var(--navy);margin:6px 0 8px}
+.ph .pd{font-size:19px;line-height:1.5;color:var(--ink);font-weight:500}
+
+.cover2{justify-content:center;align-items:center;text-align:center;background:linear-gradient(160deg,#1c5a45,#2e7d5b 70%)}
+.cover2 .kicker{color:#ffe9b0;font-size:22px;font-weight:700;margin-bottom:16px}
+.cover2 h1{color:#fff;font-size:50px;font-weight:900;line-height:1.28}
+.cover2 .sub{color:#d8ece2;font-size:22px;font-weight:500;margin-top:18px}
+
+.divider{justify-content:center;align-items:center;text-align:center;background:linear-gradient(160deg,#123a63,#1c5a45 70%)}
+.divider .num{color:#ffe9b0;font-size:26px;font-weight:900;margin-bottom:10px}
+.divider h1{color:#fff;font-size:46px;font-weight:900;line-height:1.25}
+
+.bar{position:fixed;left:0;right:0;bottom:0;height:46px;background:#0f1a29;color:#cfd8e6;
+  display:flex;align-items:center;gap:10px;padding:0 14px;font-size:15px;z-index:50}
+.bar button{background:#1d3350;color:#e8eef7;border:0;border-radius:7px;padding:7px 13px;
+  font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+#prog{position:fixed;left:0;top:0;height:4px;background:var(--green);z-index:60;transition:width .18s}
+.zone{position:fixed;top:0;bottom:46px;width:12%;z-index:40;cursor:pointer}
+#zl{left:0}#zr{right:0}
+</style>
+</head>
+<body>
+
+<div id="prog"></div>
+<div id="stage"></div>
+<div class="zone" id="zl"></div>
+<div class="zone" id="zr"></div>
+<div class="bar">
+  <button onclick="go(-1)">◀ 이전</button>
+  <button onclick="go(1)">다음 ▶</button>
+  <span id="counter">1 / 1</span>
+  <span style="margin-left:18px;opacity:.7">← → 이동 · F 전체화면</span>
+  <button style="margin-left:auto" onclick="fs()">⛶ 전체화면</button>
+</div>
+
+<script>
+/* ── 그림 (직접 그린 SVG) ─────────────────────────────── */
+
+/* 경사면 위의 아령 롤러 */
+const rollerFig = '<svg viewBox="0 0 640 320">'
+  + '<defs><marker id="ar" markerUnits="userSpaceOnUse" markerWidth="18" markerHeight="18" refX="14" refY="9" orient="auto">'
+  + '<path d="M0 0 L18 9 L0 18 Z" fill="#c0392b"/></marker></defs>'
+  /* 바닥과 경사면 (왼쪽이 높다) */
+  + '<rect x="30" y="272" width="580" height="9" fill="#c9c2b4"/>'
+  + '<path d="M60 272 L60 100 L400 272 Z" fill="#e6ddc9" stroke="#c9c2b4" stroke-width="3"/>'
+  + '<text x="86" y="258" font-size="18" fill="#6d6b66" font-family="Noto Sans KR" font-weight="700">책을 쌓아 만든 경사면</text>'
+  /* 롤러 옆모습 — 바퀴 두 개가 한 축에 있어 옆에서는 하나로 겹친다 */
+  + '<g transform="translate(217,137)">'
+  + '<circle cx="0" cy="0" r="38" fill="#f6f2e9" stroke="#1c2430" stroke-width="9"/>'
+  + '<circle cx="0" cy="0" r="9" fill="#c8963e"/>'
+  + '<line x1="0" y1="4" x2="0" y2="18" stroke="#1c2430" stroke-width="4"/>'
+  + '<rect x="-18" y="18" width="36" height="17" rx="4" fill="#2e7d5b"/>'
+  + '<text x="0" y="31" font-size="13" fill="#fff" text-anchor="middle" font-family="Noto Sans KR" font-weight="700">짐</text>'
+  + '</g>'
+  + '<text x="252" y="86" font-size="17" fill="#6d6b66" font-family="Noto Sans KR" font-weight="700">휴지심 바퀴</text>'
+  + '<line x1="248" y1="92" x2="232" y2="112" stroke="#6d6b66" stroke-width="2"/>'
+  /* 굴러가는 방향 */
+  + '<path d="M296 208 L368 244" stroke="#c0392b" stroke-width="6" marker-end="url(#ar)"/>'
+  + '<text x="286" y="196" font-size="21" fill="#c0392b" font-family="Noto Sans KR" font-weight="900">굴러간다</text>'
+  /* 앞에서 본 모습 */
+  + '<g transform="translate(452,96)">'
+  + '<rect x="0" y="-9" width="118" height="18" rx="9" fill="#c8963e"/>'
+  + '<circle cx="0" cy="0" r="34" fill="#f6f2e9" stroke="#1c2430" stroke-width="8"/>'
+  + '<circle cx="118" cy="0" r="34" fill="#f6f2e9" stroke="#1c2430" stroke-width="8"/>'
+  + '<line x1="59" y1="4" x2="59" y2="20" stroke="#1c2430" stroke-width="4"/>'
+  + '<rect x="41" y="20" width="36" height="17" rx="4" fill="#2e7d5b"/>'
+  + '<text x="59" y="72" font-size="17" fill="#6d6b66" text-anchor="middle" font-family="Noto Sans KR" font-weight="700">앞에서 본 모습</text>'
+  + '<text x="59" y="-48" font-size="16" fill="#6d6b66" text-anchor="middle" font-family="Noto Sans KR" font-weight="700">축 하나에 바퀴 둘</text>'
+  + '</g>'
+  + '<text x="60" y="306" font-size="19" fill="#6d6b66" font-family="Noto Sans KR" font-weight="700">'
+  + '연료 0 · 전지 0 · 모터 0 — 높이만 있으면 된다</text>'
+  + '</svg>';
+
+/* 에너지가 바뀌는 과정 */
+const energyFig = '<svg viewBox="0 0 900 190">'
+  + '<g font-family="Noto Sans KR" font-weight="900">'
+  + '<rect x="10" y="30" width="250" height="110" rx="16" fill="#fff" stroke="#1d5b95" stroke-width="4"/>'
+  + '<text x="135" y="72" font-size="25" fill="#1d5b95" text-anchor="middle">높은 곳에 올려두면</text>'
+  + '<text x="135" y="110" font-size="21" fill="#6d6b66" text-anchor="middle" font-weight="700">가만히 있어도 힘을 가진다</text>'
+  + '<path d="M275 85 L330 85" stroke="#c8963e" stroke-width="8" marker-end="url(#ar2)"/>'
+  + '<rect x="345" y="30" width="250" height="110" rx="16" fill="#fff" stroke="#2e7d5b" stroke-width="4"/>'
+  + '<text x="470" y="72" font-size="25" fill="#2e7d5b" text-anchor="middle">놓으면 굴러간다</text>'
+  + '<text x="470" y="110" font-size="21" fill="#6d6b66" text-anchor="middle" font-weight="700">그 힘이 움직임으로 바뀐다</text>'
+  + '<path d="M610 85 L665 85" stroke="#c8963e" stroke-width="8" marker-end="url(#ar2)"/>'
+  + '<rect x="680" y="30" width="210" height="110" rx="16" fill="#fdf6e6" stroke="#c8963e" stroke-width="4"/>'
+  + '<text x="785" y="72" font-size="25" fill="#c8963e" text-anchor="middle">매연 0</text>'
+  + '<text x="785" y="110" font-size="21" fill="#6d6b66" text-anchor="middle" font-weight="700">태운 것이 없으니까</text>'
+  + '</g>'
+  + '<defs><marker id="ar2" markerUnits="userSpaceOnUse" markerWidth="26" markerHeight="26" refX="20" refY="13" orient="auto">'
+  + '<path d="M0 0 L26 13 L0 26 Z" fill="#c8963e"/></marker></defs>'
+  + '</svg>';
+
+const SLIDES = [
+
+'<section class="slide cover2">'
++ '<div class="kicker">실과 4단원 · 친환경 수송 수단과 미래 (4~6차시)</div>'
++ '<h1>연료를 태우지 않고<br>움직이게 할 수 있을까?</h1>'
++ '<div class="sub">교과서 66~71쪽 · 오늘부터 세 시간 동안 직접 만든다</div>'
++ '</section>',
+
+'<section class="slide" style="--acc:var(--navy2)">'
++ '<div><span class="eyebrow">지난 시간까지</span></div>'
++ '<h2 class="stitle">수송 수단은 세 가지 장치로 움직였다</h2>'
++ '<div class="rule"></div>'
++ '<div class="cardrow">'
++ '<div class="card"><h3>구동 장치</h3><div class="small">힘을 만들어 바퀴에 전한다<br><b>엔진 · 전동기 · 페달</b></div></div>'
++ '<div class="card"><h3>조향 장치</h3><div class="small">가고 싶은 쪽으로 방향을 바꾼다<br><b>핸들 · 방향타</b></div></div>'
++ '<div class="card"><h3>제동 장치</h3><div class="small">달리던 것을 멈춘다<br><b>브레이크</b></div></div>'
++ '</div>'
++ '<p class="body" style="margin-top:26px">오늘은 그중 <b class="hn">구동 장치</b>를 다시 본다. '
++ '지금까지 자동차는 대부분 <b class="hl">기름을 태워서</b> 그 힘을 만들었다.</p>'
++ '</section>',
+
+'<section class="slide" style="--acc:var(--red)">'
++ '<div><span class="eyebrow">문제</span></div>'
++ '<h2 class="stitle">태우면 반드시 나오는 것</h2>'
++ '<div class="rule"></div>'
++ '<div class="cols"><div class="col">'
++ '<p class="body">휘발유 <b class="hl">1리터</b>를 태우면 이산화탄소가 약 <b class="hl">2.3킬로그램</b> 나온다. '
++ '들이부은 기름보다 나오는 기체가 더 무겁다.</p>'
++ '<p class="body">공기 중의 산소가 함께 붙기 때문이다. '
++ '여기에 <b class="hn">미세먼지와 질소산화물</b>도 같이 나온다.</p>'
++ '</div><div class="col">'
++ '<div class="term"><div class="t">배기가스</div>'
++ '<div class="d">연료를 태운 뒤 나오는 기체. <b>대기 오염</b>과 <b>지구 온난화</b>의 큰 원인이다.</div></div>'
++ '<div class="act" style="margin-top:18px;border-color:var(--red)">'
++ '<p class="body small">우리 학교 앞 도로에 1분 동안 지나가는 차를 세어 보자. '
++ '그 차들이 하루 동안 낸 기체는 얼마나 될까?</p></div>'
++ '</div></div></section>',
+
+'<section class="slide" style="--acc:var(--green)">'
++ '<div><span class="eyebrow">그래서 나온 것들</span></div>'
++ '<h2 class="stitle">태우지 않고 달리는 수송 수단</h2>'
++ '<div class="rule"></div>'
++ '<div class="cardrow">'
++ '<div class="card"><h3>전기 자동차</h3><div class="small">전동기로 바퀴를 돌린다. 달릴 때 배기가스가 <b>나오지 않는다</b></div></div>'
++ '<div class="card"><h3>전기 자전거</h3><div class="small">전동기가 <b>페달 밟는 힘을 도와준다</b>. 언덕에서도 힘이 덜 든다</div></div>'
++ '<div class="card"><h3>태양광 비행기</h3><div class="small">날개에 붙인 태양 전지로 만든 전기로 <b>프로펠러를 돌린다</b></div></div>'
++ '</div>'
++ '<div class="act" style="margin-top:26px">'
++ '<div class="act-h"><span class="act-badge">되물어 보기</span>'
++ '<span class="act-t">전기 자동차는 정말 깨끗할까?</span></div>'
++ '<p class="body small">달릴 때는 매연이 없다. 그런데 <b class="hl">그 전기는 어디서 왔을까?</b> '
++ '화력 발전소에서 왔다면 연기는 발전소에서 났을 뿐이다. '
++ '그래서 <b class="hg">전기를 무엇으로 만드느냐</b>가 함께 중요해진다.</p>'
++ '</div></section>',
+
+'<section class="slide" style="--acc:var(--gold)">'
++ '<div><span class="eyebrow">전기를 만드는 방법</span></div>'
++ '<h2 class="stitle">태양과 바람은 줄어들지 않는다</h2>'
++ '<div class="rule"></div>'
++ '<div class="cols"><div class="col">'
++ '<div class="card" style="--acc:var(--gold)"><h3>태양광 에너지</h3>'
++ '<div class="small">태양 전지가 <b>빛을 곧바로 전기로</b> 바꾼다. 움직이는 부품이 없어 소리도 나지 않는다.</div></div>'
++ '<div class="card" style="--acc:var(--navy2);margin-top:16px"><h3>풍력 에너지</h3>'
++ '<div class="small">바람이 프로펠러를 돌리고, 그 회전이 <b>발전기를 돌려</b> 전기를 만든다.</div></div>'
++ '</div><div class="col">'
++ '<div class="term"><div class="t">친환경 에너지</div>'
++ '<div class="d">만들거나 쓰는 동안 <b>환경을 더럽히지 않는</b> 에너지. 햇빛·바람처럼 <b>아무리 써도 없어지지 않는다.</b></div></div>'
++ '<p class="body small" style="margin-top:18px">석유와 석탄은 쓰면 줄어들고 언젠가 바닥난다. '
++ '햇빛과 바람은 <b class="hg">내일도 그대로 있다.</b></p>'
++ '</div></div></section>',
+
+'<section class="slide" style="--acc:var(--navy2)">'
++ '<div><span class="eyebrow">실제로 있었던 일</span></div>'
++ '<h2 class="stitle">기름 한 방울 없이 지구를 한 바퀴</h2>'
++ '<div class="rule"></div>'
++ '<p class="body">2015년, 날개에 태양 전지를 붙인 비행기 한 대가 지구를 한 바퀴 도는 데 도전했다. '
++ '연료는 <b class="hg">단 한 방울도 싣지 않았다.</b></p>'
++ '<p class="body">낮에 햇빛으로 전기를 만들어 날면서 배터리를 채우고, '
++ '<b class="hn">밤에는 그 배터리로 날았다.</b> 태평양을 건널 때는 쉬지 않고 나흘 넘게 날기도 했다.</p>'
++ '<p class="body">1년 넘게 걸려 결국 출발한 곳으로 돌아왔다.</p>'
++ '<div class="act" style="margin-top:22px">'
++ '<p class="body small">이 비행기는 사람을 많이 태우지도, 빠르지도 못했다. '
++ '그래도 이 도전이 값진 이유는 <b class="hg">"연료 없이도 날 수 있다"는 것을 보여 주었기</b> 때문이다.</p>'
++ '</div></section>',
+
+'<section class="slide divider">'
++ '<div class="num">그런데</div>'
++ '<h1>우리 교실에는<br>태양 전지판이 없다</h1>'
++ '</section>',
+
+'<section class="slide" style="--acc:var(--green)">'
++ '<div><span class="eyebrow">오늘 만들 것</span></div>'
++ '<h2 class="stitle">종이만으로 굴러가는 수송 수단</h2>'
++ '<div class="rule" style="margin-bottom:8px"></div>'
++ '<div class="fig">' + rollerFig + '</div>'
++ '<p class="body small" style="margin-top:6px">휴지심 바퀴 두 개에 종이 축을 끼우고 짐칸을 매단다. '
++ '경사면에 올려놓고 손을 떼면 <b class="hg">저절로 굴러 내려간다.</b></p>'
++ '</section>',
+
+'<section class="slide" style="--acc:var(--gold)">'
++ '<div><span class="eyebrow">이것도 친환경일까?</span></div>'
++ '<h2 class="stitle">높이가 곧 에너지다</h2>'
++ '<div class="rule" style="margin-bottom:10px"></div>'
++ '<div class="fig" style="flex:0 0 auto;margin:6px 0 14px">' + energyFig + '</div>'
++ '<p class="body">태양광·풍력만 친환경 에너지인 것이 아니다. '
++ '<b class="hg">태우지 않고 얻는 힘</b>은 모두 여기에 든다.</p>'
++ '<p class="body small" style="margin-top:10px">실제로 큰 배와 열차는 내리막에서 <b class="hn">모터를 거꾸로 돌려</b> '
++ '그 힘을 전기로 되돌려 받는다. 우리 롤러와 같은 원리다.</p>'
++ '</section>',
+
+'<section class="slide" style="--acc:var(--navy2)">'
++ '<div><span class="eyebrow">세 시간 계획</span></div>'
++ '<h2 class="stitle">오늘부터 이렇게 한다</h2>'
++ '<div class="rule"></div>'
++ '<div class="plan">'
++ '<div class="ph"><div class="pn">1</div><div class="pt">구상하고 만들기</div>'
++ '<div class="pd">모둠별로 어떤 모양으로 만들지 정하고 스케치한 뒤, 휴지심과 종이로 롤러를 만든다.</div></div>'
++ '<div class="ph"><div class="pn">2</div><div class="pt">실험하기</div>'
++ '<div class="pd">경사면 높이를 바꿔 가며 얼마나 멀리 가는지 재고, 그래프로 그린다.</div></div>'
++ '<div class="ph"><div class="pn">3</div><div class="pt">고치고 겨루기</div>'
++ '<div class="pd">더 멀리 가도록 고친 다음, 모둠끼리 겨뤄 보고 느낀 점을 나눈다.</div></div>'
++ '</div>'
++ '<p class="body small" style="margin-top:20px">준비물 — <b class="hn">휴지심</b>(모둠당 2개 이상) · A4 종이 · 가위 · 셀로판테이프 · 자</p>'
++ '</section>',
+
+'<section class="slide" style="--acc:var(--green)">'
++ '<div><span class="eyebrow">지금 할 일</span></div>'
++ '<h2 class="stitle">모둠에서 정하고 스케치하기</h2>'
++ '<div class="rule"></div>'
++ '<div class="act">'
++ '<div class="act-h"><span class="act-badge">함께 정하기</span><span class="act-t">세 가지만 먼저 정한다</span></div>'
++ '<p class="body small">① 바퀴를 <b>크게</b> 할까 작게 할까 &nbsp;·&nbsp; '
++ '② 짐칸을 <b>어디에</b> 매달까 &nbsp;·&nbsp; ③ 무엇을 <b>실어</b> 볼까</p>'
++ '</div>'
++ '<div class="chipwrap" style="margin-top:20px">'
++ '<span class="chip">칼 대신 가위를 쓴다</span>'
++ '<span class="chip">가위 날을 남에게 향하지 않는다</span>'
++ '<span class="chip">자를 때는 책상 위에서</span>'
++ '<span class="chip">역할을 나눈다</span>'
++ '</div>'
++ '<p class="body" style="margin-top:22px">스케치할 때는 <b class="hn">가로·세로 길이를 숫자로</b> 함께 적는다. '
++ '그래야 만들면서 크기가 어긋나지 않는다.</p>'
++ '</section>',
+
+'<section class="slide" style="--acc:var(--plum)">'
++ '<div><span class="eyebrow">마지막 시간에 볼 것</span></div>'
++ '<h2 class="stitle">사람이 몰지 않는 수송 수단</h2>'
++ '<div class="rule"></div>'
++ '<div class="cardrow">'
++ '<div class="card" style="--acc:var(--plum)"><h3>자율주행 자동차</h3>'
++ '<div class="small">주변을 스스로 살펴 <b>운전자 없이</b> 목적지까지 간다</div></div>'
++ '<div class="card" style="--acc:var(--plum)"><h3>배달 로봇</h3>'
++ '<div class="small">길을 스스로 찾아 <b>음식과 물건을</b> 나른다</div></div>'
++ '<div class="card" style="--acc:var(--plum)"><h3>물류 로봇</h3>'
++ '<div class="small">창고에서 필요한 물건을 꺼내 <b>필요한 자리로</b> 옮긴다</div></div>'
++ '</div>'
++ '<p class="body" style="margin-top:26px">여기까지 오면 수송 수단은 <b class="hn">스스로 판단하는 기계</b>가 된다. '
++ '그렇다면 <b class="hl">사고가 났을 때 책임은 누구에게 있을까?</b></p>'
++ '</section>',
+
+'<section class="slide cover2">'
++ '<div class="kicker">오늘의 한 문장</div>'
++ '<h1 style="font-size:44px">태우지 않고 움직이는 방법을<br>찾아내는 것이 기술이다</h1>'
++ '<div class="sub">이제 모둠끼리 스케치를 시작해 보자</div>'
++ '</section>'
+
+];
+
+const stage = document.getElementById("stage");
+stage.innerHTML = SLIDES.join("");
+const slides = [...stage.querySelectorAll(".slide")];
+
+let cur = 0;
+function show(i){
+  cur = Math.max(0, Math.min(slides.length - 1, i));
+  slides.forEach((s,n) => s.classList.toggle("on", n === cur));
+  document.getElementById("counter").textContent = (cur+1) + " / " + slides.length;
+  const p = document.getElementById("prog");
+  p.style.width = ((cur+1)/slides.length*100) + "%";
+  p.style.background = getComputedStyle(slides[cur]).getPropertyValue("--acc");
+}
+function go(d){ show(cur + d); }
+function fit(){
+  const s = Math.min(window.innerWidth/1280, (window.innerHeight-46)/720);
+  stage.style.transform = "translate(-50%,-50%) scale(" + s + ")";
+}
+function fs(){
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+  else document.exitFullscreen();
+}
+document.addEventListener("keydown", e => {
+  if (["ArrowRight","PageDown"," "].includes(e.key)) { e.preventDefault(); go(1); }
+  if (["ArrowLeft","PageUp"].includes(e.key)) { e.preventDefault(); go(-1); }
+  if (e.key === "Home") show(0);
+  if (e.key === "End") show(slides.length-1);
+  if (e.key === "f" || e.key === "F") fs();
+});
+document.getElementById("zl").onclick = () => go(-1);
+document.getElementById("zr").onclick = () => go(1);
+let tx=0, ty=0;
+document.addEventListener("touchstart", e => { tx=e.touches[0].clientX; ty=e.touches[0].clientY; }, {passive:true});
+document.addEventListener("touchend", e => {
+  const dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty;
+  if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) go(dx < 0 ? 1 : -1);
+}, {passive:true});
+window.addEventListener("resize", fit);
+fit();
+show(0);
+</script>
+</body>
+</html>

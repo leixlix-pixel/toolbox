@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>책과 노니는 집 · 2차시 편지지</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;}
+  :root{
+    --ink:#26221d;
+    --sub:#6b6259;
+    --line:#c9bca0;
+    --line2:#e0d7c3;
+    --paper:#fbf7ee;
+    --red:#a63a2e;
+    --navy:#2f4858;
+  }
+  body{
+    margin:0; background:#8a8578;
+    font-family:'Noto Sans KR',sans-serif; color:var(--ink);
+    touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+  }
+  @page{ size:A4; margin:0; }
+
+  .bar{
+    position:sticky; top:0; z-index:50;
+    background:#2f4858; color:#fff; padding:14px 18px;
+    display:flex; flex-wrap:wrap; gap:10px 16px; align-items:center;
+    box-shadow:0 2px 10px rgba(0,0,0,.3);
+  }
+  .bar h1{ font-size:15px; margin:0 10px 0 0; font-weight:700;}
+  .bar button{
+    font-family:'Noto Sans KR',sans-serif; font-size:14px; font-weight:700;
+    min-height:44px; padding:10px 22px; border:none; border-radius:8px;
+    background:#f0c04a; color:#26221d; cursor:pointer;
+  }
+  .bar .hint{ font-size:12px; opacity:.78; line-height:1.6; }
+
+  .page{
+    width:210mm; height:297mm; padding:14mm 16mm 12mm;
+    margin:16px auto; background:var(--paper);
+    overflow:hidden; position:relative;
+    display:flex; flex-direction:column;
+    box-shadow:0 4px 18px rgba(0,0,0,.35);
+    print-color-adjust:exact; -webkit-print-color-adjust:exact;
+  }
+
+  .head{ display:flex; align-items:flex-end; justify-content:space-between;
+         border-bottom:2.5px solid var(--ink); padding-bottom:3.5mm; }
+  .head .book{ font-size:11pt; color:var(--red); font-weight:700; letter-spacing:1px;
+               font-family:'Nanum Myeongjo',serif;}
+  .head .main{ font-size:19pt; font-weight:800; letter-spacing:-.5px; margin-top:1mm;
+               font-family:'Nanum Myeongjo',serif;}
+  .head .who{ font-size:10pt; color:var(--sub); white-space:nowrap; padding-bottom:1mm;}
+  .head .who span{ display:inline-block; border-bottom:1px solid var(--sub);
+                   min-width:16mm; text-align:center;}
+
+  .lead{ font-size:10.5pt; line-height:1.65; margin:4mm 0 0; color:var(--navy); }
+  .lead b{ color:var(--red); }
+
+  /* 도움말 */
+  .tips{ margin-top:3.5mm; border:1.5px solid var(--line); background:#fff;
+         padding:3mm 3.5mm; }
+  .tips .t{ font-size:10pt; font-weight:700; margin-bottom:2mm;
+            font-family:'Nanum Myeongjo',serif; color:var(--navy);}
+  .tips ul{ margin:0; padding:0; list-style:none;
+            display:grid; grid-template-columns:1fr 1fr; gap:1.5mm 5mm;}
+  .tips li{ font-size:9.5pt; line-height:1.5; padding-left:5mm; position:relative; }
+  .tips li::before{ content:'·'; position:absolute; left:1.5mm; color:var(--red);
+                    font-weight:700; font-size:13pt; line-height:1;}
+  .tips .note{ margin-top:2mm; padding-top:2mm; border-top:1px dashed var(--line);
+               font-size:8.5pt; color:var(--sub); line-height:1.5;}
+
+  /* 편지지 */
+  .letter{ margin-top:3.5mm; flex:1; display:flex; flex-direction:column;
+           border:1.5px solid var(--line); background:#fff; padding:0 5mm; min-height:0; }
+  .letter .row{ flex:1; border-bottom:1px solid var(--line2);
+                display:flex; align-items:flex-end; padding-bottom:1mm; }
+  .letter .row:last-child{ border-bottom:none; }
+  .letter .row.open{ font-family:'Nanum Myeongjo',serif; font-size:13pt; font-weight:700;
+                     color:var(--ink); }
+  .letter .row.sign{ justify-content:flex-end; font-family:'Nanum Myeongjo',serif;
+                     font-size:12.5pt; font-weight:700; padding-right:6mm; }
+  .letter .row.sign i{ font-style:normal; color:var(--sub); font-size:10pt;
+                       margin-right:3mm; font-family:'Noto Sans KR',sans-serif;}
+
+  .foot{ margin-top:3mm; padding-top:2.5mm; font-size:8.5pt; color:var(--sub);
+         border-top:1px dashed var(--line); display:flex; justify-content:space-between;}
+
+  @media print{
+    body{ background:#fff; }
+    .no-print{ display:none !important; }
+    .page{ margin:0; box-shadow:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bar no-print">
+  <h1>「책과 노니는 집」 2차시 · 아버지께 부치는 편지</h1>
+  <button onclick="window.print()">🖨 인쇄</button>
+  <div class="hint">한 사람당 한 장. 편지지 줄은 13칸이에요.</div>
+</div>
+
+<div class="page">
+  <div class="head">
+    <div>
+      <div class="book">이영서 「책과 노니는 집」 · 독후활동 2</div>
+      <div class="main">아버지께 부치는 편지</div>
+    </div>
+    <div class="who">5학년 <span></span>반 이름 <span style="min-width:24mm"></span></div>
+  </div>
+
+  <p class="lead">
+    나는 <b>장이</b>입니다. 관아에 끌려갔다 돌아오신 뒤 세상을 떠나신 아버지께,
+    그때는 <b>하지 못했던 말</b>을 이제 편지로 씁니다.
+  </p>
+
+  <div class="tips">
+    <div class="t">무엇을 쓸까요 — 마음이 가는 것을 골라 써도 좋아요</div>
+    <ul>
+      <li>그날, <b>아버지께 하지 못한 말</b></li>
+      <li>요즈음 나의 하루 — 나는 지금 어디서 무엇을 하며 지내는지</li>
+      <li>아버지가 베끼시던 <b>책에 대해 알게 된 것</b></li>
+      <li>아버지처럼 <b>글을 옮겨 쓰는 사람</b>이 되고 싶은지, 아닌지</li>
+      <li>아버지를 떠올리면 지금 어떤 마음이 드는지</li>
+      <li>아버지께 <b>묻고 싶은 것</b> 한 가지</li>
+    </ul>
+    <div class="note">
+      ✎ 장이가 <b>겪은 일 안에서</b> 씁니다. 책에 없는 사건을 새로 지어내지는 말고,
+      대신 책에 적히지 않은 <b>장이의 마음</b>은 얼마든지 써도 좋아요.
+    </div>
+  </div>
+
+  <div class="letter">
+    <div class="row open">아버지께</div>
+    <div class="row"></div>
+    <div class="row"></div>
+    <div class="row"></div>
+    <div class="row"></div>
+    <div class="row"></div>
+    <div class="row"></div>
+    <div class="row"></div>
+    <div class="row"></div>
+    <div class="row"></div>
+    <div class="row"></div>
+    <div class="row"></div>
+    <div class="row sign"><i>아버지의 아들</i> 장이 올림</div>
+  </div>
+
+  <div class="foot">
+    <span>「책과 노니는 집」 · 이영서 글 / 문학동네</span>
+    <span>1 / 1</span>
+  </div>
+</div>
+
+</body>
+</html>

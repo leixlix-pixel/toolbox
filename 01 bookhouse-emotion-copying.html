@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>책과 노니는 집 · 1차시 학습지</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;}
+  :root{
+    --ink:#26221d;
+    --sub:#6b6259;
+    --line:#c9bca0;
+    --line2:#e3dbc9;
+    --paper:#fbf7ee;
+    --red:#a63a2e;
+    --navy:#2f4858;
+  }
+  body{
+    margin:0; background:#8a8578;
+    font-family:'Noto Sans KR',sans-serif;
+    color:var(--ink);
+    touch-action:manipulation;
+    -webkit-tap-highlight-color:transparent;
+  }
+  @page{ size:A4; margin:0; }
+
+  /* ── 조작 바 (인쇄 안 됨) ── */
+  .bar{
+    position:sticky; top:0; z-index:50;
+    background:#2f4858; color:#fff;
+    padding:14px 18px;
+    display:flex; flex-wrap:wrap; gap:10px 16px; align-items:center;
+    box-shadow:0 2px 10px rgba(0,0,0,.3);
+  }
+  .bar h1{ font-size:15px; margin:0 10px 0 0; font-weight:700; letter-spacing:-.3px;}
+  .bar label{ font-size:13px; opacity:.9; margin-right:6px;}
+  .bar input[type=text], .bar textarea{
+    font-family:'Noto Sans KR',sans-serif; font-size:14px;
+    padding:8px 10px; border:none; border-radius:6px; min-height:40px;
+  }
+  .bar input[type=text]{ width:340px; }
+  .bar textarea{ width:300px; height:40px; resize:vertical; line-height:1.4;}
+  .bar button{
+    font-family:'Noto Sans KR',sans-serif; font-size:14px; font-weight:700;
+    min-height:44px; padding:10px 22px; border:none; border-radius:8px;
+    background:#f0c04a; color:#26221d; cursor:pointer;
+  }
+  .bar .hint{ font-size:12px; opacity:.75; width:100%; line-height:1.6; }
+  .bar .warn{ color:#ffd7d2; font-weight:700; }
+
+  /* ── A4 ── */
+  .page{
+    width:210mm; height:297mm;
+    padding:14mm 15mm 12mm;
+    margin:16px auto; background:var(--paper);
+    overflow:hidden; position:relative;
+    display:flex; flex-direction:column;
+    box-shadow:0 4px 18px rgba(0,0,0,.35);
+    print-color-adjust:exact; -webkit-print-color-adjust:exact;
+  }
+
+  /* ── 머리 ── */
+  .head{ display:flex; align-items:flex-end; justify-content:space-between;
+         border-bottom:2.5px solid var(--ink); padding-bottom:3.5mm; }
+  .head .ttl{ font-family:'Nanum Myeongjo',serif; }
+  .head .book{ font-size:11pt; color:var(--red); font-weight:700; letter-spacing:1px;}
+  .head .main{ font-size:19pt; font-weight:800; letter-spacing:-.5px; margin-top:1mm;}
+  .head .who{ font-size:10pt; color:var(--sub); white-space:nowrap; padding-bottom:1mm;}
+  .head .who span{ display:inline-block; border-bottom:1px solid var(--sub);
+                   min-width:16mm; text-align:center;}
+
+  .lead{ font-size:10.5pt; line-height:1.6; margin:4mm 0 0; color:var(--navy); }
+  .lead b{ color:var(--red); }
+
+  .sect{ margin-top:4.5mm; }
+  .sect-t{ font-family:'Nanum Myeongjo',serif; font-size:12.5pt; font-weight:800;
+           display:flex; align-items:center; gap:6px; margin-bottom:2.5mm;}
+  .sect-t .num{ background:var(--ink); color:var(--paper); font-family:'Noto Sans KR',sans-serif;
+                font-size:9.5pt; width:6.5mm; height:6.5mm; border-radius:50%;
+                display:flex; align-items:center; justify-content:center; font-weight:700;}
+  .sect-t .sm{ font-family:'Noto Sans KR',sans-serif; font-size:9pt;
+               font-weight:400; color:var(--sub); }
+
+  /* ── 그래프 ── */
+  .graph{ border:1.5px solid var(--line); background:#fff; padding:2mm 3mm 1mm; }
+  .graph svg{ display:block; width:100%; height:auto; }
+
+  /* ── 사건 칸 ── */
+  .events{ display:grid; grid-template-columns:1fr 1fr; gap:2mm 6mm; margin-top:3mm; }
+  .ev{ display:flex; align-items:flex-end; gap:2mm; font-size:10pt; }
+  .ev .no{ font-weight:700; color:var(--red); width:5mm; flex:none;
+           font-family:'Nanum Myeongjo',serif; font-size:11pt;}
+  .ev .ln{ flex:1; border-bottom:1px solid var(--line);
+           min-height:6.5mm; padding:0 1mm 0.5mm; font-size:9.5pt; line-height:6.5mm;
+           white-space:nowrap; overflow:hidden;}
+
+  /* ── 서술 칸 ── */
+  .ask{ font-size:10.5pt; font-weight:500; margin-bottom:1.5mm; }
+  .lines{ border:1.5px solid var(--line); border-radius:3px; overflow:hidden; background:#fff; }
+  .lines div{ border-bottom:1px solid var(--line2); }
+  .lines div:last-child{ border-bottom:none; }
+
+  .foot{ margin-top:auto; padding-top:3mm; font-size:8.5pt; color:var(--sub);
+         border-top:1px dashed var(--line); display:flex; justify-content:space-between;}
+
+  /* ── 필사면 ── */
+  .caution{ background:#fff; border:1.5px solid var(--red); border-radius:3px;
+            padding:2.5mm 3mm; font-size:9.5pt; line-height:1.65; }
+  .caution b{ color:var(--red); }
+
+  .stroke-box{ border:1.5px solid var(--line); background:#fff; padding:2.5mm 3mm;
+               display:flex; align-items:center; gap:3mm; }
+  .stroke-box .lab{ font-size:9pt; color:var(--sub); width:24mm; flex:none; line-height:1.5;}
+  .stroke-cells{ display:flex; gap:2mm; }
+  .stroke-cells i{ width:13mm; height:13mm; border:1px dashed var(--line);
+                   display:block; background:
+                   linear-gradient(to right,transparent 49.6%,#f0e9d8 49.6%,#f0e9d8 50.4%,transparent 50.4%),
+                   linear-gradient(to bottom,transparent 49.6%,#f0e9d8 49.6%,#f0e9d8 50.4%,transparent 50.4%);}
+
+  .grids{ display:flex; flex-direction:column; gap:3mm; }
+  .gwrap .cap{ font-size:9.5pt; font-weight:700; margin-bottom:1.2mm; display:flex;
+               justify-content:space-between; align-items:baseline;}
+  .gwrap .cap em{ font-style:normal; font-size:8.5pt; color:var(--sub); font-weight:400;}
+  /* 격자는 SVG 로 그린다 — CSS border 로 그리면 인쇄 엔진이 빈 칸 테두리를 뭉갠다 */
+  .grid{ width:max-content; margin:0 auto; }
+  .grid svg{ display:block; }
+  .arrow{ text-align:center; font-size:8.5pt; color:var(--sub); margin-top:1.2mm;}
+
+  /* ── 계산 칸 ── */
+  .calc{ border:1.5px solid var(--navy); background:#fff; padding:3mm 3.5mm; }
+  .calc .t{ font-size:10.5pt; font-weight:700; color:var(--navy); margin-bottom:2mm;
+            font-family:'Nanum Myeongjo',serif;}
+  .calc ol{ margin:0; padding-left:5mm; font-size:10pt; line-height:1.95; }
+  .calc ol li::marker{ font-weight:700; color:var(--red); }
+  .calc u{ display:inline-block; min-width:17mm; border-bottom:1.2px solid var(--ink);
+           text-decoration:none; text-align:center;}
+  .calc .memo{ margin-top:2mm; font-size:8.5pt; color:var(--sub); line-height:1.5;
+               border-top:1px dashed var(--line); padding-top:1.5mm;}
+
+  @media print{
+    body{ background:#fff; }
+    .no-print{ display:none !important; }
+    .page{ margin:0; box-shadow:none; break-inside:avoid; break-after:page; }
+    .page:last-of-type{ break-after:auto; }
+    .grid, .grid svg{ break-inside:avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bar no-print">
+  <h1>「책과 노니는 집」 1차시 학습지</h1>
+  <div>
+    <label for="sent">따라 쓸 문장</label>
+    <input type="text" id="sent" placeholder="예) 책에서 고른 한 문장 (36자 이내 권장)">
+  </div>
+  <div>
+    <label for="evs">사건 (줄바꿈으로 구분 · 최대 8개)</label>
+    <textarea id="evs" placeholder="비워 두면 아이들이 직접 씁니다"></textarea>
+  </div>
+  <button onclick="window.print()">🖨 인쇄</button>
+  <div class="hint">
+    ⚠ <b>단면으로 2장</b> 뽑으세요 — 양면이면 2면의 붓펜 먹이 배어 1면 그래프가 더러워집니다(양면을 쓰려면 100g 이상 종이로).
+    입력하면 바로 반영되고 이 컴퓨터에 저장돼요. · 사건 칸을 비워 두면 아이들이 직접 채웁니다.
+    <span id="warn" class="warn"></span>
+  </div>
+</div>
+
+<!-- ══════════ 1면 : 마음 그래프 ══════════ -->
+<div class="page">
+  <div class="head">
+    <div class="ttl">
+      <div class="book">이영서 「책과 노니는 집」 · 독후활동 1</div>
+      <div class="main">장이의 마음 그래프</div>
+    </div>
+    <div class="who">5학년 <span></span>반 이름 <span style="min-width:24mm"></span></div>
+  </div>
+
+  <p class="lead">
+    이야기 속 <b>사건을 순서대로</b> 아래 칸에 적고, 그때 <b>장이의 마음</b>이 어디쯤이었을지 점을 찍어 선으로 이어 보세요.
+  </p>
+
+  <div class="sect">
+    <div class="sect-t"><span class="num">1</span>마음 그래프 그리기</div>
+    <div class="graph" id="graphBox"></div>
+  </div>
+
+  <div class="sect">
+    <div class="sect-t"><span class="num">2</span>사건 적기<span class="sm">위 그래프의 번호와 짝을 맞추어 씁니다</span></div>
+    <div class="events" id="events"></div>
+  </div>
+
+  <div class="sect" style="display:flex;flex-direction:column;flex:1;min-height:0;">
+    <div class="sect-t"><span class="num">3</span>가장 크게 흔들린 곳</div>
+    <div class="ask">마음이 가장 크게 오르내린 곳은 몇 번인가요? 그때 장이는 왜 그런 마음이었을까요?</div>
+    <div class="lines" style="flex:1;display:flex;flex-direction:column;">
+      <div style="flex:1"></div><div style="flex:1"></div><div style="flex:1"></div><div style="flex:1"></div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span>「책과 노니는 집」 · 이영서 글 / 문학동네</span>
+    <span>1 / 2</span>
+  </div>
+</div>
+
+<!-- ══════════ 2면 : 필사 ══════════ -->
+<div class="page">
+  <div class="head">
+    <div class="ttl">
+      <div class="book">이영서 「책과 노니는 집」 · 독후활동 1</div>
+      <div class="main">필사쟁이의 시간</div>
+    </div>
+    <div class="who">5학년 <span></span>반 이름 <span style="min-width:24mm"></span></div>
+  </div>
+
+  <p class="lead">
+    장이 아버지는 하루 종일 <b>책을 베껴 쓰는 사람</b>이었습니다. 붓펜을 들고, 그 시간을 잠깐 살아 봅시다.
+    <br><span style="font-size:8.5pt;color:var(--sub);">※ <b style="color:var(--sub)">필사쟁이</b> : 글이나 책을 베껴 쓰는 일을 하는 사람을 <b>낮추어</b> 부르는 말.</span>
+  </p>
+
+  <div class="sect">
+    <div class="caution">
+      <b>붓펜 약속</b> ① 학습지 <b>밑에 이면지</b>를 깔아요. ② <b>손 아래에도 종이 한 장</b>을 받쳐요 — 손날이 먹을 문지릅니다.
+      ③ 쓰지 않을 때는 <b>뚜껑을 닫아요.</b> ④ 글씨는 <b>오른쪽 위에서 아래로</b>, 다음 줄은 <b>왼쪽으로</b> 갑니다.
+    </div>
+  </div>
+
+  <div class="sect">
+    <div class="sect-t"><span class="num">1</span>붓 익히기<span class="sm">천천히, 한 획씩</span></div>
+    <div class="stroke-box">
+      <div class="lab">가로 · 세로 · 점<br>가볍게 눌렀다 떼기</div>
+      <div class="stroke-cells"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    </div>
+  </div>
+
+  <div class="sect">
+    <div class="grids">
+      <div class="gwrap">
+        <div class="cap"><span>② 따라 쓰기</span><em>흐린 글씨 위에 · <b>맨 오른쪽 줄 위에서</b> 시작해 아래로, 다음 줄은 왼쪽으로</em></div>
+        <div class="grid trace" id="gTrace"></div>
+      </div>
+      <div class="gwrap">
+        <div class="cap"><span>③ 보고 쓰기</span><em>책에서 <b>내가 고른 문장</b>을 보고 · 칸이 남으면 한 문장 더 골라 써도 좋아요</em></div>
+        <div class="grid" id="gBlank"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sect">
+    <div class="calc">
+      <div class="t">그래서 아버지는 며칠이나 걸렸을까?</div>
+      <ol>
+        <li>내가 <b>15분</b> 동안 쓴 글자 수 &nbsp;→&nbsp; <u></u> 자</li>
+        <li>그렇다면 <b>한 시간</b>이면 &nbsp;→&nbsp; <u></u> 자 &nbsp;<span style="font-size:8.5pt;color:#6b6259">(1번 × 4)</span></li>
+        <li>책 한 권이 <b>5만 자</b>라면 &nbsp;→&nbsp; <u></u> 시간 &nbsp;=&nbsp; 하루 8시간씩 <u></u> 일</li>
+      </ol>
+      <div class="memo">
+        ✎ 방금 내가 베껴 쓴 문장을 다시 읽어 봅시다. 아버지가 매를 맞은 까닭도 <b>'베껴 썼다'</b>는 것이었습니다.
+        그런데 아버지가 베낀 것은 천주학 책뿐이 아니라 <b>세상의 모든 책</b>이었지요.
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span>붓펜 · 세로쓰기</span>
+    <span>2 / 2</span>
+  </div>
+</div>
+
+<script>
+(function(){
+  const EV_N = 8;                       // 사건 개수
+  const COLS = 14;                      // 격자 열 수 (A4 폭에 맞춤)
+  const CELL_MM = 12.6;                 // 한 칸 크기(mm) — 붓펜 기준
+  const TOTAL_ROWS = 8;                 // ② + ③ 이 함께 쓰는 줄 수
+  const DEFAULT_SENT = '보름 전, 아버지는 관아에 끌려가 온몸이 짓이겨지도록 매를 맞고 겨우 목숨을 부지해 집에 돌아왔다.';
+  const sentEl = document.getElementById('sent');
+  const evsEl  = document.getElementById('evs');
+  const warnEl = document.getElementById('warn');
+
+  /* ── 저장 ── */
+  function load(){
+    try{
+      const s = localStorage.getItem('bh_sent');
+      sentEl.value = (s===null) ? DEFAULT_SENT : s;
+      evsEl.value  = localStorage.getItem('bh_evs') || '';
+    }catch(e){ sentEl.value = DEFAULT_SENT; }
+  }
+  function save(){
+    try{
+      localStorage.setItem('bh_sent', sentEl.value);
+      localStorage.setItem('bh_evs',  evsEl.value);
+    }catch(e){}
+  }
+
+  /* ── 그래프(SVG) ── */
+  function drawGraph(){
+    const W=760, H=300, L=34, R=12, T=10, B=26;
+    const gw=W-L-R, gh=H-T-B;
+    const rows=10, cols=EV_N;
+    const cw=gw/cols, ch=gh/rows;
+    let s=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+    // 가로선
+    for(let i=0;i<=rows;i++){
+      const y=T+ch*i, mid=(i===rows/2);
+      s+=`<line x1="${L}" y1="${y}" x2="${W-R}" y2="${y}" stroke="${mid?'#26221d':'#e3dbc9'}" stroke-width="${mid?1.6:0.8}"/>`;
+    }
+    // 세로선
+    for(let i=0;i<=cols;i++){
+      const x=L+cw*i;
+      s+=`<line x1="${x}" y1="${T}" x2="${x}" y2="${H-B}" stroke="#e3dbc9" stroke-width="0.8"/>`;
+    }
+    // 세로축
+    s+=`<line x1="${L}" y1="${T}" x2="${L}" y2="${H-B}" stroke="#26221d" stroke-width="1.6"/>`;
+    // 세로축 라벨
+    const lab=[['아주',T+ch*0.5,'#a63a2e'],['기쁨',T+ch*2.5,'#a63a2e'],
+               ['보통',T+ch*5,'#26221d'],
+               ['슬픔',T+ch*7.5,'#2f4858'],['아주',T+ch*9.5,'#2f4858']];
+    const txt=['아주 기쁨','기쁨','보통','슬픔','아주 슬픔'];
+    const ys=[T+ch*0.5,T+ch*2.5,T+ch*5,T+ch*7.5,T+ch*9.5];
+    const cl=['#a63a2e','#a63a2e','#26221d','#2f4858','#2f4858'];
+    for(let i=0;i<5;i++){
+      s+=`<text x="${L-5}" y="${ys[i]+4}" text-anchor="end" font-size="11" fill="${cl[i]}" font-family="Noto Sans KR">${txt[i]}</text>`;
+    }
+    // 가로축 번호
+    for(let i=0;i<cols;i++){
+      const x=L+cw*i+cw/2;
+      s+=`<circle cx="${x}" cy="${H-B+13}" r="9" fill="#fff" stroke="#c9bca0" stroke-width="1"/>`;
+      s+=`<text x="${x}" y="${H-B+17}" text-anchor="middle" font-size="11" fill="#26221d" font-family="Noto Sans KR" font-weight="700">${i+1}</text>`;
+    }
+    s+=`</svg>`;
+    document.getElementById('graphBox').innerHTML=s;
+  }
+
+  /* ── 사건 칸 ── */
+  function drawEvents(){
+    const list=evsEl.value.split('\n').map(v=>v.trim()).filter(v=>v);
+    let h='';
+    for(let i=0;i<EV_N;i++){
+      h+=`<div class="ev"><span class="no">${i+1}</span><span class="ln">${(list[i]||'').replace(/[<>&]/g,'')}</span></div>`;
+    }
+    document.getElementById('events').innerHTML=h;
+  }
+
+  /* ── 세로 격자 (SVG) ──
+     칸선을 CSS border 로 그리면 인쇄에서 빈 칸의 세로선이 사라진다.
+     벡터로 직접 그어야 화면과 인쇄가 같아진다. */
+  function drawGrid(el, text, rows){
+    const chars=[...text].filter(c=>c!==' ');
+    const U=100, W=COLS*U, H=rows*U;
+    const trace=el.classList.contains('trace');
+    let s=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" `
+        + `style="width:${COLS*CELL_MM}mm;height:${rows*CELL_MM}mm">`
+        + `<rect x="0" y="0" width="${W}" height="${H}" fill="#ffffff"/>`;
+    // 칸 안 십자 보조선
+    for(let r=0;r<rows;r++)
+      s+=`<line x1="0" y1="${r*U+U/2}" x2="${W}" y2="${r*U+U/2}" stroke="#e6dcc6" stroke-width="1.4" stroke-dasharray="7 7"/>`;
+    for(let c=0;c<COLS;c++)
+      s+=`<line x1="${c*U+U/2}" y1="0" x2="${c*U+U/2}" y2="${H}" stroke="#e6dcc6" stroke-width="1.4" stroke-dasharray="7 7"/>`;
+    // 칸선
+    for(let r=0;r<=rows;r++)
+      s+=`<line x1="0" y1="${r*U}" x2="${W}" y2="${r*U}" stroke="#26221d" stroke-width="2"/>`;
+    for(let c=0;c<=COLS;c++)
+      s+=`<line x1="${c*U}" y1="0" x2="${c*U}" y2="${H}" stroke="#26221d" stroke-width="2"/>`;
+    // 글자 — 맨 오른쪽 열 위에서 아래로, 다음 열은 왼쪽으로
+    chars.forEach((ch,i)=>{
+      const colFromRight=Math.floor(i/rows), row=i%rows;
+      if(colFromRight>=COLS) return;
+      const x=(COLS-1-colFromRight)*U+U/2, y=row*U+U/2;
+      s+=`<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" `
+       + `font-family="Nanum Myeongjo, serif" font-size="${U*0.66}" `
+       + `fill="${trace?'#b9ad97':'#26221d'}">${ch.replace(/[<>&]/g,'')}</text>`;
+    });
+    el.innerHTML=s+'</svg>';
+  }
+
+  function render(){
+    const t=sentEl.value;
+    const n=[...t].filter(c=>c!==' ').length;
+    const rTrace=Math.max(2, Math.ceil(n/COLS));            // 문장 길이만큼만
+    const rBlank=Math.max(3, TOTAL_ROWS-rTrace);            // 남는 자리는 전부 ③에
+    drawGrid(document.getElementById('gTrace'), t, rTrace);
+    drawGrid(document.getElementById('gBlank'), '', rBlank);
+    const cap=COLS*(TOTAL_ROWS-3);
+    warnEl.textContent = n>cap ? `⚠ ${n}자 — ${cap}자까지만 들어갑니다. 문장을 줄여 주세요.` : '';
+    drawEvents();
+    save();
+  }
+
+  load();
+  drawGraph();
+  render();
+  sentEl.addEventListener('input', render);
+  evsEl.addEventListener('input', render);
+})();
+</script>
+</body>
+</html>

@@ -29,6 +29,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:#0d1520;color:var(--ink);
   min-height:42px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer}
 .tbtn.play{background:var(--green)}
 .tbtn.save{background:var(--gold);color:#3a2c10}
+.tbtn.gif{background:var(--plum);color:#fff}
+.tbtn.rst{background:#7a3b34;color:#fff}
 .tbtn.on{background:#fff;color:var(--navy)}
 .spacer{margin-left:auto}
 
@@ -84,6 +86,20 @@ input[type=range]{width:150px;height:44px;accent-color:var(--navy2)}
 .qrcard .qu{font-size:17px;font-weight:700;color:var(--navy);margin-top:14px;word-break:break-all}
 .qrcard .qh{font-size:15px;color:var(--muted);font-weight:600;margin-top:8px}
 
+/* 만드는 중 가림막 · GIF 미리보기 */
+.busy{position:fixed;inset:0;background:rgba(10,18,30,.9);z-index:260;display:none;
+  align-items:center;justify-content:center;color:#fff;font-size:20px;font-weight:900;text-align:center}
+.busy.on{display:flex}
+.gifmodal{position:fixed;inset:0;background:rgba(10,18,30,.93);z-index:220;
+  display:none;align-items:center;justify-content:center;padding:16px}
+.gifmodal.on{display:flex}
+.gifcard{background:#fff;border-radius:20px;padding:18px;text-align:center;max-width:96vw}
+.gifcard img{width:min(58vmin,380px);height:min(58vmin,380px);display:block;margin:0 auto;
+  border-radius:12px;border:2px solid var(--line)}
+.gifcard .gh{font-size:15px;font-weight:700;color:var(--navy);margin:12px 0 10px;line-height:1.5}
+.gifcard .grow{display:flex;gap:8px;justify-content:center}
+.gifcard a.tbtn{display:inline-flex;align-items:center;text-decoration:none}
+
 @media (max-width:900px){ .top .ttl{display:none} }
 @media (max-width:700px){
   .txtin{width:104px}
@@ -105,6 +121,7 @@ input[type=range]{width:150px;height:44px;accent-color:var(--navy2)}
   <button class="tbtn" id="onionBtn" onclick="toggleOnion()">앞 컷 비추기</button>
   <span class="spacer"></span>
   <button class="tbtn" onclick="pickPhoto()">사진 넣기</button>
+  <button class="tbtn gif" onclick="saveGif()">GIF 저장</button>
   <button class="tbtn save" onclick="saveStrip()">3컷 저장</button>
   <button class="tbtn save" onclick="saveOne()">1장 저장</button>
   <button class="qrbtn" onclick="qrOpen()" aria-label="이 도구 주소 QR 크게 보기"><svg viewBox="0 0 43 43" shape-rendering="crispEdges"><path fill="#ffffff" d="M0 0h43v43H0z"/><path stroke="#000000" d="M1 1.5h7m2 0h1m3 0h2m3 0h2m2 0h2m1 0h2m7 0h7M1 2.5h1m5 0h1m4 0h6m1 0h1m1 0h7m1 0h1m1 0h2m2 0h1m5 0h1M1 3.5h1m1 0h3m1 0h1m1 0h2m2 0h1m1 0h3m4 0h2m1 0h3m3 0h1m1 0h1m1 0h1m1 0h3m1 0h1M1 4.5h1m1 0h3m1 0h1m1 0h2m1 0h3m3 0h2m2 0h4m1 0h4m1 0h2m1 0h1m1 0h3m1 0h1M1 5.5h1m1 0h3m1 0h1m2 0h1m4 0h2m2 0h1m1 0h5m6 0h1m2 0h1m1 0h3m1 0h1M1 6.5h1m5 0h1m4 0h3m1 0h1m1 0h1m7 0h1m2 0h2m2 0h1m1 0h1m5 0h1M1 7.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M10 8.5h1m1 0h1m4 0h1m1 0h5m1 0h2m1 0h1m2 0h1M4 9.5h2m1 0h2m1 0h1m1 0h1m1 0h1m3 0h3m1 0h1m2 0h1m1 0h4m1 0h1m5 0h2M2 10.5h2m1 0h1m5 0h1m4 0h3m1 0h1m1 0h2m2 0h3m1 0h3m3 0h2M2 11.5h1m4 0h1m1 0h1m2 0h4m6 0h1m2 0h2m1 0h1m1 0h2m2 0h2m3 0h2M4 12.5h3m1 0h1m3 0h3m3 0h1m1 0h1m2 0h1m1 0h1m1 0h1m2 0h1m1 0h3m3 0h1m1 0h2M2 13.5h2m3 0h6m1 0h1m1 0h1m1 0h1m2 0h1m1 0h1m2 0h2m1 0h1m3 0h1m1 0h2m3 0h1M1 14.5h1m2 0h1m3 0h3m1 0h5m2 0h1m3 0h2m1 0h2m1 0h2m4 0h3m3 0h1M1 15.5h3m1 0h1m1 0h8m1 0h2m2 0h6m1 0h1m1 0h1m1 0h2m1 0h2m1 0h1m3 0h1M4 16.5h1m4 0h4m2 0h5m1 0h2m2 0h1m1 0h2m2 0h2m1 0h1m3 0h4M3 17.5h1m2 0h2m1 0h1m1 0h4m1 0h2m3 0h2m4 0h1m3 0h4m3 0h1m1 0h2M1 18.5h4m6 0h1m3 0h4m2 0h6m1 0h1m1 0h5m2 0h3M2 19.5h1m2 0h4m3 0h2m5 0h1m1 0h3m1 0h1m2 0h1m1 0h1m1 0h2m1 0h3m2 0h2M2 20.5h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m2 0h2m1 0h1m2 0h1m1 0h1m1 0h2m2 0h3M1 21.5h3m2 0h2m1 0h3m2 0h5m1 0h5m2 0h1m1 0h2m1 0h1m2 0h1m2 0h3M1 22.5h1m1 0h1m1 0h1m2 0h1m1 0h2m2 0h1m5 0h2m1 0h1m1 0h2m1 0h1m2 0h2m3 0h3M1 23.5h4m2 0h1m3 0h1m2 0h5m1 0h5m2 0h4m2 0h1m1 0h1m1 0h3M1 24.5h1m1 0h3m2 0h1m3 0h2m1 0h3m1 0h2m1 0h1m1 0h2m1 0h1m2 0h1m1 0h3m1 0h3m2 0h1M3 25.5h1m1 0h3m1 0h1m1 0h1m3 0h1m1 0h2m3 0h1m1 0h6m3 0h1m1 0h2m1 0h1m1 0h1M1 26.5h1m1 0h1m2 0h1m1 0h1m1 0h1m1 0h2m2 0h4m1 0h6m1 0h2m1 0h1m1 0h1m1 0h3m1 0h1m1 0h1M2 27.5h1m3 0h2m1 0h2m7 0h7m2 0h3m2 0h2m1 0h1m1 0h2m2 0h1M1 28.5h1m1 0h1m1 0h1m2 0h4m2 0h2m1 0h1m1 0h1m1 0h2m1 0h1m4 0h1m1 0h2m1 0h6M3 29.5h2m1 0h2m1 0h4m4 0h1m2 0h1m2 0h2m2 0h1m4 0h2m4 0h1m1 0h2M1 30.5h1m3 0h1m2 0h1m1 0h1m3 0h1m1 0h5m1 0h1m1 0h2m3 0h1m1 0h2m1 0h1m2 0h1M1 31.5h3m1 0h1m1 0h3m4 0h2m3 0h5m1 0h5m2 0h3m2 0h3m1 0h1M1 32.5h3m1 0h1m5 0h6m1 0h3m1 0h3m1 0h2m1 0h1m3 0h1m1 0h1m3 0h1m1 0h1M1 33.5h3m2 0h2m2 0h2m1 0h1m2 0h5m2 0h1m2 0h1m2 0h2m1 0h8M9 34.5h1m4 0h1m1 0h2m1 0h1m3 0h2m2 0h2m1 0h2m1 0h1m3 0h2m1 0h1M1 35.5h7m1 0h1m2 0h1m2 0h3m1 0h1m1 0h4m2 0h4m1 0h2m1 0h1m1 0h2M1 36.5h1m5 0h1m2 0h2m2 0h1m4 0h2m3 0h3m3 0h1m1 0h2m3 0h2m1 0h2M1 37.5h1m1 0h3m1 0h1m1 0h1m2 0h1m2 0h1m1 0h2m1 0h1m2 0h4m1 0h1m3 0h6m2 0h1M1 38.5h1m1 0h3m1 0h1m1 0h2m1 0h4m1 0h2m4 0h2m2 0h7m2 0h1m3 0h2M1 39.5h1m1 0h3m1 0h1m2 0h1m4 0h2m1 0h5m2 0h5m1 0h1m1 0h2m1 0h2m2 0h2M1 40.5h1m5 0h1m2 0h1m1 0h1m2 0h2m2 0h3m1 0h2m2 0h1m1 0h1m4 0h1m2 0h3m1 0h1M1 41.5h7m4 0h1m3 0h2m2 0h4m1 0h1m3 0h1m3 0h2m2 0h1"/></svg></button>
@@ -134,7 +151,7 @@ input[type=range]{width:150px;height:44px;accent-color:var(--navy2)}
     <input type="range" id="pscale" min="15" max="260" value="100" oninput="photoScale(this.value)">
     <button class="tool" onclick="photoFill()">꽉 채우기</button>
     <button class="tool on" id="pmoveBtn" onclick="togglePhotoMode()">옮기기 끝내고 그리기</button>
-    <button class="tool warn" onclick="clearBg()">사진 빼기</button>
+    <button class="tool warn" onclick="clearBg()">🗑 사진 지우기</button>
   </div>
   <div class="row" id="swatches"></div>
   <div class="row">
@@ -145,6 +162,7 @@ input[type=range]{width:150px;height:44px;accent-color:var(--navy2)}
     <button class="tool" id="eraserBtn" onclick="toggleEraser()">지우개</button>
     <button class="tool" onclick="undo()">↩ 되돌리기</button>
     <button class="tool warn" onclick="clearCut()">이 컷 지우기</button>
+    <button class="tool warn" onclick="resetAll()">전부 새로 시작</button>
     <span class="spacer"></span>
     <input class="txtin" id="txt" placeholder="넣을 글자" maxlength="10">
     <button class="tool" id="textBtn" onclick="armText()">글자 놓기</button>
@@ -161,6 +179,19 @@ input[type=range]{width:150px;height:44px;accent-color:var(--navy2)}
   </div>
 </div>
 
+<div class="gifmodal" id="gifmodal">
+  <div class="gifcard">
+    <img id="gifimg" alt="움직이는 이모티콘 미리보기">
+    <div class="gh">움직이는 그림이 만들어졌다<br>내려받기가 안 되면 그림을 <b>꾹 눌러</b> 저장하세요</div>
+    <div class="grow">
+      <a class="tbtn save" id="gifdl" download="emoticon.gif">GIF 내려받기</a>
+      <button class="tbtn" onclick="gifClose()">닫기</button>
+    </div>
+  </div>
+</div>
+
+<div class="busy" id="busy"><div>GIF 만드는 중…<br><span style="font-size:15px;font-weight:700">잠깐만 기다리세요</span></div></div>
+
 <script>
 const N = 700;                       /* 캔버스 실제 해상도 */
 const cv = [0,1,2].map(i => document.getElementById("c"+i));   /* 그림 층 */
@@ -169,7 +200,7 @@ const cx = cv.map(c => { c.width=N; c.height=N; return c.getContext("2d"); });
 const bx = bv.map(c => { c.width=N; c.height=N; return c.getContext("2d"); });
 
 /* 사진은 컷마다 따로 둔다 — 컷마다 다른 사진을 넣으면 사진으로도 움직인다 */
-const photos = [null,null,null];     /* {img, x, y, s} · x,y 는 가운데 자리 */
+const photos = [null,null,null];     /* {img, src, x, y, s} · x,y 는 가운데 자리 */
 
 let cut = 0, color = "#1c2430", size = 16, eraser = false, textMode = false;
 let playing = false, playTimer = null, onion = false, photoMode = false;
@@ -207,7 +238,7 @@ function setCut(i){
     cv[n].classList.toggle("hide", n!==i && !(onion && n===i-1));
     cv[n].classList.toggle("onion", onion && n===i-1);
   });
-  if (photoMode && !photos[cut]) setPhotoMode(false);
+  setPhotoMode(photoMode && !!photos[cut]);
   drawFrame();
   if (i>0 && onion) hint("앞 컷이 흐리게 비친다 — 조금씩 바꿔 그려 보자");
 }
@@ -222,16 +253,45 @@ function pickPhoto(){ document.getElementById("file").click(); }
 
 document.getElementById("file").addEventListener("change", e=>{
   const f=e.target.files[0]; if(!f) return;
-  const img=new Image();
-  img.onload=()=>{
-    photos[cut] = { img:img, x:N/2, y:N/2, s:1 };
-    redrawPhoto(cut);
-    setPhotoMode(true);
-    hint("사진을 끌어서 옮기고, 두 손가락으로 벌려 크기를 바꿔 보자");
+  const rd=new FileReader();
+  rd.onload=()=>{
+    const im=new Image();
+    im.onload=()=>{ usePhoto(shrink(im, /png/i.test(f.type||"")), cut, true); };
+    im.onerror=()=>hint("사진을 읽지 못했다 — 다른 사진을 골라 보자");
+    im.src=rd.result;
   };
-  img.src=URL.createObjectURL(f);
+  rd.onerror=()=>hint("사진을 읽지 못했다 — 다른 사진을 골라 보자");
+  rd.readAsDataURL(f);
   e.target.value="";
 });
+
+/* 태블릿 사진은 몇 MB 씩 된다. 무대가 700px 이라 긴 쪽을 900px 로 줄여도 하나도 안 흐려지고,
+   줄여야 자동 저장(아래)에 들어가고 그리기도 안 느려진다. */
+function shrink(im, keepAlpha){
+  const M=900, k=Math.min(1, M/Math.max(im.width,im.height));
+  const w=Math.max(1,Math.round(im.width*k)), h=Math.max(1,Math.round(im.height*k));
+  const c=document.createElement("canvas"); c.width=w; c.height=h;
+  c.getContext("2d").drawImage(im,0,0,w,h);
+  if (keepAlpha){                      /* 투명한 PNG 는 투명을 지켜 준다 — 너무 크면 포기 */
+    const png=c.toDataURL("image/png");
+    if (png.length < 700000) return png;
+  }
+  return c.toDataURL("image/jpeg",0.85);
+}
+
+/* 줄여 둔 그림 자료(src)를 함께 들고 다녀야 새로고침 뒤에도 사진이 되살아난다 */
+function usePhoto(src, at, fresh, x, y, s){
+  const img=new Image();
+  img.onload=()=>{
+    photos[at] = { img:img, src:src,
+      x:(x===undefined?N/2:x), y:(y===undefined?N/2:y), s:(s===undefined?1:s) };
+    redrawPhoto(at);
+    if (at===cut && fresh) setPhotoMode(true); else updatePhotoRow();
+    if (fresh) hint("사진을 끌어서 옮기고, 두 손가락으로 벌려 크기를 바꿔 보자");
+    if (fresh) markDirty();
+  };
+  img.src=src;
+}
 
 /* s = 1 이면 사진의 긴 쪽이 캔버스의 70% */
 function photoRect(p){
@@ -256,13 +316,19 @@ function drawFrame(){
   fr.style.width=(r.w*k)+"px"; fr.style.height=(r.h*k)+"px";
   fr.classList.add("on");
 }
+/* 사진이 있으면 이 줄은 늘 보인다.
+   예전에는 '옮기기'를 끄면 줄째로 숨어서 사진을 지울 길도 다시 옮길 길도 없었다. */
+function updatePhotoRow(){
+  const p=photos[cut];
+  document.getElementById("photorow").classList.toggle("on", !!p);
+  if (p) document.getElementById("pscale").value = Math.round(p.s*100);
+  const b=document.getElementById("pmoveBtn");
+  b.classList.toggle("on", photoMode);
+  b.textContent = photoMode ? "옮기기 끝내고 그리기" : "사진 옮기기";
+}
 function setPhotoMode(on){
   photoMode = on && !!photos[cut];
-  document.getElementById("photorow").classList.toggle("on", photoMode);
-  document.getElementById("pmoveBtn").classList.toggle("on", photoMode);
-  if (photoMode){
-    document.getElementById("pscale").value = Math.round(photos[cut].s*100);
-  }
+  updatePhotoRow();
   drawFrame();
 }
 function togglePhotoMode(){
@@ -272,12 +338,12 @@ function togglePhotoMode(){
 }
 function photoScale(v){
   const p=photos[cut]; if(!p) return;
-  p.s = v/100; redrawPhoto(cut);
+  p.s = v/100; redrawPhoto(cut); markDirty();
 }
 function photoStep(axis,d){
   const p=photos[cut]; if(!p) return;
   if (axis===0) p.x+=d; else p.y+=d;
-  redrawPhoto(cut);
+  redrawPhoto(cut); markDirty();
 }
 function photoFill(){
   const p=photos[cut]; if(!p) return;
@@ -285,13 +351,13 @@ function photoFill(){
   p.s = (N/Math.min(p.img.width,p.img.height))/base;   /* 짧은 쪽이 캔버스를 채운다 */
   p.x=N/2; p.y=N/2;
   document.getElementById("pscale").value=Math.round(p.s*100);
-  redrawPhoto(cut);
+  redrawPhoto(cut); markDirty();
   hint("사진이 화면을 꽉 채웠다");
 }
 function clearBg(){
   photos[cut]=null; bx[cut].clearRect(0,0,N,N);
-  setPhotoMode(false);
-  hint((cut+1)+"컷의 사진을 뺐다");
+  setPhotoMode(false); markDirty();
+  hint((cut+1)+"컷의 사진을 지웠다 — 그림은 그대로 남아 있다");
 }
 
 /* ── 그리기 · 사진 옮기기 ───────────────────────────── */
@@ -364,10 +430,12 @@ function move(e){
 }
 
 function up(e){
+  const changed = drawing || !!dragFrom || !!pinch;
   drawing=false;
   if (e && ptrs.has(e.pointerId)) ptrs.delete(e.pointerId);
   if (ptrs.size<2) pinch=null;
   if (ptrs.size===0) dragFrom=null;
+  if (changed) markDirty();
 }
 
 cv.forEach(c=>{
@@ -382,12 +450,13 @@ function undo(){
   const h=hist[cut];
   if (!h.length){ hint("되돌릴 것이 없다"); return; }
   const d=h.pop(), img=new Image();
-  img.onload=()=>{ cx[cut].globalCompositeOperation="source-over";
-    cx[cut].clearRect(0,0,N,N); cx[cut].drawImage(img,0,0); };
+  const at=cut;
+  img.onload=()=>{ cx[at].globalCompositeOperation="source-over";
+    cx[at].clearRect(0,0,N,N); cx[at].drawImage(img,0,0); markDirty(); };
   img.src=d;
 }
 function clearCut(){
-  push(); cx[cut].clearRect(0,0,N,N);
+  push(); cx[cut].clearRect(0,0,N,N); markDirty();
   hint((cut+1)+"컷의 그림을 지웠다 — 되돌리기로 살릴 수 있다 (사진은 그대로)");
 }
 
@@ -413,6 +482,7 @@ function placeText(p){
   g.fillStyle=color; g.fillText(t,p.x,p.y);
   textMode=false;
   document.getElementById("textBtn").classList.remove("on");
+  markDirty();
   hint("");
 }
 
@@ -467,10 +537,210 @@ function saveStrip(){
   download(o, "emoticon-3cut.png");
 }
 
+/* ── 자동 저장 ───────────────────────────────────────
+   태블릿에서 새로고침하거나 화면이 잠기면 그리던 것이 통째로 날아간다.
+   그래서 바뀔 때마다 이 태블릿 안(localStorage)에 담아 두고 켤 때 되살린다.
+   밖으로 나가지 않는다 — 이 태블릿에만 남고, '새로 시작'으로 지운다. */
+const KEY="emoji-maker-v1";
+let saveTimer=null, saveWarned=false;
+
+function markDirty(){ clearTimeout(saveTimer); saveTimer=setTimeout(saveNow, 600); }
+
+function snapshot(withPhoto){
+  return JSON.stringify({ v:1, cut:cut, cuts:[0,1,2].map(i=>({
+    draw: cv[i].toDataURL("image/png"),
+    photo: (withPhoto && photos[i])
+      ? { src:photos[i].src, x:photos[i].x, y:photos[i].y, s:photos[i].s } : null
+  }))});
+}
+function saveNow(){
+  clearTimeout(saveTimer); saveTimer=null;
+  try { localStorage.setItem(KEY, snapshot(true)); return; } catch(e){}
+  /* 자리가 모자라면 사진을 빼고라도 그림은 지킨다 */
+  try {
+    localStorage.setItem(KEY, snapshot(false));
+    if (!saveWarned){ saveWarned=true; hint("자리가 좁아 그림만 저장했다 — 사진은 다시 넣어야 한다"); }
+    return;
+  } catch(e){}
+  if (!saveWarned){ saveWarned=true; hint("자동 저장이 안 된다 — 다 그리면 바로 저장하자"); }
+}
+function restore(){
+  let st=null;
+  try { st=JSON.parse(localStorage.getItem(KEY)||"null"); } catch(e){}
+  if (!st || !Array.isArray(st.cuts)) return false;
+  if (typeof st.cut==="number" && st.cut>=0 && st.cut<3) cut=st.cut;
+  st.cuts.forEach((d,i)=>{
+    if (!d || i>2) return;
+    if (d.photo && d.photo.src) usePhoto(d.photo.src, i, false, d.photo.x, d.photo.y, d.photo.s);
+    if (d.draw){
+      const im=new Image();
+      im.onload=()=>{ cx[i].globalCompositeOperation="source-over"; cx[i].drawImage(im,0,0); };
+      im.src=d.draw;
+    }
+  });
+  return true;
+}
+/* 화면이 잠기거나 다른 앱으로 넘어갈 때는 0.6초를 기다리지 않고 바로 담는다 */
+window.addEventListener("pagehide", ()=>{ if (saveTimer) saveNow(); });
+document.addEventListener("visibilitychange", ()=>{ if (document.hidden && saveTimer) saveNow(); });
+
+/* 되살아나는 만큼 지우는 길도 있어야 한다 — 태블릿을 다음 사람이 쓴다 */
+function resetAll(){
+  if (!confirm("그림과 사진을 모두 지우고 새로 시작할까요?")) return;
+  if (playing) togglePlay();
+  [0,1,2].forEach(i=>{
+    cx[i].globalCompositeOperation="source-over"; cx[i].clearRect(0,0,N,N);
+    bx[i].clearRect(0,0,N,N); photos[i]=null; hist[i].length=0;
+  });
+  try { localStorage.removeItem(KEY); } catch(e){}
+  clearTimeout(saveTimer); saveTimer=null;
+  photoMode=false; textMode=false;
+  document.getElementById("textBtn").classList.remove("on");
+  cut=0; setCut(0);
+  hint("새로 시작한다");
+}
+
+/* ── GIF 저장 ─────────────────────────────────────────
+   바깥 라이브러리를 쓰지 않고 GIF89a 를 직접 쓴다(이 파일은 의존성이 없어야 한다).
+   세 컷을 한꺼번에 놓고 256색으로 줄인 뒤(중앙값 나누기) LZW 로 눌러 담는다. */
+const GIF_W = 420, GIF_DELAY = 42;      /* 42/100초 — 화면 재생(420ms)과 같은 빠르기 */
+
+function gifFrames(){
+  return [0,1,2].map(i=>{
+    const o=document.createElement("canvas"); o.width=GIF_W; o.height=GIF_W;
+    const g=o.getContext("2d");
+    g.fillStyle="#fff"; g.fillRect(0,0,GIF_W,GIF_W);
+    g.drawImage(bv[i],0,0,GIF_W,GIF_W);
+    g.drawImage(cv[i],0,0,GIF_W,GIF_W);
+    return g.getImageData(0,0,GIF_W,GIF_W).data;
+  });
+}
+/* 색을 5비트씩(32768칸)으로 먼저 모아 두면 중앙값 나누기가 빨라진다 */
+function boxOf(ks, hist){
+  let mn=[31,31,31], mx=[0,0,0], n=0;
+  for (const k of ks){
+    n += hist[k];
+    const c=[(k>>10)&31,(k>>5)&31,k&31];
+    for (let a=0;a<3;a++){ if (c[a]<mn[a]) mn[a]=c[a]; if (c[a]>mx[a]) mx[a]=c[a]; }
+  }
+  let ax=0, len=-1;
+  for (let a=0;a<3;a++){ const d=mx[a]-mn[a]; if (d>len){ len=d; ax=a; } }
+  return { ks:ks, ax:ax, len:len, n:n };
+}
+function quantize(frames){
+  const hist=new Uint32Array(32768);
+  const bucket=(d,p)=>((d[p]>>3)<<10) | ((d[p+1]>>3)<<5) | (d[p+2]>>3);
+  frames.forEach(d=>{ for (let p=0;p<d.length;p+=4) hist[bucket(d,p)]++; });
+  const used=[];
+  for (let k=0;k<32768;k++) if (hist[k]) used.push(k);
+  let boxes=[boxOf(used,hist)];
+  while (boxes.length<256){
+    let bi=-1, best=0;
+    boxes.forEach((b,i)=>{ if (b.ks.length>1 && b.len>best){ best=b.len; bi=i; } });
+    if (bi<0) break;
+    const b=boxes[bi], sh = b.ax===0 ? 10 : (b.ax===1 ? 5 : 0);
+    b.ks.sort((p,q)=>((p>>sh)&31)-((q>>sh)&31));
+    /* 픽셀 수의 절반이 되는 자리에서 자른다.
+       흰 바탕처럼 한 칸이 절반을 넘으면 절반 자리를 못 찾는데, 그때 1로 두면
+       한 칸씩만 떼어내는 헛 나누기가 되어 256번을 잘라도 큰 상자가 그대로 남는다. */
+    let acc=0, at=b.ks.length-1;
+    for (let i=0;i<b.ks.length-1;i++){ acc+=hist[b.ks[i]]; if (acc*2>=b.n){ at=i+1; break; } }
+    boxes.splice(bi,1, boxOf(b.ks.slice(0,at),hist), boxOf(b.ks.slice(at),hist));
+  }
+  const pal=new Uint8Array(768), lut=new Uint8Array(32768);
+  boxes.forEach((b,i)=>{
+    let n=0,r=0,g=0,bl=0;
+    for (const k of b.ks){ const w=hist[k];
+      n+=w; r+=((k>>10)&31)*w; g+=((k>>5)&31)*w; bl+=(k&31)*w; }
+    if (!n) n=1;
+    pal[i*3]  = Math.round(r/n*255/31);
+    pal[i*3+1]= Math.round(g/n*255/31);
+    pal[i*3+2]= Math.round(bl/n*255/31);
+    for (const k of b.ks) lut[k]=i;
+  });
+  const idx = frames.map(d=>{
+    const a=new Uint8Array(d.length>>2);
+    for (let p=0,q=0;p<d.length;p+=4,q++) a[q]=lut[bucket(d,p)];
+    return a;
+  });
+  return { pal:pal, idx:idx };
+}
+/* GIF 의 LZW — 코드 길이를 늘리는 차례가 어긋나면 그림이 통째로 깨진다 */
+function lzw(px, minCode){
+  const clear=1<<minCode, eoi=clear+1, maxmax=1<<12;
+  let nBits=minCode+1, maxcode=(1<<nBits)-1, free=clear+2;
+  const out=[]; let cur=0, bits=0;
+  function emit(c){
+    cur |= c<<bits; bits+=nBits;
+    while (bits>=8){ out.push(cur&255); cur>>=8; bits-=8; }
+    if (free>maxcode){ nBits++; maxcode = (nBits===12) ? maxmax : (1<<nBits)-1; }
+  }
+  let dict=new Map();
+  emit(clear);
+  let prefix=px[0];
+  for (let i=1;i<px.length;i++){
+    const c=px[i], key=prefix*256+c, f=dict.get(key);
+    if (f!==undefined){ prefix=f; continue; }
+    emit(prefix);
+    if (free<maxmax) dict.set(key, free++);
+    else { emit(clear); dict=new Map(); free=clear+2; nBits=minCode+1; maxcode=(1<<nBits)-1; }
+    prefix=c;
+  }
+  emit(prefix); emit(eoi);
+  if (bits>0) out.push(cur&255);
+  return out;
+}
+function gifBytes(w,h,pal,frames,delay){
+  const b=[];
+  const put=(...a)=>{ for (const v of a) b.push(v&255); };
+  const s16=v=>{ b.push(v&255,(v>>8)&255); };
+  const str=t=>{ for (let i=0;i<t.length;i++) b.push(t.charCodeAt(i)); };
+  str("GIF89a"); s16(w); s16(h); put(0xF7,0,0);
+  for (let i=0;i<768;i++) b.push(pal[i]||0);
+  put(0x21,0xFF,0x0B); str("NETSCAPE2.0"); put(0x03,0x01,0x00,0x00,0x00);  /* 끝없이 되풀이 */
+  frames.forEach(px=>{
+    put(0x21,0xF9,0x04,0x04); s16(delay); put(0x00,0x00);
+    put(0x2C); s16(0); s16(0); s16(w); s16(h); put(0x00);
+    put(0x08);
+    const d=lzw(px,8);
+    for (let i=0;i<d.length;i+=255){
+      const m=Math.min(255, d.length-i);
+      b.push(m);
+      for (let j=0;j<m;j++) b.push(d[i+j]);
+    }
+    put(0x00);
+  });
+  put(0x3B);
+  return new Uint8Array(b);
+}
+function saveGif(){
+  if (playing) togglePlay();
+  const busy=document.getElementById("busy");
+  busy.classList.add("on");
+  /* 가림막을 먼저 그리게 한 뒤에 만든다 — 안 그러면 화면이 멈춘 것처럼 보인다 */
+  setTimeout(()=>{
+    try {
+      const q=quantize(gifFrames());
+      const url=URL.createObjectURL(new Blob([gifBytes(GIF_W,GIF_W,q.pal,q.idx,GIF_DELAY)],
+                                             {type:"image/gif"}));
+      const a=document.getElementById("gifdl");
+      a.href=url;
+      document.getElementById("gifimg").src=url;
+      document.getElementById("gifmodal").classList.add("on");
+      a.click();                    /* 되는 태블릿에서는 바로 내려받는다 */
+      hint("");
+    } catch(err){
+      hint("GIF 를 만들지 못했다 — 3컷 저장으로 남겨 두자");
+    }
+    busy.classList.remove("on");
+  }, 40);
+}
+function gifClose(){ document.getElementById("gifmodal").classList.remove("on"); }
+
 /* ── QR ─────────────────────────────────────────────── */
 function qrOpen(){ document.getElementById("qrmodal").classList.add("on"); }
 function qrClose(){ document.getElementById("qrmodal").classList.remove("on"); }
-document.addEventListener("keydown", e => { if (e.key === "Escape") qrClose(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape"){ qrClose(); gifClose(); } });
 
 /* ── 안내 ───────────────────────────────────────────── */
 let hintTimer=null;
@@ -496,8 +766,10 @@ window.addEventListener("resize", fitStage);
 window.addEventListener("orientationchange", fitStage);
 fitStage();
 
-hint("1컷을 그린 뒤 2·3컷을 조금씩 바꿔 그리면 움직인다");
-setCut(0);
+const revived = restore();
+setCut(cut);
+hint(revived ? "지난번에 그리던 것을 되살렸다 — 처음부터 하려면 '새로 시작'"
+             : "1컷을 그린 뒤 2·3컷을 조금씩 바꿔 그리면 움직인다");
 </script>
 </body>
 </html>

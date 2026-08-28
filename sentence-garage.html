@@ -289,10 +289,10 @@ const $=id=>document.getElementById(id);
 
 /* ── 1단계 : 어절을 성분 통에 넣기 ─────────────────────── */
 const BINS=[
-  {k:"s", q:"누가 / 무엇이", n:"주어"},
-  {k:"o", q:"무엇을",        n:"목적어"},
-  {k:"p", q:"어찌하다·어떠하다·무엇이다", n:"서술어"},
-  {k:"e", q:"그 밖의 말",    n:"꾸미는 말·어디에·누구에게"}
+  {k:"s", q:"누가 / 무엇이", n:"주어", s:"주어"},
+  {k:"o", q:"무엇을",        n:"목적어", s:"목적어"},
+  {k:"p", q:"어찌하다·어떠하다·무엇이다", n:"서술어", s:"서술어"},
+  {k:"e", q:"그 밖의 말",    n:"꾸미는 말·어디에·누구에게", s:"그 밖의 말"}
 ];
 const S1=[
   [["하늘이","s"],["맑다.","p"]],
@@ -606,7 +606,7 @@ function s1Drop(k){
     }
   } else {
     S.err=true;
-    noteWrong("성분-"+BINS.find(b=>b.k===right).n, S.parts[S.sel][0]);
+    noteWrong("성분-"+BINS.find(b=>b.k===right).s, S.parts[S.sel][0]);
     const el=$("bin-"+k); el.classList.add("bad"); setTimeout(()=>el.classList.remove("bad"),320);
     sayNo("<b>"+esc(S.parts[S.sel][0])+"</b>은(는) 거기가 아니야. "+BINWHY[right]);
   }
@@ -628,7 +628,7 @@ function s2Pick(i){
   for(let b of btns) b.disabled=true;
   btns[q.a].classList.add("ok");
   if(i===q.a){ score(true,null); sayOk(q.w); }
-  else{ btns[i].classList.add("no"); score(false,"필수성분-"+S2OPTS[q.a].replace(/[?!]/g,""),q.s); sayNo(q.w); }
+  else{ btns[i].classList.add("no"); score(false, q.a===3?"필수성분-멀쩡한 문장":"필수성분-"+S2OPTS[q.a].replace(/[?!]/g,""), q.s); sayNo(q.w); }
   armNext();
 }
 

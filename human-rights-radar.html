@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>인권 레이더 — 도덕 5단원 4차시</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0b1512; --bg2:#12211c; --card:#172b24; --card2:#1e3a30;
+  --lime:#7ee787; --cyan:#4ddbc4; --amber:#ffc95c; --rose:#ff7b7b;
+  --ink:#e8f5ef; --muted:#89a89b; --line:#2a4a3e;
+}
+html,body{height:100%}
+body{
+  font-family:'Noto Sans KR',sans-serif; background:var(--bg); color:var(--ink);
+  touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+  user-select:none; -webkit-user-select:none; overflow-x:hidden;
+}
+#app{max-width:820px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column}
+.screen{display:none;flex:1;flex-direction:column;padding:18px}
+.screen.on{display:flex}
+button{font-family:inherit;font-size:17px;cursor:pointer;border:none;background:none;color:inherit}
+.btn{min-height:52px;padding:14px 24px;border-radius:14px;background:var(--lime);color:#0b1512;
+  font-weight:700;font-size:18px;box-shadow:0 4px 0 #4fae5c;transition:transform .08s}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 #4fae5c}
+.btn.ghost{background:transparent;border:2px solid var(--line);color:var(--muted);box-shadow:none;font-size:16px}
+.btn.ghost:active{transform:none;background:var(--card)}
+
+/* ── 타이틀 ── */
+#title{justify-content:center;align-items:center;text-align:center;gap:6px}
+.radar-logo{width:150px;height:150px;margin-bottom:4px}
+.sweep{transform-origin:60px 60px;animation:sweep 2.6s linear infinite}
+@keyframes sweep{to{transform:rotate(360deg)}}
+.blip{animation:blip 2.6s ease-out infinite}
+@keyframes blip{0%,55%{opacity:0}60%{opacity:1}100%{opacity:0}}
+h1{font-size:42px;font-weight:900;letter-spacing:-1px;color:var(--lime)}
+.sub{font-size:16px;color:var(--muted);line-height:1.7;margin:10px 0 4px}
+.tagline{font-family:'Gaegu',sans-serif;font-size:24px;color:var(--cyan);margin-bottom:14px}
+.opts{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:18px}
+.chip{padding:9px 16px;border-radius:20px;border:2px solid var(--line);font-size:14px;color:var(--muted);min-height:44px;display:flex;align-items:center}
+.chip.on{border-color:var(--cyan);color:var(--cyan);background:rgba(77,219,196,.1)}
+.foot{margin-top:20px;font-size:13px;color:#4d6b5f;line-height:1.7}
+
+/* ── QR ── */
+.qr-wrap{margin-top:22px;padding:10px 14px 12px;border-radius:16px;border:1px solid var(--line);
+  background:var(--card);cursor:pointer;transition:.12s}
+.qr-wrap:active{transform:scale(.97);border-color:var(--cyan)}
+.qr-lb{font-size:12px;color:var(--muted);margin-bottom:7px}
+.qr{width:112px;height:112px;border-radius:10px;border:4px solid #fff;background:#fff;display:block;margin:0 auto}
+.qr-url{font-size:11px;color:#4d6b5f;margin-top:7px;word-break:break-all}
+.qr-url b{color:var(--cyan);font-weight:700}
+.qr-hint{font-size:11px;color:var(--cyan);margin-top:4px}
+#qrModal{position:fixed;inset:0;z-index:70;background:rgba(6,12,10,.96);display:none;
+  flex-direction:column;align-items:center;justify-content:center;padding:5vw;text-align:center}
+#qrModal.on{display:flex}
+#qrModal img{width:min(74vw,74vh);height:min(74vw,74vh);border-radius:16px;border:14px solid #fff;background:#fff}
+#qrModal .u{font-size:min(3.4vw,17px);color:var(--cyan);margin-top:20px;word-break:break-all;max-width:90%}
+#qrModal .h{font-size:14px;color:#4d6b5f;margin-top:16px}
+
+/* ── 스테이지 인트로 ── */
+#stageIntro{justify-content:center;align-items:center;text-align:center}
+.st-num{font-family:'Gaegu',sans-serif;font-size:20px;color:var(--cyan);letter-spacing:2px}
+.st-name{font-size:38px;font-weight:900;margin:6px 0 14px}
+.st-desc{font-size:17px;color:var(--muted);line-height:1.8;max-width:420px}
+.st-emoji{font-size:64px;margin-bottom:10px}
+
+/* ── 플레이 ── */
+.hud{display:flex;align-items:center;gap:12px;padding-bottom:14px}
+.hud-name{font-size:14px;color:var(--cyan);font-weight:700;flex:1}
+.hud-prog{font-size:14px;color:var(--muted)}
+.combo{font-size:15px;font-weight:900;color:var(--amber);opacity:0;transition:opacity .2s}
+.combo.on{opacity:1}
+.ring{width:44px;height:44px;flex-shrink:0}
+.ring circle{fill:none;stroke-width:5}
+.ring .bg{stroke:var(--card2)}
+.ring .fg{stroke:var(--cyan);stroke-linecap:round;transform:rotate(-90deg);transform-origin:50% 50%;transition:stroke-dashoffset .95s linear,stroke .3s}
+.ring.warn .fg{stroke:var(--rose)}
+.ring-t{font-size:14px;font-weight:700;fill:var(--ink)}
+
+.scene{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px 20px;
+  margin-bottom:16px;position:relative;overflow:hidden}
+.scene::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 85% 0%,rgba(126,231,135,.09),transparent 60%)}
+.scene-emoji{font-size:40px;margin-bottom:10px;display:block}
+.scene-t{font-size:20px;line-height:1.65;font-weight:500;position:relative}
+.scene-q{font-size:15px;color:var(--cyan);margin-top:12px;font-weight:700;position:relative}
+
+.choices{display:flex;flex-direction:column;gap:10px}
+.ch{min-height:60px;padding:15px 16px;border-radius:15px;background:var(--card2);border:2px solid transparent;
+  text-align:left;font-size:17px;line-height:1.55;display:flex;align-items:center;gap:12px;transition:.12s}
+.ch:active{transform:scale(.985);border-color:var(--cyan)}
+.ch .k{width:26px;height:26px;flex-shrink:0;border-radius:8px;background:var(--card);color:var(--muted);
+  font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.ch.dim{opacity:.35}
+.ch.pick-ok{border-color:var(--lime);background:rgba(126,231,135,.16)}
+.ch.pick-no{border-color:var(--rose);background:rgba(255,123,123,.14)}
+.ch.show-ok{border-color:var(--lime)}
+
+/* ── 피드백 ── */
+#fb{position:fixed;left:0;right:0;bottom:0;z-index:40;transform:translateY(102%);transition:transform .28s cubic-bezier(.2,.9,.3,1)}
+#fb.on{transform:none}
+.fb-in{max-width:820px;margin:0 auto;background:var(--bg2);border-top:3px solid var(--lime);
+  border-radius:22px 22px 0 0;padding:20px 20px 24px;box-shadow:0 -14px 40px rgba(0,0,0,.5)}
+#fb.trap .fb-in{border-color:var(--amber)}
+#fb.bad .fb-in{border-color:var(--rose)}
+.fb-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.fb-mark{font-size:30px}
+.fb-title{font-size:21px;font-weight:900;color:var(--lime)}
+#fb.trap .fb-title{color:var(--amber)} #fb.bad .fb-title{color:var(--rose)}
+.fb-why{font-size:17px;line-height:1.75;color:var(--ink)}
+.fb-why b{color:var(--cyan)}
+.fb-tag{display:inline-block;margin-top:12px;padding:6px 13px;border-radius:14px;background:var(--card2);
+  font-size:13px;color:var(--cyan);font-weight:700}
+.fb-trap{display:inline-block;margin:12px 0 0 6px;padding:6px 13px;border-radius:14px;
+  background:rgba(255,201,92,.15);font-size:13px;color:var(--amber);font-weight:700}
+.fb-btn{width:100%;margin-top:16px}
+
+/* ── 결과 ── */
+.res-h{text-align:center;margin-bottom:8px}
+.gauge{font-size:60px;font-weight:900;color:var(--lime);line-height:1.1}
+.gauge-l{font-size:15px;color:var(--muted);letter-spacing:1px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin-top:14px}
+.card h3{font-size:16px;color:var(--cyan);margin-bottom:12px;font-weight:700}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:9px;font-size:15px}
+.bar-lb{width:132px;flex-shrink:0;font-weight:500}
+.bar-tr{flex:1;height:14px;background:var(--card2);border-radius:8px;overflow:hidden}
+.bar-fl{height:100%;background:linear-gradient(90deg,var(--cyan),var(--amber));border-radius:8px;width:0;transition:width .7s}
+.bar-n{width:26px;text-align:right;color:var(--muted);font-size:14px}
+.weak{font-size:18px;line-height:1.8}
+.weak b{color:var(--amber);font-size:20px}
+.quote{font-family:'Gaegu',sans-serif;font-size:22px;line-height:1.6;color:var(--cyan);text-align:center;padding:6px 0}
+.quote small{display:block;font-family:'Noto Sans KR';font-size:12px;color:var(--muted);margin-top:8px;font-weight:400}
+
+/* ── 다짐 ── */
+.pl-box{background:var(--card);border:2px dashed var(--line);border-radius:18px;padding:20px;margin:14px 0}
+.pl-line{font-size:19px;line-height:2.1}
+#plInput{width:100%;min-height:96px;margin-top:10px;background:var(--bg2);border:2px solid var(--line);
+  border-radius:12px;padding:12px;color:var(--ink);font-family:inherit;font-size:18px;line-height:1.7;
+  user-select:text;-webkit-user-select:text;resize:none}
+#plInput:focus{outline:none;border-color:var(--cyan)}
+.sugg{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.sugg button{text-align:left;padding:13px 15px;min-height:50px;border-radius:12px;background:var(--card2);
+  font-size:16px;line-height:1.5;border:2px solid transparent}
+.sugg button:active{border-color:var(--cyan)}
+.pl-card{background:linear-gradient(150deg,#173026,#1e3a30);border:2px solid var(--lime);border-radius:20px;
+  padding:26px 22px;text-align:center;margin-top:14px}
+.pl-card .nm{font-size:14px;color:var(--cyan);margin-bottom:14px}
+.pl-card .tx{font-family:'Gaegu',sans-serif;font-size:27px;line-height:1.65;color:var(--ink)}
+
+/* ── 교사 ── */
+#teach{background:#0b1512}
+table{width:100%;border-collapse:collapse;font-size:14px;user-select:text}
+th,td{border:1px solid var(--line);padding:9px;text-align:left;vertical-align:top;line-height:1.55}
+th{background:var(--card2);color:var(--cyan);font-size:13px}
+td.ok{color:var(--lime)} td.tp{color:var(--amber)}
+.tbl-wrap{overflow-x:auto;margin-top:10px}
+.big{position:fixed;inset:0;background:var(--bg);z-index:60;display:none;flex-direction:column;
+  justify-content:center;padding:5vw;text-align:center}
+.big.on{display:flex}
+.big .bt{font-size:min(6vw,48px);line-height:1.55;font-weight:700}
+.big .bc{font-size:min(3.6vw,28px);line-height:1.9;color:var(--muted);margin-top:26px}
+
+.flash{position:fixed;inset:0;pointer-events:none;z-index:50;opacity:0}
+.flash.go{animation:fl .45s}
+@keyframes fl{0%{opacity:.5}100%{opacity:0}}
+@media (max-width:400px){h1{font-size:34px}.scene-t{font-size:18px}.ch{font-size:16px}}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ═══ 타이틀 ═══ -->
+<section class="screen on" id="title">
+  <svg class="radar-logo" viewBox="0 0 120 120">
+    <circle cx="60" cy="60" r="54" fill="none" stroke="#2a4a3e" stroke-width="2"/>
+    <circle cx="60" cy="60" r="36" fill="none" stroke="#2a4a3e" stroke-width="1.5"/>
+    <circle cx="60" cy="60" r="18" fill="none" stroke="#2a4a3e" stroke-width="1.5"/>
+    <line x1="6" y1="60" x2="114" y2="60" stroke="#2a4a3e" stroke-width="1"/>
+    <line x1="60" y1="6" x2="60" y2="114" stroke="#2a4a3e" stroke-width="1"/>
+    <g class="sweep"><path d="M60 60 L60 6 A54 54 0 0 1 98 22 Z" fill="url(#g)" opacity=".55"/></g>
+    <circle class="blip" cx="84" cy="40" r="5" fill="#7ee787"/>
+    <circle class="blip" cx="40" cy="82" r="4" fill="#4ddbc4" style="animation-delay:1.1s"/>
+    <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7ee787" stop-opacity=".9"/><stop offset="1" stop-color="#7ee787" stop-opacity="0"/>
+    </linearGradient></defs>
+  </svg>
+  <h1>인권 레이더</h1>
+  <div class="tagline">보이지 않는 침해를 잡아내라</div>
+  <p class="sub">하루 동안 교실에서, 손안에서, 동네에서, 세상에서<br>스물네 장면이 지나간다.<br><b style="color:var(--amber)">착해 보이는 답이 정답이 아닐 수도 있다.</b></p>
+
+  <div class="opts">
+    <button class="chip on" id="optTimer" onclick="tog('timer')">⏱ 제한시간 켬</button>
+    <button class="chip" id="optSound" onclick="tog('sound')">🔇 소리 끔</button>
+  </div>
+  <button class="btn" style="margin-top:22px;min-width:230px" onclick="startGame()">레이더 켜기</button>
+
+  <div class="qr-wrap" onclick="qrOpen()">
+    <div class="qr-lb">📱 태블릿에서 바로 열기</div>
+    <img class="qr" id="qrS" alt="인권 레이더 QR코드">
+    <div class="qr-url">leixlix-pixel.github.io/toolbox/<b>human-rights-radar.html</b></div>
+    <div class="qr-hint">QR을 누르면 크게 보입니다</div>
+  </div>
+
+  <p class="foot">도덕 5학년 · 5단원 「모두에게 인권을」 4차시<br>82~85쪽 · 인권 존중을 생활화해요</p>
+</section>
+
+<!-- ═══ 스테이지 인트로 ═══ -->
+<section class="screen" id="stageIntro">
+  <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center">
+    <div class="st-emoji" id="siEmoji"></div>
+    <div class="st-num" id="siNum"></div>
+    <div class="st-name" id="siName"></div>
+    <p class="st-desc" id="siDesc"></p>
+  </div>
+  <button class="btn" onclick="beginStage()">스캔 시작</button>
+</section>
+
+<!-- ═══ 플레이 ═══ -->
+<section class="screen" id="play">
+  <div class="hud">
+    <span class="hud-name" id="hName"></span>
+    <span class="combo" id="hCombo"></span>
+    <span class="hud-prog" id="hProg"></span>
+    <svg class="ring" id="hRing" viewBox="0 0 44 44">
+      <circle class="bg" cx="22" cy="22" r="18"/>
+      <circle class="fg" id="ringFg" cx="22" cy="22" r="18" stroke-dasharray="113" stroke-dashoffset="0"/>
+      <text class="ring-t" id="ringT" x="22" y="27" text-anchor="middle">12</text>
+    </svg>
+  </div>
+  <div class="scene">
+    <span class="scene-emoji" id="sEmoji"></span>
+    <div class="scene-t" id="sText"></div>
+    <div class="scene-q">→ 이때 나는?</div>
+  </div>
+  <div class="choices" id="chList"></div>
+</section>
+
+<!-- ═══ 결과 ═══ -->
+<section class="screen" id="result">
+  <div class="res-h">
+    <div class="gauge-l">레이더 감도</div>
+    <div class="gauge" id="rGauge">0%</div>
+    <div class="gauge-l" id="rSub"></div>
+  </div>
+  <div class="card">
+    <h3>내가 걸려 넘어진 자리</h3>
+    <div id="rBars"></div>
+  </div>
+  <div class="card" id="rWeakCard">
+    <h3>레이더가 가장 약한 곳</h3>
+    <p class="weak" id="rWeak"></p>
+  </div>
+  <div class="card">
+    <p class="quote">“더 나은 세상을 만드는 것은<br>여러분 각자의 손에 달려 있습니다.”
+      <small>넬슨 만델라 (1918–2013) · 도덕 교과서 85쪽</small></p>
+  </div>
+  <button class="btn" style="margin-top:16px" onclick="goPledge()">다짐 쓰러 가기</button>
+  <button class="btn ghost" style="margin-top:9px" onclick="retryWrong()" id="retryBtn" hidden>틀린 장면만 다시 스캔</button>
+  <button class="btn ghost" style="margin:9px 0 6px" onclick="location.reload()">처음부터</button>
+</section>
+
+<!-- ═══ 다짐 ═══ -->
+<section class="screen" id="pledge">
+  <h2 style="font-size:24px;font-weight:900;margin-bottom:4px">마음 탄탄 · 나의 다짐</h2>
+  <p style="font-size:15px;color:var(--muted);line-height:1.7">교과서 85쪽 다짐 칸에 그대로 옮겨 적으면 된다.</p>
+  <div class="pl-box">
+    <div class="pl-line">저는 주위 사람들의 인권을 존중하기 위해</div>
+    <textarea id="plInput" placeholder="여기에 쓰거나, 아래 문장을 눌러 보세요" maxlength="120"></textarea>
+  </div>
+  <p style="font-size:14px;color:var(--cyan);font-weight:700">💡 네가 오늘 가장 많이 걸린 자리에 맞는 문장</p>
+  <div class="sugg" id="plSugg"></div>
+  <button class="btn" style="margin-top:16px" onclick="makeCard()">다짐 카드 만들기</button>
+  <div id="plCardWrap"></div>
+</section>
+
+<!-- ═══ 교사 ═══ -->
+<section class="screen" id="teach">
+  <h2 style="font-size:23px;font-weight:900;color:var(--lime)">교사용 — 인권 레이더</h2>
+  <p style="font-size:14px;color:var(--muted);line-height:1.8;margin-top:8px">
+    ① 학생은 태블릿으로 24장면을 스캔한다(10~12분).<br>
+    ② 오답은 <b style="color:var(--amber)">네 갈래</b>로 분류되어 결과에 뜬다. 정리 활동은 <b style="color:var(--cyan)">점수가 아니라 이 갈래</b>로 한다.<br>
+    ③ 아래 표에서 장면을 눌러 TV에 크게 띄우면 전체 토론용 발문이 된다.
+  </p>
+  <div class="card" style="margin-top:12px"><h3>함정 네 갈래</h3><div id="tTraps"></div></div>
+  <div class="card"><h3>정리 발문</h3>
+    <p style="font-size:16px;line-height:2">
+      · 가장 많이 틀린 장면은 무엇이었나? <b style="color:var(--cyan)">왜 헷갈렸을까?</b><br>
+      · 「배려인 줄 알았다」에 걸린 사람? — <b style="color:var(--cyan)">착한 마음도 침해가 될 수 있다면, 무엇이 빠진 걸까?</b><br>
+      · 오늘 스물네 장면 중 <b style="color:var(--cyan)">우리 반에서 실제로 일어난 것</b>은?
+    </p></div>
+  <div class="tbl-wrap"><table id="tTable"></table></div>
+  <button class="btn ghost" style="margin:16px 0" onclick="location.hash='';location.reload()">학생 화면으로</button>
+</section>
+
+</div>
+<div id="fb"><div class="fb-in">
+  <div class="fb-head"><span class="fb-mark" id="fbMark"></span><span class="fb-title" id="fbTitle"></span></div>
+  <p class="fb-why" id="fbWhy"></p>
+  <div><span class="fb-tag" id="fbTag"></span><span class="fb-trap" id="fbTrap"></span></div>
+  <button class="btn fb-btn" onclick="nextQ()" id="fbNext">다음 장면 →</button>
+</div></div>
+<div class="flash" id="flash"></div>
+<div id="qrModal" onclick="this.classList.remove('on')">
+  <img id="qrL" alt="인권 레이더 QR코드 (크게)">
+  <div class="u">https://leixlix-pixel.github.io/toolbox/human-rights-radar.html</div>
+  <div class="h">화면을 누르면 닫힙니다</div>
+</div>
+<div class="big" id="big" onclick="this.classList.remove('on')">
+  <div class="bt" id="bigT"></div><div class="bc" id="bigC"></div>
+  <div style="font-size:16px;color:#4d6b5f;margin-top:40px">화면을 누르면 닫힙니다</div>
+</div>
+
+<script>
+/* ═══════════════ QR (base64 내장 — 외부 QR 서비스 쓰지 않는다) ═══════════════ */
+const QR_URL='https://leixlix-pixel.github.io/toolbox/human-rights-radar.html';
+const QR_IMG="data:image/png;base64,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";
+
+/* ═══════════════ 함정 네 갈래 ═══════════════ */
+const TRAPS={
+  watch:{n:'가만히 있었다',d:'나는 안 했으니 괜찮다고 여기는 것. 웃지 않은 것만으로는 그 자리가 달라지지 않는다.',
+    s:['웃지 않는 것에서 멈추지 않고 한마디 하겠습니다','그 자리에서 "그만하자"라고 말하겠습니다','못 본 척하지 않겠습니다']},
+  mine:{n:'나만 빠져나왔다',d:'차단하고, 나가고, 다른 동네로 미루는 것. 나는 편해지지만 그 사람은 그대로 남는다.',
+    s:['나만 빠져나오지 않고 남은 사람을 챙기겠습니다','피하기 전에 한마디를 남기겠습니다','남의 일이 아니라 우리 일로 여기겠습니다']},
+  kind:{n:'배려인 줄 알았다',d:'대신 정해 주고, 봐주고, 불쌍해하는 것. 마음은 착하지만 그 사람의 몫을 내가 가져가 버린다.',
+    s:['도와주기 전에 먼저 물어보겠습니다','대신 정해 주지 않겠습니다','불쌍해하는 대신 무엇을 바꿀지 찾겠습니다']},
+  tiny:{n:'나 하나쯤',d:'우리끼리만, 나중에, 나 하나 빠져도. 작게 보이는 한 번이 모여 그 사람의 하루가 된다.',
+    s:['나중에 말고 그 자리에서 말하겠습니다','나 하나쯤이 아니라 나부터라고 생각하겠습니다','우리끼리만 알고 넘어가지 않겠습니다']}
+};
+
+/* ═══════════════ 스테이지 ═══════════════ */
+const STAGES=[
+  {id:'school',e:'🏫',n:'우리 교실',d:'가장 가까운 곳부터. 하루에 여섯 번, 너는 무언가를 보게 된다.'},
+  {id:'online',e:'📱',n:'손안의 세상',d:'화면 너머에도 사람이 있다. 여기서는 흔적이 오래 남는다.'},
+  {id:'town',e:'🏘️',n:'우리 동네',d:'교문 밖에도 인권은 있다. 어른들의 일처럼 보이는 것들.'},
+  {id:'world',e:'🌍',n:'더 넓은 세상',d:'얼굴을 모르는 사람의 인권. 나와 상관없어 보이는 것들.'}
+];
+
+/* ═══════════════ 24 장면 ═══════════════ */
+/* ok:정답 / trap:착해 보이는 오답(갈래 표시) / 나머지:명백한 오답 */
+const Q=[
+/* ── 1. 우리 교실 ── */
+{s:'school',e:'🗣️',t:'전학 온 진하가 발표를 하는데 한국말이 서툴러 자꾸 더듬는다. 뒤에서 몇 명이 킥킥 웃는다.',tag:'#차별받지 않을 권리',
+ c:[{t:'"천천히 말해도 돼"라고 소리 내어 말한다',ok:1,w:'웃음을 멈추게 하는 건 <b>소리 내는 한 사람</b>이다. 네 한마디가 나오는 순간 그 웃음은 힘을 잃는다.'},
+    {t:'나는 안 웃었으니 못 들은 척 앞만 본다',tr:'watch',w:'네가 웃지 않은 것은 맞다. 그런데 <b>진하 쪽에서 보면 달라진 게 하나도 없다.</b> 웃는 사람과 가만히 있는 사람이 함께 그 자리를 만든다.'},
+    {t:'같이 웃으면서 말투를 흉내 낸다',w:'말투를 흉내 내는 것은 <b>그 사람이 어디서 왔는지를 놀리는 것</b>이다. 바꿀 수 없는 것으로 놀리는 게 차별이다.'}]},
+{s:'school',e:'👥',t:'모둠을 짜라고 하셨다. 채율이는 늘 마지막까지 남는다. 오늘도 그럴 것 같다.',tag:'#평등권',
+ c:[{t:'먼저 "채율아, 우리 모둠 할래?" 하고 부른다',ok:1,w:'<b>먼저 부르는 것</b>과 남은 걸 받는 것은 하늘과 땅 차이다. 채율이는 오늘 처음으로 기다리지 않았다.'},
+    {t:'끝까지 남으면 그때 받아 준다',tr:'kind',w:'"받아 준다"는 말 안에 <b>위아래</b>가 들어 있다. 받아 주는 사람과 받아지는 사람이 생기는 순간, 그건 이미 평등이 아니다.'},
+    {t:'우리끼리 얼른 짜고 자리에 앉는다',w:'빨리 끝내려는 마음이 <b>누군가를 매번 마지막에 세운다.</b> 편한 쪽을 고르면 늘 같은 사람이 남는다.'}]},
+{s:'school',e:'📄',t:'시험지를 뒤로 넘기다가 앞자리 유건이의 점수를 보고 말았다. 많이 낮다.',tag:'#사생활 보호',
+ c:[{t:'본 것을 잊고 아무에게도 말하지 않는다',ok:1,w:'점수는 <b>유건이의 것</b>이다. 우연히 봤다고 해서 내 이야깃거리가 되지는 않는다.'},
+    {t:'제일 친한 친구 한 명에게만 말한다. 소문 낼 애가 아니니까',tr:'tiny',w:'"한 명한테만"은 <b>모든 소문의 첫 문장</b>이다. 그리고 그 한 명에게도 유건이는 허락한 적이 없다.'},
+    {t:'"야 너 몇 점이야?" 하고 큰 소리로 묻는다',w:'교실 전체가 듣는다. <b>말하고 싶지 않을 자유</b>를 통째로 빼앗는 행동이다.'}]},
+{s:'school',e:'📌',t:'"수행평가 점수를 이름이랑 같이 뒤 게시판에 붙이자"는 의견이 나왔다. 몇 명이 찬성한다.',tag:'#사생활 보호',
+ c:[{t:'"이름은 빼고 붙이자"고 의견을 낸다',ok:1,w:'배운 내용을 확인하는 데 <b>이름은 필요 없다.</b> 필요 없는 정보를 빼는 것이 인권을 지키는 가장 쉬운 방법이다.'},
+    {t:'잘한 사람 이름만 붙여서 칭찬하자고 한다',tr:'kind',w:'칭찬하려는 마음은 알겠다. 그런데 <b>붙지 않은 사람이 누구인지 전부 드러난다.</b> 못 붙은 이름이 곧 성적표가 된다.'},
+    {t:'다 붙여야 자극이 되니까 찬성한다',w:'부끄러움은 <b>공부시키는 방법이 아니다.</b> 자극이라는 말로 창피를 주는 것뿐이다.'}]},
+{s:'school',e:'🧹',t:'청소 시간. 힘이 약한 소하에게는 늘 칠판 지우기 같은 쉬운 일만 준다.',tag:'#자기결정권',
+ c:[{t:'"소하야, 오늘 뭐 하고 싶어?" 하고 본인에게 묻는다',ok:1,w:'<b>한 번 묻는 데 3초</b>다. 그 3초가 소하를 "정해지는 사람"에서 "정하는 사람"으로 바꾼다.'},
+    {t:'힘들까 봐 계속 쉬운 일만 준다',tr:'kind',w:'배려처럼 보이지만 <b>소하는 한 번도 선택한 적이 없다.</b> 늘 빠지는 사람이 되면, 그게 곧 밀려나는 것이다.'},
+    {t:'"똑같이 해야지" 하며 제일 무거운 걸 시킨다',w:'똑같이 나누는 게 늘 공평한 건 아니다. <b>물어보지 않은 것</b>이 문제다.'}]},
+{s:'school',e:'✋',t:'학급 회의. 목소리 큰 몇 명이 계속 말한다. 나원이가 아까부터 손을 들고 있는데 계속 넘어간다.',tag:'#표현의 자유',
+ c:[{t:'"나원이가 아까부터 손 들고 있었어요"라고 말한다',ok:1,w:'말할 기회는 <b>회의 중에</b> 있어야 뜻이 있다. 알아채고 자리를 만들어 주는 것도 회의의 일부다.'},
+    {t:'회의 끝나고 나원이에게 무슨 말 하려 했는지 물어본다',tr:'tiny',w:'착한 마음이다. 그런데 <b>회의에서 못 한 말은 결정에 반영되지 않는다.</b> 나중에 듣는 것은 위로일 뿐 참여가 아니다.'},
+    {t:'시간 없으니 그냥 빨리 끝내자고 한다',w:'회의는 <b>빨리 끝내는 것이 목적이 아니다.</b> 늘 같은 사람만 말하는 회의는 회의가 아니다.'}]},
+/* ── 2. 손안의 세상 ── */
+{s:'online',e:'💬',t:'단톡방에 도헌이 말투를 흉내 낸 짤이 올라왔다. 다들 ㅋㅋㅋ를 친다. 도헌이도 이 방에 있다.',tag:'#인격권',
+ c:[{t:'ㅋㅋ를 치지 않고 "이건 그만하자"라고 친다',ok:1,w:'단톡방에서는 <b>침묵도 동의처럼 읽힌다.</b> 한 줄이 올라가면 흐름이 끊긴다.'},
+    {t:'불편하니까 조용히 방을 나간다',tr:'mine',w:'나가면 <b>내 눈에만 안 보이게 된다.</b> 짤은 계속 돌고, 도헌이는 그 방에 그대로 있다.'},
+    {t:'웃긴 건 웃긴 거니까 나도 ㅋㅋ를 친다',w:'ㅋㅋ 하나가 <b>"계속해도 된다"는 신호</b>다. 여럿의 ㅋㅋ가 모여 놀림이 된다.'}]},
+{s:'online',e:'📸',t:'수학여행 버스에서 시온이가 입 벌리고 자고 있다. 너무 웃겨서 사진을 찍었다.',tag:'#초상권',
+ c:[{t:'바로 지운다. 애초에 찍지 않는다',ok:1,w:'<b>자는 사람은 거절할 수가 없다.</b> 거절할 수 없는 상태에서 찍은 사진은, 찍은 순간부터 이미 그 사람 것이 아니다.'},
+    {t:'시온이에게 보여 주고 웃으면 프로필에 올린다',tr:'kind',w:'그 자리에서 웃는 것과 <b>올려도 좋다는 허락은 다르다.</b> 여럿 앞에서 싫다고 말하기가 얼마나 어려운지 생각해 보자.'},
+    {t:'웃기니까 그냥 프로필에 올린다',w:'한번 올라간 사진은 <b>내가 지워도 남의 폰에 남는다.</b> 되돌릴 수 없는 일이다.'}]},
+{s:'online',e:'📩',t:'모르는 계정이 DM을 보냈다. "너희 반 재율이 어떤 애야? 궁금해서."',tag:'#개인정보',
+ c:[{t:'답하지 않고 부모님이나 선생님께 알린다',ok:1,w:'모르는 사람이 <b>특정한 한 명</b>을 묻는 것은 그 자체가 위험 신호다. 나 혼자 판단할 일이 아니다.'},
+    {t:'나쁜 말은 빼고 좋은 것만 알려 준다',tr:'tiny',w:'좋은 말이든 나쁜 말이든 <b>재율이의 정보를 넘길 권한이 나에게는 없다.</b> "좋은 말만"이라는 기준은 내 기준일 뿐이다.'},
+    {t:'아는 대로 다 알려 준다',w:'누군지도 모르는 사람에게 <b>친구의 정보를 넘긴 것</b>이다. 무슨 일에 쓰일지 아무도 모른다.'}]},
+{s:'online',e:'🎮',t:'게임에서 졌다. 같은 팀 사람이 채팅에 "여자애가 껴서 졌잖아"라고 친다.',tag:'#차별받지 않을 권리',
+ c:[{t:'"그건 아니지"라고 채팅에 친다',ok:1,w:'그 말을 들은 사람이 그 방에 있다. <b>아니라고 말하는 사람이 한 명만 있어도</b> 그 말은 당연한 말이 되지 못한다.'},
+    {t:'그 사람을 차단하고 넘어간다',tr:'mine',w:'차단은 <b>나를 지키는 데는 좋다.</b> 하지만 그 말은 그대로 채팅창에 남아 있고, 상처받은 사람도 그대로 남아 있다.'},
+    {t:'게임은 게임이니까 그냥 무시한다',w:'게임 안이라고 <b>다른 사람이 되는 것은 아니다.</b> 화면 밖에서 못 할 말이면 안에서도 못 하는 말이다.'}]},
+{s:'online',e:'👎',t:'좋아하는 가수 기사에 아주 심한 악플이 맨 위에 있다. 나도 요즘 그 가수가 좀 밉긴 하다.',tag:'#인격권',
+ c:[{t:'악플에 좋아요를 누르지 않는다. 신고한다',ok:1,w:'미운 마음은 자유다. 하지만 <b>미움을 남기는 것과 퍼뜨리는 것은 다르다.</b>'},
+    {t:'내가 쓰진 않고 공감(좋아요)만 누른다',tr:'watch',w:'좋아요가 <b>그 악플을 맨 위로 올린다.</b> 쓰지 않았어도 더 많은 사람이 보게 만든 건 나다.'},
+    {t:'나도 한 줄 보탠다',w:'한 줄씩 보태서 <b>수천 줄</b>이 된다. 아무도 자기 한 줄이 문제라고 생각하지 않는다.'}]},
+{s:'online',e:'🎞️',t:'2년 전 유담이가 무대에서 크게 넘어진 영상이 다시 돌기 시작했다. 나한테도 왔다.',tag:'#잊힐 권리',
+ c:[{t:'나에게서 멈춘다. 아무에게도 전달하지 않는다',ok:1,w:'전달을 멈추는 사람이 있어야 멈춘다. <b>2년 전의 실수가 평생 따라다녀서는 안 된다.</b>'},
+    {t:'"이거 돌아다녀" 하고 유담이에게 영상을 보내 준다',tr:'kind',w:'알려 주려는 마음은 알겠다. 그런데 <b>유담이는 그 장면을 한 번 더 보게 된다.</b> 꼭 알려야 한다면 영상 없이, 조용히.'},
+    {t:'재밌으니까 다른 방에도 보낸다',w:'그 순간 <b>2년 전 일이 다시 오늘 일이 된다.</b> 유담이는 처음부터 다시 겪는다.'}]},
+/* ── 3. 우리 동네 ── */
+{s:'town',e:'🏗️',t:'우리 아파트 앞에 장애인 특수학교를 짓는다고 한다. "결사반대" 현수막이 걸렸다.',tag:'#교육받을 권리',
+ c:[{t:'왜 반대하는지 이유를 따져 본다. 집값 때문이라면 이유가 안 된다',ok:1,w:'반대에도 이유가 필요하다. <b>"집값이 떨어져서"는 아이가 학교에 못 가도 되는 이유가 될 수 없다.</b>'},
+    {t:'우리 동네 말고 다른 동네에 지으면 되지 않나 생각한다',tr:'mine',w:'<b>모든 동네가 똑같이 말하면 그 학교는 어디에도 못 짓는다.</b> 실제로 우리나라에서 벌어진 일이다.'},
+    {t:'어른들 일이니 관심 두지 않는다',w:'학교에 못 가는 건 <b>또래 아이들</b>이다. 어른들 일처럼 보여도 결국 아이의 일이다.'}]},
+{s:'town',e:'🛴',t:'편의점 앞 노란 점자블록 위에 킥보드 두 대가 떡하니 세워져 있다.',tag:'#이동권',
+ c:[{t:'옆으로 옮겨 둔다',ok:1,w:'점자블록은 <b>지팡이가 읽는 길</b>이다. 그 위의 장애물은 표지판을 가려 놓은 것과 같다.'},
+    {t:'내 킥보드도 아닌데 뭘, 하고 지나간다',tr:'watch',w:'내가 안 세웠다고 <b>그 길이 열리지는 않는다.</b> 30초면 되는 일을 아무도 안 해서 길이 막혀 있다.'},
+    {t:'나도 그 옆에 세운다',w:'이미 있으니까 하나 더, 가 모여서 <b>인도 전체</b>가 막힌다.'}]},
+{s:'town',e:'🚌',t:'버스에서 외국인 노동자 두 사람이 자기 나라 말로 이야기한다. 옆 어른이 눈치를 준다.',tag:'#차별받지 않을 권리',
+ c:[{t:'우리도 외국에 나가면 한국말로 이야기한다는 걸 떠올린다',ok:1,w:'<b>모국어로 말하는 것은 권리다.</b> 우리 할아버지들도 독일과 중동에서 한국말로 이야기했다.'},
+    {t:'조금만 조용히 해 달라고 정중히 부탁한다',tr:'kind',w:'정중했다는 게 문제가 아니다. <b>같은 크기로 한국말을 했어도 부탁했을까?</b> 사람에 따라 기준이 달라지면 그게 차별이다.'},
+    {t:'나도 같이 눈치를 준다',w:'눈치는 <b>말보다 오래 남는다.</b> "여기서 너는 환영받지 못한다"는 뜻이 전해진다.'}]},
+{s:'town',e:'🛝',t:'놀이터 그네를 저학년 아이들이 계속 타고 있다. 우리도 타고 싶은데 비켜 줄 기미가 없다.',tag:'#평등권',
+ c:[{t:'"몇 번만 더 타고 바꿔 줄래?"라고 말을 건다',ok:1,w:'놀이터는 <b>먼저 온 사람의 것도, 나이 많은 사람의 것도 아니다.</b> 정하는 방법은 말 거는 것뿐이다.'},
+    {t:'동생들이니까 그냥 참고 다른 데로 간다',tr:'mine',w:'양보처럼 보이지만 <b>아무 말도 하지 않은 것</b>이다. 다음에 오는 사람도 똑같이 기다리게 된다.'},
+    {t:'"형이 타야지" 하며 비키라고 한다',w:'나이가 많다는 것은 <b>권리가 아니다.</b> 힘으로 정하면 늘 약한 쪽이 밀린다.'}]},
+{s:'town',e:'🏢',t:'아파트 현관에서 어떤 주민이 경비 아저씨에게 반말로 소리를 지르고 있다.',tag:'#노동 인권',
+ c:[{t:'그 자리를 기억해 두고 부모님께 이야기한다',ok:1,w:'어린이가 어른을 말리기는 어렵다. <b>그래도 아는 어른에게 말하는 것은 할 수 있다.</b> 그것도 행동이다.'},
+    {t:'남의 집 일이니 못 본 척 지나간다',tr:'watch',w:'일하는 사람에게 함부로 하는 일은 <b>아무도 말하지 않기 때문에</b> 계속된다. 본 사람이 있다는 것만으로도 달라진다.'},
+    {t:'원래 저런 일은 있는 거라고 생각한다',w:'"원래 그렇다"는 말이 <b>바뀌지 않게 만드는 가장 센 말</b>이다.'}]},
+{s:'town',e:'📚',t:'우리 동네 도서관 입구에 계단만 있고 경사로가 없다.',tag:'#이동권',
+ c:[{t:'경사로를 놓아 달라는 건의문을 도서관에 낸다',ok:1,w:'<b>혼자서도 들어갈 수 있는 것</b>이 목표다. 시설이 바뀌면 매번 부탁하지 않아도 된다.'},
+    {t:'휠체어 탄 사람이 오면 그때 들어서 옮겨 주면 된다고 생각한다',tr:'kind',w:'그건 <b>친절이지 권리가 아니다.</b> 친절한 사람이 없는 날에는 못 들어간다. 매번 남에게 부탁해야 하는 것은 평등하지 않다.'},
+    {t:'지금까지 불편하다는 말이 없었으니 괜찮다고 생각한다',w:'말이 없는 게 아니라 <b>애초에 오지 못한 것</b>일 수 있다.'}]},
+/* ── 4. 더 넓은 세상 ── */
+{s:'world',e:'👕',t:'내가 산 싼 티셔츠를 만든 공장에서 나보다 어린 아이들이 하루 12시간 일한다는 기사를 봤다.',tag:'#아동 노동',
+ c:[{t:'어디서 어떻게 만들었는지 찾아보고, 그런 회사 물건을 덜 산다',ok:1,w:'<b>사는 것도 선택이다.</b> 한 사람의 선택은 작지만, 회사가 세는 것은 사람 수다.'},
+    {t:'나 하나 안 산다고 뭐가 달라지겠나 생각한다',tr:'tiny',w:'모두가 그렇게 생각해서 <b>지금까지 아무것도 안 바뀐 것</b>이다. 바뀐 일들은 전부 "나 하나"들이 모여서 바뀌었다.'},
+    {t:'싸면 됐지 뭐, 하고 넘어간다',w:'그 값이 싼 이유가 <b>누군가의 학교 갈 시간</b>이었다.'}]},
+{s:'world',e:'🕊️',t:'전쟁이 난 나라에서 온 아이가 다음 주에 우리 반으로 온다고 한다. 한국말을 거의 못 한다고 한다.',tag:'#난민 아동',
+ c:[{t:'말이 안 통하니 어떻게 도울지 반에서 미리 함께 정한다',ok:1,w:'<b>오기 전에 준비하는 것</b>이 가장 큰 환영이다. 그 아이는 첫날부터 혼자가 아니게 된다.'},
+    {t:'우리도 어려운데 왜 남의 나라 사람까지 챙기냐고 생각한다',tr:'mine',w:'70년 전 <b>전쟁을 피해 도망친 것은 우리나라 사람들</b>이었다. 그때 우리를 받아 준 나라들이 있었다.'},
+    {t:'말이 안 통하니까 그냥 말을 안 건다',w:'말이 안 통해도 <b>웃고 손짓하는 것</b>은 통한다. 안 거는 것은 통하지 않는 게 아니라 안 하는 것이다.'}]},
+{s:'world',e:'📜',t:'유엔 아동권리협약에는 "어린이는 자기와 관련된 일에 의견을 말할 권리가 있다"고 적혀 있다. 그런데 우리 반 규칙은 아무도 물어보지 않고 정해졌다.',tag:'#참여권',
+ c:[{t:'"우리 의견도 듣고 정해 주시면 좋겠어요"라고 정중히 말한다',ok:1,w:'권리는 <b>말해야 쓰인다.</b> 정중하게 말하는 것은 어린이가 할 수 있는 가장 강한 행동이다.'},
+    {t:'어른이 정하는 게 당연하니 그냥 따른다',tr:'watch',w:'100년 전 방정환 선생이 <b>바로 그것이 아니라고</b> 했다. 어린이도 하나의 사람이라고. 지금은 협약에 글로 적혀 있다.'},
+    {t:'마음에 안 드니까 몰래 안 지킨다',w:'말하지 않고 어기는 것은 <b>아무것도 바꾸지 못한다.</b> 다음 규칙도 똑같이 정해질 것이다.'}]},
+{s:'world',e:'⚽',t:'축구 경기 중계. 상대 나라 선수가 공을 잡을 때마다 관중석에서 원숭이 소리를 낸다.',tag:'#인종 차별',
+ c:[{t:'저건 응원이 아니라 차별이고, 경기장에서 내보내야 한다고 생각한다',ok:1,w:'국제 축구 대회에서도 <b>인종 차별 응원은 몰수패까지 준다.</b> 스포츠 안이라고 봐주는 게 아니다.'},
+    {t:'응원하다 보면 그럴 수도 있다고 생각한다',tr:'watch',w:'"그럴 수도 있다"가 <b>그 소리를 계속 나게 한다.</b> 응원은 우리 팀을 향한 것이지, 사람의 피부색을 향한 것이 아니다.'},
+    {t:'우리 팀만 이기면 됐다고 생각한다',w:'그렇게 이긴 경기는 <b>우리 나라 이름에 남는다.</b> 실제로 나라 전체가 징계를 받기도 한다.'}]},
+{s:'world',e:'🪣',t:'지구 반대편에는 학교 대신 왕복 4시간 물을 길으러 다니는 또래 아이들이 있다.',tag:'#교육받을 권리',
+ c:[{t:'왜 학교에 못 가는지 알아보고 우리 반에 알린다',ok:1,w:'인권은 <b>불쌍해하는 것이 아니라 알고 바꾸는 것</b>이다. 아는 사람이 늘어나는 것부터가 변화다.'},
+    {t:'"불쌍하다" 생각하고 넘어간다',tr:'kind',w:'동정은 마음은 편하게 하지만 <b>그 아이의 하루는 하나도 바꾸지 못한다.</b> 인권은 베푸는 것이 아니라 원래 있어야 할 것을 돌려주는 것이다.'},
+    {t:'나라마다 사정이 다르니 어쩔 수 없다고 생각한다',w:'우리나라도 <b>70년 전에는 그런 나라</b>였다. 어쩔 수 없는 일이 아니라 바뀌어 온 일이다.'}]},
+{s:'world',e:'🙋',t:'마지막 장면. 누군가 나에게 함부로 했다. 기분이 아주 나빴다.',tag:'#나의 인권',
+ c:[{t:'"그거 하지 마"라고 말한다. 내 인권도 내가 지킨다',ok:1,w:'인권은 <b>남에게 베푸는 것이 아니다.</b> 나에게도 똑같이 있다. 참는 것은 착한 것이 아니다.'},
+    {t:'괜히 분위기 나빠지니까 참는다',tr:'tiny',w:'네가 참으면 <b>그 사람은 계속 그래도 되는 줄 안다.</b> 그리고 다음 차례는 다른 사람이 된다.'},
+    {t:'나도 똑같이 갚아 준다',w:'갚아 주는 순간 <b>침해가 하나 더 늘어날 뿐</b>이다. 인권은 주고받는 복수가 아니다.'}]}
+];
+
+/* ═══════════════ 상태 ═══════════════ */
+let S={name:'',stage:0,idx:0,score:0,combo:0,best:0,log:[],traps:{},retry:null,list:[]};
+let cfg={timer:true,sound:false};
+let tId=null,tLeft=0,locked=false,curQ=null,curCh=null;
+const $=id=>document.getElementById(id);
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const show=id=>{document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));$(id).classList.add('on');window.scrollTo(0,0)};
+
+function tog(k){cfg[k]=!cfg[k];
+  $('optTimer').textContent=cfg.timer?'⏱ 제한시간 켬':'⏱ 제한시간 끔';
+  $('optTimer').classList.toggle('on',cfg.timer);
+  $('optSound').textContent=cfg.sound?'🔊 소리 켬':'🔇 소리 끔';
+  $('optSound').classList.toggle('on',cfg.sound);
+  try{localStorage.setItem('hrr_cfg',JSON.stringify(cfg))}catch(e){}}
+
+/* ── 소리 (기본 꺼짐 — 교실에서 30대가 동시에 울리면 못 쓴다) ── */
+let ac=null;
+function beep(f,d,type){if(!cfg.sound)return;try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();
+  const o=ac.createOscillator(),g=ac.createGain();o.type=type||'sine';o.frequency.value=f;
+  g.gain.setValueAtTime(.12,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+d);
+  o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+d)}catch(e){}}
+const sOk=()=>{beep(660,.12);setTimeout(()=>beep(880,.18),90)};
+const sTrap=()=>beep(330,.3,'triangle');
+const sBad=()=>beep(150,.35,'sawtooth');
+
+function flash(color){const f=$('flash');f.style.background=color;f.classList.remove('go');void f.offsetWidth;f.classList.add('go')}
+
+/* ═══════════════ 진행 ═══════════════ */
+function startGame(){
+  S={name:'',stage:0,idx:0,score:0,combo:0,best:0,log:[],traps:{},retry:null,list:[]};
+  showStageIntro();
+}
+function showStageIntro(){
+  const st=STAGES[S.stage];
+  $('siEmoji').textContent=st.e;$('siNum').textContent='STAGE '+(S.stage+1)+' / 4';
+  $('siName').textContent=st.n;$('siDesc').textContent=st.d;
+  show('stageIntro');
+}
+function beginStage(){
+  S.list=shuffle(Q.filter(q=>q.s===STAGES[S.stage].id));
+  S.idx=0;show('play');render();
+}
+function render(){
+  locked=false;curQ=S.list[S.idx];
+  $('hName').textContent=S.retry?'⟳ 다시 스캔':STAGES[S.stage].e+' '+STAGES[S.stage].n;
+  $('hProg').textContent=(S.idx+1)+' / '+S.list.length;
+  $('hCombo').textContent='🔥 '+S.combo+' 연속';
+  $('hCombo').classList.toggle('on',S.combo>=2);
+  $('sEmoji').textContent=curQ.e;$('sText').textContent=curQ.t;
+  curCh=shuffle(curQ.c.slice());
+  const wrap=$('chList');wrap.innerHTML='';
+  curCh.forEach((c,i)=>{
+    const b=document.createElement('button');b.className='ch';
+    b.innerHTML='<span class="k">'+(i+1)+'</span><span>'+c.t+'</span>';
+    b.onclick=()=>pick(i);wrap.appendChild(b);
+  });
+  cfg.timer?startTimer():($('hRing').style.visibility='hidden');
+}
+function startTimer(){
+  $('hRing').style.visibility='visible';tLeft=12;drawRing();
+  clearInterval(tId);
+  tId=setInterval(()=>{tLeft--;drawRing();if(tLeft<=0){clearInterval(tId);timeout()}},1000);
+}
+function drawRing(){
+  $('ringT').textContent=tLeft;
+  $('ringFg').style.strokeDashoffset=113*(1-tLeft/12);
+  $('hRing').classList.toggle('warn',tLeft<=4);
+}
+function timeout(){
+  if(locked)return;locked=true;
+  const ok=curCh.findIndex(c=>c.ok);
+  document.querySelectorAll('.ch').forEach((b,i)=>{b.classList.add('dim');if(i===ok)b.classList.remove('dim'),b.classList.add('show-ok')});
+  S.combo=0;S.log.push({q:curQ,res:'time'});
+  fb('⌛','시간 초과','레이더가 반응하지 못했다. <b>망설였다는 것은 헷갈렸다는 뜻</b>이다. 정답을 읽고, 왜 헷갈렸는지 생각해 보자.<br><br>정답: <b>'+curCh[ok].t+'</b><br>'+curCh[ok].w,'trap','');
+}
+function pick(i){
+  if(locked)return;locked=true;clearInterval(tId);
+  const c=curCh[i],okI=curCh.findIndex(x=>x.ok);
+  document.querySelectorAll('.ch').forEach((b,j)=>{
+    if(j===i)b.classList.add(c.ok?'pick-ok':'pick-no');
+    else if(j===okI)b.classList.add('show-ok');
+    else b.classList.add('dim');
+  });
+  if(c.ok){
+    S.combo++;S.best=Math.max(S.best,S.combo);
+    S.score+=100+(cfg.timer?tLeft*5:0)+(S.combo>=2?S.combo*20:0);
+    S.log.push({q:curQ,res:'ok'});sOk();flash('rgba(126,231,135,.35)');
+    const t=S.combo>=5?'레이더 각성! '+S.combo+'연속':S.combo>=2?'좋아! '+S.combo+'연속':'그렇지!';
+    fb('⭕',t,c.w,'ok',curQ.tag);
+  }else if(c.tr){
+    S.combo=0;S.traps[c.tr]=(S.traps[c.tr]||0)+1;
+    S.log.push({q:curQ,res:'trap',tr:c.tr});sTrap();flash('rgba(255,201,92,.3)');
+    fb('🟡','마음은 착했어. 그런데—',c.w+'<br><br>정답은 <b>'+curCh[okI].t+'</b>였다.','trap',curQ.tag,TRAPS[c.tr].n);
+  }else{
+    S.combo=0;S.log.push({q:curQ,res:'bad'});sBad();flash('rgba(255,123,123,.3)');
+    fb('❌','그건 아니야',c.w+'<br><br>정답은 <b>'+curCh[okI].t+'</b>였다.','bad',curQ.tag);
+  }
+  save();
+}
+function fb(mark,title,why,cls,tag,trap){
+  $('fbMark').textContent=mark;$('fbTitle').textContent=title;$('fbWhy').innerHTML=why;
+  $('fbTag').textContent=tag||'';$('fbTag').style.display=tag?'':'none';
+  $('fbTrap').textContent=trap?'걸린 갈래 · '+trap:'';$('fbTrap').style.display=trap?'':'none';
+  const f=$('fb');f.className='';if(cls!=='ok')f.classList.add(cls);
+  const last=S.idx>=S.list.length-1&&(S.retry||S.stage===3);
+  $('fbNext').textContent=last?'결과 보기 →':'다음 장면 →';
+  setTimeout(()=>f.classList.add('on'),120);
+}
+function nextQ(){
+  $('fb').classList.remove('on');
+  S.idx++;
+  if(S.idx<S.list.length){setTimeout(render,180);return}
+  if(S.retry){finish();return}
+  S.stage++;
+  if(S.stage<4){setTimeout(showStageIntro,180)}else finish();
+}
+
+/* ═══════════════ 결과 ═══════════════ */
+function finish(){
+  clearInterval(tId);
+  const total=S.log.length,ok=S.log.filter(l=>l.res==='ok').length;
+  const pct=Math.round(ok/total*100);
+  $('rGauge').textContent=pct+'%';
+  $('rSub').textContent=total+'장면 중 '+ok+'장면 적중 · 최고 '+S.best+'연속 · '+S.score.toLocaleString()+'점';
+  $('rGauge').style.color=pct>=85?'var(--lime)':pct>=60?'var(--cyan)':'var(--amber)';
+
+  const keys=Object.keys(TRAPS),max=Math.max(1,...keys.map(k=>S.traps[k]||0));
+  $('rBars').innerHTML=keys.map(k=>{
+    const n=S.traps[k]||0;
+    return '<div class="bar-row"><span class="bar-lb">'+TRAPS[k].n+'</span>'+
+      '<span class="bar-tr"><span class="bar-fl" style="width:'+(n/max*100)+'%"></span></span>'+
+      '<span class="bar-n">'+n+'</span></div>';
+  }).join('');
+
+  const worst=keys.reduce((a,b)=>(S.traps[b]||0)>(S.traps[a]||0)?b:a);
+  if(!S.traps[worst]){
+    $('rWeak').innerHTML='착해 보이는 함정에 <b>한 번도</b> 걸리지 않았다.<br><br>이제 남은 것은 화면이 아니라 <b>진짜 교실</b>이다. 오늘 스물네 장면 중 하나가 실제로 일어나면, 그때도 같은 선택을 할 수 있을까?';
+    S.worst='none';
+  }else{
+    $('rWeak').innerHTML='너의 레이더는 <b>「'+TRAPS[worst].n+'」</b>에 가장 약하다.<br><br>'+TRAPS[worst].d;
+    S.worst=worst;
+  }
+  const wrongs=S.log.filter(l=>l.res!=='ok');
+  $('retryBtn').hidden=wrongs.length===0||S.retry;
+  show('result');
+  setTimeout(()=>document.querySelectorAll('.bar-fl').forEach(b=>b.style.width=b.style.width),50);
+  save();
+}
+function retryWrong(){
+  const wrongQ=[...new Set(S.log.filter(l=>l.res!=='ok').map(l=>l.q))];
+  S.retry=true;S.list=shuffle(wrongQ);S.idx=0;S.log=[];S.traps={};S.combo=0;
+  show('play');render();
+}
+
+/* ═══════════════ 다짐 ═══════════════ */
+function goPledge(){
+  const w=S.worst&&S.worst!=='none'?S.worst:null;
+  const list=w?TRAPS[w].s:['오늘 배운 것을 우리 반에서 먼저 실천하겠습니다','헷갈리는 순간에 한 번 더 생각하고 말하겠습니다','내 인권도, 다른 사람의 인권도 똑같이 지키겠습니다'];
+  $('plSugg').innerHTML=list.map(s=>'<button onclick="setPl(this)">'+s+'</button>').join('');
+  show('pledge');
+}
+function setPl(b){$('plInput').value=b.textContent;$('plInput').focus()}
+function makeCard(){
+  let t=$('plInput').value.trim().replace(/[.。]+$/,'');
+  if(!t){$('plInput').focus();$('plInput').style.borderColor='var(--rose)';return}
+  /* 아이가 "~하기"처럼 어미 없이 써도 문장이 되게 맞춰 준다 */
+  if(!/(습니다|겠다|하자|한다|다)$/.test(t))t+=' 하겠습니다';
+  $('plCardWrap').innerHTML='<div class="pl-card"><div class="nm">5학년 · 나의 다짐</div>'+
+    '<div class="tx">저는 주위 사람들의 인권을 존중하기 위해<br><span style="color:var(--lime)">'+
+    t.replace(/[<>]/g,'')+'</span>.</div></div>'+
+    '<p style="text-align:center;font-size:15px;color:var(--muted);margin-top:14px;line-height:1.8">' +
+    '이 문장을 <b style="color:var(--cyan)">교과서 85쪽 다짐 칸</b>에 옮겨 적으세요.</p>';
+  $('plCardWrap').scrollIntoView({behavior:'smooth',block:'center'});
+  try{localStorage.setItem('hrr_pledge',t)}catch(e){}
+}
+
+/* ═══════════════ 저장 · 이어하기 ═══════════════ */
+function save(){try{localStorage.setItem('hrr_save',JSON.stringify({stage:S.stage,score:S.score,traps:S.traps,n:S.log.length}))}catch(e){}}
+function resume(){startGame()}
+
+/* ═══════════════ 교사 화면 ═══════════════ */
+function buildTeacher(){
+  $('tTraps').innerHTML=Object.keys(TRAPS).map(k=>
+    '<p style="font-size:16px;line-height:1.75;margin-bottom:12px"><b style="color:var(--amber)">'+
+    TRAPS[k].n+'</b> — '+TRAPS[k].d+'</p>').join('');
+  let h='<tr><th style="width:34px">#</th><th style="width:64px">구역</th><th>장면</th><th>정답</th><th>착한 함정 (갈래)</th></tr>';
+  Q.forEach((q,i)=>{
+    const ok=q.c.find(c=>c.ok),tp=q.c.find(c=>c.tr);
+    h+='<tr onclick="bigShow('+i+')" style="cursor:pointer"><td>'+(i+1)+'</td><td>'+
+      STAGES.find(s=>s.id===q.s).n+'</td><td>'+q.t+'</td><td class="ok">'+ok.t+'</td>'+
+      '<td class="tp">'+tp.t+'<br><span style="color:var(--muted);font-size:12px">→ '+TRAPS[tp.tr].n+'</span></td></tr>';
+  });
+  $('tTable').innerHTML=h;
+}
+function bigShow(i){
+  const q=Q[i];
+  $('bigT').textContent=q.e+'  '+q.t;
+  $('bigC').innerHTML=shuffle(q.c.slice()).map((c,j)=>(j+1)+'. '+c.t).join('<br>');
+  $('big').classList.add('on');
+}
+
+/* ═══════════════ QR 표시 ═══════════════ */
+function qrOpen(){$('qrModal').classList.add('on')}
+if(QR_IMG){$('qrS').src=QR_IMG;$('qrL').src=QR_IMG}
+else{document.querySelector('.qr-wrap').style.display='none'}
+
+/* ═══════════════ 초기화 ═══════════════ */
+try{const c=localStorage.getItem('hrr_cfg');if(c)cfg=JSON.parse(c)}catch(e){}
+$('optTimer').textContent=cfg.timer?'⏱ 제한시간 켬':'⏱ 제한시간 끔';
+$('optTimer').classList.toggle('on',cfg.timer);
+$('optSound').textContent=cfg.sound?'🔊 소리 켬':'🔇 소리 끔';
+$('optSound').classList.toggle('on',cfg.sound);
+
+if(location.hash==='#teacher'){buildTeacher();show('teach')}
+
+document.addEventListener('keydown',e=>{
+  if(!$('play').classList.contains('on'))return;
+  if(e.key>='1'&&e.key<='3'&&!locked)pick(+e.key-1);
+  if(e.key==='Enter'&&locked)nextQ();
+});
+</script>
+</body>
+</html>

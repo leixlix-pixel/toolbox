@@ -538,7 +538,7 @@ function pick(i){
     S.combo=0;S.log.push({q:curQ,res:'bad'});sBad();flash('rgba(255,123,123,.3)');
     fb('❌','그건 아니야',c.w+'<br><br>정답은 <b>'+curCh[okI].t+'</b>였다.','bad',curQ.tag);
   }
-  save();
+
 }
 function fb(mark,title,why,cls,tag,trap){
   $('fbMark').textContent=mark;$('fbTitle').textContent=title;$('fbWhy').innerHTML=why;
@@ -587,7 +587,7 @@ function finish(){
   $('retryBtn').hidden=wrongs.length===0||S.retry;
   show('result');
   setTimeout(()=>document.querySelectorAll('.bar-fl').forEach(b=>b.style.width=b.style.width),50);
-  save();
+
 }
 function retryWrong(){
   const wrongQ=[...new Set(S.log.filter(l=>l.res!=='ok').map(l=>l.q))];
@@ -614,12 +614,13 @@ function makeCard(){
     '<p style="text-align:center;font-size:15px;color:var(--muted);margin-top:14px;line-height:1.8">' +
     '이 문장을 <b style="color:var(--cyan)">교과서 85쪽 다짐 칸</b>에 옮겨 적으세요.</p>';
   $('plCardWrap').scrollIntoView({behavior:'smooth',block:'center'});
-  try{localStorage.setItem('hrr_pledge',t)}catch(e){}
 }
 
-/* ═══════════════ 저장 · 이어하기 ═══════════════ */
-function save(){try{localStorage.setItem('hrr_save',JSON.stringify({stage:S.stage,score:S.score,traps:S.traps,n:S.log.length}))}catch(e){}}
-function resume(){startGame()}
+/* ═══════════════ 학생 기록은 남기지 않는다 ═══════════════
+   이름을 묻지 않고, 답·점수·다짐을 어디에도 저장하지 않는다.
+   localStorage 에 남는 것은 아래 hrr_cfg(제한시간·소리 on/off) 하나뿐이다.
+   여러 명이 돌려 쓰는 학교 태블릿이라, 앞사람이 쓴 다짐이 남으면 안 된다.
+   ★ 기록 기능을 넣지 말 것 — 넣는 순간 개인정보 처리가 된다. ★ */
 
 /* ═══════════════ 교사 화면 ═══════════════ */
 function buildTeacher(){

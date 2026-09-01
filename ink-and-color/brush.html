@@ -76,6 +76,26 @@ input[type=text]{
   transition:opacity .4s; white-space:nowrap;
 }
 #hint.hide{ opacity:0; }
+
+/* -------------------------------------------------------------- QR -- */
+#qrmini{
+  width:44px; height:44px; flex:none; margin-left:auto; cursor:pointer;
+  border-radius:7px; border:1px solid var(--line); background:#fff;
+  padding:2px; display:block;
+}
+#qrbig{
+  position:fixed; inset:0; z-index:50;
+  background:rgba(22,19,15,.94);
+  display:none; flex-direction:column; align-items:center; justify-content:center; gap:16px;
+  cursor:pointer;
+}
+#qrbig.on{ display:flex; }
+#qrbig img{
+  width:min(56vh, 56vw); height:auto;
+  background:#fff; padding:16px; border-radius:16px;
+}
+#qrbig .big{ color:#f5efe2; font-size:26px; font-weight:700; }
+#qrbig .u{ color:#cfc6b4; font-size:16px; word-break:break-all; text-align:center; padding:0 20px; }
 </style>
 </head>
 <body>
@@ -83,6 +103,7 @@ input[type=text]{
 <div class="tools">
   <div class="trow" id="colors">
     <span class="lab">물감</span>
+    <img id="qrmini" alt="이 앱 주소 QR" title="누르면 커진다">
   </div>
   <div class="trow">
     <div class="slider">
@@ -109,7 +130,29 @@ input[type=text]{
   <div id="hint">붓을 <b>천천히</b> 움직이면 굵고, <b>빠르게</b> 그으면 가늘어진다. 멈추면 번진다.</div>
 </div>
 
+<div id="qrbig">
+  <div class="big">태블릿으로 찍으면 열린다</div>
+  <img id="qrbigimg" alt="이 앱 주소 QR">
+  <div class="u" id="qrurl"></div>
+  <div class="u">아무 데나 누르면 닫힌다</div>
+</div>
+
 <script>
+/* 이 앱의 주소 — 교실 화면에 띄워 두면 아이들이 각자 태블릿으로 찍어서 연다.
+   학교 방화벽 때문에 외부 QR 서비스를 쓰지 않고 그림을 파일 안에 넣어 둔다. */
+const APP_URL = 'https://leixlix-pixel.github.io/toolbox/ink-and-color/brush.html';
+const QR_PNG = 'data:image/png;base64,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';
+
+document.getElementById('qrmini').src = QR_PNG;
+document.getElementById('qrbigimg').src = QR_PNG;
+document.getElementById('qrurl').textContent = APP_URL;
+document.getElementById('qrmini').onclick = function(){
+  document.getElementById('qrbig').classList.add('on');
+};
+document.getElementById('qrbig').onclick = function(){
+  this.classList.remove('on');
+};
+
 /* ====================================================================
    수묵담채 붓 연습
    - 종이 위에 곱하기(multiply)로 획을 쌓는다 → 지나간 자리가 진해진다
@@ -205,6 +248,8 @@ PAINTS.forEach(function(p, i){
   };
   colorBar.appendChild(b);
 });
+// 물감은 JS로 붙으므로, QR 을 다시 맨 뒤(오른쪽 끝)로 보낸다
+colorBar.appendChild(document.getElementById('qrmini'));
 
 /* ------------------------------------------------------- 도구 상태 --- */
 const waterEl = document.getElementById('water');

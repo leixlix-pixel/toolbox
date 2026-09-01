@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>롤러코스터에는 엔진이 없다</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --ink:#1c2430; --navy:#123a63; --navy2:#1d5b95;
+  --red:#c0392b; --gold:#c8963e; --green:#2e7d5b; --plum:#7d4a86;
+  --paper:#f6f2e9; --line:#d9d2c4; --muted:#6d6b66;
+}
+
+html,body{height:100%;background:#0d1520;font-family:'Noto Sans KR',sans-serif;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;overflow:hidden}
+
+#stage{position:absolute;left:50%;top:50%;width:1280px;height:720px;
+  transform-origin:center center;background:var(--paper);overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,.6)}
+
+.slide{position:absolute;inset:0;padding:40px 54px;display:none;
+  flex-direction:column;background:var(--paper);--acc:var(--navy2)}
+.slide.on{display:flex}
+.slide::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(circle at 12% 8%,rgba(29,91,149,.10),transparent 45%),
+             radial-gradient(circle at 92% 95%,rgba(200,150,62,.10),transparent 45%)}
+.slide>*{position:relative;z-index:1}
+
+.eyebrow{display:inline-block;font-size:21px;font-weight:700;color:#fff;
+  background:var(--acc);padding:6px 18px;border-radius:999px;margin-bottom:12px;align-self:flex-start}
+h2.stitle{font-size:40px;font-weight:900;color:var(--acc);line-height:1.2;letter-spacing:-.02em;margin-bottom:6px}
+h2.stitle.sm{font-size:35px}
+.rule{width:92px;height:7px;border-radius:4px;
+  background:linear-gradient(90deg,var(--navy2),var(--gold));margin:10px 0 20px}
+p.body{font-size:27px;line-height:1.58;color:var(--ink);font-weight:500}
+p.body+p.body{margin-top:14px}
+.small{font-size:22px;line-height:1.5}
+.tiny{font-size:19px;line-height:1.5}
+
+b.hl{font-weight:900;color:var(--red);background:linear-gradient(transparent 62%,rgba(192,57,43,.20) 62%);padding:0 2px}
+b.hn{font-weight:900;color:var(--navy2);background:linear-gradient(transparent 62%,rgba(29,91,149,.18) 62%);padding:0 2px}
+b.hg{font-weight:900;color:var(--green);background:linear-gradient(transparent 62%,rgba(46,125,91,.18) 62%);padding:0 2px}
+
+.cols{display:flex;gap:30px;flex:1;min-height:0;align-items:center}
+.col{flex:1;min-width:0}
+
+.term{background:#fff;border-left:9px solid var(--gold);border-radius:8px;padding:14px 18px;
+  box-shadow:0 6px 16px rgba(30,25,15,.10)}
+.term+.term{margin-top:14px}
+.term .t{font-size:24px;font-weight:900;color:var(--gold);margin-bottom:3px}
+.term .d{font-size:22px;font-weight:500;color:var(--ink);line-height:1.5}
+
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;
+  box-shadow:0 6px 16px rgba(30,25,15,.09)}
+.card h3{font-size:23px;font-weight:900;color:var(--acc);margin-bottom:8px}
+.cardrow{display:flex;gap:16px}
+.cardrow>.card{flex:1}
+
+.act{background:#fff;border:3px dashed var(--red);border-radius:18px;padding:20px 24px}
+.act-h{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.act-badge{background:var(--red);color:#fff;font-weight:900;font-size:20px;
+  padding:5px 15px;border-radius:999px;white-space:nowrap}
+.act-t{font-size:26px;font-weight:900;color:var(--navy)}
+
+.chip{display:inline-block;background:#fff;border:2px solid var(--acc);color:var(--acc);
+  font-weight:900;font-size:23px;border-radius:999px;padding:12px 26px;margin:9px 11px 0 0}
+.chipwrap{display:flex;flex-wrap:wrap}
+
+.fig{display:flex;justify-content:center;align-items:center;flex:1;min-height:0}
+.fig svg{max-width:100%;max-height:100%}
+.figcap{font-size:19px;color:var(--muted);text-align:center;font-weight:600;margin-top:6px}
+
+.plan{display:flex;gap:16px;flex:1;min-height:0;align-items:stretch}
+.ph{flex:1;background:#fff;border-radius:16px;border:1px solid var(--line);padding:18px 20px;
+  box-shadow:0 6px 16px rgba(30,25,15,.09);display:flex;flex-direction:column}
+.ph .pn{font-family:'Gaegu',sans-serif;font-size:34px;color:var(--navy2);line-height:1}
+.ph .pt{font-size:24px;font-weight:900;color:var(--navy);margin:6px 0 8px}
+.ph .pd{font-size:20px;line-height:1.5;color:var(--ink);font-weight:500}
+
+.vs{display:flex;gap:0;flex:1;min-height:0;align-items:stretch;
+  background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;
+  box-shadow:0 6px 16px rgba(30,25,15,.09)}
+.vs .vcol{flex:1;padding:16px 20px}
+.vs .vcol+.vcol{border-left:2px solid var(--line)}
+.vs .vh{font-size:25px;font-weight:900;margin-bottom:10px}
+.vs .vi{font-size:22px;line-height:1.5;font-weight:500;color:var(--ink);
+  padding:8px 0;border-bottom:1px dashed var(--line)}
+.vs .vi:last-child{border-bottom:0}
+
+.tbl{display:grid;grid-template-columns:152px repeat(4,1fr);flex:1;min-height:0;
+  background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;
+  box-shadow:0 6px 16px rgba(30,25,15,.09)}
+.tbl>div{padding:10px 13px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);
+  font-size:19px;line-height:1.38;font-weight:500;display:flex;align-items:center}
+.tbl>div:nth-child(5n){border-right:0}
+.tbl>div:nth-last-child(-n+5){border-bottom:0}
+.tbl .th{background:#eef2f7;font-weight:900;font-size:22px;justify-content:center;color:var(--navy)}
+.tbl .rh{background:#faf7f0;font-weight:900;font-size:19px;color:var(--muted)}
+
+.cover2{justify-content:center;align-items:center;text-align:center;background:linear-gradient(160deg,#123a63,#1d5b95 70%)}
+.cover2 .kicker{color:#ffe9b0;font-size:22px;font-weight:700;margin-bottom:16px}
+.cover2 h1{color:#fff;font-size:50px;font-weight:900;line-height:1.28}
+.cover2 .sub{color:#d6e4f2;font-size:23px;font-weight:500;margin-top:20px}
+
+.divider{justify-content:center;align-items:center;text-align:center;background:linear-gradient(160deg,#1c5a45,#123a63 70%)}
+.divider .num{color:#ffe9b0;font-size:26px;font-weight:900;margin-bottom:10px}
+.divider h1{color:#fff;font-size:46px;font-weight:900;line-height:1.25}
+
+.bar{position:fixed;left:0;right:0;bottom:0;height:46px;background:#0f1a29;color:#cfd8e6;
+  display:flex;align-items:center;gap:10px;padding:0 14px;font-size:15px;z-index:50}
+.bar button{background:#1d3350;color:#e8eef7;border:0;border-radius:7px;padding:7px 13px;
+  font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+#prog{position:fixed;left:0;top:0;height:4px;background:var(--navy2);z-index:60;transition:width .18s}
+.zone{position:fixed;top:0;bottom:46px;width:12%;z-index:40;cursor:pointer}
+#zl{left:0}#zr{right:0}
+</style>
+</head>
+<body>
+
+<div id="prog"></div>
+<div id="stage"></div>
+<div class="zone" id="zl"></div>
+<div class="zone" id="zr"></div>
+<div class="bar">
+  <button onclick="go(-1)">◀ 이전</button>
+  <button onclick="go(1)">다음 ▶</button>
+  <span id="counter">1 / 1</span>
+  <span style="margin-left:18px;opacity:.7">← → 이동 · F 전체화면</span>
+  <button style="margin-left:auto" onclick="fs()">⛶ 전체화면</button>
+</div>
+
+<script>
+/* ── 그림 (직접 그린 SVG) ─────────────────────────────── */
+
+/* 1. 체인 리프트 — 처음 한 번만 끌어올린다 */
+const liftFig = '<svg viewBox="0 0 660 300">'
+  + '<defs><marker id="arR" markerUnits="userSpaceOnUse" markerWidth="20" markerHeight="20" refX="16" refY="10" orient="auto">'
+  + '<path d="M0 0 L20 10 L0 20 Z" fill="#c0392b"/></marker></defs>'
+  /* 지면 */
+  + '<rect x="20" y="262" width="620" height="8" fill="#c9c2b4"/>'
+  /* 레일 — 올라가는 경사 + 꼭대기 + 급하강 */
+  + '<path d="M60 262 L250 62 L282 58 C330 58 336 150 360 200 C380 242 410 262 470 262 L620 262" '
+  + 'fill="none" stroke="#1c2430" stroke-width="7" stroke-linejoin="round"/>'
+  /* 체인 표시 — 경사 구간에만 톱니 */
+  + '<path d="M60 262 L250 62" fill="none" stroke="#c8963e" stroke-width="9" stroke-dasharray="9 9"/>'
+  /* 열차 */
+  + '<g transform="translate(158,166) rotate(-46.4)">'
+  + '<rect x="-46" y="-28" width="30" height="22" rx="4" fill="#1d5b95"/>'
+  + '<rect x="-14" y="-28" width="30" height="22" rx="4" fill="#1d5b95"/>'
+  + '<rect x="18" y="-28" width="30" height="22" rx="4" fill="#1d5b95"/>'
+  + '</g>'
+  /* 라벨 */
+  + '<text x="66" y="112" font-size="21" fill="#c8963e" font-family="Noto Sans KR" font-weight="900">쇠사슬이 끌어올린다</text>'
+  + '<text x="66" y="140" font-size="19" fill="#6d6b66" font-family="Noto Sans KR" font-weight="700">— 동력은 여기까지가 전부</text>'
+  + '<line x1="150" y1="120" x2="176" y2="150" stroke="#c8963e" stroke-width="3"/>'
+  + '<text x="360" y="104" font-size="23" fill="#c0392b" font-family="Noto Sans KR" font-weight="900">여기부터 동력 0</text>'
+  + '<text x="360" y="132" font-size="19" fill="#6d6b66" font-family="Noto Sans KR" font-weight="700">밀어 주는 장치가 하나도 없다</text>'
+  + '<path d="M392 148 L432 204" stroke="#c0392b" stroke-width="6" marker-end="url(#arR)"/>'
+  + '<circle cx="282" cy="58" r="10" fill="#c0392b"/>'
+  + '<text x="252" y="38" font-size="19" fill="#c0392b" font-family="Noto Sans KR" font-weight="900">손을 놓는 곳</text>'
+  + '</svg>';
+
+/* 2. 높이 ↔ 속도 바꿔치기 */
+const swapFig = '<svg viewBox="0 0 660 280">'
+  + '<rect x="20" y="248" width="620" height="8" fill="#c9c2b4"/>'
+  + '<path d="M40 246 C110 246 110 46 180 46 C250 46 250 236 320 236 '
+  + 'C390 236 390 96 460 96 C530 96 530 240 600 240 L640 244" '
+  + 'fill="none" stroke="#1c2430" stroke-width="7"/>'
+  /* 꼭대기 = 느림 */
+  + '<circle cx="180" cy="46" r="11" fill="#1d5b95"/>'
+  + '<text x="180" y="30" font-size="21" fill="#1d5b95" text-anchor="middle" font-family="Noto Sans KR" font-weight="900">가장 느림</text>'
+  + '<circle cx="460" cy="96" r="11" fill="#1d5b95"/>'
+  + '<text x="460" y="80" font-size="20" fill="#1d5b95" text-anchor="middle" font-family="Noto Sans KR" font-weight="900">느림</text>'
+  /* 골짜기 = 빠름 */
+  + '<circle cx="320" cy="236" r="11" fill="#c0392b"/>'
+  + '<text x="320" y="272" font-size="21" fill="#c0392b" text-anchor="middle" font-family="Noto Sans KR" font-weight="900">가장 빠름</text>'
+  /* 화살표: 높이가 속도로 */
+  + '<text x="212" y="150" font-size="22" fill="#2e7d5b" font-family="Noto Sans KR" font-weight="900">높이 &#8594; 속도</text>'
+  + '<text x="352" y="176" font-size="22" fill="#7d4a86" font-family="Noto Sans KR" font-weight="900">속도 &#8594; 높이</text>'
+  + '</svg>';
+
+/* 3. 뒤 언덕은 반드시 낮다 (핵심) */
+const lowerFig = '<svg viewBox="0 0 660 290">'
+  + '<rect x="20" y="256" width="620" height="8" fill="#c9c2b4"/>'
+  /* 점선 높이선 */
+  + '<line x1="30" y1="46" x2="640" y2="46" stroke="#c0392b" stroke-width="2" stroke-dasharray="7 7"/>'
+  + '<line x1="30" y1="102" x2="640" y2="102" stroke="#c8963e" stroke-width="2" stroke-dasharray="7 7"/>'
+  + '<line x1="30" y1="152" x2="640" y2="152" stroke="#2e7d5b" stroke-width="2" stroke-dasharray="7 7"/>'
+  /* 레일 */
+  + '<path d="M35 254 C90 254 90 46 145 46 C200 46 200 244 256 244 '
+  + 'C312 244 312 102 368 102 C424 102 424 248 480 248 '
+  + 'C528 248 528 152 576 152 C616 152 620 252 640 254" '
+  + 'fill="none" stroke="#1c2430" stroke-width="7"/>'
+  /* 봉우리 표시 */
+  + '<text x="145" y="32" font-size="21" fill="#c0392b" text-anchor="middle" font-family="Noto Sans KR" font-weight="900">1번 언덕</text>'
+  + '<text x="368" y="88" font-size="21" fill="#c8963e" text-anchor="middle" font-family="Noto Sans KR" font-weight="900">2번 언덕</text>'
+  + '<text x="576" y="138" font-size="21" fill="#2e7d5b" text-anchor="middle" font-family="Noto Sans KR" font-weight="900">3번 언덕</text>'
+  /* 줄어드는 화살표 */
+  + '<line x1="614" y1="46" x2="614" y2="152" stroke="#6d6b66" stroke-width="3"/>'
+  + '<text x="626" y="104" font-size="19" fill="#6d6b66" font-family="Noto Sans KR" font-weight="700">낮아짐</text>'
+  + '</svg>';
+
+/* 4. 무게가 상쇄되는 그림 */
+const massFig = '<svg viewBox="0 0 660 268">'
+  + '<defs><marker id="arG" markerUnits="userSpaceOnUse" markerWidth="16" markerHeight="16" refX="13" refY="8" orient="auto">'
+  + '<path d="M0 0 L16 8 L0 16 Z" fill="#2e7d5b"/></marker>'
+  + '<marker id="arRd" markerUnits="userSpaceOnUse" markerWidth="16" markerHeight="16" refX="13" refY="8" orient="auto">'
+  + '<path d="M0 0 L16 8 L0 16 Z" fill="#c0392b"/></marker></defs>'
+  /* 가벼운 쪽 */
+  + '<text x="24" y="30" font-size="24" fill="#1c2430" font-family="Noto Sans KR" font-weight="900">가벼울 때</text>'
+  + '<text x="24" y="70" font-size="19" fill="#2e7d5b" font-family="Noto Sans KR" font-weight="700">끌어내리는 힘</text>'
+  + '<path d="M170 63 L252 63" stroke="#2e7d5b" stroke-width="10" marker-end="url(#arG)"/>'
+  + '<text x="24" y="110" font-size="19" fill="#c0392b" font-family="Noto Sans KR" font-weight="700">멈추게 하는 마찰</text>'
+  + '<path d="M252 103 L170 103" stroke="#c0392b" stroke-width="10" marker-end="url(#arRd)"/>'
+  /* 구분선 */
+  + '<line x1="24" y1="136" x2="330" y2="136" stroke="#d9d2c4" stroke-width="2" stroke-dasharray="6 6"/>'
+  /* 무거운 쪽 */
+  + '<text x="24" y="176" font-size="24" fill="#1c2430" font-family="Noto Sans KR" font-weight="900">무거울 때</text>'
+  + '<text x="24" y="216" font-size="19" fill="#2e7d5b" font-family="Noto Sans KR" font-weight="700">끌어내리는 힘</text>'
+  + '<path d="M170 208 L324 208" stroke="#2e7d5b" stroke-width="19" marker-end="url(#arG)"/>'
+  + '<text x="24" y="258" font-size="19" fill="#c0392b" font-family="Noto Sans KR" font-weight="700">멈추게 하는 마찰</text>'
+  + '<path d="M324 250 L170 250" stroke="#c0392b" stroke-width="19" marker-end="url(#arRd)"/>'
+  /* 결론 */
+  + '<line x1="368" y1="20" x2="368" y2="258" stroke="#d9d2c4" stroke-width="3"/>'
+  + '<text x="396" y="104" font-size="26" fill="#1c2430" font-family="Noto Sans KR" font-weight="900">둘 다 똑같이 커진다</text>'
+  + '<text x="396" y="152" font-size="26" fill="#c0392b" font-family="Noto Sans KR" font-weight="900">&#8594; 서로 지워진다</text>'
+  + '<text x="396" y="198" font-size="22" fill="#6d6b66" font-family="Noto Sans KR" font-weight="700">그래서 거리가 거의 안 변한다</text>'
+  + '</svg>';
+
+/* 5. 물 균형 케이블카 — 모터 없이 산을 오른다 */
+const funicularFig = '<svg viewBox="0 0 660 300">'
+  + '<defs><marker id="arDn" markerUnits="userSpaceOnUse" markerWidth="18" markerHeight="18" refX="14" refY="9" orient="auto">'
+  + '<path d="M0 0 L18 9 L0 18 Z" fill="#c0392b"/></marker>'
+  + '<marker id="arUp" markerUnits="userSpaceOnUse" markerWidth="18" markerHeight="18" refX="14" refY="9" orient="auto">'
+  + '<path d="M0 0 L18 9 L0 18 Z" fill="#2e7d5b"/></marker></defs>'
+  /* 산비탈 */
+  + '<path d="M20 284 L586 72 L644 72 L644 284 Z" fill="#e6ddc9"/>'
+  /* 레일 겸 케이블 */
+  + '<line x1="60" y1="270" x2="602" y2="66" stroke="#c8963e" stroke-width="6"/>'
+  /* 꼭대기 도르래 */
+  + '<circle cx="612" cy="58" r="17" fill="#123a63"/><circle cx="612" cy="58" r="5" fill="#fff"/>'
+  /* 위 차량 — 물 가득 */
+  + '<g transform="translate(481,110) rotate(-20.6)">'
+  + '<rect x="-40" y="-46" width="80" height="43" rx="5" fill="#fff" stroke="#1c2430" stroke-width="4"/>'
+  + '<rect x="-33" y="-39" width="66" height="29" rx="3" fill="#1d5b95"/></g>'
+  + '<text x="470" y="54" font-size="22" fill="#1d5b95" text-anchor="middle" font-family="Noto Sans KR" font-weight="900">물 가득 &#8594; 무겁다</text>'
+  + '<path d="M540 124 L484 145" stroke="#c0392b" stroke-width="7" marker-end="url(#arDn)"/>'
+  + '<text x="556" y="118" font-size="22" fill="#c0392b" font-family="Noto Sans KR" font-weight="900">내려간다</text>'
+  /* 아래 차량 — 빈 탱크 */
+  + '<g transform="translate(179,224) rotate(-20.6)">'
+  + '<rect x="-40" y="-46" width="80" height="43" rx="5" fill="#fff" stroke="#1c2430" stroke-width="4"/>'
+  + '<rect x="-33" y="-39" width="66" height="29" rx="3" fill="none" stroke="#9c948a" stroke-width="2" stroke-dasharray="5 4"/></g>'
+  + '<text x="168" y="168" font-size="22" fill="#2e7d5b" text-anchor="middle" font-family="Noto Sans KR" font-weight="900">빈 탱크 &#8594; 가볍다</text>'
+  + '<path d="M104 272 L160 251" stroke="#2e7d5b" stroke-width="7" marker-end="url(#arUp)"/>'
+  + '<text x="96" y="294" font-size="22" fill="#2e7d5b" font-family="Noto Sans KR" font-weight="900">끌려 올라간다</text>'
+  /* 강조 */
+  + '<text x="34" y="66" font-size="30" fill="#c0392b" font-family="Noto Sans KR" font-weight="900">모터가 없다</text>'
+  + '<text x="34" y="100" font-size="20" fill="#6d6b66" font-family="Noto Sans KR" font-weight="700">한 대가 다른 한 대를 끌어올린다</text>'
+  + '</svg>';
+
+/* ── 슬라이드 ─────────────────────────────────────────── */
+
+const SLIDES = [
+
+/* 1 */
+'<section class="slide cover2">'
++ '<div class="kicker">실과 · 생활과 수송 &nbsp;|&nbsp; 무동력 롤러 만들기</div>'
++ '<h1>롤러코스터에는<br>엔진이 없다</h1>'
++ '<div class="sub">그런데 어떻게 시속 100km로 달릴까?</div>'
++ '</section>',
+
+/* 2 */
+'<section class="slide">'
++ '<div class="eyebrow">먼저 생각해 보기</div>'
++ '<h2 class="stitle">롤러코스터를 달리게 하는 힘은<br>어디서 올까?</h2>'
++ '<div class="rule"></div>'
++ '<div class="chipwrap">'
++ '<span class="chip">안에 엔진이 있다</span>'
++ '<span class="chip">전기로 밀어 준다</span>'
++ '<span class="chip">레일이 당겨 준다</span>'
++ '<span class="chip">바퀴가 스스로 돈다</span>'
++ '</div>'
++ '<p class="body" style="margin-top:34px">모둠끼리 하나를 골라 보자.</p>'
++ '<p class="body"><b class="hl">놀랍게도 넷 다 아니다.</b> 롤러코스터에는 열차를 밀어 주는 장치가 '
++ '<b class="hn">아예 달려 있지 않다.</b></p>'
++ '</section>',
+
+/* 3 */
+'<section class="slide">'
++ '<div class="eyebrow">딱 한 번, 처음에만</div>'
++ '<h2 class="stitle sm">쇠사슬이 첫 언덕까지 끌어올린다. 끝.</h2>'
++ '<div class="fig">' + liftFig + '</div>'
++ '<p class="body" style="margin-top:8px">꼭대기에서 <b class="hl">고리를 풀어 놓는다.</b> '
++ '거기서부터 도착할 때까지, 열차를 움직이는 것은 <b class="hn">오직 높이 하나</b>다.</p>'
++ '</section>',
+
+/* 4 */
+'<section class="slide">'
++ '<div class="eyebrow">그 높이가 곧 연료다</div>'
++ '<h2 class="stitle">높은 곳에 올려 두기만 해도<br>힘이 저장된다</h2>'
++ '<div class="rule"></div>'
++ '<div class="cols">'
++ '<div class="col">'
++ '<div class="term"><div class="t">위치 에너지</div>'
++ '<div class="d">높은 곳에 있다는 것만으로 저장되는 힘. 올라간 높이가 높을수록 많다.</div></div>'
++ '<div class="term" style="border-left-color:var(--red)">'
++ '<div class="t" style="color:var(--red)">운동 에너지</div>'
++ '<div class="d">움직이는 것이 가진 힘. 빠를수록 많다.</div></div>'
++ '</div>'
++ '<div class="col">'
++ '<p class="body">첫 언덕 꼭대기에서 롤러코스터가 가진 것은 <b class="hn">높이뿐</b>이다.</p>'
++ '<p class="body">그 뒤로 코스 전체를 <b class="hl">이 높이 하나로</b> 돈다.</p>'
++ '<p class="body small" style="margin-top:18px;color:var(--muted)">'
++ '마찰이 전혀 없다면, 아파트 7층(20m) 높이에서 굴러 내려오는 것만으로 시속 71km까지 나온다.</p>'
++ '</div>'
++ '</div>'
++ '</section>',
+
+/* 5 */
+'<section class="slide">'
++ '<div class="eyebrow">계속 바꿔치기한다</div>'
++ '<h2 class="stitle sm">내려가면 빨라지고, 올라가면 느려진다</h2>'
++ '<div class="fig">' + swapFig + '</div>'
++ '<p class="body" style="margin-top:6px">그래서 롤러코스터에서 <b class="hn">가장 느린 곳은 언덕 꼭대기</b>, '
++ '<b class="hl">가장 빠른 곳은 골짜기 바닥</b>이다. 타 본 사람은 이미 몸으로 안다.</p>'
++ '</section>',
+
+/* 6 */
+'<section class="slide" style="--acc:var(--red)">'
++ '<div class="eyebrow">오늘의 핵심 질문</div>'
++ '<h2 class="stitle">뒤 언덕은 왜 앞 언덕보다<br>항상 낮을까?</h2>'
++ '<div class="fig">' + lowerFig + '</div>'
++ '<p class="body" style="margin-top:4px">세상의 <b class="hl">모든</b> 롤러코스터가 그렇다. 첫 언덕이 제일 높고 뒤로 갈수록 낮아진다. '
++ '<b class="hn">한 번도 예외가 없다.</b> 왜 그럴까?</p>'
++ '</section>',
+
+/* 7 */
+'<section class="slide" style="--acc:var(--red)">'
++ '<div class="eyebrow">답</div>'
++ '<h2 class="stitle">마찰이 조금씩 가져가기 때문이다</h2>'
++ '<div class="rule"></div>'
++ '<p class="body">바퀴와 레일이 비벼지고, 앞의 공기를 밀어내면서 <b class="hl">높이가 조금씩 사라진다.</b> '
++ '사라진 만큼은 <b class="hn">열과 소리</b>로 바뀐다. 오래 달린 레일은 실제로 따뜻하다.</p>'
++ '<div class="act" style="margin-top:22px">'
++ '<div class="act-h"><span class="act-badge">그래서</span>'
++ '<span class="act-t">다음 언덕은 반드시 그만큼 낮아야 한다</span></div>'
++ '<div class="small">앞 언덕보다 높게 만들면 열차가 <b class="hl">꼭대기를 못 넘고 되돌아온다.</b> '
++ '설계자는 사라질 몫을 미리 계산해서 언덕 높이를 정한다.</div>'
++ '</div>'
++ '</section>',
+
+/* 8 */
+'<section class="slide" style="--acc:var(--plum)">'
++ '<div class="eyebrow">예상해 보기 · 손을 들어 보자</div>'
++ '<h2 class="stitle">무거운 사람이 타면<br>더 빨리, 더 멀리 갈까?</h2>'
++ '<div class="rule"></div>'
++ '<div class="chipwrap" style="margin-top:14px">'
++ '<span class="chip">그렇다</span>'
++ '<span class="chip">아니다</span>'
++ '<span class="chip">잘 모르겠다</span>'
++ '</div>'
++ '<p class="body" style="margin-top:36px">고른 까닭도 한 사람씩 말해 보자.</p>'
++ '<p class="body small" style="color:var(--muted)">이 질문의 답이 오늘 우리가 할 실험의 답이기도 하다.</p>'
++ '</section>',
+
+/* 9 */
+'<section class="slide" style="--acc:var(--plum)">'
++ '<div class="eyebrow">답</div>'
++ '<h2 class="stitle sm">무게는 거의 아무것도 바꾸지 못한다</h2>'
++ '<div class="fig">' + massFig + '</div>'
++ '<p class="body" style="margin-top:4px">무거우면 <b class="hg">끌어내리는 힘</b>이 커진다 — 맞다. '
++ '그런데 무거우면 <b class="hl">멈추게 하는 마찰도 똑같이</b> 커진다. 나란히 커져서 서로 지워진다.</p>'
++ '</section>',
+
+/* 10 */
+'<section class="slide divider">'
++ '<div class="num">그렇다면</div>'
++ '<h1>우리가 만든 종이 롤러도<br>롤러코스터다</h1>'
++ '</section>',
+
+/* 11 */
+'<section class="slide" style="--acc:var(--green)">'
++ '<div class="eyebrow">다른 점은 크기뿐이다</div>'
++ '<h2 class="stitle sm">같은 원리, 같은 규칙</h2>'
++ '<div class="vs">'
++ '<div class="vcol">'
++ '<div class="vh" style="color:var(--navy2)">롤러코스터</div>'
++ '<div class="vi">쇠사슬이 첫 언덕까지 끌어올린다</div>'
++ '<div class="vi">꼭대기에서 손을 놓는다</div>'
++ '<div class="vi">그 뒤로 동력이 <b>0</b></div>'
++ '<div class="vi">높이를 속도로 바꿔 쓴다</div>'
++ '<div class="vi">마찰이 다 가져가면 멈춘다</div>'
++ '</div>'
++ '<div class="vcol">'
++ '<div class="vh" style="color:var(--green)">우리 종이 롤러</div>'
++ '<div class="vi">우리가 경사면 꼭대기에 올려놓는다</div>'
++ '<div class="vi">출발선에서 <b>가만히</b> 놓는다</div>'
++ '<div class="vi">손으로 <b>밀지 않는다</b></div>'
++ '<div class="vi">높이를 속도로 바꿔 쓴다</div>'
++ '<div class="vi">마찰이 다 가져가면 멈춘다</div>'
++ '</div>'
++ '</div>'
++ '<p class="body" style="margin-top:18px">경사면 높이가 우리 롤러의 <b class="hn">첫 언덕</b>이다.</p>'
++ '</section>',
+
+/* 12 */
+'<section class="slide" style="--acc:var(--red)">'
++ '<div class="eyebrow">오늘의 도전</div>'
++ '<h2 class="stitle">같은 높이에서 더 멀리 보내기</h2>'
++ '<div class="rule"></div>'
++ '<p class="body">경사면 높이는 <b class="hn">모든 모둠이 똑같다.</b> 높이를 못 바꾼다면 '
++ '남는 길은 하나뿐이다 — <b class="hl">마찰을 줄이는 것.</b></p>'
++ '<div class="act" style="margin-top:20px">'
++ '<div class="act-h"><span class="act-badge">규칙</span>'
++ '<span class="act-t">롤러의 어디든 바꿔도 좋다. 단 이 셋은 안 된다</span></div>'
++ '<div class="small">① 경사면 높이 &nbsp;·&nbsp; ② 굴리는 바닥 &nbsp;·&nbsp; ③ 손으로 밀기</div>'
++ '</div>'
++ '<p class="body" style="margin-top:20px">무엇을 바꿀지는 <b class="hg">모둠이 스스로 찾아낸다.</b> '
++ '선생님은 알려 주지 않는다.</p>'
++ '</section>',
+
+/* 13 */
+'<section class="slide" style="--acc:var(--green)">'
++ '<div class="eyebrow">지키지 않으면 실험이 아니다</div>'
++ '<h2 class="stitle sm">실험 규칙 세 가지</h2>'
++ '<div class="plan">'
++ '<div class="ph"><div class="pn">1</div><div class="pt">같은 높이</div>'
++ '<div class="pd">쌓을 책 권수를 정하고 <b>끝까지 바꾸지 않는다.</b> 출발선도 테이프로 표시해 둔다.</div></div>'
++ '<div class="ph"><div class="pn">2</div><div class="pt">한 번에 하나만</div>'
++ '<div class="pd">두 가지를 같이 바꾸면 <b>무엇 때문에 늘었는지 알 수 없다.</b> 한 번에 하나씩.</div></div>'
++ '<div class="ph"><div class="pn">3</div><div class="pt">세 번 굴려 가운데 값</div>'
++ '<div class="pd">한 번은 우연일 수 있다. 세 번 재서 <b>가운데 값</b>을 쓴다.</div></div>'
++ '</div>'
++ '<p class="body" style="margin-top:16px">거리는 <b class="hn">바닥 타일 칸 수</b>로 세도 된다. 모둠끼리 단위만 맞추자.</p>'
++ '</section>',
+
+/* 14 */
+'<section class="slide cover2">'
++ '<div class="kicker">오늘의 한 문장</div>'
++ '<h1 style="font-size:44px">높이는 이미 정해져 있다.<br>남은 것은 마찰과의 싸움이다.</h1>'
++ '<div class="sub">이제 모둠끼리 무엇을 바꿀지 정해 보자 &nbsp;·&nbsp; 여기까지가 활동 전</div>'
++ '</section>',
+
+/* ══ 여기부터는 활동이 끝난 뒤에 보는 마무리 ══ */
+
+/* 15 */
+'<section class="slide divider">'
++ '<div class="num">실험이 끝났다면</div>'
++ '<h1>우리가 만든 건<br>장난감일까?</h1>'
++ '</section>',
+
+/* 16 */
+'<section class="slide">'
++ '<div class="eyebrow">지금도 사람을 실어 나른다</div>'
++ '<h2 class="stitle sm">모터 없이 산을 오르는 케이블카</h2>'
++ '<div class="fig">' + funicularFig + '</div>'
++ '<p class="body" style="margin-top:2px">산 위 차량 물탱크에 물을 채워 무겁게 만들면, 내려가면서 '
++ '<b class="hn">케이블로 이어진 아래 차량을 끌어올린다.</b> 꼭대기에 닿으면 물을 버린다. '
++ '유럽 몇 곳에서 <b class="hl">100년 넘게</b> 이 방식으로 운행 중이다.</p>'
++ '</section>',
+
+/* 17 */
+'<section class="slide" style="--acc:var(--green)">'
++ '<div class="eyebrow">연료 없이 가는 것들</div>'
++ '<h2 class="stitle sm">이미 우리 곁에 있다</h2>'
++ '<div class="cardrow" style="flex:1;min-height:0;align-items:stretch;margin-top:6px">'
++ '<div class="card" style="display:flex;flex-direction:column"><h3>돛이 돌아왔다</h3>'
++ '<div class="small">요즘 화물선에 <b>거대한 돛</b>과 <b>회전하는 원통</b>을 달아 연료를 줄인다. '
++ '인류가 가장 오래 쓴 무동력 수송 수단이 다시 왔다.</div></div>'
++ '<div class="card" style="display:flex;flex-direction:column"><h3>자전거</h3>'
++ '<div class="small">같은 거리를 가는 데 드는 에너지로 따지면 <b>걷기보다도 효율적</b>이다. '
++ '사람이 만든 가장 효율적인 이동 수단.</div></div>'
++ '<div class="card" style="display:flex;flex-direction:column"><h3>엘리베이터</h3>'
++ '<div class="small">반대쪽에 <b>균형추</b>가 매달려 있다. 모터는 <b>차이만큼만</b> 일한다. '
++ '위 케이블카와 같은 원리다.</div></div>'
++ '</div>'
++ '<p class="body" style="margin-top:16px">되물어 보자 — <b class="hl">자전거는 정말 연료가 없을까?</b> '
++ '사람은 밥을 먹는다.</p>'
++ '</section>',
+
+/* 18 */
+'<section class="slide divider">'
++ '<div class="num">그런데</div>'
++ '<h1>&#8220;친환경 에너지&#8221;는<br>정말 친환경일까?</h1>'
++ '</section>',
+
+/* 19 */
+'<section class="slide" style="--acc:var(--gold)">'
++ '<div class="eyebrow">만들 때 든 것도 세어야 한다</div>'
++ '<h2 class="stitle sm">태양광 패널을 만드는 데도 에너지가 든다</h2>'
++ '<div class="rule"></div>'
++ '<p class="body">모래에서 뽑은 실리콘을 <b class="hl">아주 뜨겁게 녹여야</b> 하고, 유리와 금속도 든다. '
++ '그렇다면 <b class="hn">자기를 만드는 데 든 에너지를 되갚는 데 얼마나 걸릴까?</b></p>'
++ '<div class="term" style="margin-top:20px"><div class="t">에너지 회수 기간</div>'
++ '<div class="d">대략 <b>1~2년</b>. 그런데 패널의 수명은 <b>25~30년</b>이다.</div></div>'
++ '<p class="body" style="margin-top:20px">즉 평생 자기 제작 에너지의 <b class="hg">열 배 넘게</b> 만들어 낸다. '
++ '<b class="hn">갚기는 확실히 갚는다.</b> 진짜 문제는 다른 데 있다.</p>'
++ '</section>',
+
+/* 20 */
+'<section class="slide" style="--acc:var(--plum)">'
++ '<div class="eyebrow">공짜인 것은 없다</div>'
++ '<h2 class="stitle sm">무엇을 대가로 치르는가</h2>'
++ '<div class="tbl" style="margin-top:6px">'
++ '<div class="th"></div><div class="th">태양광</div><div class="th">풍력</div>'
++ '<div class="th">수력</div><div class="th">수소</div>'
++ '<div class="rh">만들 때</div>'
++ '<div>실리콘을 아주 뜨겁게 녹인다</div>'
++ '<div>강철·콘크리트 수백 톤</div>'
++ '<div>거대한 콘크리트 댐</div>'
++ '<div>대부분 천연가스에서 뽑는다</div>'
++ '<div class="rh">치르는 대가</div>'
++ '<div>넓은 땅을 덮는다</div>'
++ '<div>새의 길목·소음</div>'
++ '<div>마을과 숲이 물에 잠긴다</div>'
++ '<div>만들고 옮기며 크게 손실된다</div>'
++ '<div class="rh">남는 문제</div>'
++ '<div>수명 뒤 패널 쓰레기</div>'
++ '<div>날개를 재활용 못 한다</div>'
++ '<div>물고기 길이 끊긴다</div>'
++ '<div>그 전기는 어디서 왔나</div>'
++ '</div>'
++ '</section>',
+
+/* 21 */
+'<section class="slide" style="--acc:var(--plum)">'
++ '<div class="eyebrow">가장 오해받는 것</div>'
++ '<h2 class="stitle">수소는 에너지원이 아니다</h2>'
++ '<div class="rule"></div>'
++ '<p class="body">석유나 석탄은 땅에 묻혀 있어서 캐낸다. 그런데 수소는 <b class="hl">어디에도 묻혀 있지 않다.</b> '
++ '캐는 것이 아니라 <b class="hn">만들어야 하는 것</b>이다.</p>'
++ '<div class="act" style="margin-top:20px;border-color:var(--plum)">'
++ '<div class="act-h"><span class="act-badge" style="background:var(--plum)">그래서</span>'
++ '<span class="act-t">수소차는 배기구만 깨끗하다</span></div>'
++ '<div class="small">지금 세상이 쓰는 수소는 <b>대부분 천연가스에서 뽑는다.</b> 그 과정에서 이산화탄소가 나온다. '
++ '물을 전기로 쪼개 만들 수도 있지만, 그러면 <b>그 전기가 어디서 왔느냐</b>가 다시 문제가 된다.</div>'
++ '</div>'
++ '<p class="body" style="margin-top:20px">나오는 것이 물뿐이라고 깨끗한 것이 아니다. '
++ '<b class="hl">어디서 왔느냐가 전부다.</b></p>'
++ '</section>',
+
+/* 22 */
+'<section class="slide" style="--acc:var(--green)">'
++ '<div class="eyebrow">스스로 판정하는 법</div>'
++ '<h2 class="stitle sm">이 세 가지를 물어보면 된다</h2>'
++ '<div class="plan">'
++ '<div class="ph"><div class="pn">1</div><div class="pt">만들 때</div>'
++ '<div class="pd">무엇을 썼나? <b>땅·광물·콘크리트·열.</b> 여기까지 세지 않으면 절반만 본 것이다.</div></div>'
++ '<div class="ph"><div class="pn">2</div><div class="pt">쓸 때</div>'
++ '<div class="pd">무엇이 나오나? <b>연기·소음·물.</b> 광고는 대개 이것만 보여 준다.</div></div>'
++ '<div class="ph"><div class="pn">3</div><div class="pt">버릴 때</div>'
++ '<div class="pd">어떻게 되나? <b>재활용되나, 묻나, 얼마나 오래 남나.</b> 가장 늦게 드러나는 값이다.</div></div>'
++ '</div>'
++ '<p class="body" style="margin-top:16px">셋 중 <b class="hl">하나만 보고</b> &#8220;친환경&#8221;이라고 부르면 속는다.</p>'
++ '</section>',
+
+/* 23 */
+'<section class="slide cover2">'
++ '<div class="kicker">오늘의 마지막 한 문장</div>'
++ '<h1 style="font-size:44px">가장 친환경적인 에너지는<br>쓰지 않은 에너지다</h1>'
++ '<div class="sub">어떤 발전 방식도 대가가 0은 아니다 — 그래서 걷기와 자전거와 무동력이 남는다</div>'
++ '</section>'
+
+];
+
+const stage = document.getElementById("stage");
+stage.innerHTML = SLIDES.join("");
+const slides = [...stage.querySelectorAll(".slide")];
+
+let cur = 0;
+function show(i){
+  cur = Math.max(0, Math.min(slides.length - 1, i));
+  slides.forEach((s,n) => s.classList.toggle("on", n === cur));
+  document.getElementById("counter").textContent = (cur+1) + " / " + slides.length;
+  const p = document.getElementById("prog");
+  p.style.width = ((cur+1)/slides.length*100) + "%";
+  p.style.background = getComputedStyle(slides[cur]).getPropertyValue("--acc");
+}
+function go(d){ show(cur + d); }
+function fit(){
+  const s = Math.min(window.innerWidth/1280, (window.innerHeight-46)/720);
+  stage.style.transform = "translate(-50%,-50%) scale(" + s + ")";
+}
+function fs(){
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+  else document.exitFullscreen();
+}
+document.addEventListener("keydown", e => {
+  if (["ArrowRight","PageDown"," "].includes(e.key)) { e.preventDefault(); go(1); }
+  if (["ArrowLeft","PageUp"].includes(e.key)) { e.preventDefault(); go(-1); }
+  if (e.key === "Home") show(0);
+  if (e.key === "End") show(slides.length-1);
+  if (e.key === "f" || e.key === "F") fs();
+});
+document.getElementById("zl").onclick = () => go(-1);
+document.getElementById("zr").onclick = () => go(1);
+let tx=0, ty=0;
+document.addEventListener("touchstart", e => { tx=e.touches[0].clientX; ty=e.touches[0].clientY; }, {passive:true});
+document.addEventListener("touchend", e => {
+  const dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty;
+  if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) go(dx < 0 ? 1 : -1);
+}, {passive:true});
+window.addEventListener("resize", fit);
+fit();
+show(0);
+</script>
+</body>
+</html>

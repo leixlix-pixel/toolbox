@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>분수의 곱셈 — 딱 한 줄로 끝내기</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0f172a; --navy:#1e3a8a; --navy2:#3b82f6; --red:#dc2626;
+  --gold:#f59e0b; --green:#10b981; --paper:#fdfcf8; --line:#d8d3c4; --muted:#6b7280;
+  --acc:var(--navy2);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:#111827}
+body{
+  font-family:'Noto Sans KR',sans-serif;
+  touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+  user-select:none; display:flex; flex-direction:column; align-items:center; justify-content:center;
+}
+
+/* ── 고정 무대 ───────────────────────────── */
+#wrap{position:relative;width:100%;height:calc(100% - 46px);display:flex;align-items:center;justify-content:center}
+#stage{flex:0 0 auto;width:1280px;height:720px;position:relative;transform-origin:center center;background:var(--paper);
+  border-radius:6px;overflow:hidden;box-shadow:0 12px 48px rgba(0,0,0,.5)}
+.slide{position:absolute;inset:0;padding:46px 60px 58px;display:none;flex-direction:column;color:var(--ink)}
+.slide.on{display:flex}
+.slide::after{content:'';position:absolute;left:0;bottom:0;height:7px;width:100%;background:var(--acc)}
+
+/* ── 공통 부품 ───────────────────────────── */
+.eyebrow{font-size:19px;font-weight:700;color:var(--acc);letter-spacing:.06em;margin-bottom:8px}
+h1{font-size:42px;font-weight:900;line-height:1.25;letter-spacing:-.02em}
+h2{font-size:26px;font-weight:700;line-height:1.4}
+.lead{font-size:23px;line-height:1.65;color:#334155}
+b.hl{background:linear-gradient(transparent 58%, #fecaca 58%);font-weight:900;color:var(--red);padding:0 2px}
+b.hn{background:linear-gradient(transparent 58%, #bfdbfe 58%);font-weight:900;color:var(--navy);padding:0 2px}
+b.hg{background:linear-gradient(transparent 58%, #a7f3d0 58%);font-weight:900;color:#047857;padding:0 2px}
+.term{background:#fff;border:2px solid var(--line);border-left:7px solid var(--acc);
+  border-radius:8px;padding:14px 20px;font-size:20px;line-height:1.55}
+.act{background:#fff8e6;border:2px dashed var(--gold);border-radius:12px;padding:16px 22px;font-size:21px;line-height:1.5}
+.hand{font-family:'Gaegu',sans-serif;font-size:27px;color:var(--red)}
+.row{display:flex;gap:34px;align-items:center}
+.grow{flex:1}
+.center{align-items:center;justify-content:center;text-align:center}
+
+/* 분수 표기 */
+.fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;
+  margin:0 5px;line-height:1.05;font-weight:900}
+.fr .n{padding:0 5px}
+.fr .d{padding:0 5px;border-top:3px solid currentColor}
+.mixed{display:inline-flex;align-items:center;vertical-align:middle;font-weight:900}
+.eq{font-size:40px;font-weight:900;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
+.eq.sm{font-size:31px}
+.op{font-weight:900;color:var(--muted)}
+
+/* 단계 노출 */
+[data-step]{opacity:0;transition:opacity .45s ease}
+[data-step].vis{opacity:1}
+
+/* 격자 SVG */
+svg.gv{display:block;width:100%;height:100%}
+svg.gv line{stroke:#94a3b8;stroke-width:2.5}
+
+/* 하단 바 */
+.bar{height:46px;width:100%;display:flex;align-items:center;justify-content:center;gap:14px;
+  background:#111827;color:#e5e7eb;font-size:15px;flex:0 0 46px}
+.bar button{font-family:inherit;font-size:15px;font-weight:700;min-height:32px;padding:6px 16px;
+  border:0;border-radius:7px;background:#374151;color:#f9fafb;cursor:pointer}
+.bar button:active{background:#4b5563}
+#cnt{min-width:74px;text-align:center;font-variant-numeric:tabular-nums}
+#zl,#zr{position:absolute;top:0;bottom:46px;width:13%;z-index:5;background:transparent}
+#zl{left:0} #zr{right:0}
+</style>
+</head>
+<body>
+
+<div id="wrap">
+  <div id="stage"></div>
+</div>
+<div id="zl" onclick="go(-1)"></div>
+<div id="zr" onclick="go(1)"></div>
+
+<div class="bar no-print">
+  <button onclick="go(-1)">◀ 이전</button>
+  <span id="cnt">1 / 12</span>
+  <button onclick="go(1)">다음 ▶</button>
+  <button onclick="fs()">전체화면</button>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════
+   그리기 도구 — 격자 넓이 모델 · 띠 모델
+   ══════════════════════════════════════════════ */
+
+/* n1/d1 은 세로줄(가로 방향 등분), n2/d2 는 가로줄(세로 방향 등분)
+   st = {A:파랑칸, L1:세로선, B:노랑칸, L2:가로선, C:겹친칸} 각각 몇 단계에 나타날지 */
+function grid(n1,d1,n2,d2,S,st){
+  const w=S/d1, h=S/d2; const P=6, T=S+P*2;
+  let s=`<svg class="gv" viewBox="0 0 ${T} ${T}"><g transform="translate(${P},${P})">`;
+  s+=`<rect width="${S}" height="${S}" fill="#ffffff"/>`;
+  s+=`<g data-step="${st.A}">`;
+  for(let i=0;i<n1;i++) s+=`<rect x="${i*w}" y="0" width="${w}" height="${S}" fill="#3b82f6" opacity=".42"/>`;
+  s+=`</g><g data-step="${st.B}">`;
+  for(let j=0;j<n2;j++) s+=`<rect x="0" y="${j*h}" width="${S}" height="${h}" fill="#f59e0b" opacity=".42"/>`;
+  s+=`</g><g data-step="${st.C}">`;
+  for(let i=0;i<n1;i++) for(let j=0;j<n2;j++)
+    s+=`<rect x="${i*w}" y="${j*h}" width="${w}" height="${h}" fill="#10b981" opacity=".92"/>`;
+  s+=`</g><g data-step="${st.L1}">`;
+  for(let i=1;i<d1;i++) s+=`<line x1="${i*w}" y1="0" x2="${i*w}" y2="${S}"/>`;
+  s+=`</g><g data-step="${st.L2}">`;
+  for(let j=1;j<d2;j++) s+=`<line x1="0" y1="${j*h}" x2="${S}" y2="${j*h}"/>`;
+  s+=`</g>`;
+  s+=`<rect width="${S}" height="${S}" fill="none" stroke="#0f172a" stroke-width="4"/>`;
+  s+=`</g></svg>`;
+  return s;
+}
+
+/* 가로 띠: d등분 중 n칸 색칠. major 를 주면 그 간격마다 굵은 선(=1 경계)을 긋는다 */
+function bar(n,d,W,H,color,step,major){
+  const w=W/d; const P=3, TW=W+P*2, TH=H+P*2;
+  let s=`<svg class="gv" viewBox="0 0 ${TW} ${TH}" ${step!==undefined?`data-step="${step}"`:''}><g transform="translate(${P},${P})">`;
+  s+=`<rect width="${W}" height="${H}" fill="#fff"/>`;
+  for(let i=0;i<n;i++) s+=`<rect x="${i*w}" y="0" width="${w}" height="${H}" fill="${color}" opacity=".55"/>`;
+  for(let i=1;i<d;i++) if(!major||i%major) s+=`<line x1="${i*w}" y1="0" x2="${i*w}" y2="${H}"/>`;
+  if(major) for(let i=major;i<d;i+=major)
+    s+=`<line x1="${i*w}" y1="0" x2="${i*w}" y2="${H}" stroke="#0f172a" stroke-width="3.5"/>`;
+  s+=`<rect width="${W}" height="${H}" fill="none" stroke="#0f172a" stroke-width="3.5"/>`;
+  s+=`</g></svg>`;
+  return s;
+}
+
+/* 분수 표기 */
+const F=(n,d,sz)=>`<span class="fr" style="font-size:${sz||1}em"><span class="n">${n}</span><span class="d">${d}</span></span>`;
+const M=(w,n,d)=>`<span class="mixed">${w}${F(n,d,.72)}</span>`;
+
+/* ══════════════════════════════════════════════
+   슬라이드
+   ══════════════════════════════════════════════ */
+const SLIDES=[
+
+/* 1 ── 표지 ─────────────────────────────── */
+`<section class="slide center" style="--acc:#1e3a8a;justify-content:center;background:
+  radial-gradient(circle at 76% 22%, #dbeafe 0%, transparent 46%),
+  radial-gradient(circle at 20% 82%, #fef3c7 0%, transparent 44%), var(--paper)">
+  <div class="eyebrow">5학년 2학기 · 2단원</div>
+  <h1 style="font-size:60px;margin:10px 0 6px">분수의 곱셈</h1>
+  <div class="lead" style="font-size:27px;margin-bottom:26px">외울 건 <b class="hl">딱 한 줄</b>이야.<br>왜 그런지만 알면 돼.</div>
+  <div style="width:250px;height:250px">
+    ${grid(3,4,2,3,238,{A:0,L1:0,B:0,L2:0,C:0})}
+  </div>
+  <div class="hand" style="margin-top:16px">↑ 이 그림 하나로 다 설명된다</div>
+</section>`,
+
+/* 2 ── 곱셈의 원래 뜻 ────────────────────── */
+`<section class="slide" style="--acc:#6b7280">
+  <div class="eyebrow">먼저 · 곱셈이 원래 무슨 뜻이었지?</div>
+  <h1>3 × 4 는 왜 12일까?</h1>
+  <div class="row grow" style="margin-top:22px">
+    <div style="flex:1.05">
+      <div class="term" style="font-size:22px">
+        <b class="hn">3을 4번 더한 것</b><br>
+        <span style="color:var(--muted);font-size:19px">3 + 3 + 3 + 3 = 12</span>
+      </div>
+      <div style="width:320px;margin-top:20px">
+        ${bar(3,3,300,54,'#3b82f6')}
+        <div style="height:9px"></div>${bar(3,3,300,54,'#3b82f6')}
+        <div style="height:9px"></div>${bar(3,3,300,54,'#3b82f6')}
+        <div style="height:9px"></div>${bar(3,3,300,54,'#3b82f6')}
+      </div>
+    </div>
+    <div style="flex:1">
+      <div class="act" style="font-size:22px;line-height:1.6">
+        곱셈의 뜻은 <b class="hl">둘</b>이야.<br><br>
+        ① <b class="hn">몇 번 더하기</b><br>
+        <span style="font-size:19px;color:var(--muted)">3 × 4 → 3이 4묶음</span><br><br>
+        ② <b class="hn">~의 얼마</b><br>
+        <span style="font-size:19px;color:var(--muted)">12 × <span style="display:inline-flex">${F(1,3,.62)}</span> → 12의 <span style="display:inline-flex">${F(1,3,.62)}</span></span>
+      </div>
+      <div class="hand" style="margin-top:20px;line-height:1.4">
+        분수 곱셈은 ②번 뜻으로<br>보면 순식간에 이해된다.
+      </div>
+    </div>
+  </div>
+</section>`,
+
+/* 3 ── 분수 × 자연수 ─────────────────────── */
+`<section class="slide" data-steps="3" style="--acc:#3b82f6">
+  <div class="eyebrow">① 분수 × 자연수 — 몇 번 더하기</div>
+  <h1 style="font-size:38px">${F(2,5)} × 3 = ?</h1>
+  <div class="lead" style="margin-top:6px"><span style="display:inline-flex">${F(2,5,.8)}</span>짜리 컵에 든 주스를 <b class="hn">3컵</b> 부었어.</div>
+  <div class="row grow" style="margin-top:16px">
+    <div style="flex:1.1">
+      <div style="width:330px">
+        ${bar(2,5,318,52,'#3b82f6')}
+        <div style="height:11px"></div>${bar(2,5,318,52,'#3b82f6')}
+        <div style="height:11px"></div>${bar(2,5,318,52,'#3b82f6')}
+      </div>
+      <div class="hand" style="margin-top:12px">색칠한 칸을 세어 보자 → 2 + 2 + 2 = <b>6</b>칸</div>
+    </div>
+    <div style="flex:1">
+      <div class="eq sm" data-step="1">${F(2,5)}+${F(2,5)}+${F(2,5)} <span class="op">=</span> ${F(6,5)}</div>
+      <div class="term" style="margin-top:18px;font-size:21px" data-step="2">
+        <b class="hl">칸의 크기(분모)는 그대로</b>고<br>
+        <b class="hl">칸의 개수(분자)만 3배</b>가 됐다.
+      </div>
+      <div class="eq" style="margin-top:20px" data-step="3">${F(2,5)} × 3 <span class="op">=</span> ${'<span class="fr" style="font-size:1em"><span class="n">2×3</span><span class="d">5</span></span>'} <span class="op">=</span> ${F(6,5)}</div>
+      <div class="hand" style="margin-top:14px" data-step="3">= 1<span style="display:inline-flex;font-family:'Noto Sans KR'">${F(1,5,.6)}</span> 컵</div>
+    </div>
+  </div>
+</section>`,
+
+/* 4 ── "의" 의 뜻 ────────────────────────── */
+`<section class="slide" data-steps="2" style="--acc:#f59e0b">
+  <div class="eyebrow">② ×는 '의' 라고 읽어도 된다</div>
+  <h1 style="font-size:38px">사탕 12개의 ${F(1,3)} 은 몇 개?</h1>
+  <div class="row grow" style="margin-top:20px">
+    <div style="flex:1.15">
+      <svg class="gv" viewBox="0 0 560 200" style="width:560px;height:200px">
+        <g>
+          ${[0,1,2].map(g=>`
+            <rect x="${8+g*182}" y="14" width="168" height="172" rx="14"
+              fill="${g===0?'#fef3c7':'#fff'}" stroke="${g===0?'#f59e0b':'#cbd5e1'}" stroke-width="${g===0?4:2.5}"/>
+            ${[0,1,2,3].map(i=>`<circle cx="${8+g*182+52+(i%2)*64}" cy="${14+50+Math.floor(i/2)*72}"
+              r="24" fill="${g===0?'#f59e0b':'#e2e8f0'}" stroke="#94a3b8" stroke-width="2"/>`).join('')}
+          `).join('')}
+        </g>
+      </svg>
+      <div class="hand" style="margin-top:6px">12개를 <b>3</b>묶음으로 나눈 것 중 <b>1</b>묶음</div>
+    </div>
+    <div style="flex:.95">
+      <div class="term" style="font-size:22px" data-step="1">
+        12 × ${F(1,3,.8)} <span style="color:var(--muted)">= 12의 ${F(1,3,.8)}</span><br>
+        <span style="color:var(--muted);font-size:19px">= 12 ÷ 3 = </span><b class="hl">4개</b>
+      </div>
+      <div class="act" style="margin-top:20px;font-size:21px;line-height:1.6" data-step="2">
+        분수를 곱한다 = <b class="hl">잘라서 그중 몇 조각을 갖는다</b><br>
+        <span style="font-size:19px;color:#92400e">분모로 <b>나누고</b>, 분자만큼 <b>가져온다</b></span>
+      </div>
+      <div class="hand" style="margin-top:16px" data-step="2">그럼… 분수의 분수도 되겠네?</div>
+    </div>
+  </div>
+</section>`,
+
+/* 5 ── 종이 접기 ────────────────────────── */
+`<section class="slide" data-steps="3" style="--acc:#10b981">
+  <div class="eyebrow">③ 분수 × 분수 — 종이를 두 번 접는다</div>
+  <h1 style="font-size:38px">${F(1,2)}의 ${F(1,3)} 은 얼마?</h1>
+  <div class="row grow center" style="gap:22px;margin-top:10px">
+    <div style="text-align:center">
+      <div style="width:216px;height:216px;margin:0 auto">${grid(1,2,1,1,206,{A:0,L1:0,B:9,L2:9,C:9})}</div>
+      <div style="font-size:20px;margin-top:10px;font-weight:700">색종이의 ${F(1,2,.8)}</div>
+    </div>
+    <div style="font-size:40px;font-weight:900;color:var(--muted)" data-step="1">의</div>
+    <div style="text-align:center" data-step="1">
+      <div style="width:216px;height:216px;margin:0 auto">${grid(1,2,1,3,206,{A:0,L1:0,B:9,L2:1,C:9})}</div>
+      <div style="font-size:20px;margin-top:10px;font-weight:700">가로로 3등분</div>
+    </div>
+    <div style="font-size:40px;font-weight:900;color:var(--muted)" data-step="2">=</div>
+    <div style="text-align:center" data-step="2">
+      <div style="width:216px;height:216px;margin:0 auto">${grid(1,2,1,3,206,{A:9,L1:0,B:9,L2:0,C:2})}</div>
+      <div style="font-size:20px;margin-top:10px;font-weight:700;color:#047857">6칸 중 <b>1칸</b> = ${F(1,6,.85)}</div>
+    </div>
+  </div>
+  <div class="term" style="margin-top:6px;font-size:21px" data-step="3">
+    두 번 접었더니 칸이 <b class="hg">2 × 3 = 6칸</b>으로 잘게 쪼개졌다.
+    가진 건 <b class="hg">1 × 1 = 1칸</b>.
+  </div>
+</section>`,
+
+/* 6 ── 핵심 격자 ────────────────────────── */
+`<section class="slide" data-steps="5" style="--acc:#047857">
+  <div class="eyebrow">핵심 · 이 그림 하나면 끝난다</div>
+  <h1 style="font-size:38px">${F(3,4)} × ${F(2,3)} = ?</h1>
+  <div class="row grow" style="margin-top:8px">
+    <div style="width:330px;flex:0 0 330px">
+      ${grid(3,4,2,3,318,{A:1,L1:1,B:2,L2:2,C:3})}
+    </div>
+    <div class="grow" style="font-size:21px;line-height:1.5">
+      <div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:14px" data-step="1">
+        <span style="font-weight:900;color:#3b82f6;font-size:24px">①</span>
+        <div>세로로 <b class="hn">4등분</b>해서 <b class="hn">3칸</b> 색칠 → 이게 ${F(3,4,.8)}</div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:14px" data-step="2">
+        <span style="font-weight:900;color:#d97706;font-size:24px">②</span>
+        <div>그 위에 가로로 <b style="color:#b45309">3등분</b>해서 <b style="color:#b45309">2칸</b> → 이게 "…의 ${F(2,3,.8)}"</div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:16px" data-step="3">
+        <span style="font-weight:900;color:#047857;font-size:24px">③</span>
+        <div><b class="hg">두 번 겹친 초록 칸</b>이 정답이다</div>
+      </div>
+      <div class="term" style="font-size:21px" data-step="4">
+        전체 칸: 세로 <b class="hn">4</b> × 가로 <b style="color:#b45309">3</b> = <b>12칸</b> ← <b class="hl">분모끼리</b><br>
+        초록 칸: <b class="hn">3</b> × <b style="color:#b45309">2</b> = <b>6칸</b> ← <b class="hl">분자끼리</b>
+      </div>
+      <div class="eq" style="margin-top:16px;font-size:34px" data-step="5">
+        ${F(3,4)} × ${F(2,3)} <span class="op">=</span>
+        <span class="fr"><span class="n">3×2</span><span class="d">4×3</span></span>
+        <span class="op">=</span> ${F(6,12)} <span class="op">=</span> ${F(1,2)}
+      </div>
+    </div>
+  </div>
+</section>`,
+
+/* 7 ── 규칙 한 줄 ───────────────────────── */
+`<section class="slide center" data-steps="2" style="--acc:#dc2626;justify-content:center">
+  <div class="eyebrow">외울 것은 이것뿐</div>
+  <div class="eq" style="font-size:62px;margin:18px 0 10px">
+    <span class="fr">${''}<span class="n">■</span><span class="d">▲</span></span>
+    <span class="op">×</span>
+    <span class="fr"><span class="n">●</span><span class="d">★</span></span>
+    <span class="op">=</span>
+    <span class="fr" style="color:var(--red)"><span class="n">■×●</span><span class="d">▲×★</span></span>
+  </div>
+  <h1 style="font-size:40px;margin-top:8px">분자는 분자끼리, 분모는 분모끼리</h1>
+  <div class="term" style="margin-top:24px;font-size:22px;max-width:900px;text-align:left" data-step="1">
+    <b class="hn">왜 분모끼리 곱하나?</b> → 가로로도 자르고 세로로도 잘라서, 칸이 <b>칸수 × 칸수</b>로 늘어나니까.<br>
+    <b class="hn">왜 분자끼리 곱하나?</b> → 색칠이 겹친 자리도 <b>줄수 × 줄수</b>만큼 생기니까.
+  </div>
+  <div class="act" style="margin-top:20px;font-size:22px" data-step="2">
+    자연수는 <b class="hl">분모가 1</b>인 분수로 보면 규칙이 똑같다 &nbsp;→&nbsp;
+    3 = ${F(3,1,.8)},&nbsp; ${F(2,5,.8)} × 3 = ${F(2,5,.8)} × ${F(3,1,.8)} = ${F(6,5,.8)}
+  </div>
+</section>`,
+
+/* 8 ── 곱했는데 작아진다 ─────────────────── */
+`<section class="slide" data-steps="3" style="--acc:#7c3aed">
+  <div class="eyebrow">이상한 점 · 곱했는데 왜 작아지지?</div>
+  <h1 style="font-size:38px">곱셈 = 커지는 것, 이 생각을 버리자</h1>
+  <div class="grow" style="margin-top:20px">
+    <div style="display:flex;flex-direction:column;gap:15px">
+      <div style="display:flex;align-items:center;gap:20px">
+        <div style="width:250px;font-size:23px;font-weight:700">8 × 2 = <b class="hn">16</b></div>
+        <div style="flex:1">${bar(16,16,600,42,'#3b82f6')}</div>
+        <div style="width:110px;font-size:20px;font-weight:700;color:var(--navy)">2배 커짐</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:20px" data-step="1">
+        <div style="width:250px;font-size:23px;font-weight:700">8 × 1 = <b>8</b></div>
+        <div style="flex:1">${bar(8,16,600,42,'#94a3b8')}</div>
+        <div style="width:110px;font-size:20px;font-weight:700;color:var(--muted)">그대로</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:20px" data-step="2">
+        <div style="width:250px;font-size:23px;font-weight:700">8 × ${F(1,2,.85)} = <b class="hl">4</b></div>
+        <div style="flex:1">${bar(4,16,600,42,'#dc2626')}</div>
+        <div style="width:110px;font-size:20px;font-weight:700;color:var(--red)">작아짐!</div>
+      </div>
+    </div>
+    <div class="term" style="margin-top:26px;font-size:22px" data-step="3">
+      곱하는 수가 <b class="hn">1보다 크면 늘어나고</b>, <b class="hl">1보다 작으면 줄어든다.</b><br>
+      <span style="font-size:20px;color:var(--muted)">진분수를 곱하는 건 <b>'잘라서 일부만 가져오는 일'</b>이니까 당연히 작아진다.</span>
+    </div>
+  </div>
+</section>`,
+
+/* 9 ── 대분수 함정 ──────────────────────── */
+`<section class="slide" data-steps="3" style="--acc:#b45309">
+  <div class="eyebrow">주의 · 대분수는 그대로 곱하면 안 된다</div>
+  <h1 style="font-size:38px">${M(2,1,2)} × 2 = ?</h1>
+  <div class="row grow" style="margin-top:18px">
+    <div style="flex:1">
+      <div class="term" style="border-left-color:var(--red);font-size:21px">
+        <span style="color:var(--red);font-weight:900">✗ 흔한 실수</span><br>
+        정수는 정수끼리, 분수는 분수끼리…<br>
+        <span style="font-size:24px;font-weight:900">2×2 = 4, 그대로 붙여 ${M(4,1,2)}</span>
+      </div>
+      <div class="hand" style="margin-top:14px" data-step="1">그림으로 세어 보면 답이 다르다 ↓</div>
+      <div style="width:470px;margin-top:8px" data-step="1">
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="font-size:18px;font-weight:700;color:var(--muted);width:52px">첫째</span>
+          <div style="flex:1">${bar(5,6,400,42,'#f59e0b',undefined,2)}</div>
+        </div>
+        <div style="height:10px"></div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="font-size:18px;font-weight:700;color:var(--muted);width:52px">둘째</span>
+          <div style="flex:1">${bar(5,6,400,42,'#f59e0b',undefined,2)}</div>
+        </div>
+      </div>
+      <div style="font-size:19px;margin-top:10px;color:var(--muted)" data-step="1">굵은 선이 <b>1</b>의 경계 · ${F(1,2,.85)}짜리 칸이 모두 <b>10칸</b> → 10 × ${F(1,2,.85)} = <b style="color:var(--red)">5</b></div>
+    </div>
+    <div style="flex:1">
+      <div class="act" style="font-size:21px;line-height:1.6" data-step="2">
+        <b class="hl">먼저 가분수로 바꾼다.</b><br><br>
+        <span style="font-size:26px">${M(2,1,2)} = ${F(5,2,.95)}</span><br>
+        <span style="font-size:19px;color:#92400e">(2 × 2 + 1 = 5)</span>
+      </div>
+      <div class="eq sm" style="margin-top:22px" data-step="3">
+        ${F(5,2)} × ${F(2,1)} <span class="op">=</span> ${F(10,2)} <span class="op">=</span> <b class="hl" style="font-size:36px">5</b>
+      </div>
+      <div class="term" style="margin-top:22px;font-size:20px" data-step="3">
+        대분수는 <b>2 + ${F(1,2,.75)}</b> 라는 <b class="hn">덧셈</b>이 숨어 있다.<br>
+        덧셈이 섞이면 그냥 곱할 수 없으니 <b class="hl">가분수로 먼저 펴 준다.</b>
+      </div>
+    </div>
+  </div>
+</section>`,
+
+/* 10 ── 약분 먼저 ───────────────────────── */
+`<section class="slide" data-steps="2" style="--acc:#0891b2">
+  <div class="eyebrow">꿀팁 · 곱하기 전에 약분하면 훨씬 쉽다</div>
+  <h1 style="font-size:38px">${F(4,9)} × ${F(3,8)}</h1>
+  <div class="row grow" style="margin-top:20px;align-items:stretch">
+    <div style="flex:1">
+      <div class="term" style="height:100%;font-size:21px;border-left-color:#94a3b8">
+        <b style="color:var(--muted)">곱한 다음 약분하기</b><br><br>
+        <span class="eq sm" style="justify-content:flex-start">${F(4,9)} × ${F(3,8)} <span class="op">=</span> ${F(12,72)}</span>
+        <div style="margin-top:14px;color:var(--muted);font-size:19px">
+          72와 12의 최대공약수를 찾아서…<br>
+          <span style="font-size:22px;color:var(--ink)">${F(12,72,.9)} = ${F(1,6,.9)}</span>
+        </div>
+        <div class="hand" style="margin-top:12px;color:var(--muted)">수가 커져서 계산이 번거롭다</div>
+      </div>
+    </div>
+    <div style="flex:1" data-step="1">
+      <div class="term" style="height:100%;font-size:21px;border-left-color:#0891b2;background:#ecfeff">
+        <b style="color:#0e7490">먼저 약분하기</b><br><br>
+        <div class="eq sm" style="justify-content:flex-start">
+          <span class="fr">
+            <span class="n"><s style="color:#94a3b8">4</s><sub style="color:var(--red)">1</sub></span>
+            <span class="d"><s style="color:#94a3b8">9</s><sub style="color:#2563eb">3</sub></span></span>
+          × <span class="fr">
+            <span class="n"><s style="color:#94a3b8">3</s><sub style="color:#2563eb">1</sub></span>
+            <span class="d"><s style="color:#94a3b8">8</s><sub style="color:var(--red)">2</sub></span></span>
+        </div>
+        <div style="font-size:19px;color:#0e7490;margin-top:8px">
+          ↑ <span style="color:var(--red);font-weight:700">4와 8</span>을 4로 나누고,
+          <span style="color:#2563eb;font-weight:700">3과 9</span>를 3으로 나눈다</div>
+        <div class="eq sm" style="justify-content:flex-start;margin-top:14px">
+          <span class="op">=</span> ${F(1,3)} × ${F(1,2)} <span class="op">=</span> ${F(1,6)}
+        </div>
+        <div class="hand" style="margin-top:12px;color:#0e7490">작은 수로 바로 끝난다</div>
+      </div>
+    </div>
+  </div>
+  <div class="act" style="margin-top:18px;font-size:21px" data-step="2">
+    약분은 <b class="hl">대각선으로도 된다.</b> 위쪽 수 하나와 아래쪽 수 하나를 짝지어 같은 수로 나누면 돼.
+  </div>
+</section>`,
+
+/* 11 ── 정리 ────────────────────────────── */
+`<section class="slide" data-steps="4" style="--acc:#1e3a8a">
+  <div class="eyebrow">오늘의 정리</div>
+  <h1 style="font-size:38px">머릿속에 이 네 줄만 넣어 가자</h1>
+  <div class="grow" style="margin-top:20px;display:flex;flex-direction:column;gap:14px">
+    <div class="term" style="font-size:22px">
+      <b class="hn">①</b> 분수의 곱셈은 <b class="hl">"~의 ~"</b>다. ${F(3,4,.8)} × ${F(2,3,.8)} 은 "${F(3,4,.8)}의 ${F(2,3,.8)}".
+    </div>
+    <div class="term" style="font-size:22px" data-step="1">
+      <b class="hn">②</b> 그림은 <b class="hl">가로세로로 두 번 자른 격자</b>. 겹친 칸이 답이다.
+    </div>
+    <div class="term" style="font-size:22px" data-step="2">
+      <b class="hn">③</b> 그래서 규칙은 <b class="hl">분자끼리 · 분모끼리</b>. 자연수는 분모를 1로 본다.
+    </div>
+    <div class="term" style="font-size:22px" data-step="3">
+      <b class="hn">④</b> 대분수는 <b class="hl">가분수로 먼저</b>, 그리고 <b class="hl">약분은 곱하기 전에</b>.
+    </div>
+  </div>
+  <div class="act" style="font-size:22px" data-step="4">
+    답을 냈으면 되물어 보기 — <b class="hl">진분수를 곱했는데 답이 커졌다면 어딘가 틀린 것</b>이다.
+  </div>
+</section>`,
+
+/* 12 ── 스스로 해보기 ───────────────────── */
+`<section class="slide" data-steps="4" style="--acc:#dc2626">
+  <div class="eyebrow">스스로 해보기 · 답은 화면을 누르면 나온다</div>
+  <h1 style="font-size:38px">세 문제만 풀어 보자</h1>
+  <div class="grow" style="margin-top:22px;display:flex;flex-direction:column;gap:18px">
+
+    <div style="display:flex;align-items:center;gap:24px;background:#fff;border:2px solid var(--line);border-radius:12px;padding:14px 22px">
+      <div style="font-size:19px;font-weight:900;color:var(--red);width:34px">1</div>
+      <div class="eq sm" style="justify-content:flex-start;flex:0 0 300px">${F(3,7)} × 2 <span class="op">=</span></div>
+      <div class="eq sm" style="justify-content:flex-start;color:var(--red)" data-step="1">
+        ${F(6,7)} <span style="font-size:19px;font-weight:400;color:var(--muted);margin-left:14px">분자만 2배 — 칸 크기는 그대로</span>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:24px;background:#fff;border:2px solid var(--line);border-radius:12px;padding:14px 22px">
+      <div style="font-size:19px;font-weight:900;color:var(--red);width:34px">2</div>
+      <div class="eq sm" style="justify-content:flex-start;flex:0 0 300px">${F(2,3)} × ${F(5,8)} <span class="op">=</span></div>
+      <div class="eq sm" style="justify-content:flex-start;color:var(--red)" data-step="2">
+        ${F(5,12)} <span style="font-size:19px;font-weight:400;color:var(--muted);margin-left:14px">2와 8을 먼저 약분 → ${F(1,3,.8)} × ${F(5,4,.8)}</span>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:24px;background:#fff;border:2px solid var(--line);border-radius:12px;padding:14px 22px">
+      <div style="font-size:19px;font-weight:900;color:var(--red);width:34px">3</div>
+      <div class="eq sm" style="justify-content:flex-start;flex:0 0 300px">${M(1,1,3)} × ${F(3,5)} <span class="op">=</span></div>
+      <div class="eq sm" style="justify-content:flex-start;color:var(--red)" data-step="3">
+        ${F(4,5)} <span style="font-size:19px;font-weight:400;color:var(--muted);margin-left:14px">${M(1,1,3)} = ${F(4,3,.8)} 로 먼저 바꾼다</span>
+      </div>
+    </div>
+  </div>
+  <div class="act" style="font-size:21px" data-step="4">
+    <b class="hl">3번을 다시 보자.</b> ${M(1,1,3)}(1보다 큰 수)에 ${F(3,5,.8)}(1보다 작은 수)를 곱했더니
+    ${F(4,5,.8)} — <b class="hn">원래보다 작아졌다.</b> 예상과 맞지?
+  </div>
+</section>`
+];
+
+/* ══════════════════════════════════════════════
+   재생기
+   ══════════════════════════════════════════════ */
+const stage=document.getElementById('stage');
+stage.innerHTML=SLIDES.join('');
+const slides=[...document.querySelectorAll('.slide')];
+let cur=0, step=0;
+
+function maxStep(i){ return parseInt(slides[i].dataset.steps||'0',10); }
+
+function render(){
+  slides.forEach((s,i)=>s.classList.toggle('on',i===cur));
+  slides[cur].querySelectorAll('[data-step]').forEach(el=>{
+    const n=parseInt(el.dataset.step,10);
+    el.classList.toggle('vis', n<=step);
+  });
+  document.getElementById('cnt').textContent=`${cur+1} / ${slides.length}`;
+}
+
+function go(d){
+  if(d>0){
+    if(step<maxStep(cur)){ step++; render(); return; }
+    if(cur<slides.length-1){ cur++; step=0; render(); }
+  }else{
+    if(step>0){ step--; render(); return; }
+    if(cur>0){ cur--; step=maxStep(cur); render(); }
+  }
+}
+function jump(i){ cur=Math.max(0,Math.min(slides.length-1,i)); step=0; render(); }
+
+document.addEventListener('keydown',e=>{
+  const k=e.key;
+  if(k==='ArrowRight'||k===' '||k==='PageDown'){ e.preventDefault(); go(1); }
+  else if(k==='ArrowLeft'||k==='PageUp'){ e.preventDefault(); go(-1); }
+  else if(k==='ArrowDown'){ e.preventDefault(); jump(cur+1); }
+  else if(k==='ArrowUp'){ e.preventDefault(); jump(cur-1); }
+  else if(k==='Home'){ jump(0); }
+  else if(k==='End'){ jump(slides.length-1); }
+  else if(k==='f'||k==='F'){ fs(); }
+});
+
+/* 스와이프 */
+let sx=0,sy=0;
+document.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY},{passive:true});
+document.addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy;
+  if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)) go(dx<0?1:-1);
+},{passive:true});
+
+/* 화면 가운데를 눌러도 다음 단계로 */
+document.getElementById('wrap').addEventListener('click',()=>go(1));
+
+function fs(){
+  if(!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+  else document.exitFullscreen?.();
+}
+
+function fit(){
+  const s=Math.min(window.innerWidth/1280,(window.innerHeight-46)/720);
+  stage.style.transform=`scale(${s})`;
+}
+window.addEventListener('resize',fit);
+fit(); render();
+</script>
+</body>
+</html>

@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>수묵담채 붓 연습</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; }
+:root{
+  --ink:#1d1b18; --paper:#efe8d8; --line:#cfc4ad; --muted:#7c7369;
+  --red:#b0332b; --navy:#2b3a4a;
+}
+html,body{ margin:0; padding:0; height:100%; overflow:hidden; }
+body{
+  font-family:'Noto Sans KR',sans-serif;
+  background:#25221e; color:var(--ink);
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;
+  display:flex; flex-direction:column;
+}
+
+/* ---------------------------------------------------------- toolbar -- */
+.tools{
+  background:#f3ede0; border-bottom:1px solid var(--line);
+  padding:7px 10px; display:flex; flex-direction:column; gap:7px; flex:none;
+}
+.trow{ display:flex; align-items:center; gap:8px; flex-wrap:nowrap; overflow-x:auto; }
+.trow::-webkit-scrollbar{ height:0; }
+
+.lab{ font-size:14px; font-weight:700; color:var(--muted); flex:none; }
+
+.swatch{
+  width:46px; height:46px; border-radius:50%; flex:none;
+  border:3px solid #fff; box-shadow:0 0 0 1px var(--line);
+  cursor:pointer; position:relative;
+}
+.swatch.on{ box-shadow:0 0 0 3px var(--navy); transform:scale(1.06); }
+
+.slider{ display:flex; align-items:center; gap:7px; flex:none; }
+.slider input[type=range]{ width:120px; height:36px; }
+.slider .v{ font-size:14px; color:var(--muted); min-width:56px; }
+
+button{
+  min-height:48px; padding:8px 15px; font-size:17px; font-weight:700;
+  border-radius:9px; border:1px solid var(--line); background:#fff;
+  color:var(--ink); font-family:inherit; cursor:pointer; flex:none;
+}
+button.on{ background:var(--navy); color:#fff; border-color:var(--navy); }
+button.warn{ color:var(--red); }
+button.go{ background:var(--navy); color:#fff; border-color:var(--navy); }
+button:disabled{ opacity:.4; }
+
+input[type=text]{
+  min-height:48px; width:110px; padding:6px 12px; font-size:17px;
+  border-radius:9px; border:1px solid var(--line); font-family:inherit;
+  background:#fff; flex:none;
+}
+
+/* ------------------------------------------------------------- stage -- */
+#stage{
+  flex:1; min-height:0; position:relative;
+  display:flex; align-items:center; justify-content:center;
+  padding:10px; background:#25221e;
+}
+#pad{
+  display:block; touch-action:none; cursor:crosshair;
+  box-shadow:0 6px 26px rgba(0,0,0,.55);
+  max-width:100%; max-height:100%;
+}
+#hint{
+  position:absolute; left:50%; bottom:14px; transform:translateX(-50%);
+  background:rgba(0,0,0,.62); color:#f0e9db; font-size:15px;
+  padding:7px 16px; border-radius:20px; pointer-events:none;
+  transition:opacity .4s; white-space:nowrap;
+}
+#hint.hide{ opacity:0; }
+</style>
+</head>
+<body>
+
+<div class="tools">
+  <div class="trow" id="colors">
+    <span class="lab">물감</span>
+  </div>
+  <div class="trow">
+    <div class="slider">
+      <span class="lab">물</span>
+      <input type="range" id="water" min="0" max="100" value="35">
+      <span class="v" id="waterV">보통</span>
+    </div>
+    <div class="slider">
+      <span class="lab">굵기</span>
+      <input type="range" id="size" min="4" max="60" value="18">
+      <span class="v" id="sizeV">18</span>
+    </div>
+    <button id="eraser">지우개</button>
+    <button id="undo">되돌리기</button>
+    <button id="clear" class="warn">전체 지우기</button>
+    <input type="text" id="name" placeholder="이름" maxlength="4">
+    <button id="seal">낙관</button>
+    <button id="save" class="go">그림 저장</button>
+  </div>
+</div>
+
+<div id="stage">
+  <canvas id="pad"></canvas>
+  <div id="hint">붓을 <b>천천히</b> 움직이면 굵고, <b>빠르게</b> 그으면 가늘어진다. 멈추면 번진다.</div>
+</div>
+
+<script>
+/* ====================================================================
+   수묵담채 붓 연습
+   - 종이 위에 곱하기(multiply)로 획을 쌓는다 → 지나간 자리가 진해진다
+   - 한 획이 길어지면 먹이 말라 갈필(끊긴 자국)이 난다
+   - 붓을 멈추면 그 자리에 물이 고여 번진다
+   ==================================================================== */
+
+const W = 1400, H = 1000;          // 캔버스 내부 해상도 (저장 화질)
+const pad = document.getElementById('pad');
+pad.width = W; pad.height = H;
+const ctx = pad.getContext('2d', { willReadFrequently:false });
+
+/* 종이를 따로 보관한다 — 지우개가 "종이를 다시 그리는" 방식이라 필요하다 */
+const paper = document.createElement('canvas');
+paper.width = W; paper.height = H;
+
+/* ------------------------------------------------------- 화선지 만들기 -- */
+function makePaper(){
+  const p = paper.getContext('2d');
+  p.fillStyle = '#f7f2e5';
+  p.fillRect(0, 0, W, H);
+
+  // 큰 얼룩 — 종이가 고르지 않다
+  for (let i = 0; i < 90; i++){
+    const x = Math.random()*W, y = Math.random()*H, r = 60 + Math.random()*220;
+    const g = p.createRadialGradient(x, y, 0, x, y, r);
+    const warm = Math.random() < .5;
+    g.addColorStop(0, warm ? 'rgba(226,214,186,.30)' : 'rgba(255,253,246,.34)');
+    g.addColorStop(1, 'rgba(255,255,255,0)');
+    p.fillStyle = g; p.fillRect(x-r, y-r, r*2, r*2);
+  }
+
+  // 섬유 결 — 가로로 길게 흐르는 실
+  p.lineWidth = 1;
+  for (let i = 0; i < 900; i++){
+    const y = Math.random()*H, x = Math.random()*W, len = 30 + Math.random()*190;
+    p.strokeStyle = Math.random() < .5 ? 'rgba(200,188,158,.20)' : 'rgba(255,255,255,.24)';
+    p.beginPath();
+    p.moveTo(x, y);
+    p.lineTo(x + len, y + (Math.random()-.5)*3);
+    p.stroke();
+  }
+  for (let i = 0; i < 260; i++){
+    const x = Math.random()*W, y = Math.random()*H, len = 20 + Math.random()*90;
+    p.strokeStyle = 'rgba(204,192,163,.16)';
+    p.beginPath();
+    p.moveTo(x, y);
+    p.lineTo(x + (Math.random()-.5)*3, y + len);
+    p.stroke();
+  }
+
+  // 미세한 결 노이즈
+  const img = p.getImageData(0, 0, W, H);
+  const d = img.data;
+  for (let i = 0; i < d.length; i += 4){
+    const n = (Math.random()-.5) * 13;
+    d[i] += n; d[i+1] += n; d[i+2] += n * .85;
+  }
+  p.putImageData(img, 0, 0);
+}
+
+function resetPaper(){
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.globalAlpha = 1;
+  ctx.drawImage(paper, 0, 0);
+}
+
+/* ---------------------------------------------------------- 물감 --- */
+const PAINTS = [
+  { n:'먹',   c:[26,24,22]   },
+  { n:'대자', c:[138,90,52]  },
+  { n:'주홍', c:[184,50,39]  },
+  { n:'등황', c:[224,169,43] },
+  { n:'초록', c:[74,124,78]  },
+  { n:'청',   c:[53,97,143]  },
+  { n:'자주', c:[142,74,114] },
+  { n:'분홍', c:[217,138,154]}
+];
+let paint = PAINTS[0];
+
+const colorBar = document.getElementById('colors');
+PAINTS.forEach(function(p, i){
+  const b = document.createElement('div');
+  b.className = 'swatch' + (i === 0 ? ' on' : '');
+  b.style.background = 'rgb(' + p.c.join(',') + ')';
+  b.title = p.n;
+  b.onclick = function(){
+    paint = p;
+    eraseOn = false;
+    document.getElementById('eraser').classList.remove('on');
+    document.querySelectorAll('.swatch').forEach(function(s){ s.classList.remove('on'); });
+    b.classList.add('on');
+  };
+  colorBar.appendChild(b);
+});
+
+/* ------------------------------------------------------- 도구 상태 --- */
+const waterEl = document.getElementById('water');
+const sizeEl  = document.getElementById('size');
+let eraseOn = false;
+
+function water(){ return waterEl.value / 100; }   // 0 진함 ~ 1 물많음
+function brush(){ return +sizeEl.value; }
+
+function waterLabel(v){
+  if (v < .18) return '아주 진함';
+  if (v < .38) return '진함';
+  if (v < .60) return '보통';
+  if (v < .82) return '옅음';
+  return '아주 옅음';
+}
+waterEl.oninput = function(){ document.getElementById('waterV').textContent = waterLabel(water()); };
+sizeEl.oninput  = function(){ document.getElementById('sizeV').textContent = sizeEl.value; };
+waterEl.oninput(); sizeEl.oninput();
+
+/* ------------------------------------------------------- 되돌리기 --- */
+const UNDO_MAX = 8;
+const undoStack = [];
+
+function pushUndo(){
+  const c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  c.getContext('2d').drawImage(pad, 0, 0);
+  undoStack.push(c);
+  if (undoStack.length > UNDO_MAX) undoStack.shift();
+  document.getElementById('undo').disabled = false;
+}
+function popUndo(){
+  const c = undoStack.pop();
+  if (!c) return;
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.globalAlpha = 1;
+  ctx.clearRect(0, 0, W, H);
+  ctx.drawImage(c, 0, 0);
+  document.getElementById('undo').disabled = undoStack.length === 0;
+}
+document.getElementById('undo').disabled = true;
+document.getElementById('undo').onclick = popUndo;
+
+/* ============================================================ 붓 ==== */
+let drawing = false;
+let lastX = 0, lastY = 0, lastR = 0, lastT = 0;
+let dirX = 0, dirY = 0;     // 붓이 나아가던 방향 (끝을 가늘게 빼는 데 쓴다)
+let inkLeft = 1;            // 붓에 남은 먹 — 획이 길어지면 준다
+let stillAt = null;         // 붓이 멈춰 있는 자리 (번짐용)
+let stillMs = 0;
+
+/* 한 번 찍기. r=반지름, a=진하기 */
+function stamp(x, y, r, a){
+  if (eraseOn){
+    ctx.save();
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.globalAlpha = 1;
+    ctx.beginPath();
+    ctx.arc(x, y, r * 1.3, 0, 6.2832);
+    ctx.clip();
+    ctx.drawImage(paper, 0, 0);
+    ctx.restore();
+    return;
+  }
+
+  const c = paint.c, w = water();
+  const rgb = c[0] + ',' + c[1] + ',' + c[2];
+  ctx.globalCompositeOperation = 'multiply';
+
+  // 붓끝이 종이 결을 타느라 조금씩 흔들린다 — 이게 없으면 매직펜이 된다
+  x += (Math.random() - .5) * r * .13;
+  y += (Math.random() - .5) * r * .13;
+
+  // 번짐 — 물이 많을수록 넓고 옅게 밖으로 스민다
+  if (w > .18){
+    const br = r * (1.4 + w * 2.3);
+    const bg = ctx.createRadialGradient(x, y, r * .55, x, y, br);
+    const ba = (0.035 + w * 0.10) * a;
+    bg.addColorStop(0,   'rgba(' + rgb + ',' + ba.toFixed(4) + ')');
+    bg.addColorStop(.40, 'rgba(' + rgb + ',' + (ba*.78).toFixed(4) + ')');
+    bg.addColorStop(.72, 'rgba(' + rgb + ',' + (ba*.34).toFixed(4) + ')');
+    bg.addColorStop(1,   'rgba(' + rgb + ',0)');
+    ctx.fillStyle = bg;
+    ctx.beginPath(); ctx.arc(x, y, br, 0, 6.2832); ctx.fill();
+  }
+
+  // 심 — 붓이 실제로 닿은 자리. 안쪽은 고르고 가장자리는 부드럽게 풀린다
+  const g = ctx.createRadialGradient(x, y, r * .18, x, y, r);
+  g.addColorStop(0,   'rgba(' + rgb + ',' + a.toFixed(4) + ')');
+  g.addColorStop(.46, 'rgba(' + rgb + ',' + (a*.92).toFixed(4) + ')');
+  g.addColorStop(.76, 'rgba(' + rgb + ',' + (a*.48).toFixed(4) + ')');
+  g.addColorStop(.92, 'rgba(' + rgb + ',' + (a*.15).toFixed(4) + ')');
+  g.addColorStop(1,   'rgba(' + rgb + ',0)');
+  ctx.fillStyle = g;
+  ctx.beginPath(); ctx.arc(x, y, r, 0, 6.2832); ctx.fill();
+}
+
+/* 갈필 — 먹이 마르면 붓이 종이를 스치며 자국이 끊긴다 */
+function drySplit(x, y, r, a){
+  const c = paint.c;
+  ctx.globalCompositeOperation = 'multiply';
+  const n = 3 + (Math.random()*4 | 0);
+  for (let i = 0; i < n; i++){
+    const ang = Math.random() * 6.2832;
+    const dist = Math.random() * r * .9;
+    const rr = r * (.10 + Math.random() * .28);
+    const aa = a * (.35 + Math.random() * .5);
+    ctx.fillStyle = 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + aa.toFixed(4) + ')';
+    ctx.beginPath();
+    ctx.arc(x + Math.cos(ang)*dist, y + Math.sin(ang)*dist, rr, 0, 6.2832);
+    ctx.fill();
+  }
+}
+
+function alphaNow(){
+  const w = water();
+  const base = 0.62 - w * 0.44;              // 물이 많을수록 옅다
+  const dry  = 0.30 + 0.70 * inkLeft;        // 먹이 줄면 더 옅다
+  return base * dry * (0.86 + Math.random() * 0.28);   // 한 획 안에서도 진했다 옅었다
+}
+
+/* 두 점 사이를 촘촘히 이어 찍는다 */
+function strokeTo(x, y, t){
+  const dx = x - lastX, dy = y - lastY;
+  const dist = Math.hypot(dx, dy);
+  if (dist > 0){ dirX = dx / dist; dirY = dy / dist; }
+  const dt = Math.max(1, t - lastT);
+  const speed = dist / dt;                    // px/ms
+
+  // 빠르면 가늘고, 느리면 굵다 — 실제 붓과 같다
+  const target = brush() * (1 - Math.min(speed / 2.0, 1) * 0.74);
+  const r = Math.max(1.2, lastR + (target - lastR) * 0.45);
+
+  const step = Math.max(1.1, r * 0.20);
+  const steps = Math.max(1, Math.ceil(dist / step));
+
+  for (let i = 1; i <= steps; i++){
+    const f = i / steps;
+    const px = lastX + dx * f, py = lastY + dy * f;
+    const pr = lastR + (r - lastR) * f;
+    const a = alphaNow();
+
+    if (!eraseOn) inkLeft = Math.max(0, inkLeft - 0.0038);
+
+    if (!eraseOn && inkLeft < 0.40 && Math.random() < (0.40 - inkLeft) * 1.9){
+      drySplit(px, py, pr, a);              // 마른 붓 — 끊긴 자국
+    } else {
+      stamp(px, py, pr, a);
+    }
+  }
+
+  lastX = x; lastY = y; lastR = r; lastT = t;
+}
+
+/* 붓을 떼는 자리 — 실제 붓은 끝이 가늘게 빠진다 */
+function taperOff(){
+  if (eraseOn) return;
+  let r = lastR, x = lastX, y = lastY;
+  for (let i = 0; i < 7; i++){
+    r *= 0.74;
+    if (r < 0.9) break;
+    x += dirX * r * 0.55;
+    y += dirY * r * 0.55;
+    stamp(x, y, r, alphaNow() * (0.85 - i * 0.09));
+  }
+}
+
+/* 붓을 멈추고 있으면 그 자리에 물이 고여 번진다 */
+function bleedTick(){
+  if (drawing && stillAt && !eraseOn){
+    const w = water();
+    if (w > .20){
+      stillMs += 16;
+      const grow = Math.min(stillMs / 1400, 1);
+      const r = lastR * (1 + grow * (0.9 + w * 2.4));
+      const c = paint.c, rgb = c[0] + ',' + c[1] + ',' + c[2];
+      const a = (0.016 + w * 0.034) * (0.30 + 0.70 * inkLeft);
+      // 고인 물이 종이 결을 따라 번지느라 동그랗게 퍼지지 않는다
+      const cx = stillAt[0] + (Math.random()-.5) * r * .18;
+      const cy = stillAt[1] + (Math.random()-.5) * r * .18;
+      ctx.globalCompositeOperation = 'multiply';
+      const g = ctx.createRadialGradient(cx, cy, lastR * .35, cx, cy, r);
+      g.addColorStop(0,   'rgba(' + rgb + ',' + a.toFixed(4) + ')');
+      g.addColorStop(.45, 'rgba(' + rgb + ',' + (a*.72).toFixed(4) + ')');
+      g.addColorStop(.80, 'rgba(' + rgb + ',' + (a*.28).toFixed(4) + ')');
+      g.addColorStop(1,   'rgba(' + rgb + ',0)');
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(cx, cy, r, 0, 6.2832); ctx.fill();
+    }
+  }
+  requestAnimationFrame(bleedTick);
+}
+requestAnimationFrame(bleedTick);
+
+/* ------------------------------------------------------- 입력 처리 --- */
+function pos(e){
+  const r = pad.getBoundingClientRect();
+  return [ (e.clientX - r.left) * (W / r.width),
+           (e.clientY - r.top)  * (H / r.height) ];
+}
+
+pad.addEventListener('pointerdown', function(e){
+  e.preventDefault();
+  try { pad.setPointerCapture(e.pointerId); } catch (err) {}
+  pushUndo();
+  hideHint();
+  drawing = true;
+  inkLeft = 1;                       // 붓을 새로 대면 먹을 다시 찍은 셈
+  const p = pos(e);
+  lastX = p[0]; lastY = p[1]; lastT = performance.now();
+  lastR = brush() * 0.42;            // 붓을 대는 순간은 가늘다가 굵어진다
+  dirX = 0; dirY = 0;
+  stillAt = [p[0], p[1]]; stillMs = 0;
+  stamp(p[0], p[1], lastR, alphaNow());
+});
+
+pad.addEventListener('pointermove', function(e){
+  if (!drawing) return;
+  e.preventDefault();
+  const p = pos(e);
+  const moved = Math.hypot(p[0] - lastX, p[1] - lastY);
+  if (moved > 1.5){ stillAt = null; stillMs = 0; }
+  strokeTo(p[0], p[1], performance.now());
+  if (moved <= 1.5 && !stillAt){ stillAt = [p[0], p[1]]; stillMs = 0; }
+});
+
+function endStroke(e){
+  if (!drawing) return;
+  drawing = false;
+  taperOff();
+  stillAt = null; stillMs = 0;
+  try {
+    if (e && e.pointerId !== undefined && pad.hasPointerCapture(e.pointerId)){
+      pad.releasePointerCapture(e.pointerId);
+    }
+  } catch (err) {}
+}
+pad.addEventListener('pointerup', endStroke);
+pad.addEventListener('pointercancel', endStroke);
+pad.addEventListener('pointerleave', endStroke);
+
+/* --------------------------------------------------------- 단추들 --- */
+document.getElementById('eraser').onclick = function(){
+  eraseOn = !eraseOn;
+  this.classList.toggle('on', eraseOn);
+  if (eraseOn) document.querySelectorAll('.swatch').forEach(function(s){ s.classList.remove('on'); });
+  else document.querySelectorAll('.swatch').forEach(function(s, i){
+    if (PAINTS[i] === paint) s.classList.add('on');
+  });
+};
+
+document.getElementById('clear').onclick = function(){
+  pushUndo();
+  resetPaper();
+};
+
+/* 낙관 — 조선 그림처럼 오른쪽 아래에 붉은 도장을 찍는다 */
+document.getElementById('seal').onclick = function(){
+  const nm = document.getElementById('name').value.trim();
+  if (!nm){
+    document.getElementById('name').focus();
+    showHint('먼저 이름을 적어라 — 도장에 새겨진다');
+    return;
+  }
+  pushUndo();
+  const chars = nm.split('');
+  const cw = 64, ch = 64;
+  const bw = cw + 16, bh = ch * chars.length + 16;
+  const x = W - bw - 46, y = H - bh - 46;
+
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.globalAlpha = 0.88;
+  ctx.fillStyle = '#b0332b';
+  ctx.fillRect(x, y, bw, bh);
+
+  ctx.globalCompositeOperation = 'destination-out';
+  ctx.globalAlpha = 1;
+  ctx.font = '700 ' + Math.round(ch * .72) + "px 'Noto Sans KR', sans-serif";
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  chars.forEach(function(c, i){
+    ctx.fillText(c, x + bw/2, y + 8 + ch*i + ch/2);
+  });
+
+  // 도장이 종이에 눌린 자국 — 가장자리를 조금 갉아 낸다
+  for (let i = 0; i < 130; i++){
+    const px = x - 3 + Math.random()*(bw+6);
+    const py = y - 3 + Math.random()*(bh+6);
+    const edge = px < x+5 || px > x+bw-5 || py < y+5 || py > y+bh-5;
+    if (!edge) continue;
+    ctx.beginPath();
+    ctx.arc(px, py, 1 + Math.random()*2.6, 0, 6.2832);
+    ctx.fill();
+  }
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.globalAlpha = 1;
+  showHint('낙관을 찍었다. 이제 저장하면 된다');
+};
+
+document.getElementById('save').onclick = function(){
+  const nm = document.getElementById('name').value.trim();
+  const d = new Date();
+  const stamp2 = d.getFullYear() + '-' +
+    String(d.getMonth()+1).padStart(2,'0') + '-' +
+    String(d.getDate()).padStart(2,'0');
+  const file = '수묵담채_' + (nm ? nm + '_' : '') + stamp2 + '.png';
+  pad.toBlob(function(blob){
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = file;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1500);
+    showHint('저장했다 — ' + file);
+  }, 'image/png');
+};
+
+/* ----------------------------------------------------------- 안내 --- */
+const hintEl = document.getElementById('hint');
+let hintTimer = null;
+function showHint(t){
+  hintEl.innerHTML = t;
+  hintEl.classList.remove('hide');
+  clearTimeout(hintTimer);
+  hintTimer = setTimeout(function(){ hintEl.classList.add('hide'); }, 3200);
+}
+function hideHint(){ hintEl.classList.add('hide'); }
+
+/* ----------------------------------------------------------- 크기 --- */
+function fit(){
+  const st = document.getElementById('stage');
+  const availW = st.clientWidth - 20, availH = st.clientHeight - 20;
+  if (availW <= 0 || availH <= 0) return;      // 레이아웃이 아직 안 잡혔다
+  const s = Math.min(availW / W, availH / H);
+  if (!(s > 0)) return;
+  pad.style.width  = Math.floor(W * s) + 'px';
+  pad.style.height = Math.floor(H * s) + 'px';
+}
+window.addEventListener('resize', fit);
+window.addEventListener('load', fit);
+// 첫 렌더에서 stage 높이가 0으로 잡히는 순간이 있다 — 크기가 생기면 그때 맞춘다
+if (window.ResizeObserver) new ResizeObserver(fit).observe(document.getElementById('stage'));
+
+makePaper();
+resetPaper();
+fit();
+setTimeout(function(){ hintEl.classList.add('hide'); }, 5200);
+</script>
+</body>
+</html>

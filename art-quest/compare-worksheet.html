@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>비교 감상 학습지 — 요리조리 미술 탐험</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<style>
+@page{ size:A4; margin:0 }
+*{box-sizing:border-box}
+:root{
+  --ink:#1d1b18; --navy:#2b3a4a; --red:#b0332b; --gold:#9d7a2b;
+  --paper:#fff; --line:#c9c0ad; --muted:#7c7369; --plum:#6b3f66; --teal:#2f6b63;
+}
+body{margin:0;background:#4a4640;font-family:'Noto Sans KR',sans-serif;color:var(--ink);
+  -webkit-print-color-adjust:exact;print-color-adjust:exact}
+.page{width:210mm;height:297mm;background:var(--paper);margin:0 auto 8mm;
+  padding:14mm 15mm 12mm;position:relative;overflow:hidden;page-break-after:always}
+.page:last-of-type{page-break-after:auto;margin-bottom:0}
+.hd{display:flex;align-items:flex-end;gap:4mm;border-bottom:1mm solid var(--plum);
+  padding-bottom:2mm;margin-bottom:4mm}
+.hd .u{font-size:3.1mm;font-weight:700;color:var(--plum);letter-spacing:.08em}
+.hd h1{font-size:6.4mm;font-weight:900;margin:0;letter-spacing:-.02em;line-height:1.1}
+.hd .sp{flex:1}
+.hd .nm{font-size:3mm;color:var(--muted);border:0.35mm solid var(--line);border-radius:1.5mm;
+  padding:1.6mm 3mm;white-space:nowrap}
+h2{font-size:4.4mm;font-weight:900;margin:0 0 1.5mm;display:flex;align-items:center;gap:2mm}
+h2 .n{background:var(--plum);color:#fff;border-radius:50%;width:6mm;height:6mm;
+  font-size:3.4mm;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto}
+h2.t .n{background:var(--teal)} h2.g .n{background:var(--gold)} h2.r .n{background:var(--red)}
+.sec{margin-bottom:2.8mm}
+p{font-size:3.3mm;line-height:1.6;margin:0 0 2mm}
+.note{font-size:2.9mm;color:var(--muted);line-height:1.5}
+b.hl{color:var(--red)} b.hn{color:var(--navy)}
+.tip{background:#f2ecdc;border-left:1.2mm solid var(--gold);border-radius:0 2mm 2mm 0;
+  padding:2.4mm 3.4mm;font-size:3mm;line-height:1.55;margin-bottom:3mm}
+.tip b{color:var(--gold)}
+.four{display:flex;gap:2.4mm;margin-bottom:3mm}
+.four>div{flex:1;border:0.5mm solid var(--line);border-radius:2mm;padding:2.4mm 2.8mm}
+.four .ft{font-size:3.3mm;font-weight:900;color:var(--plum);margin-bottom:1.2mm}
+.four .fd{font-size:2.8mm;line-height:1.5;color:var(--muted)}
+.ox{border:0.5mm solid var(--line);border-radius:2mm;padding:3mm 3.4mm;margin-bottom:3mm}
+.ox .oi{display:flex;align-items:center;gap:3mm;font-size:3.2mm;line-height:1.5;
+  padding:1.5mm 0;border-bottom:0.3mm dashed var(--line)}
+.ox .oi:last-child{border-bottom:0}
+.ox .oc{flex:0 0 auto;font-size:3.4mm;font-weight:900;color:var(--muted);letter-spacing:.5mm}
+.ox .oq{flex:1}
+table.dex{width:100%;border-collapse:collapse;font-size:2.75mm}
+table.dex th,table.dex td{border:0.35mm solid var(--line);padding:1.4mm 2mm;text-align:left;line-height:1.4}
+table.dex th{background:#ece5d4;font-weight:800;font-size:2.8mm}
+table.dex td.c{text-align:center;font-weight:800;color:var(--plum);width:7mm}
+table.dex td.t{font-weight:700}
+.foot{position:absolute;left:15mm;right:15mm;bottom:4.5mm;display:flex;justify-content:space-between;
+  font-size:2.7mm;color:var(--muted);border-top:0.35mm solid var(--line);padding-top:1.4mm}
+svg{display:block;width:100%;height:auto}
+.bar{position:fixed;left:0;right:0;top:0;height:13mm;background:#312d28;color:#efe8dc;z-index:9;
+  display:flex;align-items:center;justify-content:center;gap:5mm;font-size:3.4mm}
+.bar button{background:var(--red);color:#fff;border:0;border-radius:2mm;padding:2.4mm 6mm;
+  font-size:3.4mm;font-weight:800;cursor:pointer;font-family:inherit}
+body{padding-top:16mm}
+@media print{ .bar{display:none} body{padding-top:0;background:#fff} .page{margin:0} }
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <span>A4 3쪽 · 여백 없음으로 인쇄하세요</span>
+  <button onclick="window.print()">인쇄하기</button>
+</div>
+
+<!-- ══════════ 1쪽 ══════════ -->
+<div class="page">
+  <div class="hd">
+    <div>
+      <div class="u">8. 요리조리 미술 탐험 · 1~2차시</div>
+      <h1>작품 추리 일곱 고개 — 기록판</h1>
+    </div>
+    <div class="sp"></div>
+    <div class="nm">5학년 &nbsp;&nbsp;&nbsp; 반 &nbsp;&nbsp;&nbsp; 번 &nbsp; 이름 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+  </div>
+
+  <div class="sec">
+    <h2><span class="n">1</span>질문은 이 네 자리에서 나온다</h2>
+    <div class="four">
+      <div><div class="ft">주제와 소재</div><div class="fd">무엇을 그렸나?<br>사람·동물·경치·물건</div></div>
+      <div><div class="ft">재료와 표현</div><div class="fd">무엇으로 만들었나?<br>먹·물감·한지·디지털</div></div>
+      <div><div class="ft">조형 요소</div><div class="fd">색·선·모양·여백<br>눈이 먼저 가는 곳</div></div>
+      <div><div class="ft">시대·지역</div><div class="fd">언제, 어디서?<br>우리나라? 조선? 학생?</div></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2 class="t"><span class="n">2</span>못 쓰는 질문 가려내기</h2>
+    <p class="note">놀이에 쓸 수 있는 질문에 ○, 쓸 수 없는 질문에 ✕. 쓸 수 없다면 <b class="hl">왜 그런지</b> 빈칸에 한마디.</p>
+    <div class="ox">
+      <div class="oi"><span class="oc">( &nbsp; )</span><span class="oq">이 작품은 예쁜가요?</span></div>
+      <div class="oi"><span class="oc">( &nbsp; )</span><span class="oq">먹을 사용했나요?</span></div>
+      <div class="oi"><span class="oc">( &nbsp; )</span><span class="oq">이 작품이 제일 잘 그린 건가요?</span></div>
+      <div class="oi"><span class="oc">( &nbsp; )</span><span class="oq">조선 시대에 만들어졌나요?</span></div>
+      <div class="oi"><span class="oc">( &nbsp; )</span><span class="oq">몇 번 작품인가요?</span></div>
+    </div>
+    <svg viewBox="0 0 180 14">
+      <text x="0" y="4.2" font-size="3" fill="#7c7369">쓸 수 없는 질문은 왜 못 쓸까?</text>
+      <line x1="0" y1="9" x2="180" y2="9" stroke="#c9c0ad" stroke-width="0.3"/>
+      <line x1="0" y1="14" x2="180" y2="14" stroke="#c9c0ad" stroke-width="0.3"/>
+    </svg>
+  </div>
+
+  <div class="sec">
+    <h2 class="g"><span class="n">3</span>추리 기록</h2>
+    <svg viewBox="0 0 180 99">
+      <!-- 머리칸 -->
+      <text x="0" y="4" font-size="3.2" font-weight="700" fill="#1d1b18">내가 숨긴 작품 번호</text>
+      <rect x="40" y="0.4" width="14" height="5.4" fill="none" stroke="#6b3f66" stroke-width="0.5"/>
+      <text x="62" y="4" font-size="3.2" font-weight="700" fill="#1d1b18">짝의 이름</text>
+      <line x1="82" y1="5.8" x2="118" y2="5.8" stroke="#c9c0ad" stroke-width="0.3"/>
+      <text x="126" y="4" font-size="3.2" font-weight="700" fill="#1d1b18">몇 고개 만에</text>
+      <rect x="152" y="0.4" width="12" height="5.4" fill="none" stroke="#b0332b" stroke-width="0.5"/>
+      <text x="166" y="4" font-size="3.2" fill="#1d1b18">고개</text>
+
+      <!-- 표 머리 -->
+      <rect x="0" y="10" width="180" height="8" fill="#ece5d4"/>
+      <text x="6" y="15.2" font-size="3" font-weight="700" fill="#1d1b18">번호</text>
+      <text x="20" y="15.2" font-size="3" font-weight="700" fill="#1d1b18">내가 던진 질문</text>
+      <text x="118" y="15.2" font-size="3" font-weight="700" fill="#1d1b18">어느 자리?</text>
+      <text x="148" y="15.2" font-size="3" font-weight="700" fill="#1d1b18">답</text>
+      <text x="162" y="15.2" font-size="3" font-weight="700" fill="#1d1b18">남은 수</text>
+
+      <!-- 세로선: 빈 칸이라도 인쇄에서 사라지지 않게 직접 긋는다 -->
+      <g stroke="#c9c0ad" stroke-width="0.35" fill="none">
+        <line x1="0" y1="10" x2="0" y2="99"/>
+        <line x1="16" y1="10" x2="16" y2="99"/>
+        <line x1="114" y1="10" x2="114" y2="99"/>
+        <line x1="144" y1="10" x2="144" y2="99"/>
+        <line x1="158" y1="10" x2="158" y2="99"/>
+        <line x1="180" y1="10" x2="180" y2="99"/>
+      </g>
+      <g stroke="#c9c0ad" stroke-width="0.35">
+        <line x1="0" y1="10" x2="180" y2="10"/>
+        <line x1="0" y1="18" x2="180" y2="18"/>
+        <line x1="0" y1="29.6" x2="180" y2="29.6"/>
+        <line x1="0" y1="41.2" x2="180" y2="41.2"/>
+        <line x1="0" y1="52.8" x2="180" y2="52.8"/>
+        <line x1="0" y1="64.4" x2="180" y2="64.4"/>
+        <line x1="0" y1="76" x2="180" y2="76"/>
+        <line x1="0" y1="87.6" x2="180" y2="87.6"/>
+        <line x1="0" y1="99" x2="180" y2="99"/>
+      </g>
+      <g font-size="3.6" font-weight="700" fill="#6b3f66" text-anchor="middle">
+        <text x="8" y="25">1</text><text x="8" y="36.6">2</text><text x="8" y="48.2">3</text>
+        <text x="8" y="59.8">4</text><text x="8" y="71.4">5</text><text x="8" y="83">6</text>
+        <text x="8" y="94.6">7</text>
+      </g>
+      <g font-size="2.6" fill="#a89f92" text-anchor="middle">
+        <text x="151" y="25">예 / 아니요</text><text x="151" y="36.6">예 / 아니요</text>
+        <text x="151" y="48.2">예 / 아니요</text><text x="151" y="59.8">예 / 아니요</text>
+        <text x="151" y="71.4">예 / 아니요</text><text x="151" y="83">예 / 아니요</text>
+        <text x="151" y="94.6">예 / 아니요</text>
+      </g>
+    </svg>
+    <p class="note" style="margin-top:2mm">※ <b class="hn">'어느 자리?'</b> 칸에는 그 질문이 나온 관점을 적는다 —
+      주제 · 재료 · 조형 · 시대 중 하나. <b class="hl">'남은 수'</b>는 그 답을 듣고 판에 남은 작품 수.</p>
+  </div>
+
+  <div class="sec">
+    <h2 class="r"><span class="n">4</span>되돌아보기</h2>
+    <svg viewBox="0 0 180 17">
+      <text x="0" y="3.6" font-size="3.1" font-weight="700" fill="#1d1b18">가장 많이 지워 준 질문은 몇 번이었나? 왜 그 질문이 힘이 셌을까?</text>
+      <g stroke="#c9c0ad" stroke-width="0.3">
+        <line x1="0" y1="10" x2="180" y2="10"/><line x1="0" y1="17" x2="180" y2="17"/>
+      </g>
+    </svg>
+  </div>
+
+  <div class="foot"><span>8. 요리조리 미술 탐험 — 다양한 관점으로 비교 감상하기</span><span>1 / 3</span></div>
+</div>
+
+<!-- ══════════ 2쪽 ══════════ -->
+<div class="page">
+  <div class="hd">
+    <div>
+      <div class="u">8. 요리조리 미술 탐험 · 1~2차시</div>
+      <h1>나란히 놓고 쓰는 비교 감상문</h1>
+    </div>
+    <div class="sp"></div>
+    <div class="nm">5학년 &nbsp;&nbsp;&nbsp; 반 &nbsp;&nbsp;&nbsp; 번 &nbsp; 이름 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+  </div>
+
+  <div class="tip">
+    <b>고르는 법</b> — 3쪽 목록에서 두 점을 고른다. 아무거나 말고 <b>같은 점이 하나는 있는</b> 둘을 고를 것.
+    소재가 같거나(둘 다 산), 재료가 같거나(둘 다 먹), 시대가 같거나. 하나도 안 닮은 둘은 비교할 거리가 없다.
+  </div>
+
+  <div class="sec">
+    <h2><span class="n">1</span>내가 나란히 놓은 두 작품</h2>
+    <svg viewBox="0 0 180 32.6">
+      <g stroke="#c9c0ad" stroke-width="0.4" fill="none">
+        <rect x="0" y="0" width="86" height="20"/><rect x="94" y="0" width="86" height="20"/>
+      </g>
+      <text x="3" y="5.4" font-size="2.8" fill="#7c7369">왼쪽에 놓을 작품</text>
+      <text x="97" y="5.4" font-size="2.8" fill="#7c7369">오른쪽에 놓을 작품</text>
+      <g font-size="3" fill="#1d1b18">
+        <text x="3" y="12">번호</text><text x="26" y="12">제목</text>
+        <text x="3" y="18">작가</text>
+        <text x="97" y="12">번호</text><text x="120" y="12">제목</text>
+        <text x="97" y="18">작가</text>
+      </g>
+      <g stroke="#c9c0ad" stroke-width="0.3">
+        <line x1="13" y1="12.6" x2="24" y2="12.6"/><line x1="36" y1="12.6" x2="83" y2="12.6"/>
+        <line x1="13" y1="18.6" x2="83" y2="18.6"/>
+        <line x1="107" y1="12.6" x2="118" y2="12.6"/><line x1="130" y1="12.6" x2="177" y2="12.6"/>
+        <line x1="107" y1="18.6" x2="177" y2="18.6"/>
+      </g>
+      <text x="0" y="26" font-size="3.1" font-weight="700" fill="#b0332b">왜 이 둘을 나란히 놓았나?</text>
+      <line x1="42" y1="26.7" x2="180" y2="26.7" stroke="#c9c0ad" stroke-width="0.3"/>
+      <line x1="0" y1="32.4" x2="180" y2="32.4" stroke="#c9c0ad" stroke-width="0.3"/>
+    </svg>
+  </div>
+
+  <div class="sec">
+    <h2 class="t"><span class="n">2</span>네 관점으로 갈라 보기</h2>
+    <svg viewBox="0 0 180 76">
+      <rect x="0" y="0" width="180" height="8" fill="#ece5d4"/>
+      <text x="4" y="5.2" font-size="3" font-weight="700" fill="#1d1b18">관점</text>
+      <text x="40" y="5.2" font-size="3" font-weight="700" fill="#1d1b18">왼쪽 작품</text>
+      <text x="112" y="5.2" font-size="3" font-weight="700" fill="#1d1b18">오른쪽 작품</text>
+      <g stroke="#c9c0ad" stroke-width="0.35" fill="none">
+        <line x1="0" y1="0" x2="0" y2="76"/>
+        <line x1="34" y1="0" x2="34" y2="76"/>
+        <line x1="107" y1="0" x2="107" y2="76"/>
+        <line x1="180" y1="0" x2="180" y2="76"/>
+      </g>
+      <g stroke="#c9c0ad" stroke-width="0.35">
+        <line x1="0" y1="0" x2="180" y2="0"/><line x1="0" y1="8" x2="180" y2="8"/>
+        <line x1="0" y1="25" x2="180" y2="25"/><line x1="0" y1="42" x2="180" y2="42"/>
+        <line x1="0" y1="59" x2="180" y2="59"/><line x1="0" y1="76" x2="180" y2="76"/>
+      </g>
+      <g font-size="3.1" font-weight="700" fill="#2b3a4a">
+        <text x="4" y="15">주제와 소재</text>
+        <text x="4" y="32">재료와</text><text x="4" y="36.4">표현 방법</text>
+        <text x="4" y="49">조형 요소와</text><text x="4" y="53.4">원리</text>
+        <text x="4" y="66">시대적·</text><text x="4" y="70.4">지역적 배경</text>
+      </g>
+      <g font-size="2.5" fill="#a89f92">
+        <text x="4" y="21">무엇을 그렸나</text>
+        <text x="4" y="41">무엇으로 만들었나</text>
+        <text x="4" y="58">색·선·모양·여백</text>
+        <text x="4" y="75">언제 어디서</text>
+      </g>
+      <!-- 칸 안 보조선 -->
+      <g stroke="#e5ded0" stroke-width="0.25">
+        <line x1="37" y1="15" x2="104" y2="15"/><line x1="37" y1="21" x2="104" y2="21"/>
+        <line x1="110" y1="15" x2="177" y2="15"/><line x1="110" y1="21" x2="177" y2="21"/>
+        <line x1="37" y1="32" x2="104" y2="32"/><line x1="37" y1="38" x2="104" y2="38"/>
+        <line x1="110" y1="32" x2="177" y2="32"/><line x1="110" y1="38" x2="177" y2="38"/>
+        <line x1="37" y1="49" x2="104" y2="49"/><line x1="37" y1="55" x2="104" y2="55"/>
+        <line x1="110" y1="49" x2="177" y2="49"/><line x1="110" y1="55" x2="177" y2="55"/>
+        <line x1="37" y1="66" x2="104" y2="66"/><line x1="37" y1="72" x2="104" y2="72"/>
+        <line x1="110" y1="66" x2="177" y2="66"/><line x1="110" y1="72" x2="177" y2="72"/>
+      </g>
+    </svg>
+  </div>
+
+  <div class="sec">
+    <h2 class="g"><span class="n">3</span>공통점 하나, 차이점 둘</h2>
+    <svg viewBox="0 0 180 30">
+      <g stroke="#c9c0ad" stroke-width="0.4" fill="none">
+        <rect x="0" y="0" width="180" height="9"/>
+        <rect x="0" y="11" width="88" height="19"/><rect x="92" y="11" width="88" height="19"/>
+      </g>
+      <text x="3" y="3.6" font-size="2.7" font-weight="700" fill="#2f6b63">둘 다 그렇다 (공통점)</text>
+      <text x="3" y="14.6" font-size="2.7" font-weight="700" fill="#b0332b">왼쪽만 그렇다</text>
+      <text x="95" y="14.6" font-size="2.7" font-weight="700" fill="#b0332b">오른쪽만 그렇다</text>
+      <g stroke="#e5ded0" stroke-width="0.25">
+        <line x1="3" y1="21" x2="85" y2="21"/><line x1="3" y1="27" x2="85" y2="27"/>
+        <line x1="95" y1="21" x2="177" y2="21"/><line x1="95" y1="27" x2="177" y2="27"/>
+      </g>
+    </svg>
+  </div>
+
+  <div class="sec">
+    <h2 class="r"><span class="n">4</span>비교 감상문</h2>
+    <p class="note" style="margin-bottom:1.5mm">말머리를 그대로 써도 된다 —
+      <b class="hn">"나는 ○○와 △△를 나란히 놓고 감상하였다."</b> → <b class="hn">"두 작품은 모두 …"</b> →
+      <b class="hn">"하지만 …"</b> → <b class="hn">"나는 … 쪽이 더 … 게 느껴졌다. 왜냐하면 …"</b></p>
+    <svg viewBox="0 0 180 46.2">
+      <g stroke="#c9c0ad" stroke-width="0.3">
+        <line x1="0" y1="6.6" x2="180" y2="6.6"/><line x1="0" y1="13.2" x2="180" y2="13.2"/>
+        <line x1="0" y1="19.8" x2="180" y2="19.8"/><line x1="0" y1="26.4" x2="180" y2="26.4"/>
+        <line x1="0" y1="33" x2="180" y2="33"/><line x1="0" y1="39.6" x2="180" y2="39.6"/>
+        <line x1="0" y1="46.2" x2="180" y2="46.2"/>
+      </g>
+    </svg>
+  </div>
+
+  <div class="foot"><span>감상에는 정답이 없다 — 다만 <b style="color:#1d1b18">어느 자리에서 보았는지</b>는 말할 수 있어야 한다</span><span>2 / 3</span></div>
+</div>
+
+<!-- ══════════ 3쪽 ══════════ -->
+<div class="page">
+  <div class="hd">
+    <div>
+      <div class="u">8. 요리조리 미술 탐험 · 작품 목록</div>
+      <h1>판에 깔린 작품 18점</h1>
+    </div>
+    <div class="sp"></div>
+    <div class="nm">감상문을 쓸 때 이 표에서 그대로 옮겨 적는다</div>
+  </div>
+
+  <table class="dex">
+    <tr><th style="width:7mm">번호</th><th>작품 · 작가</th><th style="width:52mm">재료와 크기</th><th style="width:24mm">만든 때</th></tr>
+    <tr><td class="c">1</td><td class="t">고누 놀이 — 김홍도(1745~1806?/조선)</td><td>한지에 수묵 담채 · 28×23.9cm</td><td>조선 시대</td></tr>
+    <tr><td class="c">2</td><td class="t">어린이 게임 — 브뤼헐(부)(1525~1569/네덜란드)</td><td>나무판에 유채 · 118×161cm</td><td>1560년</td></tr>
+    <tr><td class="c">3</td><td class="t">산 – 파랑 — 유영국(1916~2002/한국)</td><td>캔버스에 유채 · 126×96cm</td><td>1994년</td></tr>
+    <tr><td class="c">4</td><td class="t">으쌰으쌰 — 로지은(1995~/한국)</td><td>한지에 수묵 담채 · 27.3×34.6cm</td><td>2023년</td></tr>
+    <tr><td class="c">5</td><td class="t">삼일포 — 심사정(1707~1769/조선)</td><td>한지에 수묵 담채 · 27×30.5cm</td><td>조선 시대</td></tr>
+    <tr><td class="c">6</td><td class="t">엉뚱 산수화 야외 서당 — 김청기(1941~/한국)</td><td>한지에 수묵 담채 · 40×70cm</td><td>2010년</td></tr>
+    <tr><td class="c">7</td><td class="t">뜨거운 여름 — 박지은(1990~/한국)</td><td>한지에 수묵 담채 · 21×29cm</td><td>2019년</td></tr>
+    <tr><td class="c">8</td><td class="t">군어유영 — 조석진(1853~1920/조선)</td><td>한지에 수묵 담채 · 25.5×27.5cm</td><td>1800년대</td></tr>
+    <tr><td class="c">9</td><td class="t">원앙 — 김희재(학생 작품)</td><td>한지에 수묵 담채 · 58×70cm</td><td>—</td></tr>
+    <tr><td class="c">10</td><td class="t">시간을 거슬러 — 황하림, 김윤지(학생 협동 작품)</td><td>한지에 수묵 담채, 커피 · 38×45cm</td><td>—</td></tr>
+    <tr><td class="c">11</td><td class="t">하늘, 땅, 우주 접시 선물 세트 — 박다온(학생 작품)</td><td>종이 접시에 먹, 한국화 물감, 색한지 · 각 20×20cm</td><td>—</td></tr>
+    <tr><td class="c">12</td><td class="t">늦은 아침 — 최하린(학생 작품)</td><td>한지에 수묵 담채 · 가변 크기</td><td>—</td></tr>
+    <tr><td class="c">13</td><td class="t">영광의 순간 — 김도엽(학생 작품)</td><td>디지털 드로잉 · 가변 크기</td><td>—</td></tr>
+    <tr><td class="c">14</td><td class="t">빛을 머금은 화려 강산 — 윤지원(학생 작품)</td><td>한지에 수묵 담채, 엘이디 조명 · 높이 18cm, 11cm</td><td>—</td></tr>
+    <tr><td class="c">15</td><td class="t">야옹 — K사(이스라엘)</td><td>혼합 재료 · 3.6×17.6×14.3cm</td><td>2011년</td></tr>
+    <tr><td class="c">16</td><td class="t">트론 터그 — 김승우(1982~/한국)</td><td>혼합 재료</td><td>2008년</td></tr>
+    <tr><td class="c">17</td><td class="t">다채로운 무라노 유리 샹들리에 — 폰티(1891~1979/이탈리아)</td><td>혼합 재료 · 89×89×81cm</td><td>1946년</td></tr>
+    <tr><td class="c">18</td><td class="t">유니버설 4867 — 콜롬보(1930~1971/이탈리아)</td><td>합성 수지 · 각 44×45×73cm</td><td>1965년</td></tr>
+  </table>
+
+  <div class="sec" style="margin-top:5mm">
+    <h2 class="t"><span class="n">5</span>나란히 놓고 싶은 짝 셋</h2>
+    <p class="note">묶는 까닭이 서로 달라야 한다. 하나는 <b class="hn">소재</b>가 같은 짝,
+      하나는 <b class="hn">재료</b>가 같은 짝, 하나는 <b class="hn">시대나 지역</b>이 같은 짝.</p>
+    <svg viewBox="0 0 180 44">
+      <rect x="0" y="0" width="180" height="7" fill="#ece5d4"/>
+      <text x="4" y="4.6" font-size="2.9" font-weight="700" fill="#1d1b18">짝</text>
+      <text x="26" y="4.6" font-size="2.9" font-weight="700" fill="#1d1b18">번호와 번호</text>
+      <text x="70" y="4.6" font-size="2.9" font-weight="700" fill="#1d1b18">무엇이 같아서 묶었나</text>
+      <g stroke="#c9c0ad" stroke-width="0.35" fill="none">
+        <line x1="0" y1="0" x2="0" y2="44"/><line x1="22" y1="0" x2="22" y2="44"/>
+        <line x1="66" y1="0" x2="66" y2="44"/><line x1="180" y1="0" x2="180" y2="44"/>
+      </g>
+      <g stroke="#c9c0ad" stroke-width="0.35">
+        <line x1="0" y1="0" x2="180" y2="0"/><line x1="0" y1="7" x2="180" y2="7"/>
+        <line x1="0" y1="19" x2="180" y2="19"/><line x1="0" y1="31" x2="180" y2="31"/>
+        <line x1="0" y1="44" x2="180" y2="44"/>
+      </g>
+      <g font-size="2.9" font-weight="700" fill="#2f6b63">
+        <text x="4" y="14">소재</text><text x="4" y="26">재료</text><text x="4" y="39">시대·지역</text>
+      </g>
+      <g font-size="3.2" fill="#a89f92" text-anchor="middle">
+        <text x="44" y="14">(  ) 번 &nbsp;+&nbsp; (  ) 번</text>
+        <text x="44" y="26">(  ) 번 &nbsp;+&nbsp; (  ) 번</text>
+        <text x="44" y="39">(  ) 번 &nbsp;+&nbsp; (  ) 번</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="sec">
+    <h2 class="g"><span class="n">6</span>스스로 확인해요</h2>
+    <div class="ox">
+      <div class="oi"><span class="oq">다양한 감상 관점으로 작품을 비교 감상하였다.</span><span class="oc">☆ ☆ ☆</span></div>
+      <div class="oi"><span class="oq">"예 / 아니요"로 답할 수 있는 질문을 만들 수 있다.</span><span class="oc">☆ ☆ ☆</span></div>
+      <div class="oi"><span class="oq">공통점과 차이점을 넣어 비교 감상문을 썼다.</span><span class="oc">☆ ☆ ☆</span></div>
+    </div>
+  </div>
+
+  <div class="foot"><span>작품 정보는 비상교육 초등 미술 5-2 교과서에서 옮겼다</span><span>3 / 3</span></div>
+</div>
+
+</body>
+</html>

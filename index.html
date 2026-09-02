@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>5학년 수업자료</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1c2430; --muted:#6d6b66; --line:#e2ddd2; --paper:#f6f2e9; --card:#fff;
+  --social:#c0392b; --korean:#1d5b95; --math:#2e7d5b; --music:#c8963e;
+  --art:#7d4a86; --ethics:#d1712f; --practical:#2b7a8c; --extra:#5c6470;
+}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--paper);color:var(--ink);
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+  padding:0 0 60px;line-height:1.5}
+
+header{background:#123a63;color:#fff;padding:22px 20px 18px;
+  box-shadow:0 3px 14px rgba(0,0,0,.18);position:sticky;top:0;z-index:20}
+header .wrap{max-width:1180px;margin:0 auto}
+h1{font-size:26px;font-weight:900;letter-spacing:-.02em}
+header p{font-size:14px;opacity:.8;margin-top:3px}
+#q{width:100%;margin-top:14px;padding:13px 16px;border:0;border-radius:12px;
+  font-family:inherit;font-size:17px;font-weight:500;color:var(--ink);min-height:48px}
+#q:focus{outline:3px solid #4a86c4}
+
+.chips{max-width:1180px;margin:16px auto 0;padding:0 20px;
+  display:flex;gap:8px;flex-wrap:wrap}
+.chip{min-height:42px;padding:8px 16px;border:2px solid var(--line);border-radius:999px;
+  background:#fff;font-family:inherit;font-size:15px;font-weight:700;color:var(--muted);cursor:pointer}
+.chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
+
+main{max-width:1180px;margin:0 auto;padding:0 20px}
+section{margin-top:26px}
+h2{font-size:19px;font-weight:900;display:flex;align-items:center;gap:9px;margin-bottom:11px}
+h2 .dot{width:13px;height:13px;border-radius:4px;display:inline-block}
+h2 .n{font-size:14px;font-weight:700;color:var(--muted)}
+
+.grid{display:grid;gap:11px;grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
+a.item{display:block;background:var(--card);border:1px solid var(--line);border-radius:13px;
+  padding:14px 16px;text-decoration:none;color:inherit;border-left-width:7px;
+  box-shadow:0 2px 7px rgba(30,25,15,.06);transition:transform .08s,box-shadow .08s}
+a.item:active{transform:translateY(2px);box-shadow:0 1px 3px rgba(30,25,15,.08)}
+a.item .t{font-size:17px;font-weight:700;line-height:1.35}
+a.item .f{font-size:12.5px;color:var(--muted);margin-top:6px;word-break:break-all}
+a.item .badge{display:inline-block;font-size:11.5px;font-weight:900;color:#fff;
+  background:var(--ink);border-radius:5px;padding:2px 7px;margin-left:6px;vertical-align:2px}
+
+#recent{margin-top:22px}
+#recent .grid{grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+#empty{display:none;text-align:center;color:var(--muted);font-size:16px;padding:50px 0}
+footer{max-width:1180px;margin:36px auto 0;padding:0 20px;font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <h1>5학년 수업자료</h1>
+    <p>태블릿·교실 TV에서 바로 열립니다. 이 페이지만 북마크해 두세요.</p>
+    <input id="q" type="search" placeholder="제목으로 찾기 — 예: 인권, 픽토그램, 화음" autocomplete="off">
+  </div>
+</header>
+
+<div class="chips" id="chips"></div>
+
+<main>
+  <section id="recent" hidden>
+    <h2><span class="dot" style="background:var(--extra)"></span>최근에 연 자료</h2>
+    <div class="grid" id="recentGrid"></div>
+  </section>
+  <div id="list"></div>
+  <div id="empty">찾는 자료가 없습니다.</div>
+</main>
+
+<footer>
+  파일을 새로 올리면 이 목록에도 한 줄 추가해야 보입니다.<br>
+  저장소 <b>leixlix-pixel/toolbox</b> · 주소는 <b>github.io/toolbox/파일명</b> 형식입니다.
+</footer>
+
+<script>
+const SUBJECTS = [
+  { key:'social',    name:'사회',  color:'var(--social)' },
+  { key:'korean',    name:'국어',  color:'var(--korean)' },
+  { key:'math',      name:'수학',  color:'var(--math)' },
+  { key:'music',     name:'음악',  color:'var(--music)' },
+  { key:'art',       name:'미술',  color:'var(--art)' },
+  { key:'ethics',    name:'도덕',  color:'var(--ethics)' },
+  { key:'practical', name:'실과',  color:'var(--practical)' },
+  { key:'extra',     name:'창체',  color:'var(--extra)' }
+];
+
+/* file = 저장소 안 경로 (그대로 주소가 된다) */
+const ITEMS = [
+  /* ── 사회 ── */
+  { s:'social', t:'바위에 남은 307개의 그림 — 울주 대곡리 반구대 암각화', f:'10 bangudae-petroglyphs.html' },
+  { s:'social', t:'밥상 위의 4천 년 — 쌀은 언제부터 먹기 시작했을까요', f:'11 korean-food-history.html' },
+  { s:'social', t:'경복궁 탐험대', f:'gyeongbokgung-explore.html' },
+  { s:'social', t:'시간을 건너온 문물 — 소단원 정리', f:'joseon-review.html' },
+  { s:'social', t:'고대 삼국의 식탁 이야기', f:'samguk-food-culture.html' },
+  { s:'social', t:'통일신라와 발해 — 교류와 문화', f:'silla-balhae-activity.html' },
+  { s:'social', t:'설문 그래프 만들기', f:'survey-graph-maker.html' },
+
+  /* ── 국어 ── */
+  { s:'korean', t:'책과 노니는 집 · 1차시 학습지', f:'01 bookhouse-emotion-copying.html' },
+  { s:'korean', t:'책과 노니는 집 · 2차시 편지지', f:'02 bookhouse-letter.html' },
+  { s:'korean', t:'문장 정비소 — 올바른 문장으로 글을 써요', f:'sentence-garage.html' },
+
+  /* ── 수학 ── */
+  { s:'math', t:'분수의 곱셈 — 딱 한 줄로 끝내기', f:'03 fraction-multiplication.html' },
+  { s:'math', t:'수의 범위와 올림·버림·반올림 챌린지', f:'number-range-rounding-game.html' },
+
+  /* ── 음악 ── */
+  { s:'music', t:'왜 아까 그 가락이 또 나올까 — aba 형식', f:'aba-form.html' },
+  { s:'music', t:'늴리리야 — 경토리의 흥은 어디서 오나', f:'gyeongtori.html' },
+  { s:'music', t:'솔라도레미 작곡소 — 굿거리 위에 얹는 나만의 가락', f:'gyeongtori-compose.html', tag:'학생용' },
+  { s:'music', t:'칼림바 — 번호부터 시작합니다', f:'05 kalimba-basics.html' },
+  { s:'music', t:'바장조 음계와 화음 — 이 ♭ 하나가 하는 일', f:'f-major-chords.html', tag:'NEW' },
+
+  /* ── 미술 ── */
+  { s:'art', t:'시각 이미지로 소통하는 우리', f:'01 visual-image-communication.html' },
+  { s:'art', t:'픽토그램 퀴즈 — 그림으로 말하기', f:'pictogram-quiz.html' },
+  { s:'art', t:'우리 학교 픽토그램 만들기 — 학습지', f:'02 pictogram-worksheet.html' },
+  { s:'art', t:'이모티콘 만들기 — 움직이는 3컷', f:'emoji-maker.html' },
+  { s:'art', t:'요리조리 미술 탐험 ① 나란히 놓고 보기', f:'art-quest/compare-appreciation.html' },
+  { s:'art', t:'작품 추리 일곱 고개', f:'art-quest/art-detective.html' },
+  { s:'art', t:'비교 감상 학습지', f:'art-quest/compare-worksheet.html' },
+  { s:'art', t:'요리조리 미술 탐험 ② 우리가 여는 전시', f:'art-quest/online-exhibition.html' },
+  { s:'art', t:'온라인 전시장 만들기', f:'art-quest/gallery-builder.html', tag:'학생용' },
+  { s:'art', t:'전시 기획서', f:'art-quest/exhibition-plan.html' },
+  { s:'art', t:'먹과 색이 어우러진 우리 그림 — 감상', f:'ink-and-color/appreciation.html' },
+  { s:'art', t:'수묵담채 붓 연습', f:'ink-and-color/brush.html' },
+
+  /* ── 도덕 ── */
+  { s:'ethics', t:'인권 레이더 — 도덕 5단원 4차시', f:'human-rights-radar.html' },
+
+  /* ── 실과 ── */
+  { s:'practical', t:'친환경 에너지를 이용하는 수송 수단', f:'04 eco-transport-energy.html' },
+  { s:'practical', t:'롤러코스터에는 엔진이 없다', f:'05 roller-coaster-principle.html' },
+  { s:'practical', t:'수송 수단 부품 분류 게임', f:'parts-sorting-game.html', tag:'학생용' },
+
+  /* ── 창체 ── */
+  { s:'extra', t:'2학기 동아리 부서 고르기', f:'02 club-catalog.html' },
+  { s:'extra', t:'동아리 부서 계획서', f:'02-1 club-plan-worksheet.html' }
+];
+
+const colorOf = k => (SUBJECTS.find(s => s.key === k) || {}).color || 'var(--extra)';
+const nameOf  = k => (SUBJECTS.find(s => s.key === k) || {}).name  || '기타';
+
+/* --- 최근 연 자료 --- */
+function readRecent(){
+  try { return JSON.parse(localStorage.getItem('toolbox-recent') || '[]'); }
+  catch(e){ return []; }
+}
+function pushRecent(f){
+  try {
+    const r = readRecent().filter(x => x !== f);
+    r.unshift(f);
+    localStorage.setItem('toolbox-recent', JSON.stringify(r.slice(0, 4)));
+  } catch(e){}
+}
+
+function card(it){
+  const a = document.createElement('a');
+  a.className = 'item';
+  a.href = './' + it.f.split('/').map(encodeURIComponent).join('/');
+  a.target = '_blank';
+  a.rel = 'noopener';
+  a.style.borderLeftColor = colorOf(it.s);
+  a.innerHTML = '<div class="t">' + it.t +
+    (it.tag ? '<span class="badge" style="background:' + colorOf(it.s) + '">' + it.tag + '</span>' : '') +
+    '</div><div class="f">' + it.f + '</div>';
+  a.onclick = () => pushRecent(it.f);
+  return a;
+}
+
+let filter = 'all', query = '';
+
+function render(){
+  const list = document.getElementById('list');
+  list.innerHTML = '';
+  const q = query.trim().toLowerCase();
+  let shown = 0;
+
+  SUBJECTS.forEach(sub => {
+    if(filter !== 'all' && filter !== sub.key) return;
+    const rows = ITEMS.filter(it => it.s === sub.key &&
+      (!q || (it.t + ' ' + it.f + ' ' + sub.name).toLowerCase().includes(q)));
+    if(!rows.length) return;
+    shown += rows.length;
+    const sec = document.createElement('section');
+    sec.innerHTML = '<h2><span class="dot" style="background:' + sub.color + '"></span>' +
+      sub.name + ' <span class="n">' + rows.length + '</span></h2>';
+    const g = document.createElement('div');
+    g.className = 'grid';
+    rows.forEach(it => g.appendChild(card(it)));
+    sec.appendChild(g);
+    list.appendChild(sec);
+  });
+
+  document.getElementById('empty').style.display = shown ? 'none' : 'block';
+
+  /* 최근 연 자료 */
+  const rec = readRecent().map(f => ITEMS.find(i => i.f === f)).filter(Boolean);
+  const rsec = document.getElementById('recent');
+  const rgrid = document.getElementById('recentGrid');
+  if(rec.length && !q && filter === 'all'){
+    rgrid.innerHTML = '';
+    rec.forEach(it => rgrid.appendChild(card(it)));
+    rsec.hidden = false;
+  } else rsec.hidden = true;
+}
+
+/* 과목 칩 */
+const chips = document.getElementById('chips');
+[{ key:'all', name:'전체' }].concat(SUBJECTS).forEach(s => {
+  const b = document.createElement('button');
+  b.className = 'chip' + (s.key === 'all' ? ' on' : '');
+  b.textContent = s.name;
+  b.onclick = () => {
+    filter = s.key;
+    [...chips.children].forEach(c => c.classList.toggle('on', c === b));
+    render();
+  };
+  chips.appendChild(b);
+});
+
+document.getElementById('q').addEventListener('input', e => { query = e.target.value; render(); });
+render();
+</script>
+</body>
+</html>

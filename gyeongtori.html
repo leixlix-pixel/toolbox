@@ -114,11 +114,9 @@ table.tbl td.lead{background:#fff;font-weight:900;font-size:24px}
 
 /* 토리 지도 도식 */
 .torimap{position:relative;width:100%;height:100%;min-height:330px}
-.tori{position:absolute;border-radius:14px;padding:10px 12px;border:3px solid;background:#fff;
-  box-shadow:0 5px 14px rgba(30,25,15,.10);text-align:center}
-.tori .n{font-size:22px;font-weight:900;line-height:1.2}
-.tori .s{font-size:16px;font-weight:700;color:var(--muted);margin-top:3px}
-.tori .g{font-size:17px;font-weight:900;margin-top:4px}
+.tori{position:absolute;border-radius:999px;padding:6px 13px;border:3px solid;background:#fff;
+  box-shadow:0 4px 11px rgba(30,25,15,.14);text-align:center;white-space:nowrap}
+.tori .n{font-size:19px;font-weight:900;line-height:1.2}
 
 .imgcol{flex:0 0 470px;height:100%;display:flex;align-items:center;justify-content:center}
 .imgcol img{max-width:100%;max-height:640px;border-radius:18px;box-shadow:0 10px 28px rgba(0,0,0,.25)}
@@ -244,27 +242,30 @@ const SLIDES = [
   <div style="flex:1;min-height:0;display:flex;gap:22px;align-items:center">
     <div style="flex:0 0 318px;height:100%;position:relative">
       <div class="torimap">
-        <svg viewBox="0 0 200 300" style="position:absolute;inset:0;width:100%;height:100%">
-          <path d="M100 12 L118 8 132 18 148 16 158 28 152 40 160 52 150 62 156 74 144 86
-                   140 104 132 120 136 138 128 152 132 168 124 182 128 198 118 214
-                   120 232 110 244 104 258 92 268 80 262 72 268 60 258 56 244
-                   44 236 50 222 40 210 46 196 36 184 44 170 34 158 42 144
-                   32 130 40 116 30 102 38 88 28 74 36 60 26 46 34 32 48 22 66 16 84 10 Z"
-                fill="#e9e2d2" stroke="#cfc5b0" stroke-width="2" stroke-linejoin="round"/>
+        <svg viewBox="0 0 200 320" style="position:absolute;inset:0;width:100%;height:100%">
+          <path d="M60 48 L100 28 L140 22 L170 42
+                   C160 70 140 88 135 108
+                   C142 130 146 150 148 172
+                   C152 196 152 214 150 228
+                   C146 246 138 258 128 262
+                   C112 270 100 276 88 282
+                   C78 288 70 286 68 276
+                   C66 262 72 250 70 236
+                   C68 220 60 205 62 190
+                   C64 176 56 165 58 152
+                   C60 138 50 126 52 112
+                   C54 96 46 78 48 62
+                   C49 54 54 50 60 48 Z"
+                fill="#ebe4d4" stroke="#c9bfa8" stroke-width="2.5" stroke-linejoin="round"/>
         </svg>
-        <div class="tori" style="border-color:#7d4a86;left:0;top:1%;width:58%">
-          <div class="n" style="color:#7d4a86">수심가토리</div>
-          <div class="s">평안 · 황해 (서도)</div></div>
-        <div class="tori" style="border-color:#2e7d5b;right:0;top:23%;width:50%">
-          <div class="n" style="color:#2e7d5b">메나리토리</div>
-          <div class="s">강원 · 경상 (동부)</div></div>
-        <div class="tori" style="border-color:#c0392b;left:4%;top:45%;width:66%;border-width:4px">
-          <div class="n" style="color:#c0392b">경토리</div>
-          <div class="s">서울 · 경기 · 충청 일부</div>
-          <div class="g" style="color:#c0392b">솔 라 도 레 미</div></div>
-        <div class="tori" style="border-color:#c8963e;left:0;bottom:1%;width:58%">
-          <div class="n" style="color:#c8963e">육자배기토리</div>
-          <div class="s">전라 (남도)</div></div>
+        <div class="tori" style="border-color:#7d4a86;left:11%;top:31%">
+          <div class="n" style="color:#7d4a86">수심가토리</div></div>
+        <div class="tori" style="border-color:#c0392b;left:22%;top:49%;border-width:4px">
+          <div class="n" style="color:#c0392b">경토리</div></div>
+        <div class="tori" style="border-color:#2e7d5b;left:54%;top:55%">
+          <div class="n" style="color:#2e7d5b">메나리토리</div></div>
+        <div class="tori" style="border-color:#c8963e;left:16%;top:74%">
+          <div class="n" style="color:#c8963e">육자배기토리</div></div>
       </div>
     </div>
     <div style="flex:1">

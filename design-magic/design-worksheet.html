@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>디자인 저울 학습지 — 9. 반짝반짝 디자인 마술사</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<style>
+@page{ size:A4; margin:0 }
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans KR',sans-serif;background:#54585f;color:#15181d;
+  -webkit-print-color-adjust:exact;print-color-adjust:exact}
+
+.topbar{background:#1b3a6b;color:#fff;padding:14px 20px;display:flex;align-items:center;gap:16px;
+  flex-wrap:wrap;font-size:15px}
+.topbar b{font-size:17px}
+.topbar button{margin-left:auto;background:#e0a43a;color:#20242b;border:0;border-radius:9px;
+  padding:11px 22px;font-size:16px;font-weight:900;font-family:inherit;cursor:pointer;min-height:46px}
+
+.page{width:210mm;height:297mm;background:#fff;margin:14px auto;padding:14mm 15mm 13mm;
+  position:relative;overflow:hidden;display:flex;flex-direction:column;
+  box-shadow:0 8px 30px rgba(0,0,0,.4)}
+
+h1{font-size:19pt;font-weight:900;letter-spacing:-.02em;line-height:1.2}
+.sub{font-size:9.5pt;color:#6d6a64;margin-top:2px}
+.namebar{display:flex;align-items:flex-end;gap:8px;font-size:10.5pt;font-weight:700;white-space:nowrap}
+.namebar u{display:inline-block;width:20mm;border-bottom:1.4px solid #4a4740;text-decoration:none}
+.namebar u.w{width:32mm}
+.head{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;
+  border-bottom:3px solid #1b3a6b;padding-bottom:7px;margin-bottom:9px}
+
+h2{font-size:12.5pt;font-weight:900;color:#1b3a6b;display:flex;align-items:center;gap:7px;margin-bottom:5px}
+h2 .no{background:#1b3a6b;color:#fff;width:19px;height:19px;border-radius:50%;
+  display:inline-flex;align-items:center;justify-content:center;font-size:10pt;flex:0 0 auto}
+h2 small{font-size:9pt;font-weight:500;color:#6d6a64;margin-left:auto}
+section{margin-bottom:7px}
+p.g{font-size:9.5pt;color:#55524c;line-height:1.5;margin-bottom:5px}
+
+.tip{background:#fff6e2;border:1.6px solid #e0a43a;border-radius:9px;padding:8px 11px;
+  font-size:10pt;line-height:1.55}
+.tip b{color:#8d5c0c}
+.qbox{background:#eef3fb;border-left:5px solid #2f5fa8;border-radius:0 8px 8px 0;
+  padding:8px 11px;font-size:10pt;line-height:1.55}
+
+/* 요소 카드 */
+.els{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.el{border:1.6px solid;border-radius:9px;padding:6px 7px;text-align:center}
+.el .k{font-size:11pt;font-weight:900;line-height:1.2}
+.el .s{font-size:8.5pt;line-height:1.35;margin-top:2px;color:#4c4943}
+.e1{border-color:#e58aa0;background:#fdeef1}.e1 .k{color:#a8365a}
+.e2{border-color:#7fc08c;background:#eef8f0}.e2 .k{color:#2e7a42}
+.e3{border-color:#e0b45c;background:#fdf6e6}.e3 .k{color:#8d5c0c}
+.e4{border-color:#8b9ee0;background:#eef1fc}.e4 .k{color:#39479c}
+.els2{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}
+.e5{border-color:#7cbdd6;background:#eaf5fa}.e5 .k{color:#1d6684;font-size:10pt}
+
+/* 밑줄 */
+.lines{display:flex;flex-direction:column;gap:0}
+.ln{border-bottom:1.3px solid #b9b5ad;height:8.6mm}
+.ln:first-child{border-top:1.3px solid #b9b5ad}
+
+.two{display:flex;gap:9px}
+.two>*{flex:1;min-width:0}
+
+.stars{display:flex;flex-direction:column;gap:4px}
+.srow{display:flex;align-items:center;gap:8px;font-size:9.5pt;line-height:1.35}
+.srow .t{flex:1}
+.srow .st{letter-spacing:3px;font-size:14pt;color:#c9c4bb;flex:0 0 auto}
+
+.foot{font-size:8.5pt;color:#8b8780;text-align:right;margin-top:auto;padding-top:5px}
+svg{display:block}
+
+@media print{
+  body{background:#fff}
+  .topbar{display:none}
+  .page{margin:0;box-shadow:none;page-break-after:always}
+  .page:last-child{page-break-after:auto}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <b>디자인 저울 학습지</b>
+  <span>미술 9단원 「반짝반짝 디자인 마술사」 1~2차시 · A4 3쪽 · 양면 인쇄 권장</span>
+  <button onclick="window.print()">인쇄하기</button>
+</div>
+
+<!-- ================= 1쪽 ================= -->
+<div class="page">
+  <div class="head">
+    <div>
+      <h1>이 물건은 무엇을 포기했을까</h1>
+      <div class="sub">9. 반짝반짝 디자인 마술사 · 교과서 56~57쪽 · 1쪽</div>
+    </div>
+    <div class="namebar">5학년 <u></u>반 이름 <u class="w"></u></div>
+  </div>
+
+  <section>
+    <h2><span class="no">1</span>물건을 재는 자 일곱 가지</h2>
+    <div class="els">
+      <div class="el e1"><div class="k">독창성</div><div class="s">새로운가</div></div>
+      <div class="el e2"><div class="k">심미성</div><div class="s">아름다운가</div></div>
+      <div class="el e3"><div class="k">경제성</div><div class="s">아끼는가</div></div>
+      <div class="el e4"><div class="k">합목적성</div><div class="s">쓰기 좋은가</div></div>
+    </div>
+    <div class="els2">
+      <div class="el e5"><div class="k">환경친화성</div><div class="s">환경을 생각했나</div></div>
+      <div class="el e5"><div class="k">상호 작용성</div><div class="s">쓰는 사람과 주고받나</div></div>
+      <div class="el e5"><div class="k">정보 전달성</div><div class="s">뜻이 분명한가</div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="no">2</span>교실에서 물건 셋 찾기<small>가위 · 의자 · 필통 · 청소기 · 우유갑 …</small></h2>
+    <p class="g">세 번째 칸이 어렵다. 어려운 것이 맞다 — <b>포기한 것이 없는 물건은 없다.</b></p>
+    <svg viewBox="0 0 560 161" width="100%" height="52mm">
+      <rect x="1" y="1" width="558" height="159" fill="none" stroke="#4a4740" stroke-width="2"/>
+      <rect x="1" y="1" width="558" height="25" fill="#eceff5" stroke="#4a4740" stroke-width="2"/>
+      <line x1="1" y1="26" x2="559" y2="26" stroke="#4a4740" stroke-width="2"/>
+      <line x1="1" y1="71" x2="559" y2="71" stroke="#8a867e" stroke-width="1.4"/>
+      <line x1="1" y1="116" x2="559" y2="116" stroke="#8a867e" stroke-width="1.4"/>
+      <line x1="160" y1="1" x2="160" y2="160" stroke="#8a867e" stroke-width="1.4"/>
+      <line x1="300" y1="1" x2="300" y2="160" stroke="#8a867e" stroke-width="1.4"/>
+      <text x="80" y="18" text-anchor="middle" font-size="13" font-weight="700" fill="#1b3a6b" font-family="Noto Sans KR">물건 이름</text>
+      <text x="230" y="18" text-anchor="middle" font-size="13" font-weight="700" fill="#1b3a6b" font-family="Noto Sans KR">가장 높은 요소</text>
+      <text x="430" y="18" text-anchor="middle" font-size="13" font-weight="700" fill="#1b3a6b" font-family="Noto Sans KR">이 물건이 포기한 것</text>
+    </svg>
+  </section>
+
+  <section>
+    <h2><span class="no">3</span>디자인 저울에 매긴 점수 옮겨 적기<small>태블릿 → 종이</small></h2>
+    <p class="g">앱에서 고른 물건 <b>둘</b>을 골라 점을 찍고 오각형을 이어 보자. (한 자리에 1~5점, 모두 15점)</p>
+    <div class="two">
+      <div>
+        <svg viewBox="0 0 250 210" width="100%" height="62mm" data-pent="1"></svg>
+      </div>
+      <div>
+        <svg viewBox="0 0 250 210" width="100%" height="62mm" data-pent="2"></svg>
+      </div>
+    </div>
+  </section>
+
+  <section style="margin-bottom:0">
+    <h2><span class="no">4</span>모둠에서 갈린 자리</h2>
+    <div class="qbox">같은 물건인데 점수가 가장 크게 갈린 자리는 <b>(&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)</b> 이다.</div>
+    <div class="lines" style="margin-top:5px">
+      <div class="ln"></div><div class="ln"></div><div class="ln"></div>
+    </div>
+    <p class="g" style="margin-top:3px">왜 갈렸을까? 친구가 말한 까닭을 그대로 적어 보자.</p>
+  </section>
+
+  <div class="foot">9. 반짝반짝 디자인 마술사 · 1/3</div>
+</div>
+
+<!-- ================= 2쪽 ================= -->
+<div class="page">
+  <div class="head">
+    <div>
+      <h1>내가 맡은 요소 하나만 끝까지</h1>
+      <div class="sub">교과서 57쪽 · 모둠 활동 · 2쪽</div>
+    </div>
+    <div class="namebar">이름 <u class="w"></u></div>
+  </div>
+
+  <section>
+    <div class="two">
+      <div>
+        <h2><span class="no">1</span>우리 모둠이 바꿔 볼 물건</h2>
+        <div class="lines"><div class="ln"></div></div>
+      </div>
+      <div>
+        <h2><span class="no">2</span>내가 맡은 요소</h2>
+        <div class="lines"><div class="ln"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="tip"><b>적당히 하면 모을 것이 없다.</b>
+      경제성을 맡았으면 <b>끝까지 싸게</b>, 독창성을 맡았으면 <b>끝까지 이상하게</b>.
+      네 사람이 각각 극단으로 밀어야 3쪽에서 합칠 것이 생긴다.</div>
+  </section>
+
+  <section>
+    <h2><span class="no">3</span>내 디자인 그리기<small>맡은 요소 하나만 생각하며</small></h2>
+    <svg viewBox="0 0 560 320" width="100%" height="100mm">
+      <rect x="1.5" y="1.5" width="557" height="317" rx="8" fill="#fcfbf8" stroke="#4a4740" stroke-width="2"/>
+      <text x="280" y="26" text-anchor="middle" font-size="12" fill="#b6b1a8" font-family="Noto Sans KR">바꾼 곳에는 화살표와 한 마디를 붙여 둔다</text>
+    </svg>
+  </section>
+
+  <section>
+    <h2><span class="no">4</span>저울에 올려 보기<small>이 세 줄이 오늘의 핵심</small></h2>
+    <table style="width:100%;border-collapse:separate;border-spacing:0 4px;font-size:10pt">
+      <tr>
+        <td style="width:42mm;background:#eef3fb;border:1.5px solid #2f5fa8;border-radius:7px;
+          padding:6px 9px;font-weight:900;color:#1b3a6b">무엇을 바꿨나</td>
+        <td style="border-bottom:1.4px solid #b9b5ad;height:9mm"></td>
+      </tr>
+      <tr>
+        <td style="background:#eef8f0;border:1.5px solid #2e7a42;border-radius:7px;
+          padding:6px 9px;font-weight:900;color:#2e7a42">그래서 좋아진 점</td>
+        <td style="border-bottom:1.4px solid #b9b5ad;height:9mm"></td>
+      </tr>
+      <tr>
+        <td style="background:#fdeef1;border:1.5px solid #d94141;border-radius:7px;
+          padding:6px 9px;font-weight:900;color:#a8365a">그 대신 나빠진 점</td>
+        <td style="border-bottom:1.4px solid #b9b5ad;height:9mm"></td>
+      </tr>
+    </table>
+  </section>
+
+  <section style="margin-bottom:0">
+    <h2><span class="no">5</span>모둠원은 무엇을 맡았나</h2>
+    <svg viewBox="0 0 560 144" width="100%" height="46mm">
+      <rect x="1" y="1" width="558" height="142" fill="none" stroke="#4a4740" stroke-width="2"/>
+      <rect x="1" y="1" width="558" height="23" fill="#eceff5" stroke="#4a4740" stroke-width="2"/>
+      <line x1="1" y1="24" x2="559" y2="24" stroke="#4a4740" stroke-width="2"/>
+      <line x1="1" y1="64" x2="559" y2="64" stroke="#8a867e" stroke-width="1.4"/>
+      <line x1="1" y1="104" x2="559" y2="104" stroke="#8a867e" stroke-width="1.4"/>
+      <line x1="120" y1="1" x2="120" y2="143" stroke="#8a867e" stroke-width="1.4"/>
+      <line x1="250" y1="1" x2="250" y2="143" stroke="#8a867e" stroke-width="1.4"/>
+      <text x="60" y="17" text-anchor="middle" font-size="12.5" font-weight="700" fill="#1b3a6b" font-family="Noto Sans KR">이름</text>
+      <text x="185" y="17" text-anchor="middle" font-size="12.5" font-weight="700" fill="#1b3a6b" font-family="Noto Sans KR">맡은 요소</text>
+      <text x="405" y="17" text-anchor="middle" font-size="12.5" font-weight="700" fill="#1b3a6b" font-family="Noto Sans KR">어떻게 바꿨나 (한 줄)</text>
+    </svg>
+  </section>
+
+  <div class="foot">9. 반짝반짝 디자인 마술사 · 2/3</div>
+</div>
+
+<!-- ================= 3쪽 ================= -->
+<div class="page">
+  <div class="head">
+    <div>
+      <h1>넷을 합쳐 하나로</h1>
+      <div class="sub">교과서 57쪽 · 모둠 종합 · 3쪽</div>
+    </div>
+    <div class="namebar">이름 <u class="w"></u></div>
+  </div>
+
+  <section>
+    <h2><span class="no">1</span>합친 디자인<small>네 사람의 장점을 모아</small></h2>
+    <svg viewBox="0 0 560 268" width="100%" height="84mm">
+      <rect x="1.5" y="1.5" width="557" height="265" rx="8" fill="#fcfbf8" stroke="#4a4740" stroke-width="2"/>
+      <text x="280" y="25" text-anchor="middle" font-size="12" fill="#b6b1a8" font-family="Noto Sans KR">어느 사람의 생각을 가져왔는지 이름을 적어 둔다</text>
+    </svg>
+  </section>
+
+  <section>
+    <div class="two">
+      <div>
+        <h2 style="font-size:11.5pt"><span class="no">2</span>살린 것</h2>
+        <div class="lines"><div class="ln" style="height:7.4mm"></div><div class="ln" style="height:7.4mm"></div></div>
+      </div>
+      <div>
+        <h2 style="font-size:11.5pt"><span class="no">3</span>버린 것</h2>
+        <div class="lines"><div class="ln" style="height:7.4mm"></div><div class="ln" style="height:7.4mm"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="no">4</span>합친 디자인의 평가표<small>넓다고 좋은 것이 아니다</small></h2>
+    <div class="two" style="align-items:center">
+      <div style="flex:0 0 62mm">
+        <svg viewBox="0 0 250 215" width="100%" height="58mm" data-pent="3"></svg>
+      </div>
+      <div>
+        <div class="qbox" style="margin-bottom:6px">우리 오각형에서 <b>가장 뾰족한 자리</b>는<br>
+          (&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;) 이다.</div>
+        <p class="g" style="margin-bottom:3px">그 자리를 그렇게 높인 대신, 무엇이 낮아졌나?</p>
+        <div class="lines"><div class="ln" style="height:7.6mm"></div><div class="ln" style="height:7.6mm"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="no">5</span>스스로 확인해요</h2>
+    <div class="stars">
+      <div class="srow"><span class="t">디자인 요소를 생각하며 주변의 디자인을 살펴보았다</span><span class="st">☆ ☆ ☆</span></div>
+      <div class="srow"><span class="t">내가 맡은 요소를 <b>끝까지</b> 밀어붙여 디자인했다</span><span class="st">☆ ☆ ☆</span></div>
+      <div class="srow"><span class="t">좋아진 점뿐 아니라 <b>나빠진 점</b>도 말할 수 있다</span><span class="st">☆ ☆ ☆</span></div>
+    </div>
+  </section>
+
+  <section style="margin-bottom:0">
+    <div class="tip" style="background:#f2f6fd;border-color:#2f5fa8">
+      <b style="color:#1b3a6b">되돌아보기</b> — 좋은 디자이너는 잘한 것을 말하는 사람이 아니라
+      <b style="color:#1b3a6b">무엇을 포기했는지</b> 말할 수 있는 사람이다.
+      오늘 내가 포기한 것은 무엇이었나?
+    </div>
+    <div class="lines" style="margin-top:5px"><div class="ln" style="height:8mm"></div></div>
+  </section>
+
+  <div class="foot">9. 반짝반짝 디자인 마술사 · 3/3</div>
+</div>
+
+<script>
+/* 빈 오각형 평가표 — 인쇄에서 선이 사라지지 않도록 전부 SVG 선으로 긋는다 */
+const AX = ['독창성','심미성','경제성','합목적성','환경친화성'];
+document.querySelectorAll('[data-pent]').forEach(svg=>{
+  const vb = svg.getAttribute('viewBox').split(' ').map(Number);
+  const W = vb[2], H = vb[3];
+  const cx = W/2, cy = H/2 + 12, R = Math.min(W,H)/2 - 34;
+  const pt = (i,r)=>{ const a = -Math.PI/2 + i*2*Math.PI/5;
+    return [cx + Math.cos(a)*R*r/5, cy + Math.sin(a)*R*r/5]; };
+  let s = '';
+  for(let ring=1; ring<=5; ring++){
+    const p = [0,1,2,3,4].map(i=>pt(i,ring).map(v=>v.toFixed(1)).join(',')).join(' ');
+    s += '<polygon points="'+p+'" fill="none" stroke="#8a867e" stroke-width="'+(ring===5?1.7:1)+'"/>';
+  }
+  for(let i=0;i<5;i++){
+    const [x,y] = pt(i,5);
+    s += '<line x1="'+cx+'" y1="'+cy+'" x2="'+x.toFixed(1)+'" y2="'+y.toFixed(1)+'" stroke="#8a867e" stroke-width="1"/>';
+    for(let r=1;r<=5;r++){ const [dx,dy] = pt(i,r);
+      s += '<circle cx="'+dx.toFixed(1)+'" cy="'+dy.toFixed(1)+'" r="2" fill="#b9b5ad"/>'; }
+    const [lx,ly] = pt(i,6.15);
+    s += '<text x="'+lx.toFixed(1)+'" y="'+(ly+4).toFixed(1)+'" text-anchor="middle" font-size="11.5" font-weight="700" fill="#4a4740" font-family="Noto Sans KR">'+AX[i]+'</text>';
+  }
+  /* 제목 줄 */
+  s += '<line x1="20" y1="16" x2="'+(W-20)+'" y2="16" stroke="#8a867e" stroke-width="1.3"/>';
+  s += '<text x="20" y="12" font-size="11" font-weight="700" fill="#1b3a6b" font-family="Noto Sans KR">물건 이름</text>';
+  svg.innerHTML = s;
+});
+</script>
+</body>
+</html>

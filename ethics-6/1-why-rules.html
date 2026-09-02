@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>규칙이 없으면 어떻게 될까</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --ink:#1c2430; --navy:#123a63; --navy2:#1d5b95;
+  --red:#c0392b; --gold:#c8963e; --green:#2e7d5b; --plum:#7d4a86;
+  --paper:#f6f2e9; --line:#d9d2c4; --muted:#6d6b66;
+}
+
+html,body{height:100%;background:#0d1520;font-family:'Noto Sans KR',sans-serif;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;overflow:hidden}
+
+#stage{position:absolute;left:50%;top:50%;width:1280px;height:720px;
+  transform-origin:center center;background:var(--paper);overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,.6)}
+
+.slide{position:absolute;inset:0;padding:38px 54px;display:none;
+  flex-direction:column;background:var(--paper);--acc:var(--plum)}
+.slide.on{display:flex}
+.slide::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(circle at 12% 8%,rgba(200,150,62,.10),transparent 45%),
+             radial-gradient(circle at 92% 95%,rgba(125,74,134,.08),transparent 45%)}
+.slide>*{position:relative;z-index:1}
+
+.eyebrow{display:inline-block;font-size:21px;font-weight:700;color:#fff;
+  background:var(--acc);padding:6px 18px;border-radius:999px;margin-bottom:12px;align-self:flex-start}
+h1.title{font-size:54px;font-weight:900;color:var(--navy);line-height:1.16;letter-spacing:-.02em}
+h2.stitle{font-size:40px;font-weight:900;color:var(--acc);line-height:1.2;letter-spacing:-.02em;margin-bottom:6px}
+h2.stitle.sm{font-size:34px}
+.rule{width:92px;height:7px;border-radius:4px;
+  background:linear-gradient(90deg,var(--red),var(--gold));margin:10px 0 20px}
+p.body{font-size:27px;line-height:1.58;color:var(--ink);font-weight:500}
+p.body+p.body{margin-top:12px}
+.small{font-size:23px;line-height:1.5}
+.tiny{font-size:19px;line-height:1.5}
+
+b.hl{font-weight:900;color:var(--red);background:linear-gradient(transparent 62%,rgba(192,57,43,.20) 62%);padding:0 2px}
+b.hn{font-weight:900;color:var(--navy2);background:linear-gradient(transparent 62%,rgba(29,91,149,.18) 62%);padding:0 2px}
+b.hg{font-weight:900;color:var(--green);background:linear-gradient(transparent 62%,rgba(46,125,91,.18) 62%);padding:0 2px}
+b.hp{font-weight:900;color:var(--plum);background:linear-gradient(transparent 62%,rgba(125,74,134,.18) 62%);padding:0 2px}
+
+.cols{display:flex;gap:30px;flex:1;min-height:0;align-items:center}
+.cols.top{align-items:flex-start}
+.cols.stretch{align-items:stretch}
+.col{flex:1;min-width:0}
+
+.term{background:#fff;border-left:9px solid var(--gold);border-radius:8px;padding:14px 18px;
+  box-shadow:0 6px 16px rgba(30,25,15,.10)}
+.term .t{font-size:24px;font-weight:900;color:var(--gold);margin-bottom:3px}
+.term .d{font-size:22px;font-weight:500;color:var(--ink);line-height:1.5}
+
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 20px;
+  box-shadow:0 6px 16px rgba(30,25,15,.09)}
+.card h3{font-size:25px;font-weight:900;color:var(--acc);margin-bottom:8px}
+.card p{font-size:22px;line-height:1.52;color:var(--ink);font-weight:500}
+.card p+p{margin-top:9px}
+
+.act{background:#fff;border:3px dashed var(--navy2);border-radius:18px;padding:20px 24px}
+.act-h{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.act-badge{background:var(--navy2);color:#fff;font-weight:900;font-size:20px;
+  padding:5px 15px;border-radius:999px;white-space:nowrap}
+.act-t{font-size:26px;font-weight:900;color:var(--navy)}
+
+/* 큰 질문 박스 */
+.qbox{background:#fff;border:3px solid var(--acc);border-radius:20px;
+  padding:26px 32px;box-shadow:0 10px 24px rgba(30,25,15,.12)}
+.qbox p{font-size:32px;line-height:1.48;font-weight:700;color:var(--ink)}
+
+/* 번호 목록 */
+.rules{display:flex;flex-direction:column;gap:11px}
+.rl{display:flex;gap:14px;align-items:flex-start;background:#fff;border-radius:12px;
+  padding:13px 18px;box-shadow:0 5px 13px rgba(30,25,15,.09)}
+.rl .n{flex:0 0 34px;height:34px;border-radius:999px;background:var(--acc);color:#fff;
+  font-weight:900;font-size:20px;display:flex;align-items:center;justify-content:center}
+.rl .tx{font-size:22px;line-height:1.45;font-weight:600;color:var(--ink);padding-top:3px}
+
+/* 연표 */
+.tl{display:flex;flex-direction:column;gap:13px;flex:1;justify-content:center}
+.tlrow{display:flex;gap:18px;align-items:stretch}
+.tlyear{flex:0 0 132px;background:var(--acc);color:#fff;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;font-size:25px;font-weight:900}
+.tltx{flex:1;background:#fff;border-radius:12px;padding:13px 18px;
+  box-shadow:0 5px 13px rgba(30,25,15,.09);font-size:22px;line-height:1.45;
+  font-weight:600;color:var(--ink);display:flex;align-items:center}
+
+/* 말풍선 */
+.voices{display:flex;gap:22px;align-items:stretch}
+.voice{flex:1;background:#fff;border-radius:18px;padding:20px 24px;
+  box-shadow:0 6px 16px rgba(30,25,15,.10);display:flex;flex-direction:column;gap:10px;justify-content:center}
+.voice.a{border:3px solid var(--navy2)}
+.voice.b{border:3px solid var(--red)}
+.voice .who{font-size:22px;font-weight:900}
+.voice.a .who{color:var(--navy2)}
+.voice.b .who{color:var(--red)}
+.voice .say{font-family:'Gaegu',sans-serif;font-size:31px;line-height:1.36;
+  font-weight:700;color:var(--ink)}
+
+.chip{display:inline-block;background:#fff;border:2px solid var(--acc);color:var(--acc);
+  font-weight:900;font-size:19px;border-radius:999px;padding:8px 18px;margin:5px 6px 0 0}
+.chipwrap{display:flex;flex-wrap:wrap}
+
+/* 단원 지도 */
+.map{display:flex;gap:16px;flex:1;align-items:stretch}
+.mstep{flex:1;background:#fff;border-radius:16px;padding:18px 16px;text-align:center;
+  box-shadow:0 6px 16px rgba(30,25,15,.10);display:flex;flex-direction:column;gap:9px;
+  justify-content:center;border:3px solid var(--line)}
+.mstep.now{border-color:var(--plum);box-shadow:0 10px 26px rgba(125,74,134,.25)}
+.mstep .mn{width:38px;height:38px;border-radius:999px;background:var(--line);color:#fff;
+  font-weight:900;font-size:21px;display:flex;align-items:center;justify-content:center;margin:0 auto}
+.mstep.now .mn{background:var(--plum)}
+.mstep .mt{font-size:21px;font-weight:900;color:var(--ink);line-height:1.32}
+.mstep .md{font-size:17px;font-weight:600;color:var(--muted);line-height:1.4}
+
+/* 표지 */
+.cover2{justify-content:center;align-items:center;text-align:center;background:linear-gradient(160deg,#5d3566,#7d4a86 70%)}
+.cover2 .kicker{color:#f3d79a;font-size:22px;font-weight:700;margin-bottom:16px}
+.cover2 h1{color:#fff;font-size:52px;font-weight:900;line-height:1.28}
+.cover2 .sub{color:#e6dbea;font-size:24px;font-weight:500;margin-top:18px}
+
+.divider{justify-content:center;align-items:center;text-align:center;background:linear-gradient(160deg,#7d4a86,#5d3566 70%)}
+.divider .num{color:#f3d79a;font-size:26px;font-weight:900;margin-bottom:10px}
+.divider h1{color:#fff;font-size:44px;font-weight:900;line-height:1.3}
+.divider .sub{color:#e6dbea;font-size:23px;font-weight:500;margin-top:16px}
+
+.bar{position:fixed;left:0;right:0;bottom:0;height:46px;background:#0f1a29;color:#cfd8e6;
+  display:flex;align-items:center;gap:10px;padding:0 14px;font-size:15px;z-index:50}
+.bar button{background:#1d3350;color:#e8eef7;border:0;border-radius:7px;padding:7px 13px;
+  font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+.bar button:hover{background:#2a4a70}
+#prog{position:fixed;left:0;top:0;height:4px;background:var(--plum);z-index:60;transition:width .18s}
+.zone{position:fixed;top:0;bottom:46px;width:12%;z-index:40;cursor:pointer}
+#zl{left:0}#zr{right:0}
+</style>
+</head>
+<body>
+
+<div id="prog"></div>
+<div id="stage"></div>
+<div class="zone" id="zl"></div>
+<div class="zone" id="zr"></div>
+<div class="bar">
+  <button onclick="go(-1)">◀ 이전</button>
+  <button onclick="go(1)">다음 ▶</button>
+  <span id="counter">1 / 1</span>
+  <span style="margin-left:18px;opacity:.7">← → 이동 · F 전체화면</span>
+  <button style="margin-left:auto" onclick="fs()">⛶ 전체화면</button>
+</div>
+
+<script>
+const IMG = {};
+/*IMG_INJECT*/
+
+const SLIDES = [
+
+/* 1. 표지 */
+`<section class="slide cover2">
+  <div class="kicker">도덕 6. 공동체를 정의롭게! · 1차시 · 88~91쪽</div>
+  <h1>규칙이 없으면<br>어떻게 될까</h1>
+  <div class="sub">규칙은 나를 막는 것일까, 지켜 주는 것일까?</div>
+</section>`,
+
+/* 2. 단원 지도 */
+`<section class="slide">
+  <span class="eyebrow">6단원 · 우리가 할 일</span>
+  <h2 class="stitle">이 단원은 네 시간이 이어진다</h2>
+  <div class="rule"></div>
+  <div class="map">
+    <div class="mstep now">
+      <div class="mn">1</div>
+      <div class="mt">규칙이<br>왜 필요한지</div>
+      <div class="md">오늘</div>
+    </div>
+    <div class="mstep">
+      <div class="mn">2</div>
+      <div class="mt">우리 반 규칙<br>진짜로 만들기</div>
+      <div class="md">공정한 절차로</div>
+    </div>
+    <div class="mstep">
+      <div class="mn">3</div>
+      <div class="mt">일주일 지켜 보고<br>고치기</div>
+      <div class="md">안 맞는 곳 찾기</div>
+    </div>
+    <div class="mstep">
+      <div class="mn">4</div>
+      <div class="mt">정의로운 공동체란<br>무엇인가</div>
+      <div class="md">마음 다지기</div>
+    </div>
+  </div>
+  <p class="body small" style="margin-top:18px;color:var(--muted)">
+  2차시에 만든 규칙을 <b class="hp">진짜로 일주일 동안 지켜 본다.</b>
+  3차시는 그 일주일 동안 겪은 일로 수업한다.</p>
+</section>`,
+
+/* 3. 활동 안내 — 규칙 빠진 나눔 */
+`<section class="slide" style="--acc:var(--red)">
+  <span class="eyebrow">먼저 해 보기 · 3분</span>
+  <h2 class="stitle">모둠에 이것을 나눠 줄게요</h2>
+  <div class="rule"></div>
+  <div class="cols stretch">
+    <div class="col" style="flex:1.1">
+      <div class="qbox" style="margin-bottom:16px">
+        <p>모둠마다 <b class="hl">스티커 7장</b>을 줍니다.<br>
+        4명이 나눠 가지세요.</p>
+      </div>
+      <p class="body">…설명은 이게 전부입니다. <b class="hl">더 알려 주지 않습니다.</b></p>
+    </div>
+    <div class="col">
+      <div class="card" style="height:100%;display:flex;flex-direction:column;justify-content:center">
+        <h3>지금부터 3분</h3>
+        <p>· 다 나누면 손을 든다</p>
+        <p>· 다투어도 괜찮다</p>
+        <p>· 못 나눠도 괜찮다</p>
+        <p style="margin-top:14px;color:var(--muted);font-size:20px">
+        선생님은 아무 말도 하지 않습니다.</p>
+      </div>
+    </div>
+  </div>
+</section>`,
+
+/* 4. 활동 후 — 무슨 일이 있었나 */
+`<section class="slide" style="--acc:var(--red)">
+  <span class="eyebrow">활동 뒤 · 혼자 쓰기</span>
+  <h2 class="stitle">방금 무슨 일이 있었나요?</h2>
+  <div class="rule"></div>
+  <div class="rules" style="flex:1;justify-content:center">
+    <div class="rl"><span class="n">1</span><span class="tx">누가 먼저 가져갔나요? 그 사람은 <b class="hl">왜</b> 먼저 가져갈 수 있었나요?</span></div>
+    <div class="rl"><span class="n">2</span><span class="tx">7장을 4명이 나눌 때, <b class="hl">남는 3장</b>은 어떻게 했나요?</span></div>
+    <div class="rl"><span class="n">3</span><span class="tx">말을 못 꺼낸 사람이 있었나요? 그 사람 마음은 어땠을까요?</span></div>
+    <div class="rl"><span class="n">4</span><span class="tx">선생님이 <b class="hn">뭘 안 알려 줬기 때문에</b> 이렇게 됐을까요?</span></div>
+  </div>
+  <p class="body small" style="margin-top:14px;color:var(--muted)">
+  네 번째 질문의 답이 오늘 배울 것입니다.</p>
+</section>`,
+
+/* 5. 구분 — 이론 */
+`<section class="slide divider">
+  <div class="num">잠깐, 옛날 이야기</div>
+  <h1>축구에는 원래<br>규칙이 없었다</h1>
+  <div class="sub">150년 전 영국에서 실제로 있었던 일</div>
+</section>`,
+
+/* 6. 축구 1 — 규칙이 학교마다 달랐다 */
+`<section class="slide" style="--acc:var(--green)">
+  <span class="eyebrow">1863년 이전 · 영국</span>
+  <h2 class="stitle sm">경기를 하려면 먼저 '회의'부터 해야 했다</h2>
+  <div class="rule"></div>
+  <div class="cols stretch">
+    <div class="col">
+      <div class="card" style="height:100%">
+        <h3>학교마다 축구 규칙이 달랐다</h3>
+        <p>어떤 학교는 <b class="hg">손으로 공을 들고 뛰어도</b> 됐고,
+        어떤 학교는 안 됐다.</p>
+        <p>어떤 학교는 <b class="hl">상대의 정강이를 걷어차도</b> 반칙이 아니었다.</p>
+        <p>그래서 다른 학교와 시합을 하려면 <b class="hn">경기 시작 전에 규칙부터
+        정하는 회의</b>를 했다. 그 회의만 몇 시간이 걸렸다.</p>
+      </div>
+    </div>
+    <div class="col">
+      <div class="voices" style="flex-direction:column;height:100%">
+        <div class="voice a">
+          <div class="who">A 학교</div>
+          <div class="say">"손으로 들고 뛰는 게<br>당연히 축구지!"</div>
+        </div>
+        <div class="voice b">
+          <div class="who">B 학교</div>
+          <div class="say">"그건 축구가 아니야.<br>발로만 차야지."</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>`,
+
+/* 7. 축구 2 — 연표 */
+`<section class="slide" style="--acc:var(--green)">
+  <span class="eyebrow">규칙이 생기기까지</span>
+  <h2 class="stitle">싸움을 멈추려고 규칙을 만들었다</h2>
+  <div class="rule"></div>
+  <div class="tl">
+    <div class="tlrow">
+      <div class="tlyear">1848</div>
+      <div class="tltx">케임브리지 대학 학생들이 여러 학교의 규칙을 모아 하나로 정리했다.</div>
+    </div>
+    <div class="tlrow">
+      <div class="tlyear">1863</div>
+      <div class="tltx">런던의 한 술집에 클럽 대표들이 모여 <b class="hg">축구 협회(FA)</b>를 만들고
+      규칙을 하나로 합쳤다.</div>
+    </div>
+    <div class="tlrow">
+      <div class="tlyear">그때</div>
+      <div class="tltx">"정강이 차기를 금지하자"는 데 반대한 클럽들이 <b class="hl">회의장을 나가</b>
+      따로 <b class="hn">럭비</b>를 만들었다.</div>
+    </div>
+    <div class="tlrow">
+      <div class="tlyear">지금</div>
+      <div class="tltx">전 세계 어느 나라에서 만나도 <b class="hg">같은 규칙</b>으로 축구를 한다.</div>
+    </div>
+  </div>
+</section>`,
+
+/* 8. 축구 정리 — 규칙이 한 일 */
+`<section class="slide" style="--acc:var(--green)">
+  <span class="eyebrow">생각해 보기</span>
+  <h2 class="stitle">규칙이 생기고 나서 달라진 것</h2>
+  <div class="rule"></div>
+  <div class="cols">
+    <div class="col">
+      <div class="card" style="border-color:var(--red);margin-bottom:16px">
+        <h3 style="color:var(--red)">규칙이 없을 때</h3>
+        <p>· 힘세고 목소리 큰 쪽이 이겼다<br>
+        · 경기보다 말다툼이 길었다<br>
+        · 처음 온 사람은 뭘 해야 할지 몰랐다</p>
+      </div>
+      <div class="card" style="border-color:var(--green)">
+        <h3 style="color:var(--green)">규칙이 생긴 뒤</h3>
+        <p>· 힘이 약해도 같은 조건에서 겨룬다<br>
+        · 시간을 경기에 다 쓴다<br>
+        · 처음 온 사람도 바로 낄 수 있다</p>
+      </div>
+    </div>
+    <div class="col">
+      <div class="qbox">
+        <p>규칙은 우리를 <b class="hl">막으려고</b> 있는 걸까,<br>
+        <b class="hg">지켜 주려고</b> 있는 걸까?</p>
+      </div>
+      <p class="body small" style="margin-top:16px;color:var(--muted)">
+      축구 규칙은 잘하는 선수를 막으려고 만든 게 아니라,
+      <b class="hg">누구든 경기에 낄 수 있게</b> 만든 것이다.</p>
+    </div>
+  </div>
+</section>`,
+
+/* 9. 이론 2 — 모두의 것 */
+`<section class="slide" style="--acc:var(--gold)">
+  <span class="eyebrow">또 하나 · 우리 주변</span>
+  <h2 class="stitle sm">"모두의 것"은 왜 자꾸 망가질까</h2>
+  <div class="rule"></div>
+  <div class="cols top">
+    <div class="col">
+      <div class="rules">
+        <div class="rl"><span class="n">·</span><span class="tx">공유 킥보드가 길 한복판에 누워 있다</span></div>
+        <div class="rl"><span class="n">·</span><span class="tx">교실 공용 사인펜은 뚜껑이 늘 열려 있다</span></div>
+        <div class="rl"><span class="n">·</span><span class="tx">무인 가게 물건이 사라지고, 결국 문을 닫는다</span></div>
+        <div class="rl"><span class="n">·</span><span class="tx">놀이터 그네를 한 사람이 20분째 타고 있다</span></div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="term" style="margin-bottom:16px">
+        <div class="t">왜 그럴까</div>
+        <div class="d">내 것이면 아끼는데, <b class="hp">모두의 것</b>은
+        "나 하나쯤" 하는 마음이 모여서 결국 <b class="hl">아무도 못 쓰게</b> 된다.</div>
+      </div>
+      <p class="body small">한 사람이 나빠서가 아니다.
+      <b class="hn">누가 언제 얼마나 쓸지 정해 두지 않아서</b>다.</p>
+    </div>
+  </div>
+</section>`,
+
+/* 10. 다시 우리 활동으로 */
+`<section class="slide" style="--acc:var(--red)">
+  <span class="eyebrow">아까 그 스티커 7장</span>
+  <h2 class="stitle">우리에게 없었던 것도 그것이다</h2>
+  <div class="rule"></div>
+  <div class="cols stretch">
+    <div class="col">
+      <div class="card" style="height:100%">
+        <h3>없었던 것</h3>
+        <p>· <b class="hl">누가 먼저</b> 가져갈지 → 안 정했다</p>
+        <p>· <b class="hl">몇 장씩</b> 가져갈지 → 안 정했다</p>
+        <p>· <b class="hl">남는 3장</b>은 어떻게 할지 → 안 정했다</p>
+        <p>· <b class="hl">말을 못 꺼낸 사람</b>은 어떻게 할지 → 안 정했다</p>
+      </div>
+    </div>
+    <div class="col">
+      <div class="qbox" style="border-color:var(--red)">
+        <p>다투게 만든 건<br>
+        <b class="hl">우리가 나빠서</b>가 아니라<br>
+        <b class="hn">정해진 것이 없어서</b>였다.</p>
+      </div>
+    </div>
+  </div>
+</section>`,
+
+/* 11. 모둠활동 안내 */
+`<section class="slide" style="--acc:var(--navy2)">
+  <span class="eyebrow">모둠 활동 · 교과서 88~89쪽</span>
+  <h2 class="stitle">놀이 시간의 문제를 규칙으로 풀어 보자</h2>
+  <div class="rule"></div>
+  <div class="cols stretch">
+    <div class="col">
+      <div class="rules">
+        <div class="rl"><span class="n">1</span><span class="tx">교과서 88쪽 <b class="hn">상황 1·2·3</b>을 읽는다</span></div>
+        <div class="rl"><span class="n">2</span><span class="tx"><b class="hn">상황 4</b>에는 <b class="hl">아까 우리가 겪은 일</b>을 그리거나 쓴다</span></div>
+        <div class="rl"><span class="n">3</span><span class="tx">89쪽 표에 상황마다 <b class="hn">무엇이 문제인지</b> 적는다</span></div>
+        <div class="rl"><span class="n">4</span><span class="tx">그 문제를 막을 <b class="hn">규칙</b>을 한 줄로 적는다</span></div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="act" style="height:100%;display:flex;flex-direction:column;justify-content:center">
+        <div class="act-h"><span class="act-badge">규칙 쓰는 법</span></div>
+        <p class="body small" style="margin-bottom:10px">
+        ✗ "사이좋게 지내자" — 지켰는지 알 수 없다</p>
+        <p class="body small">
+        ○ "놀이 도구는 <b class="hn">한 사람이 5분씩</b>, 다음 사람은 이름 순서로" — 지켰는지 보인다</p>
+      </div>
+    </div>
+  </div>
+</section>`,
+
+/* 12. 발표 후 되물음 */
+`<section class="slide" style="--acc:var(--navy2)">
+  <span class="eyebrow">발표하고 나서</span>
+  <h2 class="stitle">교과서 90쪽 · 세 가지 물음</h2>
+  <div class="rule"></div>
+  <div class="rules" style="flex:1;justify-content:center">
+    <div class="rl"><span class="n">1</span><span class="tx">우리 반에 규칙이 <b class="hl">하나도 없다면</b> 어떤 일이 일어날까?</span></div>
+    <div class="rl"><span class="n">2</span><span class="tx">규칙이 <b class="hn">필요한 이유</b>는 무엇일까?</span></div>
+    <div class="rl"><span class="n">3</span><span class="tx">문제를 막거나 해결하려면 규칙은 <b class="hg">어떠해야</b> 할까?</span></div>
+  </div>
+  <div class="term" style="margin-top:16px">
+    <div class="t">세 번째 물음이 다음 시간 주제다</div>
+    <div class="d">규칙이 있기만 하면 될까? <b class="hp">공정한</b> 규칙이어야 한다.</div>
+  </div>
+</section>`,
+
+/* 13. 규칙 나무 */
+`<section class="slide" style="--acc:var(--green)">
+  <span class="eyebrow">마무리 · 교과서 90~91쪽</span>
+  <h2 class="stitle">규칙 나무에 잎사귀를 달자</h2>
+  <div class="rule"></div>
+  <div class="cols stretch">
+    <div class="col">
+      <p class="body" style="margin-bottom:16px">오늘 알게 된 것을 <b class="hg">한 문장</b>으로
+      나뭇잎 메모지에 적는다. (붙임 자료 ①⑧)</p>
+      <div class="voices">
+        <div class="voice a">
+          <div class="who">이렇게</div>
+          <div class="say">"규칙은 힘이 약한<br>사람을 지켜 준다."</div>
+        </div>
+        <div class="voice b">
+          <div class="who">이렇게도</div>
+          <div class="say">"안 정해 두면<br>목소리 큰 사람이 정한다."</div>
+        </div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="act" style="height:100%;display:flex;flex-direction:column;justify-content:center">
+        <div class="act-h"><span class="act-badge">잘 간직할 것</span></div>
+        <p class="body">이 규칙 나무는 <b class="hg">4차시에 다시 쓴다.</b></p>
+        <p class="body small" style="margin-top:12px;color:var(--muted)">
+        그때는 잎사귀 위에 <b class="hp">열매</b>를 단다.
+        정의로운 반을 만드는 데 도움을 준 친구 이름을 적어서.</p>
+      </div>
+    </div>
+  </div>
+</section>`,
+
+/* 14. 마무리 */
+`<section class="slide divider">
+  <div class="num">오늘의 한 문장</div>
+  <h1>규칙이 없으면<br>목소리 큰 사람이 정한다</h1>
+  <div class="sub">다음 시간 — 그럼 어떻게 정해야 공정할까?</div>
+</section>`
+
+];
+
+const stage = document.getElementById('stage');
+stage.innerHTML = SLIDES.join('');
+const slides = [...stage.querySelectorAll('.slide')];
+stage.querySelectorAll('img[data-img]').forEach(img => {
+  const key = img.getAttribute('data-img');
+  if (IMG[key]) img.src = IMG[key];
+});
+
+let cur = 0;
+function show(i){
+  cur = Math.max(0, Math.min(slides.length - 1, i));
+  slides.forEach((s,n) => s.classList.toggle('on', n === cur));
+  document.getElementById('counter').textContent = (cur+1) + ' / ' + slides.length;
+  const p = document.getElementById('prog');
+  p.style.width = ((cur+1)/slides.length*100) + '%';
+  p.style.background = getComputedStyle(slides[cur]).getPropertyValue('--acc');
+}
+function go(d){ show(cur + d); }
+
+function fit(){
+  const s = Math.min(window.innerWidth/1280, (window.innerHeight-46)/720);
+  stage.style.transform = 'translate(-50%,-50%) scale(' + s + ')';
+}
+function fs(){
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+  else document.exitFullscreen();
+}
+
+document.addEventListener('keydown', e => {
+  if (['ArrowRight','PageDown',' '].includes(e.key)) { e.preventDefault(); go(1); }
+  if (['ArrowLeft','PageUp'].includes(e.key)) { e.preventDefault(); go(-1); }
+  if (e.key === 'Home') show(0);
+  if (e.key === 'End') show(slides.length-1);
+  if (e.key === 'f' || e.key === 'F') fs();
+});
+document.getElementById('zl').onclick = () => go(-1);
+document.getElementById('zr').onclick = () => go(1);
+
+let tx=0, ty=0;
+document.addEventListener('touchstart', e => { tx=e.touches[0].clientX; ty=e.touches[0].clientY; }, {passive:true});
+document.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty;
+  if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) go(dx < 0 ? 1 : -1);
+}, {passive:true});
+
+window.addEventListener('resize', fit);
+fit();
+show(0);
+</script>
+</body>
+</html>

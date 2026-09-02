@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>솔라도레미 작곡소 — 굿거리 위에 얹는 나만의 가락</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1c2430; --navy:#123a63; --navy2:#1d5b95;
+  --red:#c0392b; --gold:#c8963e; --green:#2e7d5b; --plum:#7d4a86;
+  --paper:#f6f2e9; --line:#d9d2c4; --muted:#6d6b66;
+}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--paper);color:var(--ink);
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;
+  padding:14px 16px 24px;min-height:100vh}
+.wrap{max-width:1180px;margin:0 auto}
+
+header{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:6px}
+h1{font-size:30px;font-weight:900;color:var(--navy);letter-spacing:-.02em}
+header .sub{font-size:17px;font-weight:700;color:var(--muted)}
+.lead{font-size:17px;line-height:1.5;color:var(--ink);margin-bottom:14px}
+.lead b{color:var(--red);font-weight:900}
+
+/* 탭 */
+.tabs{display:flex;gap:9px;margin-bottom:12px}
+.tab{flex:1;min-height:52px;border:3px solid var(--line);background:#fff;border-radius:13px;
+  font-family:inherit;font-size:19px;font-weight:900;color:var(--muted);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:8px}
+.tab.on{border-color:var(--red);color:var(--red);background:#fdf1ef}
+.tab .cnt{font-size:14px;font-weight:700;color:var(--muted)}
+
+/* 격자 */
+.gridbox{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 12px 8px;
+  box-shadow:0 5px 14px rgba(30,25,15,.08);margin-bottom:12px;overflow-x:auto}
+table.grid{border-collapse:separate;border-spacing:0;width:100%;min-width:660px}
+table.grid td{padding:0}
+td.rl{width:62px;font-size:20px;font-weight:900;color:var(--navy);text-align:right;
+  padding-right:10px;white-space:nowrap}
+td.rl.hi{color:#a5761d}
+.cell{height:46px;border:2px solid #e7e0d0;border-radius:8px;background:#fdfcf8;cursor:pointer;
+  margin:2px 1.5px;display:block;width:calc(100% - 3px)}
+.cell.beat{border-left:4px solid #b3a688;background:#f4efe2}
+.cell.on{background:var(--red);border-color:#8c2418;box-shadow:inset 0 -3px 0 rgba(0,0,0,.14)}
+.cell.hold{background:#f3c3bb;border-color:#e0a79e}
+.cell.now{outline:3px solid var(--gold);outline-offset:1px}
+tr.beatlbl td{font-size:14px;font-weight:900;color:var(--muted);text-align:center;padding-top:3px}
+
+/* 조작 */
+.ctrl{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:12px}
+.btn{min-height:54px;padding:11px 20px;border:0;border-radius:13px;cursor:pointer;
+  font-family:inherit;font-size:19px;font-weight:900;color:#fff;background:var(--navy2);
+  box-shadow:0 4px 0 #0e3a63;display:inline-flex;align-items:center;gap:7px}
+.btn:active{transform:translateY(2px);box-shadow:0 2px 0 #0e3a63}
+.btn.red{background:var(--red);box-shadow:0 4px 0 #8c2418}
+.btn.green{background:var(--green);box-shadow:0 4px 0 #1d5540}
+.btn.gold{background:var(--gold);box-shadow:0 4px 0 #966b1f}
+.btn.grey{background:#6b7280;box-shadow:0 4px 0 #444b55}
+.btn.ghost{background:#fff;color:var(--navy);border:3px solid var(--line);box-shadow:none;font-size:17px}
+.btn.ghost.on{border-color:var(--green);color:var(--green);background:#eef7f2}
+
+/* 결과 */
+.out{display:flex;gap:12px;flex-wrap:wrap}
+.panel{flex:1;min-width:300px;background:#fff;border:1px solid var(--line);border-radius:14px;
+  padding:13px 16px;box-shadow:0 5px 14px rgba(30,25,15,.08)}
+.panel h2{font-size:19px;font-weight:900;color:var(--navy);margin-bottom:8px}
+.panel h2 .tagm{font-size:14px;font-weight:700;color:var(--muted);margin-left:6px}
+.score{font-family:'Gaegu',sans-serif;font-size:24px;line-height:1.7;color:var(--ink);
+  word-break:keep-all}
+.score .bar{color:#c9bfa8;padding:0 3px}
+.score .rest{color:#bdb5a4}
+.score .lbl{font-family:'Noto Sans KR',sans-serif;font-size:15px;font-weight:900;
+  color:#fff;background:var(--navy2);border-radius:6px;padding:2px 8px;margin-right:7px}
+.score .lbl.b{background:var(--gold)}
+.keyguide{font-size:17px;line-height:1.65}
+.keyguide b{font-weight:900;color:var(--red)}
+.kbmap{display:flex;gap:6px;margin:9px 0 4px;flex-wrap:wrap}
+.kbmap span{border:2px solid var(--line);border-radius:8px;padding:5px 11px;font-size:16px;
+  font-weight:900;background:#fff}
+.kbmap span.no{background:#efe9db;color:#b0a894;text-decoration:line-through;border-style:dashed}
+.tip{font-size:15px;color:var(--muted);line-height:1.55;margin-top:8px}
+.warn{font-size:16px;font-weight:700;color:var(--red);margin-top:8px;display:none}
+.warn.show{display:block}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>솔라도레미 작곡소</h1>
+  <span class="sub">굿거리 위에 얹는 나만의 가락 · 5학년 음악</span>
+</header>
+<p class="lead">
+  칸을 눌러 음을 놓아 보자. 다섯 음뿐이라 <b>틀린 음이 없다.</b>
+  빈 칸은 앞 음이 그대로 이어진다. 마지막은 <b>솔</b>로 끝내면 맺히는 느낌이 난다.
+</p>
+
+<div class="tabs">
+  <button class="tab on" data-tab="a"><span>a 도막</span><span class="cnt" id="ca"></span></button>
+  <button class="tab" data-tab="b"><span>b 도막</span><span class="cnt" id="cb"></span></button>
+</div>
+
+<div class="gridbox"><div id="grid"></div></div>
+
+<div class="ctrl">
+  <button class="btn red" id="playPart">▶ 이 도막</button>
+  <button class="btn green" id="playAll">▶ 완성곡 a-b-a</button>
+  <button class="btn grey" id="stop">■ 멈춤</button>
+  <button class="btn ghost on" id="tDrum">🥁 장단 켬</button>
+  <button class="btn ghost" id="tSlow">🐢 느리게</button>
+  <button class="btn gold" id="demo">예시 넣기</button>
+  <button class="btn ghost" id="clear">이 도막 지우기</button>
+  <button class="btn ghost" id="undo" disabled>↩ 되돌리기</button>
+</div>
+
+<div class="out">
+  <div class="panel">
+    <h2>내 곡 계이름 <span class="tagm">퍼펙트 피아노로 쳐 보자</span></h2>
+    <div class="score" id="score"></div>
+    <div class="warn" id="warn">아직 아무 음도 놓지 않았어요. 칸을 눌러 보세요.</div>
+  </div>
+  <div class="panel">
+    <h2>피아노에서 어디를 누를까</h2>
+    <div class="keyguide">
+      흰건반에서 <b>파와 시만 빼고</b> 치면 그게 경토리다.
+      <div class="kbmap">
+        <span>도 C</span><span>레 D</span><span>미 E</span><span class="no">파 F</span>
+        <span>솔 G</span><span>라 A</span><span class="no">시 B</span>
+      </div>
+      <div class="tip">
+        · 낮은 <b>솔(G)</b>에서 시작해 <b>높은 솔(G)</b>까지가 이 작곡소의 여섯 칸이다.<br>
+        · <b>검은건반 5개만</b> 쳐도 같은 원리로 어울린다 — 파·시가 없는 다섯 음이라서다.
+        아무 데나 눌러도 되니 마음껏 해 보자.
+      </div>
+    </div>
+  </div>
+  <div class="panel" style="flex:0 0 214px;text-align:center">
+    <h2 style="justify-content:center">📱 이 작곡소 열기</h2>
+    <img id="qr" alt="작곡소 QR코드"
+         style="width:150px;height:150px;border-radius:10px;border:3px solid var(--line)">
+    <div class="tip" style="margin-top:6px">태블릿으로 찍으면 바로 열린다.<br>친구에게 보여줄 때도 쓰자.</div>
+  </div>
+</div>
+
+</div>
+
+<script>
+/* QR 코드 (외부 서비스를 부르지 않는다 — 학교 방화벽에서 막힌다) */
+const QR_SRC = "data:image/png;base64,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";
+document.getElementById('qr').src = QR_SRC;
+
+/* ===== 소리 ===== */
+const F = { G4:392.00, A4:440.00, C5:523.25, D5:587.33, E5:659.25, G5:783.99 };
+/* 위에서 아래로 = 높은음에서 낮은음 */
+const ROWS = [
+  { note:'G5', name:'솔', hi:true },
+  { note:'E5', name:'미' },
+  { note:'D5', name:'레' },
+  { note:'C5', name:'도' },
+  { note:'A4', name:'라' },
+  { note:'G4', name:'솔' }
+];
+const STEPS = 12;                       /* 굿거리 한 장단 = 4박 × 3소박 */
+const KEYNAME = { G4:'솔', A4:'라', C5:'도', D5:'레', E5:'미', G5:'솔↑' };
+const PIANO   = { G4:'G', A4:'A', C5:'C', D5:'D', E5:'E', G5:'G' };
+
+let ac = null, timers = [], playing = false;
+function audio(){
+  if(!ac) ac = new (window.AudioContext || window.webkitAudioContext)();
+  if(ac.state === 'suspended') ac.resume();
+  return ac;
+}
+function tone(a, t, f, d, vol){
+  const o = a.createOscillator(), g = a.createGain();
+  o.type = 'triangle'; o.frequency.value = f;
+  const v = vol === undefined ? .20 : vol;
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(v, t + .015);
+  g.gain.setValueAtTime(v, t + d * .74);
+  g.gain.exponentialRampToValueAtTime(.0008, t + d * .99);
+  o.connect(g); g.connect(a.destination);
+  o.start(t); o.stop(t + d + .02);
+}
+function drum(a, t, kind){
+  if(kind === 'low' || kind === 'both'){
+    const o = a.createOscillator(), g = a.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(150, t);
+    o.frequency.exponentialRampToValueAtTime(62, t + .10);
+    g.gain.setValueAtTime(.45, t);
+    g.gain.exponentialRampToValueAtTime(.001, t + .30);
+    o.connect(g); g.connect(a.destination);
+    o.start(t); o.stop(t + .32);
+  }
+  if(kind === 'high' || kind === 'both'){
+    const o = a.createOscillator(), g = a.createGain(), f = a.createBiquadFilter();
+    o.type = 'square';
+    o.frequency.setValueAtTime(1450, t);
+    o.frequency.exponentialRampToValueAtTime(760, t + .05);
+    f.type = 'bandpass'; f.frequency.value = 1700; f.Q.value = 1.1;
+    g.gain.setValueAtTime(.15, t);
+    g.gain.exponentialRampToValueAtTime(.001, t + .11);
+    o.connect(f); f.connect(g); g.connect(a.destination);
+    o.start(t); o.stop(t + .13);
+  }
+}
+/* 굿거리 — 덩 · 기 / 덕 · · / 쿵 · · / 더 러 러 */
+const GUT = {0:'both', 2:'high', 3:'high', 6:'low', 9:'high', 10:'high', 11:'high'};
+
+/* ===== 상태 ===== */
+const ST = {
+  a: new Array(STEPS).fill(null),
+  b: new Array(STEPS).fill(null),
+  tab: 'a', drum: true, slow: false
+};
+try{
+  const saved = JSON.parse(localStorage.getItem('gyeongtori-compose') || 'null');
+  if(saved && Array.isArray(saved.a) && Array.isArray(saved.b)
+     && saved.a.length === STEPS && saved.b.length === STEPS){
+    ST.a = saved.a; ST.b = saved.b;
+  }
+}catch(e){}
+function save(){
+  try{ localStorage.setItem('gyeongtori-compose', JSON.stringify({a:ST.a, b:ST.b})); }catch(e){}
+}
+
+/* ===== 격자 ===== */
+function buildGrid(){
+  const part = ST[ST.tab];
+  let h = '<table class="grid"><tbody>';
+  ROWS.forEach((r, ri) => {
+    h += '<tr><td class="rl' + (r.hi ? ' hi' : '') + '">' + r.name + (r.hi ? '↑' : '') + '</td>';
+    for(let s = 0; s < STEPS; s++){
+      const on = part[s] === r.note;
+      /* 앞의 음이 이어지는 칸인지 */
+      let hold = false;
+      if(!on){
+        for(let k = s - 1; k >= 0; k--){
+          if(part[k] !== null){ hold = (part[k] === r.note); break; }
+        }
+      }
+      h += '<td><button class="cell' + (s % 3 === 0 ? ' beat' : '') +
+           (on ? ' on' : (hold ? ' hold' : '')) +
+           '" data-r="' + ri + '" data-s="' + s + '"></button></td>';
+    }
+    h += '</tr>';
+  });
+  h += '<tr class="beatlbl"><td></td>';
+  for(let s = 0; s < STEPS; s++) h += '<td>' + (s % 3 === 0 ? (s / 3 + 1) : '') + '</td>';
+  h += '</tr></tbody></table>';
+  document.getElementById('grid').innerHTML = h;
+  document.querySelectorAll('.cell').forEach(c => {
+    c.onclick = () => {
+      const ri = +c.dataset.r, s = +c.dataset.s, note = ROWS[ri].note;
+      ST[ST.tab][s] = (ST[ST.tab][s] === note) ? null : note;   /* 한 칸에 한 음 */
+      save(); render();
+      const a = audio();                                        /* 누른 음 바로 들려주기 */
+      if(ST[ST.tab][s]) tone(a, a.currentTime + .01, F[note], .5);
+    };
+  });
+}
+function countOf(k){ return ST[k].filter(x => x !== null).length; }
+
+/* ===== 계이름 ===== */
+function scoreOf(part){
+  let out = '', any = false;
+  for(let s = 0; s < STEPS; s++){
+    if(s > 0 && s % 3 === 0) out += '<span class="bar">|</span> ';
+    if(part[s]){ out += KEYNAME[part[s]] + ' '; any = true; }
+    else out += '<span class="rest">–</span> ';
+  }
+  return any ? out : null;
+}
+function renderScore(){
+  const sa = scoreOf(ST.a), sb = scoreOf(ST.b);
+  const box = document.getElementById('score');
+  const warn = document.getElementById('warn');
+  if(!sa && !sb){ box.innerHTML = ''; warn.classList.add('show'); return; }
+  warn.classList.remove('show');
+  let h = '';
+  h += '<div><span class="lbl">a</span>' + (sa || '<span class="rest">비어 있음</span>') + '</div>';
+  h += '<div style="margin-top:6px"><span class="lbl b">b</span>' + (sb || '<span class="rest">비어 있음</span>') + '</div>';
+  h += '<div style="margin-top:6px"><span class="lbl">a</span>' + (sa || '<span class="rest">비어 있음</span>') + '</div>';
+  box.innerHTML = h;
+}
+function render(){
+  buildGrid();
+  renderScore();
+  document.getElementById('ca').textContent = countOf('a') ? countOf('a') + '음' : '';
+  document.getElementById('cb').textContent = countOf('b') ? countOf('b') + '음' : '';
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.dataset.tab === ST.tab));
+}
+
+/* ===== 재생 ===== */
+function stopAll(){
+  timers.forEach(clearTimeout); timers = [];
+  document.querySelectorAll('.cell.now').forEach(c => c.classList.remove('now'));
+  if(ac){ try{ ac.close(); }catch(e){} ac = null; }
+  playing = false;
+  document.getElementById('playPart').textContent = '▶ 이 도막';
+  document.getElementById('playAll').textContent = '▶ 완성곡 a-b-a';
+}
+/* 한 도막을 t 시각부터 연주. 빈 칸은 앞 음이 이어진다. */
+function schedule(a, part, t0, unit, litTab){
+  for(let s = 0; s < STEPS; s++){
+    if(part[s]){
+      let len = 1;
+      for(let k = s + 1; k < STEPS && part[k] === null; k++) len++;
+      tone(a, t0 + s * unit, F[part[s]], len * unit * .94);
+    }
+    if(ST.drum && GUT[s]) drum(a, t0 + s * unit, GUT[s]);
+    if(litTab){
+      const delay = (t0 + s * unit - a.currentTime) * 1000;
+      timers.push(setTimeout(() => {
+        document.querySelectorAll('.cell.now').forEach(c => c.classList.remove('now'));
+        if(ST.tab !== litTab) return;
+        document.querySelectorAll('.cell[data-s="' + s + '"]').forEach(c => c.classList.add('now'));
+      }, Math.max(0, delay)));
+    }
+  }
+  return t0 + STEPS * unit;
+}
+function play(which, btn){
+  const wasPlaying = playing;
+  stopAll();
+  if(wasPlaying) return;
+  const empty = (which === 'part') ? countOf(ST.tab) === 0 : (countOf('a') + countOf('b')) === 0;
+  if(empty){ document.getElementById('warn').classList.add('show'); return; }
+
+  const a = audio(), unit = ST.slow ? .28 : .20;
+  let t = a.currentTime + .12;
+  playing = true;
+  btn.textContent = '■ 멈춤';
+
+  if(which === 'part'){
+    t = schedule(a, ST[ST.tab], t, unit, ST.tab);
+  }else{
+    t = schedule(a, ST.a, t, unit, 'a');
+    t = schedule(a, ST.b, t, unit, 'b');
+    t = schedule(a, ST.a, t, unit, 'a');
+  }
+  timers.push(setTimeout(stopAll, (t - a.currentTime) * 1000 + 200));
+}
+
+/* ===== 조작 ===== */
+document.querySelectorAll('.tab').forEach(t => {
+  t.onclick = () => { stopAll(); ST.tab = t.dataset.tab; render(); };
+});
+document.getElementById('playPart').onclick = e => play('part', e.currentTarget);
+document.getElementById('playAll').onclick  = e => play('all',  e.currentTarget);
+document.getElementById('stop').onclick = stopAll;
+document.getElementById('tDrum').onclick = e => {
+  ST.drum = !ST.drum;
+  e.currentTarget.classList.toggle('on', ST.drum);
+  e.currentTarget.textContent = ST.drum ? '🥁 장단 켬' : '🥁 장단 끔';
+};
+document.getElementById('tSlow').onclick = e => {
+  ST.slow = !ST.slow;
+  e.currentTarget.classList.toggle('on', ST.slow);
+  e.currentTarget.textContent = ST.slow ? '🐢 느리게 켬' : '🐢 느리게';
+};
+/* 실수로 날린 것을 되살린다 — 아이가 한참 만든 것이 한 번의 터치로 사라지면 안 된다 */
+let undoBuf = null;
+function pushUndo(){ undoBuf = { a: ST.a.slice(), b: ST.b.slice() }; refreshUndo(); }
+function refreshUndo(){
+  const u = document.getElementById('undo');
+  u.disabled = !undoBuf;
+  u.style.opacity = undoBuf ? 1 : .38;
+}
+document.getElementById('undo').onclick = () => {
+  if(!undoBuf) return;
+  stopAll(); ST.a = undoBuf.a; ST.b = undoBuf.b; undoBuf = null;
+  save(); render(); refreshUndo();
+};
+document.getElementById('clear').onclick = () => {
+  stopAll(); pushUndo(); ST[ST.tab] = new Array(STEPS).fill(null); save(); render();
+};
+document.getElementById('demo').onclick = () => {
+  stopAll(); pushUndo();
+  /* 굿거리 세 소박에 맞춘 보기 — a 는 솔로 맺고, b 는 높은 데서 시작해 열어 둔다 */
+  ST.a = ['G4',null,'A4', 'C5',null,null, 'D5',null,'C5', 'A4',null,'G4'];
+  ST.b = ['D5',null,'E5', 'G5',null,null, 'E5',null,'D5', 'C5',null,'D5'];
+  save(); render();
+};
+
+render();
+refreshUndo();
+</script>
+</body>
+</html>

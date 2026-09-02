@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>정의로운 공동체 — 어떻게 나눌까</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1c2430; --plum:#7d4a86; --plum2:#5d3566;
+  --equal:#1d5b95; --need:#2e7d5b; --effort:#c8963e;
+  --red:#c0392b; --paper:#f6f2e9; --line:#d9d2c4; --muted:#6d6b66;
+}
+html,body{min-height:100%}
+body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(165deg,#5d3566,#3a2140 70%);
+  color:var(--ink);touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+  user-select:none;padding:14px;display:flex;justify-content:center}
+
+.wrap{width:100%;max-width:860px}
+.screen{display:none}
+.screen.on{display:block}
+
+/* ── 공통 부품 ── */
+.panel{background:var(--paper);border-radius:20px;padding:22px 24px;
+  box-shadow:0 14px 40px rgba(0,0,0,.35)}
+.panel+.panel{margin-top:14px}
+
+.btn{display:block;width:100%;min-height:56px;border:0;border-radius:14px;
+  font-family:inherit;font-size:20px;font-weight:900;cursor:pointer;padding:14px 20px;
+  background:var(--plum);color:#fff;box-shadow:0 6px 0 rgba(0,0,0,.18)}
+.btn:active{transform:translateY(3px);box-shadow:0 3px 0 rgba(0,0,0,.18)}
+.btn.ghost{background:#fff;color:var(--plum2);border:3px solid var(--plum);
+  box-shadow:0 5px 0 rgba(0,0,0,.10)}
+.btn.sm{font-size:17px;min-height:48px}
+
+.eyebrow{display:inline-block;font-size:15px;font-weight:900;color:#fff;
+  background:var(--plum);padding:5px 15px;border-radius:999px;margin-bottom:10px}
+
+/* ── 타이틀 ── */
+.title h1{font-size:34px;font-weight:900;color:var(--plum2);line-height:1.28;margin-bottom:10px}
+.title .sub{font-size:18px;font-weight:600;color:var(--ink);line-height:1.6;margin-bottom:6px}
+.title .how{background:#fff;border-radius:14px;padding:16px 18px;margin:16px 0;
+  border-left:8px solid var(--plum)}
+.title .how li{font-size:17px;font-weight:600;line-height:1.62;margin-left:20px}
+
+.ways{display:flex;gap:10px;margin:14px 0}
+.wayc{flex:1;background:#fff;border-radius:14px;padding:14px 12px;text-align:center;
+  border-top:7px solid var(--line)}
+.wayc.e{border-top-color:var(--equal)}
+.wayc.n{border-top-color:var(--need)}
+.wayc.f{border-top-color:var(--effort)}
+.wayc .ic{font-size:30px;line-height:1}
+.wayc .nm{font-size:17px;font-weight:900;margin:6px 0 4px}
+.wayc.e .nm{color:var(--equal)} .wayc.n .nm{color:var(--need)} .wayc.f .nm{color:var(--effort)}
+.wayc .dd{font-size:13.5px;font-weight:600;color:var(--muted);line-height:1.42}
+
+/* ── 진행 표시 ── */
+.top{display:flex;align-items:center;gap:10px;margin-bottom:12px;color:#f0e4f4}
+.top .cnt{font-size:16px;font-weight:900}
+.top .place{background:rgba(255,255,255,.16);border-radius:999px;padding:5px 14px;
+  font-size:14px;font-weight:700}
+.top .snd{margin-left:auto;background:rgba(255,255,255,.16);border:0;color:#f0e4f4;
+  border-radius:999px;padding:7px 14px;font-size:14px;font-weight:700;cursor:pointer;
+  font-family:inherit}
+.pbar{height:7px;background:rgba(255,255,255,.2);border-radius:99px;overflow:hidden;margin-bottom:12px}
+.pbar i{display:block;height:100%;background:#f3d79a;width:0;transition:width .25s}
+
+/* ── 장면 ── */
+.scene{font-size:21px;font-weight:700;line-height:1.62;color:var(--ink)}
+.scene b{color:var(--plum2);font-weight:900}
+.qline{margin-top:14px;font-size:19px;font-weight:900;color:var(--red)}
+
+.picks{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.pick{display:flex;align-items:center;gap:14px;background:#fff;border:3px solid var(--line);
+  border-radius:16px;padding:14px 16px;cursor:pointer;text-align:left;font-family:inherit;
+  min-height:64px}
+.pick .pic{font-size:26px;line-height:1;flex:0 0 auto}
+.pick .ptx{font-size:18px;font-weight:800;line-height:1.4}
+.pick.e{border-color:var(--equal)} .pick.e .ptx{color:var(--equal)}
+.pick.n{border-color:var(--need)}  .pick.n .ptx{color:var(--need)}
+.pick.f{border-color:var(--effort)} .pick.f .ptx{color:var(--effort)}
+.pick:active{transform:scale(.985)}
+.pick.chosen{box-shadow:0 0 0 4px rgba(125,74,134,.28)}
+.pick.dim{opacity:.42}
+
+/* ── 해설 ── */
+.fb{margin-top:14px;border-radius:16px;padding:16px 18px;background:#fff;border-left:9px solid var(--plum)}
+.fb .fh{font-size:19px;font-weight:900;color:var(--plum2);margin-bottom:7px}
+.fb .ft{font-size:17px;font-weight:600;line-height:1.62}
+.fb.split{border-left-color:var(--red)}
+.fb.split .fh{color:var(--red)}
+.other{margin-top:10px;background:#f2ecf4;border-radius:12px;padding:12px 14px;
+  font-size:15.5px;font-weight:600;line-height:1.55;color:#4a3a50}
+
+/* ── 결과 ── */
+.bars{margin:14px 0}
+.brow{display:flex;align-items:center;gap:10px;margin-bottom:11px}
+.brow .bl{flex:0 0 108px;font-size:16px;font-weight:900}
+.brow .bt{flex:1;height:30px;background:#eae3d6;border-radius:99px;overflow:hidden}
+.brow .bt i{display:block;height:100%;border-radius:99px;width:0;transition:width .5s}
+.brow .bn{flex:0 0 44px;text-align:right;font-size:16px;font-weight:900}
+.brow.e .bl,.brow.e .bn{color:var(--equal)} .brow.e .bt i{background:var(--equal)}
+.brow.n .bl,.brow.n .bn{color:var(--need)}  .brow.n .bt i{background:var(--need)}
+.brow.f .bl,.brow.f .bn{color:var(--effort)} .brow.f .bt i{background:var(--effort)}
+
+.readme{background:#fff;border-radius:14px;padding:15px 17px;font-size:17px;
+  font-weight:600;line-height:1.62;border-left:8px solid var(--plum)}
+.readme b{color:var(--plum2);font-weight:900}
+
+.splitlist{margin-top:12px}
+.sitem{background:#fff;border-radius:12px;padding:12px 14px;margin-bottom:9px;
+  font-size:16px;font-weight:600;line-height:1.5;border-left:7px solid var(--red)}
+.sitem b{color:var(--red)}
+
+/* ── 문장 만들기 ── */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.chipb{background:#fff;border:3px solid var(--plum);color:var(--plum2);border-radius:999px;
+  padding:10px 18px;font-size:17px;font-weight:900;cursor:pointer;font-family:inherit}
+.chipb.on{background:var(--plum);color:#fff}
+.chipb.off{opacity:.4}
+textarea{width:100%;min-height:110px;border:3px solid var(--line);border-radius:14px;
+  padding:14px 16px;font-family:'Noto Sans KR',sans-serif;font-size:19px;font-weight:600;
+  line-height:1.6;resize:none;user-select:text}
+textarea:focus{outline:none;border-color:var(--plum)}
+
+.final{background:#fff;border:4px solid var(--plum);border-radius:18px;padding:20px 22px;
+  font-family:'Gaegu',sans-serif;font-size:27px;font-weight:700;line-height:1.5;
+  color:var(--ink);text-align:center;user-select:text}
+.copy{margin-top:12px;background:#fdf6e3;border:2px dashed var(--effort);border-radius:12px;
+  padding:12px 14px;font-size:16px;font-weight:700;color:#7a5a1e;line-height:1.55;text-align:center}
+
+.hint{font-size:15px;font-weight:600;color:var(--muted);line-height:1.55;margin-top:10px}
+
+/* ── QR ── */
+.qr{margin-top:20px;text-align:center}
+.qr .ql{font-size:13px;color:var(--muted);margin-bottom:7px;font-weight:700}
+.qr svg{width:132px;height:132px;border-radius:12px;border:4px solid #fff;background:#fff}
+.qr .qu{font-size:11.5px;color:var(--muted);margin-top:6px;word-break:break-all}
+
+/* ── 교사 모드 ── */
+.tt{width:100%;border-collapse:collapse;margin-top:10px}
+.tt th{background:#efe7f2;border:1px solid var(--line);padding:8px 9px;font-size:14px;
+  font-weight:900;color:var(--plum2);text-align:left}
+.tt td{border:1px solid var(--line);padding:8px 9px;font-size:14.5px;font-weight:600;
+  line-height:1.45;vertical-align:top;user-select:text}
+.tt td.v{font-weight:900;white-space:nowrap}
+.tt td.v.e{color:var(--equal)} .tt td.v.n{color:var(--need)}
+.tt td.v.f{color:var(--effort)} .tt td.v.s{color:var(--red)}
+.tq{background:#fff;border-radius:12px;padding:13px 15px;margin-top:9px;
+  font-size:16px;font-weight:600;line-height:1.55;border-left:7px solid var(--plum);user-select:text}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ══════════ 타이틀 ══════════ -->
+<section class="screen on" id="s-title">
+  <div class="panel title">
+    <span class="eyebrow">도덕 6단원 4차시 · 98~100쪽</span>
+    <h1>어떻게 나누는 것이<br>정의로울까?</h1>
+    <div class="sub">교실에서 진짜로 있는 일 <b>12가지</b>를 보고, 어떻게 나눌지 고른다.</div>
+
+    <div class="ways">
+      <div class="wayc e"><div class="ic">⚖️</div><div class="nm">똑같이</div>
+        <div class="dd">모두에게 같은 몫</div></div>
+      <div class="wayc n"><div class="ic">🤝</div><div class="nm">필요한 만큼</div>
+        <div class="dd">더 필요한 사람에게 더</div></div>
+      <div class="wayc f"><div class="ic">🏅</div><div class="nm">한 만큼</div>
+        <div class="dd">노력하고 해낸 만큼</div></div>
+    </div>
+
+    <div class="how">
+      <ul>
+        <li><b>점수도 등수도 없다.</b> 틀린 답을 세지 않는다.</li>
+        <li>고르면 <b>왜 그렇게 볼 수 있는지</b> 설명이 나온다.</li>
+        <li>답이 <b>갈리는 장면</b>도 섞여 있다. 그건 갈린다고 알려 준다.</li>
+        <li>끝나면 <b>'정의로운 공동체' 한 문장</b>을 만들어 교과서 99쪽에 옮겨 적는다.</li>
+      </ul>
+    </div>
+
+    <button class="btn" onclick="start()">시작하기</button>
+    <button class="btn ghost sm" style="margin-top:10px" onclick="resume()" id="resumeBtn">이어서 하기</button>
+
+    <div class="qr">
+      <div class="ql">📱 태블릿에서 바로 열기</div>
+      <div id="qrslot"></div>
+      <div class="qu">leixlix-pixel.github.io/toolbox/justice-sorter.html</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ 문제 ══════════ -->
+<section class="screen" id="s-play">
+  <div class="top">
+    <span class="cnt" id="cnt">1 / 12</span>
+    <span class="place" id="place">교실</span>
+    <button class="snd" id="sndBtn" onclick="toggleSnd()">🔇 소리 꺼짐</button>
+  </div>
+  <div class="pbar"><i id="pb"></i></div>
+
+  <div class="panel">
+    <div class="scene" id="scene"></div>
+    <div class="qline" id="qline"></div>
+    <div class="picks" id="picks"></div>
+    <div id="fbslot"></div>
+    <button class="btn" id="nextBtn" style="display:none;margin-top:14px" onclick="next()">다음 ▶</button>
+  </div>
+</section>
+
+<!-- ══════════ 결과 ══════════ -->
+<section class="screen" id="s-result">
+  <div class="panel">
+    <span class="eyebrow">다 했다</span>
+    <h1 style="font-size:29px;font-weight:900;color:var(--plum2);line-height:1.3;margin-bottom:6px">
+      너는 이렇게 나누었다</h1>
+    <div class="bars">
+      <div class="brow e"><span class="bl">⚖️ 똑같이</span><span class="bt"><i id="be"></i></span><span class="bn" id="ne">0</span></div>
+      <div class="brow n"><span class="bl">🤝 필요한 만큼</span><span class="bt"><i id="bn2"></i></span><span class="bn" id="nn">0</span></div>
+      <div class="brow f"><span class="bl">🏅 한 만큼</span><span class="bt"><i id="bf"></i></span><span class="bn" id="nf">0</span></div>
+    </div>
+    <div class="readme" id="readme"></div>
+    <div class="splitlist" id="splitlist"></div>
+    <button class="btn" style="margin-top:16px" onclick="toWrite()">한 문장 만들러 가기 ▶</button>
+    <button class="btn ghost sm" style="margin-top:10px" onclick="restart()">처음부터 다시</button>
+  </div>
+</section>
+
+<!-- ══════════ 문장 만들기 ══════════ -->
+<section class="screen" id="s-write">
+  <div class="panel">
+    <span class="eyebrow">교과서 99쪽</span>
+    <h1 style="font-size:27px;font-weight:900;color:var(--plum2);line-height:1.32;margin-bottom:8px">
+      '정의로운 공동체'란 무엇일까?</h1>
+    <div class="sub" style="font-size:17px;font-weight:600;line-height:1.6">
+      아래 낱말 중 <b>꼭 넣고 싶은 것 세 개</b>를 고르고, 그 낱말로 한 문장을 쓴다.</div>
+
+    <div class="chips" id="chips"></div>
+
+    <textarea id="sent" placeholder="정의로운 공동체란 ……"></textarea>
+    <div class="hint" id="whint">낱말 3개를 고르면 문장 쓰기가 열린다.</div>
+
+    <button class="btn" style="margin-top:14px" onclick="showFinal()">내 문장 완성하기</button>
+  </div>
+</section>
+
+<!-- ══════════ 마무리 ══════════ -->
+<section class="screen" id="s-done">
+  <div class="panel">
+    <span class="eyebrow">내가 만든 문장</span>
+    <div class="final" id="finalTx"></div>
+    <div class="copy">
+      ✍️ 이 문장을 <b>교과서 99쪽</b> '정의로운 공동체란?' 칸에 그대로 옮겨 적는다.<br>
+      그리고 <b>규칙 나무</b>에 열매를 달자 — 도움을 준 친구 이름과 함께.
+    </div>
+    <button class="btn ghost sm" style="margin-top:14px" onclick="back2write()">문장 고치기</button>
+    <button class="btn ghost sm" style="margin-top:10px" onclick="restart()">처음부터 다시</button>
+  </div>
+</section>
+
+<!-- ══════════ 교사 모드 ══════════ -->
+<section class="screen" id="s-teacher">
+  <div class="panel">
+    <span class="eyebrow">교사용 · 주소 뒤 #teacher</span>
+    <h1 style="font-size:26px;font-weight:900;color:var(--plum2);margin-bottom:4px">12장면 전체</h1>
+    <div class="hint" style="margin-top:0">
+      ⚖ 똑같이 · 🤝 필요한 만큼 · 🏅 한 만큼 · <b style="color:var(--red)">갈림</b> = 정답이 갈리는 장면</div>
+    <table class="tt" id="tt"></table>
+  </div>
+  <div class="panel">
+    <h1 style="font-size:24px;font-weight:900;color:var(--plum2);margin-bottom:6px">정리 발문</h1>
+    <div class="tq">1. 세 가지 중 <b>어느 것을 가장 많이 골랐나?</b> 왜 그랬을까?</div>
+    <div class="tq">2. <b>'똑같이'가 오히려 불공정</b>했던 장면은 무엇이었나? (알레르기·앞자리·다친 친구)</div>
+    <div class="tq">3. <b>'필요한 만큼'을 함부로 쓰면</b> 어떤 문제가 생길까? 누가 '더 필요하다'를 정하나?</div>
+    <div class="tq">4. 갈리는 장면 4개에서 우리 반은 어느 쪽이 많았나? 반대쪽을 고른 사람의 이유를 들어 보자.</div>
+    <div class="tq">5. 2·3차시에 만든 <b>우리 반 규칙 1호</b>는 셋 중 어느 방식인가? 그게 이 상황에 맞나?</div>
+  </div>
+</section>
+
+</div>
+
+<script>
+/* ══════════ 장면 데이터 ══════════ */
+const E='equal', N='need', F='effort', S='split';
+
+const SCENES = [
+  { place:'급식실', v:N,
+    s:'급식에 나온 우유를 <b>나원</b>이는 마시면 배가 아프다. 알레르기가 있다.',
+    q:'나원이에게는 어떻게 할까?',
+    fb:{
+      need:'맞다. 몸이 다른 사람에게 <b>같은 것을 주는 것</b>이 오히려 힘들게 만든다. 그래서 학교는 대체 음식을 준비한다.',
+      equal:'"모두 우유"라는 규칙은 겉으로는 똑같다. 그런데 나원이만 <b>먹을 수 없는 몫</b>을 받는다. 똑같이 준 것이 똑같이 준 게 아니게 된다.',
+      effort:'우유는 노력으로 받는 상이 아니다. 열심히 한 사람에게 더 주는 문제가 아니다.'
+    }},
+
+  { place:'교실', v:N,
+    s:'<b>시온</b>이는 눈이 나빠서 뒷자리에서는 칠판 글씨가 안 보인다.',
+    q:'자리를 정할 때 어떻게 할까?',
+    fb:{
+      need:'맞다. 시온이에게 앞자리는 <b>특혜가 아니라 조건</b>이다. 다른 사람과 같은 출발선에 서게 하는 것이다.',
+      equal:'제비뽑기는 공평해 보인다. 그런데 시온이가 뒷자리를 뽑으면 <b>수업을 못 듣는다.</b> 나머지 사람에게는 안 생기는 일이다.',
+      effort:'자리는 상이 아니다. 잘한 사람에게 앞자리를 주는 반은 없다.'
+    }},
+
+  { place:'운동장', v:N,
+    s:'피구를 하는데 <b>재율</b>이가 다리를 다쳐 목발을 짚고 왔다.',
+    q:'재율이는 어떻게 할까?',
+    fb:{
+      need:'맞다. 빼는 것도 억지로 넣는 것도 아니고, <b>할 수 있는 역할</b>을 찾아 주는 것이다. 심판·점수 기록 같은.',
+      equal:'"모두 똑같이 뛴다"는 규칙은 재율이를 <b>다치게 하거나 빠지게</b> 만든다.',
+      effort:'다친 것은 노력의 문제가 아니다. 열심히 하면 나을 수 있는 일이 아니다.'
+    }},
+
+  { place:'체험학습', v:E,
+    s:'현장체험학습을 간다. 선생님이 간식 봉지를 나눠 준다. 봉지 안에는 같은 과자가 들어 있다.',
+    q:'간식은 어떻게 나눌까?',
+    fb:{
+      equal:'맞다. 특별한 사정이 없으면 <b>똑같이</b>가 가장 단순하고 다툼이 없다.',
+      need:'"더 배고픈 사람에게 더"는 좋아 보인다. 그런데 <b>누가 더 배고픈지 누가 정하나?</b> 정할 방법이 없으면 다툼만 생긴다.',
+      effort:'간식은 상이 아니다. 아침에 뭘 잘했다고 더 주기 시작하면 체험학습이 시합이 된다.'
+    }},
+
+  { place:'학급회의', v:E,
+    s:'우리 반 규칙을 정하는 투표를 한다. 반에는 발표를 잘하는 사람도, 조용한 사람도 있다.',
+    q:'투표권은 어떻게 줄까?',
+    fb:{
+      equal:'맞다. <b>한 사람에게 한 표.</b> 목소리가 크다고 두 표를 주면 그건 규칙이 아니라 힘이다.',
+      need:'"이 규칙이 더 필요한 사람에게 표를 더"는 말이 안 된다. 필요한 정도를 잴 방법이 없다.',
+      effort:'"의견을 많이 낸 사람에게 표를 더"라고 하면, 조용한 사람의 삶은 누가 정하나?'
+    }},
+
+  { place:'교실', v:E,
+    s:'발표를 하면 칭찬 스티커를 받는다. 그런데 늘 <b>같은 몇 사람만</b> 손을 든다.',
+    q:'발표 기회는 어떻게 줄까?',
+    fb:{
+      equal:'맞다. 기회는 <b>돌아가며 똑같이</b>. 결과는 다를 수 있어도 기회까지 달라서는 안 된다.',
+      need:'"발표가 필요한 사람에게 더"도 생각해 볼 만하다. 그런데 그것도 결국 <b>모두에게 차례가 오게</b> 하는 방법이다.',
+      effort:'"손을 빨리 든 사람에게"는 이미 잘하는 사람만 계속 하게 만든다. 지금 문제가 딱 그것이다.'
+    }},
+
+  { place:'운동장', v:F,
+    s:'줄넘기 대회가 끝났다. 한 달 동안 쉬는 시간마다 연습한 <b>선하</b>가 1등을 했다.',
+    q:'상은 어떻게 줄까?',
+    fb:{
+      effort:'맞다. 겨루기로 정한 일에서는 <b>해낸 만큼</b> 받는 것이 공정하다. 그러려고 대회를 연 것이다.',
+      equal:'"모두에게 똑같은 상"을 주면, 한 달 연습한 사람과 안 한 사람이 같아진다. 그러면 <b>다음부터 아무도 연습하지 않는다.</b>',
+      need:'"상이 필요한 사람에게"라고 하면 대회를 왜 했는지 알 수 없게 된다.'
+    }},
+
+  { place:'교실', v:F,
+    s:'1인 1역을 정했다. 그런데 <b>한 사람이 2주 내내</b> 자기 일을 하지 않아서 다른 사람이 대신 했다.',
+    q:'이 일은 어떻게 할까?',
+    fb:{
+      effort:'맞다. 맡은 일을 한 사람과 안 한 사람을 같게 두면, <b>한 사람이 손해</b>를 본다. 안 한 만큼은 책임져야 한다.',
+      equal:'"다들 그럴 수 있으니 넘어가자"를 반복하면, 결국 <b>성실한 사람만 계속 일한다.</b>',
+      need:'못 한 이유가 있는지는 먼저 물어봐야 한다. 하지만 이유를 묻지도 않고 넘어가는 것과는 다르다.'
+    }},
+
+  { place:'교실', v:S,
+    s:'모둠 과제를 냈다. 그런데 모둠 안에서 <b>한 사람이 거의 다</b> 했고, 한 사람은 거의 안 했다.',
+    q:'모둠 점수는 어떻게 줄까?',
+    split:{
+      a:{ w:'🏅 한 만큼', t:'한 사람에게만 몰아주는 건 억울하다. 한 만큼 나눠야 다음에도 하려고 한다.' },
+      b:{ w:'⚖️ 똑같이', t:'모둠 과제는 <b>함께 하라고</b> 낸 것이다. 점수를 갈라 버리면 서로 돕지 않게 된다.' },
+      c:'정답이 갈린다. 실제 학교에서도 이 문제로 늘 다툰다. <b>점수를 어떻게 주느냐보다, 한 사람에게 몰리지 않게 미리 역할을 정했느냐</b>가 진짜 문제일 수 있다.'
+    }},
+
+  { place:'교실', v:S,
+    s:'청소를 <b>빨리 끝낸 모둠</b>이 생겼다. 다른 모둠은 아직 하고 있다.',
+    q:'먼저 끝낸 모둠은 놀아도 될까?',
+    split:{
+      a:{ w:'🏅 한 만큼', t:'빨리 끝냈으면 그만큼 쉬는 게 맞다. 그래야 열심히 한다.' },
+      b:{ w:'🤝 필요한 만큼', t:'아직 하는 모둠을 도우면 <b>모두가 함께 빨리</b> 끝난다. 청소는 시합이 아니다.' },
+      c:'갈린다. 다만 물어볼 것이 있다 — 그 모둠이 <b>구역이 쉬워서</b> 빨리 끝난 건 아닌가? 구역이 다르면 속도만 보는 것은 공정하지 않다.'
+    }},
+
+  { place:'급식실', v:S,
+    s:'급식에 인기 반찬이 <b>조금 남았다.</b> 더 먹고 싶은 사람이 여럿이다.',
+    q:'남은 반찬은 어떻게 나눌까?',
+    split:{
+      a:{ w:'⚖️ 똑같이', t:'다시 잘게 나눠서 원하는 사람 모두 조금씩. 아무도 억울하지 않다.' },
+      b:{ w:'🏅 한 만큼', t:'줄을 선 순서대로. 순서는 <b>모두에게 같은 규칙</b>이니 이것도 공정하다.' },
+      c:'갈린다. 어느 쪽이든 <b>미리 정해 두었는지</b>가 중요하다. 남고 나서 그때그때 정하면 늘 목소리 큰 사람이 가져간다.'
+    }},
+
+  { place:'온라인', v:S,
+    s:'학급 단톡방에서 <b>한 사람이 하루에 100개</b> 넘게 메시지를 보낸다. 나쁜 말은 아니다.',
+    q:'메시지 수를 정해 둘까?',
+    split:{
+      a:{ w:'⚖️ 똑같이', t:'한 사람 하루 몇 개까지로 정한다. 모두에게 같은 규칙이면 공정하다.' },
+      b:{ w:'🤝 필요한 만큼', t:'꼭 알려야 할 일이 있는 날도 있다. 개수로 막으면 <b>정말 필요한 말</b>까지 막힌다.' },
+      c:'갈린다. 규칙을 <b>숫자로 딱 정하면</b> 지키기 쉽지만 예외를 못 봐준다. <b>느슨하게 정하면</b> 예외는 봐주지만 지켰는지 알 수 없다. 이 고민이 3차시에 한 그 고민이다.'
+    }}
+];
+
+const WORDS = ['공정','규칙','배려','소중','조건','참여','책임','피해','행복','협력','공동체'];
+
+/* ══════════ 상태 ══════════ */
+const KEY = 'justice-sorter-v1';
+let idx = 0, picked = [], answered = false, sndOn = false, chosen = [];
+
+function save(){
+  try{ localStorage.setItem(KEY, JSON.stringify({idx,picked,sent:document.getElementById('sent').value,chosen})); }catch(e){}
+}
+function load(){
+  try{ return JSON.parse(localStorage.getItem(KEY)||'null'); }catch(e){ return null; }
+}
+
+/* ══════════ 소리 ══════════ */
+let ac=null;
+function beep(f,d,type){
+  if(!sndOn) return;
+  try{
+    ac = ac || new (window.AudioContext||window.webkitAudioContext)();
+    const o=ac.createOscillator(), g=ac.createGain();
+    o.type=type||'sine'; o.frequency.value=f;
+    g.gain.setValueAtTime(.0001,ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(.16,ac.currentTime+.01);
+    g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+d);
+    o.connect(g); g.connect(ac.destination);
+    o.start(); o.stop(ac.currentTime+d+.02);
+  }catch(e){}
+}
+function toggleSnd(){
+  sndOn=!sndOn;
+  document.getElementById('sndBtn').textContent = sndOn ? '🔊 소리 켜짐' : '🔇 소리 꺼짐';
+  if(sndOn) beep(660,.12);
+}
+
+/* ══════════ 화면 전환 ══════════ */
+function screen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  window.scrollTo(0,0);
+}
+
+function start(){ idx=0; picked=[]; chosen=[]; save(); screen('s-play'); render(); }
+function resume(){
+  const d=load();
+  if(!d){ start(); return; }
+  idx=d.idx||0; picked=d.picked||[]; chosen=d.chosen||[];
+  if(d.sent) document.getElementById('sent').value=d.sent;
+  if(idx>=SCENES.length){ toResult(); } else { screen('s-play'); render(); }
+}
+function restart(){
+  try{ localStorage.removeItem(KEY); }catch(e){}
+  idx=0; picked=[]; chosen=[];
+  document.getElementById('sent').value='';
+  screen('s-title');
+}
+
+/* ══════════ 문제 그리기 ══════════ */
+const LABEL = {
+  equal:{ic:'⚖️', t:'똑같이 나눈다', c:'e'},
+  need: {ic:'🤝', t:'필요한 만큼 나눈다', c:'n'},
+  effort:{ic:'🏅', t:'한 만큼 나눈다', c:'f'}
+};
+const ORDER = ['equal','need','effort'];
+
+function render(){
+  answered=false;
+  const sc = SCENES[idx];
+  document.getElementById('cnt').textContent = (idx+1)+' / '+SCENES.length;
+  document.getElementById('place').textContent = sc.place;
+  document.getElementById('pb').style.width = ((idx)/SCENES.length*100)+'%';
+  document.getElementById('scene').innerHTML = sc.s;
+  document.getElementById('qline').textContent = sc.q;
+  document.getElementById('fbslot').innerHTML = '';
+  document.getElementById('nextBtn').style.display='none';
+
+  // 선택지 순서 섞기
+  const ord = ORDER.slice();
+  for(let i=ord.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [ord[i],ord[j]]=[ord[j],ord[i]]; }
+
+  const box = document.getElementById('picks');
+  box.innerHTML = '';
+  ord.forEach(k=>{
+    const L=LABEL[k];
+    const b=document.createElement('button');
+    b.className='pick '+L.c;
+    b.innerHTML='<span class="pic">'+L.ic+'</span><span class="ptx">'+L.t+'</span>';
+    b.onclick=()=>choose(k,b);
+    box.appendChild(b);
+  });
+}
+
+function choose(k, el){
+  if(answered) return;
+  answered=true;
+  picked[idx]=k;
+  save();
+  beep(k===SCENES[idx].v ? 880 : 520, .13);
+
+  document.querySelectorAll('#picks .pick').forEach(p=>{
+    if(p!==el) p.classList.add('dim');
+  });
+  el.classList.add('chosen');
+
+  const sc = SCENES[idx];
+  const slot = document.getElementById('fbslot');
+
+  if(sc.v === S){
+    slot.innerHTML =
+      '<div class="fb split"><div class="fh">이 장면은 답이 갈린다</div>'+
+      '<div class="ft"><b>'+sc.split.a.w+'</b> — '+sc.split.a.t+'<br><br>'+
+      '<b>'+sc.split.b.w+'</b> — '+sc.split.b.t+'</div>'+
+      '<div class="other">'+sc.split.c+'</div></div>';
+  } else {
+    const mine = sc.fb[k];
+    const others = ORDER.filter(x=>x!==k).map(x=>
+      '<b>'+LABEL[x].ic+' '+LABEL[x].t+'</b> — '+sc.fb[x]).join('<br><br>');
+    slot.innerHTML =
+      '<div class="fb"><div class="fh">내 선택 — '+LABEL[k].ic+' '+LABEL[k].t+'</div>'+
+      '<div class="ft">'+mine+'</div>'+
+      '<div class="other">'+others+'</div></div>';
+  }
+
+  document.getElementById('nextBtn').style.display='block';
+  document.getElementById('nextBtn').textContent =
+    (idx===SCENES.length-1) ? '결과 보기 ▶' : '다음 ▶';
+}
+
+function next(){
+  idx++;
+  save();
+  if(idx>=SCENES.length){ toResult(); return; }
+  render();
+}
+
+/* ══════════ 결과 ══════════ */
+function toResult(){
+  const cnt={equal:0,need:0,effort:0};
+  picked.forEach(p=>{ if(p) cnt[p]++; });
+  const tot = Math.max(1, picked.filter(Boolean).length);
+
+  document.getElementById('ne').textContent=cnt.equal;
+  document.getElementById('nn').textContent=cnt.need;
+  document.getElementById('nf').textContent=cnt.effort;
+  setTimeout(()=>{
+    document.getElementById('be').style.width=(cnt.equal/tot*100)+'%';
+    document.getElementById('bn2').style.width=(cnt.need/tot*100)+'%';
+    document.getElementById('bf').style.width=(cnt.effort/tot*100)+'%';
+  },80);
+
+  const max = Math.max(cnt.equal,cnt.need,cnt.effort);
+  let msg;
+  if(cnt.equal===max && cnt.need===max && cnt.effort===max){
+    msg = '세 가지를 <b>고루</b> 골랐다. 상황마다 알맞은 방법이 다르다는 것을 알고 있다는 뜻이다.';
+  } else if(cnt.equal===max){
+    msg = '너는 <b>똑같이</b>를 가장 많이 골랐다. 다툼이 적고 누구도 억울하지 않은 방법이다. '+
+          '다만 알레르기·시력처럼 <b>몸이나 사정이 다른 경우</b>에는 똑같이가 오히려 힘들게 만들 수 있다.';
+  } else if(cnt.need===max){
+    msg = '너는 <b>필요한 만큼</b>을 가장 많이 골랐다. 어려운 사람을 먼저 보는 눈이다. '+
+          '다만 <b>누가 더 필요한지 누가 정하는가</b>를 정해 두지 않으면, 목소리 큰 사람이 정하게 된다.';
+  } else {
+    msg = '너는 <b>한 만큼</b>을 가장 많이 골랐다. 애쓴 사람이 손해 보지 않아야 한다는 생각이다. '+
+          '다만 <b>출발선이 다른 사람</b>에게는 "한 만큼"이 처음부터 불리할 수 있다.';
+  }
+  document.getElementById('readme').innerHTML = msg;
+
+  const sl = document.getElementById('splitlist');
+  const splits = SCENES.map((s,i)=>({s,i})).filter(o=>o.s.v===S);
+  sl.innerHTML = '<div style="font-size:17px;font-weight:900;color:#fff;margin:14px 0 8px">'+
+    '답이 갈렸던 장면에서 나는</div>' +
+    splits.map(o=>{
+      const p = picked[o.i];
+      const w = p ? (LABEL[p].ic+' '+LABEL[p].t) : '고르지 않음';
+      return '<div class="sitem">'+o.s.q.replace(/\?$/,'')+' → <b>'+w+'</b></div>';
+    }).join('');
+
+  screen('s-result');
+}
+
+/* ══════════ 문장 만들기 ══════════ */
+function toWrite(){
+  const c = document.getElementById('chips');
+  if(!c.children.length){
+    WORDS.forEach(w=>{
+      const b=document.createElement('button');
+      b.className='chipb'; b.textContent=w;
+      b.onclick=()=>toggleWord(w,b);
+      c.appendChild(b);
+    });
+  }
+  syncChips();
+  screen('s-write');
+}
+function toggleWord(w, el){
+  const i = chosen.indexOf(w);
+  if(i>=0) chosen.splice(i,1);
+  else { if(chosen.length>=3) return; chosen.push(w); }
+  save(); syncChips(); beep(740,.09);
+}
+function syncChips(){
+  [...document.getElementById('chips').children].forEach(b=>{
+    const on = chosen.includes(b.textContent);
+    b.classList.toggle('on', on);
+    b.classList.toggle('off', !on && chosen.length>=3);
+  });
+  const ta = document.getElementById('sent');
+  const ok = chosen.length===3;
+  ta.disabled = !ok;
+  ta.style.opacity = ok ? 1 : .5;
+  document.getElementById('whint').innerHTML = ok
+    ? '고른 낱말: <b>'+chosen.join(' · ')+'</b> — 이 셋을 모두 넣어 한 문장으로 쓴다.'
+    : '낱말 '+(3-chosen.length)+'개를 더 고르면 문장 쓰기가 열린다.';
+}
+function showFinal(){
+  const t = document.getElementById('sent').value.trim();
+  if(chosen.length<3){ document.getElementById('whint').innerHTML='<b style="color:#c0392b">낱말 3개를 먼저 고르세요.</b>'; return; }
+  if(t.length<8){ document.getElementById('whint').innerHTML='<b style="color:#c0392b">문장을 조금 더 써 보세요.</b>'; return; }
+  save();
+  document.getElementById('finalTx').textContent = t;
+  beep(880,.14); setTimeout(()=>beep(1180,.18),130);
+  screen('s-done');
+}
+function back2write(){ screen('s-write'); }
+
+document.getElementById('sent').addEventListener('input', save);
+
+/* ══════════ 교사 모드 ══════════ */
+function buildTeacher(){
+  const t = document.getElementById('tt');
+  let h = '<tr><th style="width:56px">번호</th><th style="width:70px">장소</th><th>장면</th><th style="width:96px">방향</th></tr>';
+  SCENES.forEach((s,i)=>{
+    const map = {equal:['⚖ 똑같이','e'], need:['🤝 필요한 만큼','n'], effort:['🏅 한 만큼','f'], split:['갈림','s']};
+    const m = map[s.v];
+    h += '<tr><td>'+(i+1)+'</td><td>'+s.place+'</td><td>'+
+         s.s.replace(/<\/?b>/g,'')+'<br><span style="color:#6d6b66">'+s.q+'</span></td>'+
+         '<td class="v '+m[1]+'">'+m[0]+'</td></tr>';
+  });
+  t.innerHTML = h;
+}
+
+/* ══════════ QR ══════════ */
+document.getElementById('qrslot').innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 35 35\" shape-rendering=\"crispEdges\"><path fill=\"#ffffff\" d=\"M0 0h35v35H0z\"/><path stroke=\"#000000\" d=\"M1 1.5h7m1 0h1m3 0h1m3 0h1m1 0h2m3 0h1m2 0h7M1 2.5h1m5 0h1m1 0h2m1 0h2m1 0h1m2 0h2m1 0h1m2 0h1m2 0h1m5 0h1M1 3.5h1m1 0h3m1 0h1m2 0h3m1 0h3m2 0h3m3 0h1m1 0h1m1 0h3m1 0h1M1 4.5h1m1 0h3m1 0h1m1 0h2m1 0h1m5 0h1m1 0h1m2 0h3m1 0h1m1 0h3m1 0h1M1 5.5h1m1 0h3m1 0h1m2 0h3m1 0h1m2 0h1m1 0h2m1 0h1m2 0h1m1 0h1m1 0h3m1 0h1M1 6.5h1m5 0h1m4 0h3m1 0h5m2 0h1m3 0h1m5 0h1M1 7.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M9 8.5h1m1 0h2m3 0h3m4 0h3M1 9.5h1m1 0h2m1 0h3m1 0h1m4 0h6m1 0h1m4 0h1m2 0h1m1 0h2M4 10.5h1m4 0h6m4 0h6m2 0h2m1 0h2m1 0h1M2 11.5h1m1 0h5m1 0h1m1 0h3m7 0h1m1 0h1m3 0h3m1 0h2M1 12.5h2m2 0h1m2 0h2m6 0h2m2 0h2m4 0h1m1 0h1m1 0h1m1 0h1M1 13.5h2m2 0h4m1 0h1m1 0h2m1 0h2m1 0h2m1 0h1m1 0h2m4 0h2m1 0h1M2 14.5h1m1 0h1m7 0h1m1 0h2m2 0h1m1 0h1m1 0h1m2 0h1m2 0h1m2 0h2M1 15.5h1m2 0h2m1 0h1m2 0h2m1 0h3m1 0h4m2 0h1m1 0h1m1 0h2m1 0h2M2 16.5h1m2 0h1m2 0h3m1 0h1m1 0h1m1 0h2m2 0h1m1 0h1m1 0h4m1 0h3M1 17.5h1m1 0h2m2 0h1m5 0h4m2 0h1m1 0h2m1 0h4m1 0h3M1 18.5h1m3 0h1m3 0h3m1 0h1m2 0h1m1 0h1m2 0h1m1 0h5m1 0h2m2 0h1M1 19.5h1m5 0h4m1 0h2m1 0h4m3 0h2m2 0h4m1 0h2M3 20.5h1m2 0h1m1 0h1m1 0h2m1 0h1m3 0h2m2 0h1m1 0h2m1 0h1m2 0h1m2 0h1M1 21.5h2m1 0h2m1 0h3m1 0h1m2 0h1m2 0h3m1 0h5m4 0h2m1 0h1M1 22.5h1m2 0h1m1 0h1m1 0h2m1 0h3m3 0h5m2 0h1m2 0h1m2 0h1m2 0h1M3 23.5h2m2 0h2m4 0h1m3 0h2m4 0h4m2 0h1m1 0h3M2 24.5h4m2 0h1m1 0h2m7 0h1m1 0h1m3 0h2m2 0h2m2 0h1M1 25.5h1m1 0h1m1 0h3m2 0h3m1 0h1m2 0h2m1 0h2m1 0h1m1 0h5m3 0h1M9 26.5h1m1 0h7m1 0h2m1 0h4m3 0h2M1 27.5h7m1 0h2m6 0h1m2 0h2m2 0h2m1 0h1m1 0h1m2 0h1M1 28.5h1m5 0h1m1 0h1m1 0h1m1 0h4m2 0h1m2 0h4m3 0h5M1 29.5h1m1 0h3m1 0h1m3 0h1m1 0h4m2 0h11m1 0h2M1 30.5h1m1 0h3m1 0h1m1 0h3m2 0h3m2 0h1m1 0h1m2 0h1m3 0h1m1 0h2m1 0h1M1 31.5h1m1 0h3m1 0h1m1 0h2m1 0h2m2 0h1m4 0h2m1 0h2m1 0h2m2 0h1M1 32.5h1m5 0h1m3 0h1m2 0h1m2 0h2m1 0h2m3 0h1m2 0h2m3 0h1M1 33.5h7m1 0h2m1 0h1m1 0h1m2 0h4m1 0h1m1 0h1m1 0h2m1 0h1m1 0h1\"/></svg>";
+
+/* ══════════ 시작 ══════════ */
+if(location.hash === '#teacher'){ buildTeacher(); screen('s-teacher'); }
+else {
+  const d = load();
+  document.getElementById('resumeBtn').style.display = (d && (d.idx>0 || d.picked&&d.picked.length)) ? 'block' : 'none';
+}
+</script>
+</body>
+</html>

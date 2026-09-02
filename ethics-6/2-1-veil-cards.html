@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2차시 활동 카드 — 자리를 모르는 채로 규칙 만들기</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1c2430; --plum:#7d4a86; --plum2:#5d3566; --navy2:#1d5b95;
+  --red:#c0392b; --gold:#c8963e; --green:#2e7d5b; --line:#c9c2b6; --muted:#6d6b66;
+}
+body{font-family:'Noto Sans KR',sans-serif;background:#4a4f57;
+  -webkit-print-color-adjust:exact;print-color-adjust:exact}
+
+@page{size:A4;margin:0}
+
+.page{width:210mm;height:297mm;overflow:hidden;position:relative;
+  padding:14mm 14mm 16mm;background:#fff;margin:0 auto 8mm;
+  display:flex;flex-direction:column;box-shadow:0 6px 24px rgba(0,0,0,.35)}
+
+.ptitle{display:flex;align-items:baseline;gap:10px;border-bottom:3px solid var(--plum);
+  padding-bottom:6px;margin-bottom:8mm}
+.ptitle h1{font-size:20pt;font-weight:900;color:var(--plum2)}
+.ptitle .pnote{font-size:10.5pt;font-weight:600;color:var(--muted);margin-left:auto}
+
+.cut{font-size:9pt;color:var(--muted);text-align:center;margin-top:auto;padding-top:4mm;
+  border-top:1px dashed var(--line)}
+
+/* 카드 격자 */
+.grid{flex:1;display:grid;gap:5mm;min-height:0}
+.grid.g2x2{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
+.grid.g2x4{grid-template-columns:1fr 1fr;grid-template-rows:repeat(4,1fr)}
+
+.cardc{border:2.5px dashed var(--line);border-radius:5mm;padding:6mm 6mm;
+  display:flex;flex-direction:column;justify-content:center;gap:3mm;position:relative;
+  background:#fff}
+.cardc .tag{position:absolute;top:4mm;right:5mm;font-size:9pt;font-weight:900;
+  color:#fff;background:var(--plum);border-radius:99px;padding:1.5mm 4mm}
+.cardc.role .tag{background:var(--navy2)}
+.cardc .ttl{font-size:15pt;font-weight:900;color:var(--plum2);line-height:1.3}
+.cardc.role .ttl{color:var(--navy2)}
+.cardc .dsc{font-size:11.5pt;font-weight:500;color:var(--ink);line-height:1.5}
+.cardc .say{font-family:'Gaegu',sans-serif;font-size:16pt;font-weight:700;
+  color:var(--ink);line-height:1.35}
+.cardc .hint{font-size:9.5pt;font-weight:600;color:var(--muted);line-height:1.45;
+  border-top:1px solid #e6e2d9;padding-top:2.5mm}
+
+/* 기록지 */
+.namebar{display:flex;gap:6mm;align-items:center;font-size:11pt;font-weight:600;
+  color:var(--ink);margin-bottom:6mm}
+.namebar .nb{border-bottom:1.5px solid var(--ink);min-width:26mm;display:inline-block}
+
+.sect{margin-bottom:6mm}
+.sect h2{font-size:13pt;font-weight:900;color:#fff;background:var(--plum);
+  border-radius:99px;padding:2mm 6mm;display:inline-block;margin-bottom:3mm}
+.sect .lead{font-size:11pt;font-weight:600;color:var(--ink);line-height:1.5;margin-bottom:3mm}
+.box{border:2px solid var(--line);border-radius:3mm;padding:4mm 5mm}
+.lines{display:flex;flex-direction:column}
+.ln{border-bottom:1px solid #ddd8cd;height:10mm}
+.ln:last-child{border-bottom:none}
+
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{background:#f2ecf4;border:1.5px solid var(--line);font-size:11pt;font-weight:900;
+  color:var(--plum2);padding:2.5mm 3mm;text-align:left}
+.tbl td{border:1.5px solid var(--line);padding:2.5mm 3mm;height:14mm;vertical-align:top;font-size:10.5pt}
+.tbl td.rolecell{width:52mm;font-weight:700;color:var(--navy2);font-size:10.5pt}
+
+.warn{border:2.5px solid var(--red);border-radius:3mm;padding:4mm 5mm;
+  font-size:11pt;font-weight:700;color:var(--red);line-height:1.5}
+
+.no-print{background:#1d2b3a;color:#dbe6f2;padding:14px 18px;text-align:center;
+  font-size:14px;line-height:1.6;position:sticky;top:0;z-index:9}
+.no-print button{background:#4a7fb5;color:#fff;border:0;border-radius:8px;
+  padding:10px 22px;font-size:15px;font-weight:700;cursor:pointer;margin-left:12px;
+  font-family:inherit}
+
+@media print{
+  body{background:#fff;margin:0}
+  .page{margin:0;box-shadow:none;page-break-after:always}
+  .page:last-child{page-break-after:auto}
+  .no-print{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="no-print">
+  도덕 6단원 2차시 활동 카드 · A4 3쪽 (① 상황 카드 ② 역할 카드 ③ 모둠 기록지)<br>
+  모둠 수만큼 인쇄해서 <b>점선을 따라 자르세요</b>. 역할 카드는 <b>글씨가 안 보이게 뒤집어</b> 둡니다.
+  <button onclick="window.print()">🖨 인쇄하기</button>
+</div>
+
+<!-- ─────────── 1쪽 · 상황 카드 ─────────── -->
+<div class="page">
+  <div class="ptitle">
+    <h1>상황 카드</h1>
+    <span class="pnote">모둠마다 한 장 · 이 상황의 규칙을 만든다</span>
+  </div>
+
+  <div class="grid g2x2">
+    <div class="cardc">
+      <span class="tag">상황 ①</span>
+      <div class="ttl">놀이 도구 쓰기</div>
+      <div class="dsc">우리 반에 보드게임이 <b>3개</b> 있다. 쉬는 시간은 짧고,
+      하고 싶은 사람은 많다.</div>
+      <div class="hint">정할 것 — 누가 · 언제 · 얼마나 · 다음 사람은 어떻게</div>
+    </div>
+
+    <div class="cardc">
+      <span class="tag">상황 ②</span>
+      <div class="ttl">발표 순서</div>
+      <div class="dsc">발표를 하면 점수를 받는다. 그런데 늘 <b>같은 사람만</b> 손을 든다.</div>
+      <div class="hint">정할 것 — 순서 · 한 사람이 몇 번까지 · 손 안 드는 사람은</div>
+    </div>
+
+    <div class="cardc">
+      <span class="tag">상황 ③</span>
+      <div class="ttl">자리 정하기</div>
+      <div class="dsc">한 달에 한 번 자리를 바꾼다. 칠판이 잘 보이는 자리와
+      <b>잘 안 보이는 자리</b>가 있다.</div>
+      <div class="hint">정할 것 — 정하는 방법 · 바꾸는 주기 · 특별히 앞이 필요한 사람</div>
+    </div>
+
+    <div class="cardc">
+      <span class="tag">상황 ④</span>
+      <div class="ttl">청소 구역</div>
+      <div class="dsc">청소 구역 중에 <b>유난히 힘든 곳</b>이 하나 있다.
+      아무도 그 구역을 맡고 싶어 하지 않는다.</div>
+      <div class="hint">정할 것 — 맡는 방법 · 바꾸는 주기 · 혼자 못 할 때</div>
+    </div>
+  </div>
+
+  <div class="cut">✂ 점선을 따라 자르세요 · 모둠에 한 장씩 나눠 줍니다</div>
+</div>
+
+<!-- ─────────── 2쪽 · 역할 카드 ─────────── -->
+<div class="page">
+  <div class="ptitle">
+    <h1>역할 카드</h1>
+    <span class="pnote">규칙을 다 정한 <b>뒤에</b> 뒤집어 뽑는다</span>
+  </div>
+
+  <div class="grid g2x4">
+    <div class="cardc role">
+      <span class="tag">역할</span>
+      <div class="say">"나는 이 놀이를<br>우리 반에서 제일 잘한다."</div>
+    </div>
+    <div class="cardc role">
+      <span class="tag">역할</span>
+      <div class="say">"나는 지난주에<br>전학 와서 아직 친구가 없다."</div>
+    </div>
+    <div class="cardc role">
+      <span class="tag">역할</span>
+      <div class="say">"나는 다리를 다쳐서<br>목발을 짚고 다닌다."</div>
+    </div>
+    <div class="cardc role">
+      <span class="tag">역할</span>
+      <div class="say">"나는 손을 들고<br>말하는 게 무섭다."</div>
+    </div>
+    <div class="cardc role">
+      <span class="tag">역할</span>
+      <div class="say">"나는 아침에 자주 늦어서<br>1교시에 겨우 도착한다."</div>
+    </div>
+    <div class="cardc role">
+      <span class="tag">역할</span>
+      <div class="say">"나는 목소리가 크고<br>친한 친구가 많다."</div>
+    </div>
+    <div class="cardc role">
+      <span class="tag">역할</span>
+      <div class="say">"나는 다음 주에<br>이틀 동안 결석한다."</div>
+    </div>
+    <div class="cardc role">
+      <span class="tag">역할</span>
+      <div class="say">"나는 눈이 나빠서<br>뒷자리에서는 칠판이 안 보인다."</div>
+    </div>
+  </div>
+
+  <div class="cut">✂ 점선을 따라 자르세요 · <b>글씨가 안 보이게 엎어서</b> 모둠 책상 가운데에 둡니다</div>
+</div>
+
+<!-- ─────────── 3쪽 · 모둠 기록지 ─────────── -->
+<div class="page">
+  <div class="ptitle">
+    <h1>모둠 기록지</h1>
+    <span class="pnote">도덕 6단원 2차시</span>
+  </div>
+
+  <div class="namebar">
+    5학년 <span class="nb">&nbsp;</span> 반 &nbsp; <span class="nb">&nbsp;</span> 모둠
+    &nbsp;&nbsp; 기록한 사람 <span class="nb">&nbsp;</span>
+  </div>
+
+  <div class="warn" style="margin-bottom:6mm">
+    ⚠ 아래 1번을 <b>완전히 다 쓰기 전</b>에는 역할 카드를 절대 뒤집지 않습니다.
+    미리 보면 실험이 되지 않습니다.
+  </div>
+
+  <div class="sect">
+    <h2>1 · 우리 모둠이 정한 규칙</h2>
+    <div class="lead">뽑은 상황 카드 번호: <b>상황 ( &nbsp;&nbsp;&nbsp; )</b>
+    &nbsp; — <b>누가·언제·얼마나</b>가 들어가게 씁니다.</div>
+    <div class="box lines">
+      <div class="ln"></div><div class="ln"></div><div class="ln"></div>
+    </div>
+  </div>
+
+  <div class="sect">
+    <h2>2 · 역할 카드를 뽑고 확인하기</h2>
+    <div class="lead">이제 역할 카드를 한 장씩 뽑습니다. 내가 <b>그 사람이라면</b> 우리 규칙이 어떤가요?</div>
+    <table class="tbl">
+      <tr>
+        <th style="width:52mm">내가 뽑은 역할</th>
+        <th>이 규칙이 나에게 괜찮은가? 억울하다면 어디가?</th>
+      </tr>
+      <tr><td class="rolecell"></td><td></td></tr>
+      <tr><td class="rolecell"></td><td></td></tr>
+      <tr><td class="rolecell"></td><td></td></tr>
+      <tr><td class="rolecell"></td><td></td></tr>
+    </table>
+  </div>
+
+  <div class="sect" style="margin-bottom:0">
+    <h2>3 · 고친다면 어디를 고칠까</h2>
+    <div class="box lines">
+      <div class="ln"></div><div class="ln"></div>
+    </div>
+  </div>
+
+  <div class="cut" style="border-top:none">
+    공정한 규칙은 <b>누가 어느 자리에 있어도 받아들일 수 있는 규칙</b>입니다.
+  </div>
+</div>
+
+</body>
+</html>

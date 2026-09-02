@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>도덕 5학년 6단원 — 공동체를 정의롭게!</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1c2430; --plum:#7d4a86; --plum2:#5d3566;
+  --navy:#1d5b95; --green:#2e7d5b; --gold:#c8963e; --red:#c0392b;
+  --paper:#f6f2e9; --line:#ddd6ca; --muted:#6d6b66;
+}
+body{font-family:'Noto Sans KR',sans-serif;color:var(--ink);
+  background:linear-gradient(170deg,#5d3566,#3a2140 60%);
+  -webkit-tap-highlight-color:transparent;padding:20px 14px 50px}
+.wrap{max-width:880px;margin:0 auto}
+
+header{color:#fff;padding:14px 4px 22px}
+header .kick{font-size:15px;font-weight:700;color:#f3d79a;margin-bottom:9px}
+header h1{font-size:31px;font-weight:900;line-height:1.28;letter-spacing:-.02em}
+header .sub{font-size:16px;font-weight:500;color:#e6dbea;line-height:1.65;margin-top:11px}
+
+.panel{background:var(--paper);border-radius:18px;padding:20px 22px;margin-bottom:14px;
+  box-shadow:0 10px 30px rgba(0,0,0,.28)}
+.panel h2{font-size:20px;font-weight:900;color:var(--plum2);margin-bottom:10px;
+  display:flex;align-items:center;gap:9px}
+.panel h2 .b{background:var(--plum);color:#fff;font-size:13px;border-radius:99px;
+  padding:3px 11px;font-weight:900}
+.panel p{font-size:15.5px;font-weight:500;line-height:1.72}
+.panel p+p{margin-top:9px}
+.panel b{font-weight:900;color:var(--plum2)}
+
+.flow{display:flex;gap:9px;margin:14px 0 4px;flex-wrap:wrap}
+.fstep{flex:1 1 130px;background:#fff;border-radius:12px;padding:12px 11px;text-align:center;
+  border-top:6px solid var(--line)}
+.fstep.n1{border-top-color:var(--plum)}
+.fstep.n2{border-top-color:var(--navy)}
+.fstep.n3{border-top-color:var(--green)}
+.fstep.n4{border-top-color:var(--gold)}
+.fstep .fn{font-size:13px;font-weight:900;color:var(--muted)}
+.fstep .ft{font-size:15px;font-weight:900;line-height:1.34;margin-top:4px}
+
+.warn{background:#fff;border:3px dashed var(--red);border-radius:14px;padding:15px 17px;
+  margin-top:14px;font-size:15.5px;font-weight:600;line-height:1.7}
+.warn b{color:var(--red);font-weight:900}
+
+/* 자료 카드 */
+.card{display:block;background:var(--paper);border-radius:18px;padding:18px 20px;
+  margin-bottom:12px;text-decoration:none;color:inherit;
+  box-shadow:0 10px 26px rgba(0,0,0,.26);border-left:10px solid var(--plum);
+  transition:transform .12s}
+.card:active{transform:scale(.99)}
+.card.c1{border-left-color:var(--plum)}
+.card.c2{border-left-color:var(--navy)}
+.card.c3{border-left-color:var(--green)}
+.card.c4{border-left-color:var(--gold)}
+.chead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:7px}
+.chead .num{font-size:13px;font-weight:900;color:#fff;background:var(--plum);
+  border-radius:99px;padding:3px 12px;white-space:nowrap}
+.card.c2 .num{background:var(--navy)}
+.card.c3 .num{background:var(--green)}
+.card.c4 .num{background:var(--gold)}
+.chead .ct{font-size:20px;font-weight:900;color:var(--plum2);line-height:1.3}
+.card.c2 .ct{color:var(--navy)} .card.c3 .ct{color:var(--green)} .card.c4 .ct{color:#9a6f1e}
+.chead .kind{font-size:12.5px;font-weight:900;color:var(--muted);border:2px solid var(--line);
+  border-radius:99px;padding:2px 10px;margin-left:auto;white-space:nowrap}
+.cbody{font-size:15px;font-weight:500;line-height:1.68}
+.cbody b{font-weight:900;color:var(--plum2)}
+.cmeta{font-size:13.5px;font-weight:700;color:var(--muted);margin-top:9px;
+  border-top:1px solid var(--line);padding-top:8px}
+
+.sub-card{margin-left:26px;border-left-width:6px}
+
+.teach{background:#2b1b32;border-radius:16px;padding:16px 18px;margin-top:6px}
+.teach a{color:#f3d79a;font-size:14.5px;font-weight:700;text-decoration:none;
+  word-break:break-all;line-height:1.6}
+.teach .tl{color:#d8c7de;font-size:13.5px;font-weight:700;margin-bottom:6px}
+
+ul.plain{margin-left:19px}
+ul.plain li{font-size:15.5px;font-weight:500;line-height:1.72;margin-bottom:4px}
+ul.plain li b{font-weight:900;color:var(--plum2)}
+
+footer{color:#c9b6d1;font-size:13px;line-height:1.75;text-align:center;
+  padding:22px 10px 0}
+footer b{color:#f3d79a}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="kick">초등 도덕 5학년 · 2학기</div>
+  <h1>6단원 공동체를 정의롭게!<br>4차시 수업자료</h1>
+  <div class="sub">
+    교과서 86~101쪽 · 성취기준 <b>[6도03-02]</b><br>
+    슬라이드는 교실 TV에서 바로 열리고, 학습지는 A4로 인쇄됩니다. 설치할 것 없습니다.
+  </div>
+</header>
+
+<!-- 단원 흐름 -->
+<div class="panel">
+  <h2><span class="b">먼저 읽어 주세요</span> 이 단원은 네 시간이 한 줄기입니다</h2>
+  <p>지도서 지도상 유의점에 <b>"이 단원은 학급을 정의 공동체로 운영하기 위한 단원"</b>이라고
+  적혀 있습니다. 차시가 따로 놀지 않고, <b>규칙 하나를 실제로 만들어 지켜 보고 고치는</b>
+  한 줄기로 이어집니다.</p>
+
+  <div class="flow">
+    <div class="fstep n1"><div class="fn">1차시</div><div class="ft">규칙이<br>왜 필요한가</div></div>
+    <div class="fstep n2"><div class="fn">2차시</div><div class="ft">우리 반 규칙<br>실제로 만들기</div></div>
+    <div class="fstep n3"><div class="fn">3차시</div><div class="ft">지켜 보고<br>고치기</div></div>
+    <div class="fstep n4"><div class="fn">4차시</div><div class="ft">정의로운<br>공동체란</div></div>
+  </div>
+
+  <div class="warn">
+    ⏸ <b>2차시와 3차시 사이에 일주일이 필요합니다.</b>
+    2차시에 만든 규칙을 교실에 붙이고 교과서 95쪽 실천표를 돌린 뒤,
+    3차시에 <b>그 일주일 동안 실제로 겪은 일</b>로 규칙을 고칩니다.
+    몰아서 하실 거면 3차시의 곤란한 상황 카드만으로도 진행됩니다.
+  </div>
+</div>
+
+<!-- 1차시 -->
+<a class="card c1" href="1-why-rules.html">
+  <div class="chead">
+    <span class="num">1차시</span>
+    <span class="ct">규칙이 없으면 어떻게 될까</span>
+    <span class="kind">슬라이드 14장</span>
+  </div>
+  <div class="cbody">
+    도입은 <b>규칙을 일부러 빼고 시작합니다</b> — 모둠에 스티커 7장을 주고
+    "4명이 나눠 가지세요"만 말한 뒤 3분간 아무 말도 하지 않습니다. 반드시 다툽니다.<br>
+    그 다음에 <b>1863년 이전 축구</b> 이야기가 나옵니다. 학교마다 규칙이 달라 경기 전에
+    협상부터 했고, 정강이 차기 금지에 반대한 클럽들이 회의장을 나가 럭비가 되었습니다.
+    아이들이 방금 겪은 일이 그것이었다는 순서입니다.
+  </div>
+  <div class="cmeta">교과서 88~91쪽 · 준비물: 모둠당 스티커 7장(또는 색종이 조각)</div>
+</a>
+
+<!-- 2차시 -->
+<a class="card c2" href="2-fair-rules.html">
+  <div class="chead">
+    <span class="num">2차시</span>
+    <span class="ct">공정한 규칙은 어떻게 만들까</span>
+    <span class="kind">슬라이드 15장</span>
+  </div>
+  <div class="cbody">
+    짝끼리 젤리를 <b>두 방식으로</b> 나눠 봅니다 — ① 이긴 사람이 나누고 자기가 먼저 고른다
+    ② 이긴 사람이 나누고 <b>진 사람이</b> 먼저 고른다. 두 번째에서는 아무도 시키지 않았는데
+    저절로 똑같이 나눕니다. <b>"공정은 착한 마음이 아니라 순서에서 나온다"</b>가 여기서 나옵니다.<br>
+    이어서 <b>무지의 베일</b>(내 자리를 모르는 채 규칙 정하기)을 모둠 활동으로 하고,
+    교과서 94~95쪽 절차대로 <b>우리 반 규칙 1호를 실제로 결정</b>합니다.
+  </div>
+  <div class="cmeta">교과서 92~95쪽 · 준비물: 짝당 젤리나 색종이 조각 몇 개 · 아래 활동 카드</div>
+</a>
+
+<a class="card c2 sub-card" href="2-1-veil-cards.html">
+  <div class="chead">
+    <span class="num">2차시 부속</span>
+    <span class="ct">모둠 활동 카드</span>
+    <span class="kind">A4 3쪽 인쇄</span>
+  </div>
+  <div class="cbody">
+    ① 상황 카드 4장 ② <b>역할 카드 8장</b> ③ 모둠 기록지.<br>
+    핵심은 순서입니다 — 모둠이 규칙을 <b>다 정한 뒤에</b> 역할 카드를 뒤집습니다.
+    "나는 다리를 다쳐 목발을 짚는다", "나는 지난주에 전학 왔다" 같은 카드를 뽑고,
+    <b>내가 그 사람이어도 이 규칙이 괜찮은지</b> 확인합니다. 미리 보면 실험이 되지 않습니다.
+  </div>
+  <div class="cmeta">모둠 수만큼 인쇄 → 점선 따라 자르기 · 역할 카드는 엎어 둘 것</div>
+</a>
+
+<!-- 3차시 -->
+<a class="card c3" href="3-rules-revised.html">
+  <div class="chead">
+    <span class="num">3차시</span>
+    <span class="ct">규칙은 완성되지 않는다</span>
+    <span class="kind">슬라이드 15장</span>
+  </div>
+  <div class="cbody">
+    교과서 96쪽은 축구 영상 판독을 "보완 중"이라고만 적고 끝납니다. 그 뒤를 이어받습니다 —
+    <b>2018 월드컵 도입 → 그래도 불만 → 2022 반자동 오프사이드 → 지금은 감독이 직접
+    요청하는 FVS를 시험 중</b>(손가락을 돌려 경기당 2번, 캐나다 프로리그가 2026년부터).
+    160년을 고쳤는데 아직도 고치는 중이라는 사실이 그대로 오늘의 주제가 됩니다.<br>
+    이어서 <b>똑같이 ≠ 공정하게</b>(교과서 101쪽 아리스토텔레스)를 다루고,
+    <b>적어 둔 예외</b>와 <b>그때그때 봐주기</b>의 차이를 갈라 줍니다.
+  </div>
+  <div class="cmeta">교과서 96~97쪽 · 2차시에 만든 규칙과 95쪽 실천표가 있어야 합니다</div>
+</a>
+
+<a class="card c3 sub-card" href="3-1-stress-cards.html">
+  <div class="chead">
+    <span class="num">3차시 부속</span>
+    <span class="ct">곤란한 상황 카드</span>
+    <span class="kind">A4 2쪽 인쇄</span>
+  </div>
+  <div class="cbody">
+    우리 반 규칙을 <b>일부러 부수는</b> 활동입니다. 카드 8장 — 다친 사람 / 새로 온 사람 /
+    그날 자리에 없던 사람 / <b>얄밉게 이용하는 사람</b> / 지키면 손해 / 규칙에 없는 일 /
+    어긴 사람 / 잊어버린 사람들.<br>
+    깨지는 곳을 찾아 <b>"만약 ~라면, ~한다"</b> 꼴로 한 문장을 덧붙입니다.
+    허점을 많이 찾은 모둠이 잘한 모둠입니다.
+  </div>
+  <div class="cmeta">모둠마다 카드 4장씩 + 기록지 1장</div>
+</a>
+
+<!-- 4차시 -->
+<a class="card c4" href="4-justice-sorter.html">
+  <div class="chead">
+    <span class="num">4차시</span>
+    <span class="ct">어떻게 나누는 것이 정의로울까</span>
+    <span class="kind">태블릿 앱 · 학생용</span>
+  </div>
+  <div class="cbody">
+    교실에서 진짜로 있는 장면 12개를 <b>똑같이 / 필요한 만큼 / 한 만큼</b> 중 하나로 판단합니다.
+    <b>점수도 등수도 없습니다.</b><br>
+    8개는 방향이 뚜렷하고(알레르기·시력·다친 친구 → 필요한 만큼 / 간식·투표·발표 기회 → 똑같이),
+    <b>4개는 답이 갈린다고 대놓고 알려 줍니다</b>(모둠 과제 점수, 청소를 빨리 끝낸 모둠,
+    남은 반찬, 단톡방 개수 제한).<br>
+    결과 화면은 등수가 아니라 <b>그 성향의 약점</b>을 짚습니다 —
+    "필요한 만큼을 많이 골랐구나. 그런데 <b>누가 더 필요한지는 누가 정하지?</b>"<br>
+    마지막에 교과서 99쪽 보기 낱말 중 3개를 골라 <b>'정의로운 공동체란' 한 문장</b>을 쓰고,
+    그것을 교과서에 옮겨 적습니다.
+  </div>
+  <div class="cmeta">교과서 98~100쪽 · 학생 태블릿에서 QR로 열기 · 소리 기본 꺼짐 · 이어하기 있음</div>
+</a>
+
+<div class="teach">
+  <div class="tl">👩‍🏫 4차시 교사 화면 — 12장면 전체 표와 정리 발문 5개</div>
+  <a href="4-justice-sorter.html#teacher">4-justice-sorter.html<b>#teacher</b> ← 주소 뒤에 #teacher</a>
+</div>
+
+<!-- 준비물 -->
+<div class="panel" style="margin-top:14px">
+  <h2><span class="b">준비물</span> 이게 전부입니다</h2>
+  <ul class="plain">
+    <li><b>1차시</b> — 모둠당 스티커 7장 (색종이 조각·사탕 무엇이든 4로 안 나눠지는 개수면 됩니다)</li>
+    <li><b>2차시</b> — 짝당 젤리나 색종이 조각 몇 개, 활동 카드 인쇄(모둠 수만큼)</li>
+    <li><b>2차시 이후</b> — 교실 뒤에 붙일 <b>규칙 1호</b> 종이 한 장</li>
+    <li><b>3차시</b> — 곤란한 상황 카드 인쇄(모둠 수만큼)</li>
+    <li><b>4차시</b> — 학생 태블릿 (QR이 앱 첫 화면에 들어 있습니다)</li>
+  </ul>
+</div>
+
+<div class="panel">
+  <h2><span class="b">조작</span> 슬라이드 넘기는 법</h2>
+  <ul class="plain">
+    <li>키보드 <b>← →</b> 또는 스페이스바, 화면 <b>좌우 끝을 탭</b>(태블릿)</li>
+    <li><b>F</b> 키 또는 오른쪽 아래 버튼으로 전체화면</li>
+    <li>화면 크기에 맞춰 자동으로 확대·축소됩니다. 프로젝터·TV·태블릿 모두 됩니다.</li>
+    <li>A4 학습지는 상단 <b>인쇄하기</b> 버튼을 누르고, 인쇄 설정에서
+      <b>'배경 그래픽'</b>을 켜 주세요.</li>
+  </ul>
+</div>
+
+<footer>
+  만든 이 <b>신리초 엘리</b> · 교과서는 2022 개정 5학년 도덕 (천재교과서)<br>
+  자유롭게 쓰시고 반 사정에 맞게 고쳐 쓰셔도 됩니다.
+</footer>
+
+</div>
+</body>
+</html>

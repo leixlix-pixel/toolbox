@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>공정한 규칙 만들기</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --ink:#1c2430; --navy:#123a63; --navy2:#1d5b95;
+  --red:#c0392b; --gold:#c8963e; --green:#2e7d5b; --plum:#7d4a86;
+  --paper:#f6f2e9; --line:#d9d2c4; --muted:#6d6b66;
+}
+
+html,body{height:100%;background:#0d1520;font-family:'Noto Sans KR',sans-serif;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;overflow:hidden}
+
+#stage{position:absolute;left:50%;top:50%;width:1280px;height:720px;
+  transform-origin:center center;background:var(--paper);overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,.6)}
+
+.slide{position:absolute;inset:0;padding:38px 54px;display:none;
+  flex-direction:column;background:var(--paper);--acc:var(--plum)}
+.slide.on{display:flex}
+.slide::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(circle at 12% 8%,rgba(200,150,62,.10),transparent 45%),
+             radial-gradient(circle at 92% 95%,rgba(125,74,134,.08),transparent 45%)}
+.slide>*{position:relative;z-index:1}
+
+.eyebrow{display:inline-block;font-size:21px;font-weight:700;color:#fff;
+  background:var(--acc);padding:6px 18px;border-radius:999px;margin-bottom:12px;align-self:flex-start}
+h2.stitle{font-size:40px;font-weight:900;color:var(--acc);line-height:1.2;letter-spacing:-.02em;margin-bottom:6px}
+h2.stitle.sm{font-size:34px}
+.rule{width:92px;height:7px;border-radius:4px;
+  background:linear-gradient(90deg,var(--red),var(--gold));margin:10px 0 20px}
+p.body{font-size:27px;line-height:1.58;color:var(--ink);font-weight:500}
+p.body+p.body{margin-top:12px}
+.small{font-size:23px;line-height:1.5}
+.tiny{font-size:19px;line-height:1.5}
+
+b.hl{font-weight:900;color:var(--red);background:linear-gradient(transparent 62%,rgba(192,57,43,.20) 62%);padding:0 2px}
+b.hn{font-weight:900;color:var(--navy2);background:linear-gradient(transparent 62%,rgba(29,91,149,.18) 62%);padding:0 2px}
+b.hg{font-weight:900;color:var(--green);background:linear-gradient(transparent 62%,rgba(46,125,91,.18) 62%);padding:0 2px}
+b.hp{font-weight:900;color:var(--plum);background:linear-gradient(transparent 62%,rgba(125,74,134,.18) 62%);padding:0 2px}
+
+.cols{display:flex;gap:30px;flex:1;min-height:0;align-items:center}
+.cols.top{align-items:flex-start}
+.cols.stretch{align-items:stretch}
+.col{flex:1;min-width:0}
+
+.term{background:#fff;border-left:9px solid var(--gold);border-radius:8px;padding:14px 18px;
+  box-shadow:0 6px 16px rgba(30,25,15,.10)}
+.term+.term{margin-top:14px}
+.term .t{font-size:24px;font-weight:900;color:var(--gold);margin-bottom:3px}
+.term .d{font-size:22px;font-weight:500;color:var(--ink);line-height:1.5}
+
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 20px;
+  box-shadow:0 6px 16px rgba(30,25,15,.09)}
+.card h3{font-size:25px;font-weight:900;color:var(--acc);margin-bottom:8px}
+.card p{font-size:22px;line-height:1.52;color:var(--ink);font-weight:500}
+.card p+p{margin-top:9px}
+
+.act{background:#fff;border:3px dashed var(--navy2);border-radius:18px;padding:20px 24px}
+.act-h{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.act-badge{background:var(--navy2);color:#fff;font-weight:900;font-size:20px;
+  padding:5px 15px;border-radius:999px;white-space:nowrap}
+
+.qbox{background:#fff;border:3px solid var(--acc);border-radius:20px;
+  padding:26px 32px;box-shadow:0 10px 24px rgba(30,25,15,.12)}
+.qbox p{font-size:32px;line-height:1.48;font-weight:700;color:var(--ink)}
+.qbox p.mid{font-size:27px}
+
+.rules{display:flex;flex-direction:column;gap:11px}
+.rl{display:flex;gap:14px;align-items:flex-start;background:#fff;border-radius:12px;
+  padding:13px 18px;box-shadow:0 5px 13px rgba(30,25,15,.09)}
+.rl .n{flex:0 0 34px;height:34px;border-radius:999px;background:var(--acc);color:#fff;
+  font-weight:900;font-size:20px;display:flex;align-items:center;justify-content:center}
+.rl .tx{font-size:22px;line-height:1.45;font-weight:600;color:var(--ink);padding-top:3px}
+
+.voices{display:flex;gap:22px;align-items:stretch}
+.voices.vert{flex-direction:column}
+.voice{flex:1;background:#fff;border-radius:18px;padding:20px 24px;
+  box-shadow:0 6px 16px rgba(30,25,15,.10);display:flex;flex-direction:column;gap:10px;justify-content:center}
+.voice.a{border:3px solid var(--navy2)}
+.voice.b{border:3px solid var(--red)}
+.voice .who{font-size:22px;font-weight:900}
+.voice.a .who{color:var(--navy2)}
+.voice.b .who{color:var(--red)}
+.voice .say{font-family:'Gaegu',sans-serif;font-size:31px;line-height:1.36;
+  font-weight:700;color:var(--ink)}
+
+.chip{display:inline-block;background:#fff;border:2px solid var(--acc);color:var(--acc);
+  font-weight:900;font-size:20px;border-radius:999px;padding:9px 20px;margin:5px 7px 0 0}
+.chipwrap{display:flex;flex-wrap:wrap}
+
+/* 절차 4단계 */
+.steps{display:flex;gap:14px;flex:1;align-items:stretch}
+.step{flex:1;background:#fff;border-radius:16px;padding:18px 16px;
+  box-shadow:0 6px 16px rgba(30,25,15,.10);display:flex;flex-direction:column;gap:10px;
+  justify-content:center;text-align:center;border-top:8px solid var(--acc)}
+.step .sn{font-size:19px;font-weight:900;color:var(--acc)}
+.step .st{font-size:23px;font-weight:900;color:var(--ink);line-height:1.32}
+.step .sd{font-size:18px;font-weight:600;color:var(--muted);line-height:1.42}
+
+/* 두 방식 비교 */
+.vs{display:flex;gap:22px;flex:1;align-items:stretch}
+.way{flex:1;background:#fff;border-radius:20px;padding:22px 24px;
+  box-shadow:0 8px 20px rgba(30,25,15,.11);display:flex;flex-direction:column;gap:12px;
+  justify-content:center}
+.way.x{border:4px solid var(--red)}
+.way.o{border:4px solid var(--green)}
+.way .wh{font-size:26px;font-weight:900;line-height:1.3}
+.way.x .wh{color:var(--red)}
+.way.o .wh{color:var(--green)}
+.way .wd{font-size:22px;font-weight:600;color:var(--ink);line-height:1.5}
+
+.cover2{justify-content:center;align-items:center;text-align:center;background:linear-gradient(160deg,#5d3566,#7d4a86 70%)}
+.cover2 .kicker{color:#f3d79a;font-size:22px;font-weight:700;margin-bottom:16px}
+.cover2 h1{color:#fff;font-size:52px;font-weight:900;line-height:1.28}
+.cover2 .sub{color:#e6dbea;font-size:24px;font-weight:500;margin-top:18px}
+
+.divider{justify-content:center;align-items:center;text-align:center;background:linear-gradient(160deg,#7d4a86,#5d3566 70%)}
+.divider .num{color:#f3d79a;font-size:26px;font-weight:900;margin-bottom:10px}
+.divider h1{color:#fff;font-size:44px;font-weight:900;line-height:1.3}
+.divider .sub{color:#e6dbea;font-size:23px;font-weight:500;margin-top:16px}
+
+.bar{position:fixed;left:0;right:0;bottom:0;height:46px;background:#0f1a29;color:#cfd8e6;
+  display:flex;align-items:center;gap:10px;padding:0 14px;font-size:15px;z-index:50}
+.bar button{background:#1d3350;color:#e8eef7;border:0;border-radius:7px;padding:7px 13px;
+  font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+.bar button:hover{background:#2a4a70}
+#prog{position:fixed;left:0;top:0;height:4px;background:var(--plum);z-index:60;transition:width .18s}
+.zone{position:fixed;top:0;bottom:46px;width:12%;z-index:40;cursor:pointer}
+#zl{left:0}#zr{right:0}
+</style>
+</head>
+<body>
+
+<div id="prog"></div>
+<div id="stage"></div>
+<div class="zone" id="zl"></div>
+<div class="zone" id="zr"></div>
+<div class="bar">
+  <button onclick="go(-1)">◀ 이전</button>
+  <button onclick="go(1)">다음 ▶</button>
+  <span id="counter">1 / 1</span>
+  <span style="margin-left:18px;opacity:.7">← → 이동 · F 전체화면</span>
+  <button style="margin-left:auto" onclick="fs()">⛶ 전체화면</button>
+</div>
+
+<script>
+const IMG = {};
+/*IMG_INJECT*/
+
+const SLIDES = [
+
+/* 1. 표지 */
+`<section class="slide cover2">
+  <div class="kicker">도덕 6. 공동체를 정의롭게! · 2차시 · 92~95쪽</div>
+  <h1>공정한 규칙은<br>어떻게 만들까</h1>
+  <div class="sub">오늘 만든 규칙을 다음 주까지 진짜로 지켜 봅니다</div>
+</section>`,
+
+/* 2. 지난 시간 → 오늘 */
+`<section class="slide">
+  <span class="eyebrow">되돌아보기</span>
+  <h2 class="stitle">지난 시간에 알아낸 것</h2>
+  <div class="rule"></div>
+  <div class="cols stretch">
+    <div class="col">
+      <div class="card" style="height:100%;display:flex;flex-direction:column;justify-content:center">
+        <h3>규칙이 없으면</h3>
+        <p>스티커 7장을 나눌 때 <b class="hl">목소리 큰 사람</b>이 정했다.</p>
+        <p>축구도 규칙이 생기기 전에는 <b class="hl">힘센 쪽</b>이 이겼다.</p>
+      </div>
+    </div>
+    <div class="col">
+      <div class="qbox" style="border-color:var(--red)">
+        <p>그런데 <b class="hl">규칙만 있으면</b><br>다 괜찮은 걸까?</p>
+        <p class="mid" style="margin-top:14px;color:var(--muted)">
+        "힘센 사람이 다 갖는다"도 규칙이다.</p>
+      </div>
+    </div>
+  </div>
+</section>`,
+
+/* 3. 짝활동 안내 */
+`<section class="slide" style="--acc:var(--red)">
+  <span class="eyebrow">짝 활동 · 5분</span>
+  <h2 class="stitle">같은 젤리를 두 가지 방법으로 나눠 보자</h2>
+  <div class="rule"></div>
+  <div class="vs">
+    <div class="way x">
+      <div class="wh">첫 번째 · 이긴 사람이 정한다</div>
+      <div class="wd">가위바위보를 한다.<br>
+      <b class="hl">이긴 사람이 두 몫을 나누고, 자기가 먼저 고른다.</b></div>
+      <div class="wd" style="color:var(--muted);font-size:20px">진 사람은 남은 것을 갖는다.</div>
+    </div>
+    <div class="way o">
+      <div class="wh">두 번째 · 나눈 사람이 나중에 고른다</div>
+      <div class="wd">가위바위보를 한다.<br>
+      <b class="hg">이긴 사람이 두 몫을 나누고, 진 사람이 먼저 고른다.</b></div>
+      <div class="wd" style="color:var(--muted);font-size:20px">나눈 사람은 남은 것을 갖는다.</div>
+    </div>
+  </div>
+  <p class="body small" style="margin-top:16px">두 번 다 해 보고, <b class="hn">어느 쪽이 덜 억울했는지</b> 짝과 이야기한다.</p>
+</section>`,
+
+/* 4. 활동 후 발견 */
+`<section class="slide" style="--acc:var(--red)">
+  <span class="eyebrow">해 보고 나서</span>
+  <h2 class="stitle sm">이상한 점을 발견했나요?</h2>
+  <div class="rule"></div>
+  <div class="cols stretch">
+    <div class="col">
+      <div class="qbox" style="border-color:var(--green)">
+        <p>두 번째 방법에서는<br>
+        나누는 사람이 <b class="hg">저절로 똑같이</b> 나눴다.</p>
+      </div>
+      <p class="body" style="margin-top:18px">아무도 "똑같이 나눠라"라고 말하지 않았는데도.</p>
+    </div>
+    <div class="col">
+      <div class="voices vert">
+        <div class="voice a">
+          <div class="who">왜 그럴까</div>
+          <div class="say">"내가 한쪽을 크게 만들면<br>짝이 그걸 가져가니까."</div>
+        </div>
+        <div class="voice b">
+          <div class="who">그러니까</div>
+          <div class="say">"착해서가 아니라<br>순서 때문이었네?"</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>`,
+
+/* 5. 이론 — 절차가 공정을 만든다 */
+`<section class="slide" style="--acc:var(--green)">
+  <span class="eyebrow">오늘의 핵심</span>
+  <h2 class="stitle">공정은 마음이 아니라 순서에서 나온다</h2>
+  <div class="rule"></div>
+  <div class="cols">
+    <div class="col">
+      <div class="card" style="border-color:var(--green);border-width:3px">
+        <h3 style="color:var(--green)">"자르는 사람이 마지막에 고른다"</h3>
+        <p>케이크를 둘이 나눌 때 쓰는 아주 오래된 방법이다.</p>
+        <p>이 순서 하나만 있으면 <b class="hg">누가 자르든</b> 공평하게 잘린다.
+        착한 사람을 뽑을 필요도, 감시할 필요도 없다.</p>
+      </div>
+    </div>
+    <div class="col">
+      <div class="term">
+        <div class="t">공정</div>
+        <div class="d">공평하고 올바름 <span style="color:var(--muted);font-size:19px">(교과서 92쪽)</span></div>
+      </div>
+      <div class="term">
+        <div class="t">절차</div>
+        <div class="d">일을 하는 데 거쳐야 하는 일정한 차례와 방법
+        <span style="color:var(--muted);font-size:19px">(교과서 93쪽)</span></div>
+      </div>
+      <p class="body small" style="margin-top:16px">
+      <b class="hg">공정한 절차</b>가 있으면, 사람이 바뀌어도 결과가 공정하다.</p>
+    </div>
+  </div>
+</section>`,
+
+/* 6. 구분 — 무지의 베일 */
+`<section class="slide divider">
+  <div class="num">한 가지 더</div>
+  <h1>내가 어느 자리에 앉을지<br>모르는 채로 정한다면?</h1>
+  <div class="sub">공정한 규칙을 만드는 두 번째 방법</div>
+</section>`,
+
+/* 7. 무지의 베일 설명 */
+`<section class="slide" style="--acc:var(--navy2)">
+  <span class="eyebrow">생각 실험</span>
+  <h2 class="stitle sm">규칙을 먼저 정하고, 자리는 나중에 뽑는다</h2>
+  <div class="rule"></div>
+  <div class="cols stretch">
+    <div class="col">
+      <div class="card" style="height:100%;display:flex;flex-direction:column;justify-content:center">
+        <h3>이렇게 물어보자</h3>
+        <p>"청소 규칙을 정하자. 그런데 <b class="hn">누가 어느 구역을 맡을지는
+        규칙을 다 정한 다음에 제비뽑기로</b> 정한다."</p>
+        <p style="margin-top:12px">이 말을 듣는 순간, 사람들은
+        <b class="hg">제일 힘든 구역을 맡게 될 나</b>를 생각하기 시작한다.</p>
+      </div>
+    </div>
+    <div class="col">
+      <div class="voices vert">
+        <div class="voice b">
+          <div class="who">자리를 알 때</div>
+          <div class="say">"난 창가니까<br>창틀 닦기는 빼자."</div>
+        </div>
+        <div class="voice a">
+          <div class="who">자리를 모를 때</div>
+          <div class="say">"어느 구역이든<br>혼자 못 하면 도와주기로 하자."</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>`,
+
+/* 8. 모둠 활동 안내 */
+`<section class="slide" style="--acc:var(--navy2)">
+  <span class="eyebrow">모둠 활동 · 10분</span>
+  <h2 class="stitle">자리를 모르는 채로 규칙 만들기</h2>
+  <div class="rule"></div>
+  <div class="rules" style="flex:1;justify-content:center">
+    <div class="rl"><span class="n">1</span><span class="tx">모둠이 <b class="hn">상황 카드</b> 한 장을 뽑는다 <span style="color:var(--muted)">(놀이 도구 / 발표 순서 / 자리 정하기)</span></span></div>
+    <div class="rl"><span class="n">2</span><span class="tx">그 상황의 규칙을 <b class="hn">모둠이 함께</b> 정해서 적는다</span></div>
+    <div class="rl"><span class="n">3</span><span class="tx">다 적은 뒤에 <b class="hl">역할 카드</b>를 뒤집어 한 장씩 뽑는다</span></div>
+    <div class="rl"><span class="n">4</span><span class="tx">내가 뽑은 역할에게 <b class="hl">우리 규칙이 억울하지 않은지</b> 확인한다</span></div>
+  </div>
+  <div class="term" style="margin-top:16px">
+    <div class="t">중요</div>
+    <div class="d">2번을 다 끝내기 전에는 <b class="hl">역할 카드를 절대 보지 않는다.</b>
+    보고 나면 실험이 되지 않는다.</div>
+  </div>
+</section>`,
+
+/* 9. 활동 후 정리 */
+`<section class="slide" style="--acc:var(--navy2)">
+  <span class="eyebrow">모둠 발표</span>
+  <h2 class="stitle">억울한 사람이 나왔나요?</h2>
+  <div class="rule"></div>
+  <div class="cols stretch">
+    <div class="col">
+      <div class="rules">
+        <div class="rl"><span class="n">·</span><span class="tx">억울한 역할이 <b class="hl">나왔다면</b> — 규칙의 어느 부분 때문인가?</span></div>
+        <div class="rl"><span class="n">·</span><span class="tx">억울한 역할이 <b class="hg">안 나왔다면</b> — 규칙의 어느 부분이 그걸 막았나?</span></div>
+        <div class="rl"><span class="n">·</span><span class="tx">규칙을 고친다면 <b class="hn">어디를</b> 고칠까?</span></div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="qbox">
+        <p>공정한 규칙은<br>
+        <b class="hp">누가 어느 자리에 있어도</b><br>
+        받아들일 수 있는 규칙이다.</p>
+      </div>
+    </div>
+  </div>
+</section>`,
+
+/* 10. 절차 4단계 */
+`<section class="slide" style="--acc:var(--gold)">
+  <span class="eyebrow">교과서 93쪽 · 필요한 절차</span>
+  <h2 class="stitle">공정한 규칙을 만드는 네 걸음</h2>
+  <div class="rule"></div>
+  <div class="steps">
+    <div class="step">
+      <div class="sn">첫째</div>
+      <div class="st">모두 함께<br>모인다</div>
+      <div class="sd">빠진 사람이 있으면 그 사람 의견은 반영될 수 없다</div>
+    </div>
+    <div class="step">
+      <div class="sn">둘째</div>
+      <div class="st">의견을<br>이유와 함께</div>
+      <div class="sd">"그냥"이 아니라 왜 그 규칙이 필요한지 말한다</div>
+    </div>
+    <div class="step">
+      <div class="sn">셋째</div>
+      <div class="st">시간을<br>충분히</div>
+      <div class="sd">비슷한 의견끼리 묶으며 여러 번 이야기한다</div>
+    </div>
+    <div class="step">
+      <div class="sn">넷째</div>
+      <div class="st">동의하고<br>기록한다</div>
+      <div class="sd">정한 것을 적어 두어야 나중에 딴말이 없다</div>
+    </div>
+  </div>
+  <div class="chipwrap" style="margin-top:16px">
+    <span class="chip">모두</span><span class="chip">함께</span><span class="chip">의견</span>
+    <span class="chip">과정</span><span class="chip">시간</span><span class="chip">동의</span><span class="chip">결정</span>
+  </div>
+</section>`,
+
+/* 11. 태도 */
+`<section class="slide" style="--acc:var(--gold)">
+  <span class="eyebrow">교과서 93쪽 아래</span>
+  <h2 class="stitle sm">규칙을 만들 때 지녀야 할 태도</h2>
+  <div class="rule"></div>
+  <div class="voices" style="flex:1">
+    <div class="voice a">
+      <div class="who">유담</div>
+      <div class="say">"우리 모두에게<br>도움이 되는 규칙을<br>생각해야 해."</div>
+    </div>
+    <div class="voice a">
+      <div class="who">도헌</div>
+      <div class="say">"진지한 태도로<br>참여해야 해."</div>
+    </div>
+    <div class="voice b">
+      <div class="who">그리고 하나 더</div>
+      <div class="say">"나한테 조금<br>손해여도<br>___________"</div>
+    </div>
+  </div>
+  <p class="body small" style="margin-top:16px">세 번째 말풍선은 우리가 채운다. 교과서 93쪽 빈칸에 적어 보자.</p>
+</section>`,
+
+/* 12. 전체 활동 — 진짜 규칙 만들기 */
+`<section class="slide" style="--acc:var(--plum)">
+  <span class="eyebrow">전체 활동 · 교과서 94~95쪽</span>
+  <h2 class="stitle">이제 우리 반 규칙을 진짜로 만든다</h2>
+  <div class="rule"></div>
+  <div class="rules" style="flex:1;justify-content:center">
+    <div class="rl"><span class="n">1</span><span class="tx">한 명씩 돌아가며 <b class="hp">필요한 규칙과 그 이유</b>를 말한다</span></div>
+    <div class="rl"><span class="n">2</span><span class="tx">비슷한 규칙끼리 <b class="hp">묶어서</b> 몇 가지로 정리한다</span></div>
+    <div class="rl"><span class="n">3</span><span class="tx">정리한 규칙을 칠판에 <b class="hp">기록</b>한다</span></div>
+    <div class="rl"><span class="n">4</span><span class="tx">공정한지 <b class="hl">함께 검토</b>한다 — 예상되는 문제점 찾기</span></div>
+    <div class="rl"><span class="n">5</span><span class="tx">합의해서 <b class="hg">우리 반 규칙 1호</b>를 하나 결정한다</span></div>
+  </div>
+</section>`,
+
+/* 13. 검토 세 물음 */
+`<section class="slide" style="--acc:var(--red)">
+  <span class="eyebrow">4단계 · 검토할 때</span>
+  <h2 class="stitle">이 세 가지를 물어본다</h2>
+  <div class="rule"></div>
+  <div class="cols stretch">
+    <div class="col">
+      <div class="rules">
+        <div class="rl"><span class="n">1</span><span class="tx">이 규칙 때문에 <b class="hl">유독 손해 보는 사람</b>이 있나?</span></div>
+        <div class="rl"><span class="n">2</span><span class="tx">이 규칙을 <b class="hl">얄밉게 이용하는 방법</b>이 있나?</span></div>
+        <div class="rl"><span class="n">3</span><span class="tx">지켰는지 <b class="hn">눈으로 확인</b>할 수 있나?</span></div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="act" style="height:100%;display:flex;flex-direction:column;justify-content:center">
+        <div class="act-h"><span class="act-badge">규칙 쓰는 법</span></div>
+        <p class="body small" style="margin-bottom:12px">
+        ✗ 사이좋게 놀자 · 배려하자 · 열심히 하자</p>
+        <p class="body small">
+        ○ 놀이 도구는 <b class="hn">한 모둠이 하루씩</b>, 순서는 <b class="hn">모둠 번호대로</b></p>
+        <p class="body tiny" style="margin-top:14px;color:var(--muted)">
+        마음가짐은 규칙이 아니라 다짐이다. 규칙은 <b>누가·언제·얼마나</b>가 들어가야 한다.</p>
+      </div>
+    </div>
+  </div>
+</section>`,
+
+/* 14. 일주일 실천 */
+`<section class="slide" style="--acc:var(--green)">
+  <span class="eyebrow">오늘부터 다음 도덕 시간까지</span>
+  <h2 class="stitle">일주일 동안 진짜로 지켜 본다</h2>
+  <div class="rule"></div>
+  <div class="cols stretch">
+    <div class="col">
+      <div class="card" style="height:100%;display:flex;flex-direction:column;justify-content:center">
+        <h3>할 일</h3>
+        <p>· 교실 뒤에 <b class="hg">규칙 1호</b>를 붙여 둔다</p>
+        <p>· 교과서 95쪽 표에 <b class="hg">날마다 ◎ ○ △</b>로 표시한다</p>
+        <p>· <b class="hl">잘 안 되는 날</b>이 있으면 왜 그랬는지 한 줄 적는다</p>
+      </div>
+    </div>
+    <div class="col">
+      <div class="qbox" style="border-color:var(--green)">
+        <p>잘 안 지켜져도 괜찮다.</p>
+        <p class="mid" style="margin-top:14px">
+        <b class="hg">안 지켜진 이유</b>가 다음 시간의 재료다.</p>
+      </div>
+    </div>
+  </div>
+</section>`,
+
+/* 15. 마무리 */
+`<section class="slide divider">
+  <div class="num">오늘의 한 문장</div>
+  <h1>공정은 착한 마음이 아니라<br>공정한 절차에서 나온다</h1>
+  <div class="sub">다음 시간 — 일주일 지켜 보니 어땠나요?</div>
+</section>`
+
+];
+
+const stage = document.getElementById('stage');
+stage.innerHTML = SLIDES.join('');
+const slides = [...stage.querySelectorAll('.slide')];
+stage.querySelectorAll('img[data-img]').forEach(img => {
+  const key = img.getAttribute('data-img');
+  if (IMG[key]) img.src = IMG[key];
+});
+
+let cur = 0;
+function show(i){
+  cur = Math.max(0, Math.min(slides.length - 1, i));
+  slides.forEach((s,n) => s.classList.toggle('on', n === cur));
+  document.getElementById('counter').textContent = (cur+1) + ' / ' + slides.length;
+  const p = document.getElementById('prog');
+  p.style.width = ((cur+1)/slides.length*100) + '%';
+  p.style.background = getComputedStyle(slides[cur]).getPropertyValue('--acc');
+}
+function go(d){ show(cur + d); }
+
+function fit(){
+  const s = Math.min(window.innerWidth/1280, (window.innerHeight-46)/720);
+  stage.style.transform = 'translate(-50%,-50%) scale(' + s + ')';
+}
+function fs(){
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+  else document.exitFullscreen();
+}
+
+document.addEventListener('keydown', e => {
+  if (['ArrowRight','PageDown',' '].includes(e.key)) { e.preventDefault(); go(1); }
+  if (['ArrowLeft','PageUp'].includes(e.key)) { e.preventDefault(); go(-1); }
+  if (e.key === 'Home') show(0);
+  if (e.key === 'End') show(slides.length-1);
+  if (e.key === 'f' || e.key === 'F') fs();
+});
+document.getElementById('zl').onclick = () => go(-1);
+document.getElementById('zr').onclick = () => go(1);
+
+let tx=0, ty=0;
+document.addEventListener('touchstart', e => { tx=e.touches[0].clientX; ty=e.touches[0].clientY; }, {passive:true});
+document.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty;
+  if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) go(dx < 0 ? 1 : -1);
+}, {passive:true});
+
+window.addEventListener('resize', fit);
+fit();
+show(0);
+</script>
+</body>
+</html>

@@ -122,9 +122,8 @@ table.cmp td b{color:var(--rust);font-weight:900}
 .cover h1{color:#fff;font-size:58px;font-weight:900;line-height:1.16;letter-spacing:-.02em}
 .cover h1 em{font-style:normal;color:#ffd071}
 .cover .sub{color:#d6ddd8;font-size:23px;font-weight:500;margin-top:16px;line-height:1.5}
-.qrbox{position:absolute;right:44px;bottom:56px;text-align:center;z-index:2}
-.qrbox img{width:112px;height:112px;border-radius:12px;border:4px solid #fff;display:block}
-.qrbox .qt{font-size:14px;color:#cfd8d2;font-weight:700;margin-top:6px}
+.cover .hint{position:absolute;right:50px;bottom:40px;font-size:17px;font-weight:500;
+             color:#a9b6b0;letter-spacing:.01em}
 
 /* 하단 바 */
 .bar{position:fixed;left:0;right:0;bottom:0;height:46px;background:#141f2a;color:#cfd8e6;
@@ -159,10 +158,7 @@ const SLIDES = [
   <div class="kicker">사회 · 역사 탐구 | 청동기 시대 사람들이 남긴 돌</div>
   <h1>전 세계 고인돌의 절반 가까이가<br><em>한반도</em>에 서 있다</h1>
   <div class="sub">왜 하필 여기일까? — 고인돌의 <b style="color:#ffd071">생김새</b>와 <b style="color:#ffd071">구성</b>을 뜯어보면<br>그 이유가 그대로 나옵니다</div>
-  <div class="qrbox">
-    <img data-img="qr" alt="이 자료를 여는 QR코드">
-    <div class="qt">📱 태블릿에서 바로 열기</div>
-  </div>
+  <div class="hint">초등 사회 · 수업용 슬라이드 18장</div>
 </section>`,
 
 /* ===== 2. 숫자 ===== */
@@ -670,17 +666,10 @@ const SLIDES = [
 
 ];
 
-const IMG = {};
-IMG['qr'] = "data:image/png;base64,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";
 
 const stage = document.getElementById('stage');
 stage.innerHTML = SLIDES.join('');
 const slides = [...stage.querySelectorAll('.slide')];
-
-stage.querySelectorAll('img[data-img]').forEach(el => {
-  const src = IMG[el.dataset.img];
-  if (src) el.src = src; else el.style.display = 'none';
-});
 
 let cur = 0;
 function show(i){

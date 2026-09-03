@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>분수 미궁 — 작아져라!</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#151226; --bg2:#0e0b1c; --panel:#221d3d; --panel2:#2e2752; --line:#413873;
+  --gold:#ffd166; --hp:#ff5d73; --good:#5ee6a8; --bad:#ff8080; --txt:#efeaff; --muted:#a79fd0;
+  --acc:#7c6cff; --acc2:#b06cff;
+}
+html,body{height:100%}
+body{
+  font-family:'Noto Sans KR',sans-serif; background:var(--bg); color:var(--txt);
+  touch-action:manipulation; -webkit-tap-highlight-color:transparent; user-select:none;
+  -webkit-user-select:none; overflow:hidden;
+  background-image:radial-gradient(120% 80% at 50% -10%, #2a2450 0%, #151226 55%, #0c0918 100%);
+}
+#app{max-width:680px;margin:0 auto;height:100%;position:relative;overflow:hidden}
+.screen{position:absolute;inset:0;display:none;flex-direction:column;overflow-y:auto;overflow-x:hidden;
+  padding:14px 14px 20px;-webkit-overflow-scrolling:touch}
+.screen.on{display:flex}
+button{font-family:inherit;color:inherit;border:none;background:none;cursor:pointer}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:50px;
+  padding:12px 22px;border-radius:14px;background:var(--panel2);border:2px solid var(--line);
+  font-size:17px;font-weight:700;transition:transform .08s}
+.btn:active{transform:scale(.96)}
+.btn.big{font-size:20px;min-height:60px;padding:14px 30px;border-radius:18px}
+.btn.acc{background:linear-gradient(160deg,#7c6cff,#a457ff);border-color:#c3b4ff;
+  box-shadow:0 6px 0 #4c3ea8, 0 10px 20px rgba(124,108,255,.35)}
+.btn.acc:active{box-shadow:0 2px 0 #4c3ea8;transform:translateY(4px)}
+.btn.gold{background:linear-gradient(160deg,#ffca57,#ff9d3d);border-color:#ffe6a8;color:#2a1c00;
+  box-shadow:0 6px 0 #b06f14}
+.btn.gold:active{box-shadow:0 2px 0 #b06f14;transform:translateY(4px)}
+.btn.ghost{background:transparent;border-color:var(--line);color:var(--muted);min-height:44px;font-size:15px}
+.btn[disabled]{opacity:.4;pointer-events:none;box-shadow:none}
+.card{background:var(--panel);border:2px solid var(--line);border-radius:18px;padding:14px}
+.muted{color:var(--muted);font-size:14px;line-height:1.55}
+.center{text-align:center}
+.row{display:flex;gap:10px;align-items:center}
+.eyebrow{font-size:12px;letter-spacing:2px;color:var(--acc2);font-weight:700}
+
+.fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;
+  line-height:1.02;font-weight:900;margin:0 1px;position:relative;top:-.05em}
+.fr>b{display:block;padding:0 4px 1px;border-bottom:.13em solid currentColor}
+.fr>i{display:block;padding:1px 4px 0;font-style:normal}
+.mixw{font-weight:900;margin-right:2px}
+
+#s-title{justify-content:center;align-items:center;text-align:center;gap:0}
+.logo{font-size:clamp(34px,10vw,52px);font-weight:900;letter-spacing:-1px;line-height:1.12;
+  background:linear-gradient(180deg,#fff 30%,#c9b6ff 75%,#8f7bff);-webkit-background-clip:text;
+  background-clip:text;color:transparent;filter:drop-shadow(0 4px 12px rgba(124,108,255,.5))}
+.logosub{font-size:15px;color:var(--muted);margin-top:10px;line-height:1.7}
+.logosub b{color:var(--gold)}
+.tstat{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:16px}
+.chip{background:var(--panel);border:2px solid var(--line);border-radius:999px;padding:7px 14px;
+  font-size:13px;font-weight:700}
+.chip b{color:var(--gold)}
+
+.floorhead{display:flex;justify-content:space-between;align-items:center;margin:6px 0 8px}
+.floorno{font-size:22px;font-weight:900}
+.pathwrap{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+.node{display:flex;align-items:center;gap:12px;padding:14px;border-radius:16px;
+  background:var(--panel);border:2px solid var(--line);text-align:left;width:100%}
+.node:active{transform:scale(.98)}
+.node .ico{font-size:32px;width:46px;text-align:center;flex:none}
+.node .nm{font-size:17px;font-weight:700}
+.node .ds{font-size:13px;color:var(--muted);margin-top:2px;line-height:1.4}
+.node.elite{border-color:#ff8a5c;background:linear-gradient(150deg,#3a2338,#221d3d)}
+.node.boss{border-color:var(--gold);background:linear-gradient(150deg,#41321a,#221d3d)}
+.node.rest{border-color:#5ee6a8}
+.node.treasure{border-color:#ffd166}
+
+.hud{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.hearts{font-size:20px;letter-spacing:1px}
+.hud .chip{padding:6px 12px}
+.relics{display:flex;gap:5px;flex-wrap:wrap}
+.relic{width:36px;height:36px;border-radius:10px;background:var(--panel2);border:2px solid var(--gold);
+  display:flex;align-items:center;justify-content:center;font-size:19px}
+
+.arena{background:linear-gradient(180deg,rgba(46,39,82,.55),rgba(20,16,40,.2));
+  border:2px solid var(--line);border-radius:20px;padding:12px 12px 16px;text-align:center;
+  position:relative;overflow:hidden;min-height:236px;display:flex;flex-direction:column;justify-content:center}
+.mons{display:flex;justify-content:center;gap:16px;align-items:flex-end;min-height:150px}
+.mon{transition:transform .45s cubic-bezier(.2,1.4,.5,1);position:relative;padding:0 4px}
+.mon .face{line-height:1;transition:font-size .5s cubic-bezier(.2,1.4,.5,1);display:block}
+.mon.hit{animation:shake .35s}
+.mon.pop{animation:pop .55s forwards}
+.mon.grow{animation:grow .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-9px) rotate(-5deg)}
+  50%{transform:translateX(8px) rotate(4deg)}80%{transform:translateX(-4px)}}
+@keyframes pop{50%{transform:scale(1.55);opacity:.75}100%{transform:scale(0);opacity:0}}
+@keyframes grow{50%{transform:scale(1.18) rotate(3deg)}}
+.monname{font-size:13px;font-weight:700;margin-top:6px;color:var(--muted)}
+.monsize{font-size:22px;font-weight:900;margin-top:2px;display:flex;align-items:center;
+  justify-content:center;gap:5px;min-height:30px}
+.monsize.near{color:var(--good)}
+.fuse{font-size:13px;font-weight:700;color:var(--hp);margin-top:3px}
+.trait{font-size:11.5px;color:var(--acc2);font-weight:700;margin-top:3px;line-height:1.35}
+.goalbar{font-size:13px;color:var(--muted);margin-top:8px}
+.goalbar b{color:var(--good)}
+
+.hand{display:flex;gap:8px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+.pcard{width:82px;height:112px;border-radius:14px;background:linear-gradient(170deg,#fffdf7,#e8e0ff);
+  color:#221d3d;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  border:3px solid #fff;box-shadow:0 5px 0 rgba(0,0,0,.32);font-size:30px;position:relative;
+  transition:transform .12s}
+.pcard:active{transform:translateY(3px)}
+.pcard.dis{opacity:.32;filter:grayscale(1)}
+.pcard .tag{position:absolute;bottom:5px;font-size:10px;font-weight:700;color:#6b5fa8;letter-spacing:.3px}
+.pcard.up{background:linear-gradient(170deg,#fff6d6,#ffd98a);border-color:#fff2c2}
+.deckinfo{display:flex;justify-content:center;gap:14px;margin-top:10px;font-size:13px;color:var(--muted)}
+.log{margin-top:10px;min-height:46px;font-size:15.5px;line-height:1.5;text-align:center;font-weight:700}
+.log .why{display:block;font-size:13.5px;font-weight:400;color:var(--muted);margin-top:3px}
+
+.sheet{position:fixed;inset:0;background:rgba(8,6,18,.82);display:none;align-items:flex-end;
+  justify-content:center;z-index:50}
+.sheet.on{display:flex}
+.sheetbox{width:100%;max-width:680px;background:var(--bg);border-top:3px solid var(--acc);
+  border-radius:24px 24px 0 0;padding:18px 16px 24px;max-height:94%;overflow-y:auto;animation:up .22s ease}
+@keyframes up{from{transform:translateY(40px);opacity:.3}}
+.qeq{font-size:clamp(27px,8vw,38px);font-weight:900;text-align:center;margin:6px 0 4px;
+  display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap}
+.qtip{text-align:center;font-size:13.5px;color:var(--muted);margin-bottom:12px;line-height:1.5}
+.opts{display:flex;flex-direction:column;gap:9px}
+.opt{min-height:62px;border-radius:15px;background:var(--panel);border:2px solid var(--line);
+  font-size:26px;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:900;width:100%}
+.opt:active{transform:scale(.98)}
+.opt.right{background:#1d5140;border-color:var(--good)}
+.opt.wrong{background:#5a2434;border-color:var(--bad)}
+.hintbox{margin-top:12px;background:var(--panel);border:2px dashed var(--line);border-radius:14px;
+  padding:12px;font-size:14.5px;line-height:1.7;display:none}
+.hintbox.on{display:block}
+.hintbox .big{font-size:19px;font-weight:700;text-align:center;margin:8px 0}
+.hintbox svg{display:block;margin:10px auto 4px}
+
+.pickrow{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:14px 0}
+.pick{width:112px;padding:12px 8px;border-radius:16px;background:var(--panel);border:2px solid var(--line);
+  text-align:center}
+.pick:active{transform:scale(.97)}
+.pick .cf{font-size:30px;font-weight:900;margin:6px 0}
+.pick .cn{font-size:13px;font-weight:700}
+.pick .cd{font-size:11.5px;color:var(--muted);margin-top:4px;line-height:1.45}
+.relicrow{display:flex;gap:10px;align-items:center;background:var(--panel);border:2px solid var(--gold);
+  border-radius:16px;padding:12px;text-align:left;width:100%;margin-bottom:8px}
+.relicrow .ico{font-size:30px;flex:none}
+.deckview{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:10px}
+.mini{width:52px;height:68px;border-radius:9px;background:#f4f0ff;color:#221d3d;display:flex;
+  align-items:center;justify-content:center;font-size:20px;font-weight:900;border:2px solid #fff}
+.mini.up{background:#ffe6a8}
+.mini.sel{outline:3px solid var(--hp);outline-offset:2px}
+
+.big-emo{font-size:64px}
+.statline{display:flex;justify-content:space-between;padding:9px 2px;border-bottom:1px solid var(--line);
+  font-size:15px}
+.statline b{color:var(--gold)}
+.shopitem{display:flex;gap:10px;align-items:center;background:var(--panel);border:2px solid var(--line);
+  border-radius:16px;padding:12px;text-align:left;width:100%;margin-bottom:8px}
+.shopitem.done{border-color:var(--good);opacity:.75}
+.shopitem .ico{font-size:28px;flex:none}
+.shopitem .cost{font-size:14px;font-weight:900;color:var(--gold);flex:none}
+
+.qrbox{margin-top:22px;text-align:center}
+.qrbox svg{width:116px;height:116px;border-radius:10px;border:5px solid #fff;background:#fff;display:block;margin:0 auto}
+.qrlab{font-size:12px;color:var(--muted);margin-bottom:7px}
+.overlay svg{width:min(76vw,330px);height:auto;border-radius:14px;border:12px solid #fff;background:#fff}
+.qrcap{font-size:11.5px;color:var(--muted);margin-top:6px;word-break:break-all}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;align-items:center;
+  justify-content:center;flex-direction:column;z-index:90;padding:20px}
+.overlay.on{display:flex}
+.overlay img{width:min(78vw,340px);height:auto;border-radius:16px;border:8px solid #fff;background:#fff}
+.sndbtn{position:fixed;right:10px;top:10px;z-index:60;width:42px;height:42px;border-radius:12px;
+  background:rgba(34,29,61,.9);border:2px solid var(--line);font-size:18px;display:flex;
+  align-items:center;justify-content:center}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:26px;background:var(--panel2);
+  border:2px solid var(--gold);border-radius:14px;padding:11px 18px;font-size:15px;font-weight:700;
+  z-index:80;opacity:0;transition:opacity .25s;pointer-events:none;max-width:90%;text-align:center}
+.toast.on{opacity:1}
+@media(max-height:640px){ .arena{min-height:190px} .mons{min-height:120px}
+  .pcard{width:72px;height:98px;font-size:26px} }
+@media(max-width:430px){ .pcard{width:64px;height:90px;font-size:23px}
+  .hand{gap:5px} .pcard .tag{font-size:9px} .opt{font-size:23px;min-height:56px} }
+@media(max-width:360px){ .pcard{width:56px;height:80px;font-size:20px} .hand{gap:4px} }
+</style>
+</head>
+<body>
+<div id="app">
+
+<section id="s-title" class="screen on">
+  <div class="logo">분수 미궁<br>작아져라!</div>
+  <div class="logosub">괴물의 <b>크기</b>에 분수를 곱해서 줄인다.<br><b>1보다 작아지면</b> 펑 하고 사라진다.</div>
+  <div class="tstat" id="titleStats"></div>
+  <div style="margin-top:20px;display:flex;flex-direction:column;gap:10px;align-items:center">
+    <button class="btn acc big" onclick="startRun()">🚪 미궁으로</button>
+    <div class="row" style="gap:8px">
+      <button class="btn ghost" onclick="openShop()">✨ 마법가루</button>
+      <button class="btn ghost" onclick="openHowto()">📖 하는 법</button>
+    </div>
+  </div>
+  <div class="qrbox" id="qrHome"></div>
+</section>
+
+<section id="s-map" class="screen">
+  <div class="hud" id="mapHud"></div>
+  <div class="floorhead">
+    <div class="floorno" id="mapFloor"></div>
+    <button class="btn ghost" onclick="openDeck()">🎴 내 카드</button>
+  </div>
+  <div class="muted" id="mapHint"></div>
+  <div class="pathwrap" id="mapPaths"></div>
+</section>
+
+<section id="s-battle" class="screen">
+  <div class="hud" id="btlHud"></div>
+  <div class="arena" id="arena"></div>
+  <div class="log" id="btlLog"></div>
+  <div class="hand" id="btlHand"></div>
+  <div class="deckinfo" id="btlDeck"></div>
+</section>
+
+<section id="s-event" class="screen"><div id="evBody" style="margin:auto 0"></div></section>
+
+<section id="s-over" class="screen"><div id="overBody" style="margin:auto 0" class="center"></div></section>
+
+</div>
+
+<div class="sheet" id="sheet"><div class="sheetbox" id="sheetBox"></div></div>
+<div class="overlay" id="qrOverlay" onclick="hideQR()"><div id="qrBig"></div>
+  <div style="color:#fff;margin-top:14px;font-size:14px">화면을 누르면 닫혀요</div></div>
+<button class="sndbtn" id="sndBtn" onclick="toggleSound()">🔊</button>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══════════════════════════════════════════════════════════
+   분수 미궁 — 작아져라!   (5-2 분수의 곱셈)
+   구조: 상태 R(run) / M(meta) 두 개 + 화면마다 render 함수 하나
+   ══════════════════════════════════════════════════════════ */
+
+/* ── 저장 ── */
+const K = 'frac_dungeon_v1';
+function load(def){ try{ const v=localStorage.getItem(K); return v?Object.assign(def,JSON.parse(v)):def; }catch(e){ return def; } }
+function saveM(){ try{ localStorage.setItem(K, JSON.stringify(M)); }catch(e){} }
+
+let M = load({ dust:0, bestFloor:0, kills:0, runs:0, clears:0, unlock:{}, seen:false, snd:1 });
+
+/* ── 소리 (파일 없이 Web Audio) ── */
+const SND = {
+  ctx:null, vol:0.55,
+  init(){ if(this.ctx) return; try{ this.ctx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} },
+  tone(f,dur,type,vol,delay,slide){
+    if(!this.ctx||this.vol<=0) return;
+    const t0=this.ctx.currentTime+(delay||0);
+    const o=this.ctx.createOscillator(), g=this.ctx.createGain();
+    o.type=type||'square'; o.frequency.setValueAtTime(f,t0);
+    if(slide) o.frequency.exponentialRampToValueAtTime(Math.max(40,slide), t0+dur);
+    g.gain.setValueAtTime(0.0001,t0);
+    g.gain.exponentialRampToValueAtTime((vol==null?0.16:vol)*this.vol, t0+0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0+dur);
+    o.connect(g); g.connect(this.ctx.destination); o.start(t0); o.stop(t0+dur+0.05);
+  },
+  noise(dur,vol,delay,freq){
+    if(!this.ctx||this.vol<=0) return;
+    const t0=this.ctx.currentTime+(delay||0);
+    const len=Math.floor(this.ctx.sampleRate*dur);
+    const buf=this.ctx.createBuffer(1,len,this.ctx.sampleRate), d=buf.getChannelData(0);
+    for(let i=0;i<len;i++) d[i]=(Math.random()*2-1)*(1-i/len);
+    const s=this.ctx.createBufferSource(); s.buffer=buf;
+    const g=this.ctx.createGain(); g.gain.value=(vol==null?0.12:vol)*this.vol;
+    const f=this.ctx.createBiquadFilter(); f.type='bandpass'; f.frequency.value=freq||1200;
+    s.connect(f); f.connect(g); g.connect(this.ctx.destination); s.start(t0);
+  },
+  click(){ this.tone(680,0.06,'square',0.10); },
+  tap(){ this.tone(440,0.05,'triangle',0.09); },
+  ok(){ [523,659,784,1047].forEach((f,i)=>this.tone(f,0.16,'triangle',0.15,i*0.075)); },
+  bad(){ this.tone(220,0.22,'sawtooth',0.13,0,110); this.tone(160,0.26,'square',0.08,0.06,90); },
+  get(){ [784,1047,1319].forEach((f,i)=>this.tone(f,0.14,'sine',0.18,i*0.06)); },
+  shrink(){ this.tone(900,0.28,'triangle',0.14,0,240); this.noise(0.22,0.07,0.02,900); },
+  pop(){ this.noise(0.3,0.16,0,700); [1047,1319,1568].forEach((f,i)=>this.tone(f,0.18,'sine',0.14,i*0.05)); },
+  grow(){ this.tone(180,0.3,'sawtooth',0.12,0,520); },
+  hurt(){ this.tone(150,0.35,'sawtooth',0.16,0,70); this.noise(0.25,0.1,0,400); },
+  boss(){ this.tone(90,0.7,'sawtooth',0.14,0,55); this.noise(0.6,0.09,0.05,300); },
+  ding(){ this.tone(1318,0.5,'sine',0.16); this.tone(1976,0.4,'sine',0.07,0.02); }
+};
+SND.vol = M.snd ? 0.55 : 0;
+function toggleSound(){
+  M.snd = M.snd?0:1; SND.vol = M.snd?0.55:0; saveM();
+  document.getElementById('sndBtn').textContent = M.snd?'🔊':'🔇';
+  if(M.snd) SND.tap();
+}
+
+/* ── 잡동사니 ── */
+const $ = id => document.getElementById(id);
+function ri(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  $(id).classList.add('on'); $(id).scrollTop = 0;
+}
+let toastT=null;
+function toast(msg){
+  const t=$('toast'); t.innerHTML=msg; t.classList.add('on');
+  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('on'),1900);
+}
+
+/* ── 분수 ──
+   모든 값은 {n,d} 기약분수 하나로만 다룬다. 자연수는 d=1.       */
+function gcd(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ [a,b]=[b,a%b]; } return a||1; }
+function F(n,d){ d=d||1; const g=gcd(n,d); return {n:n/g, d:d/g}; }
+function mul(a,b){ return F(a.n*b.n, a.d*b.d); }
+function val(f){ return f.n/f.d; }
+function eqF(a,b){ return a.n===b.n && a.d===b.d; }
+function isNat(f){ return f.d===1; }
+/* 대분수 조각 */
+function mixParts(f){ return { w: Math.floor(f.n/f.d), n: f.n % f.d, d: f.d }; }
+
+/* 분수를 HTML 로. 가분수는 대분수로 보여 준다. */
+function fh(f, cls){
+  const c = cls?(' '+cls):'';
+  if(f.d===1) return '<span class="mixw'+c+'">'+f.n+'</span>';
+  if(f.n < f.d) return '<span class="fr'+c+'"><b>'+f.n+'</b><i>'+f.d+'</i></span>';
+  const m = mixParts(f);
+  if(m.n===0) return '<span class="mixw'+c+'">'+m.w+'</span>';
+  return '<span class="mixw'+c+'">'+m.w+'</span><span class="fr'+c+'"><b>'+m.n+'</b><i>'+m.d+'</i></span>';
+}
+/* 가분수 그대로 (계산 과정 보여줄 때) */
+function fhRaw(n,d){
+  if(d===1) return '<span class="mixw">'+n+'</span>';
+  return '<span class="fr"><b>'+n+'</b><i>'+d+'</i></span>';
+}
+function fText(f){
+  if(f.d===1) return ''+f.n;
+  if(f.n<f.d) return f.n+'/'+f.d;
+  const m=mixParts(f); return m.n===0 ? ''+m.w : m.w+'과 '+m.n+'/'+m.d;
+}
+</script>
+<script>
+/* ══════════════════════════════════════════════════════════
+   1. 자료 — 카드 · 괴물 · 보물
+   ══════════════════════════════════════════════════════════ */
+
+/* 카드 = 곱할 분수 하나. up 이면 분자가 1 줄어 더 세다.
+   분모는 2·3·4·5·6·8·9·10·12 만 쓴다 — 7 계열을 섞으면 곱한 값이
+   약분되지 않아 8/21 같은 숫자가 튀어나온다(실제로 시험해 보고 뺐다). */
+const POOL = [
+  /* 흔함 */
+  {n:5,d:6,r:1},{n:4,d:5,r:1},{n:3,d:4,r:1},{n:7,d:8,r:1},{n:5,d:8,r:1},
+  {n:2,d:3,r:1},{n:3,d:5,r:1},{n:5,d:9,r:1},{n:7,d:10,r:1},{n:7,d:12,r:1},
+  /* 보통 */
+  {n:1,d:2,r:2},{n:2,d:5,r:2},{n:3,d:8,r:2},{n:4,d:9,r:2},{n:3,d:10,r:2},{n:5,d:12,r:2},
+  /* 귀함 */
+  {n:1,d:3,r:3},{n:1,d:4,r:3},{n:1,d:6,r:3},{n:1,d:5,r:3},{n:2,d:9,r:3},{n:1,d:8,r:3}
+];
+
+/* 계산이 지저분해지지 않게 하는 단 하나의 규칙.
+   곱한 값의 분모가 10을 넘으면 그 카드는 튕긴다 — 아이 말로는
+   「이 카드로는 딱 나눠지지 않아」. 마지막 일격만은 예외로 허용한다. */
+const DENOM_LIMIT = 8;   /* 몸집이 작아졌을 때 허용하는 분모 */
+const SOFT_SIZE  = 8;   /* 이보다 크면 "딱 나눠지는" 카드만 통한다 */
+function cardName(c){
+  const v = c.n/c.d;
+  if(v<=0.22) return '초강력'; if(v<=0.36) return '강력';
+  if(v<=0.55) return '든든'; if(v<=0.72) return '보통'; return '가벼움';
+}
+function newCard(src){ return {n:src.n, d:src.d, up:0, uid:Math.random().toString(36).slice(2,8)}; }
+function cardF(c){ return F(c.n - (c.up? c.up:0), c.d); }   /* 강화하면 분자 -1 */
+function canUp(c){ return (c.n - (c.up||0)) > 1; }
+
+/* 괴물 얼굴 — 그림 파일 없이 이모지로만 */
+const FACES = ['👾','👹','🐲','🦑','🐙','🦂','🕷️','🦖','👻','🤖','🐉','🦕','🐛','🦇'];
+const NAMES = ['꿈틀이','우락이','불뚝이','넙적이','물컹이','까칠이','통통이','으르렁',
+               '뿔딱이','쭈물이','삐죽이','텅텅이','왕눈이','굼실이'];
+
+/* 특성 — 다섯 가지가 매 판을 다르게 만든다 */
+const TRAITS = {
+  none:   { tag:'', desc:'' },
+  swell:  { tag:'🎈 부풀이', desc:'두 턴마다 스스로 <b>1보다 큰 수</b>를 곱해 커진다' },
+  even:   { tag:'🛡️ 짝수껍질', desc:'분모가 <b>짝수</b>인 카드만 통한다' },
+  odd:    { tag:'🛡️ 홀수껍질', desc:'분모가 <b>홀수</b>인 카드만 통한다' },
+  rush:   { tag:'⚡ 급한이', desc:'두 턴마다 공격한다 — 아주 빠르다' },
+  hard:   { tag:'🪨 단단이', desc:'몸집이 아주 크다' }
+};
+
+/* 보물 */
+const RELICS = {
+  sand:  { ico:'🕰️', name:'모래시계',   desc:'모든 괴물의 공격까지 남은 턴이 1 늘어난다' },
+  heart: { ico:'❤️', name:'생명의 열매', desc:'최대 하트 +1, 지금 바로 하트 하나 회복' },
+  wand:  { ico:'🪄', name:'요술 지팡이', desc:'전투마다 <b>첫 카드</b>는 계산 없이 성공' },
+  hand:  { ico:'🎴', name:'넓은 손',     desc:'손에 드는 카드가 한 장 늘어난다' },
+  shield:{ ico:'🛡️', name:'튼튼 방패',  desc:'전투마다 공격 한 번을 막아 준다' },
+  combo: { ico:'🔥', name:'연속 마법',   desc:'세 번 연속 맞히면 크기가 <b>절반</b>으로 더 준다' }
+};
+
+/* 오답 — 실제로 아이들이 하는 실수만 넣는다. 고르면 왜 틀렸는지 알려 준다. */
+const WRONGS = [
+  { id:'nodenom', make:(a,b)=> b.d===1?null:F(a.n*b.n, a.d),
+    why:'분모끼리 곱하는 걸 빠뜨렸어. <b>분자는 분자끼리, 분모는 분모끼리</b>야.' },
+  { id:'nonum',   make:(a,b)=> b.n===1?null:F(a.n, a.d*b.d),
+    why:'분모만 곱했네. <b>분자끼리도</b> 곱해야 해.' },
+  { id:'cross',   make:(a,b)=> F(a.n*b.d, a.d*b.n),
+    why:'분자와 분모를 엇갈려 곱했어. 카드를 <b>뒤집어</b> 쓴 셈이라 오히려 커져.' },
+  { id:'add',     make:(a,b)=> F(a.n*b.d + b.n*a.d, a.d*b.d),
+    why:'곱셈인데 <b>더해</b> 버렸어. 곱하기는 「~의 얼마만큼」이야.' },
+  { id:'mixonly', make:(a,b)=>{ if(a.d===1 || a.n<a.d) return null; const m=mixParts(a);
+      return F(m.w*b.n*m.d + m.n*b.d, m.d*b.d); },
+    why:'대분수는 <b>가분수로 바꾼 뒤</b> 곱해야 해. 자연수 부분만 곱하면 안 돼.' },
+  { id:'dblden',  make:(a,b)=> a.d===1?null:F(a.n*b.n, a.d*b.d*b.d),
+    why:'분모에 한 번 더 곱했어. 분모끼리 <b>한 번만</b>.' }
+];
+
+/* ══════════════════════════════════════════════════════════
+   2. 판(run) 상태
+   ══════════════════════════════════════════════════════════ */
+let R = null;                 /* 한 판이 끝나면 통째로 버린다 */
+let SHEET = null;             /* 지금 열린 계산 문제 */
+
+function startDeck(){
+  const base = [{n:2,d:3},{n:2,d:3},{n:3,d:4},{n:3,d:4},{n:4,d:5},{n:5,d:6}];
+  if(M.unlock.half) base.push({n:1,d:2});
+  return base.map(newCard);
+}
+
+function startRun(){
+  SND.init(); SND.click();
+  const maxHp = 6 + (M.unlock.hp?1:0);
+  R = {
+    floor:1, step:0, maxStep:2,        /* 층마다 방 2개 + 보스 */
+    hp:maxHp, maxHp:maxHp,
+    deck: shuffle(startDeck()), disc:[], hand:[],
+    relics:[], dust:0, kills:0, elites:0,
+    handSize: 5 + (M.unlock.hand?1:0),
+    endless:false, choices:null, btl:null, merge:null
+  };
+  if(M.unlock.relic) gainRelic(pick(Object.keys(RELICS)), true);
+  M.runs++; saveM();
+  buildChoices(); renderMap(); show('s-map');
+}
+
+function gainRelic(key, silent){
+  if(R.relics.includes(key)) return false;
+  R.relics.push(key);
+  if(key==='heart'){ R.maxHp++; R.hp = Math.min(R.maxHp, R.hp+1); }
+  if(key==='hand') R.handSize++;
+  if(!silent){ SND.get(); toast(RELICS[key].ico+' '+RELICS[key].name+' 을(를) 얻었다!'); }
+  return true;
+}
+
+/* ── 방 만들기 ── */
+function buildChoices(){
+  if(R.step >= R.maxStep){ R.choices = [{t:'boss'}]; return; }
+  const kinds = shuffle(['fight','fight','elite','rest','treasure']);
+  const c = [{t:'fight'}];
+  for(const k of kinds){ if(c.length>=3) break; if(!c.some(x=>x.t===k)) c.push({t:k}); }
+  R.choices = shuffle(c);
+}
+
+const ROOMINFO = {
+  fight:   {ico:'⚔️', nm:'괴물이 있는 방',   ds:'평범한 괴물 하나. 가끔 둘.'},
+  elite:   {ico:'🔥', nm:'수상한 방',        ds:'센 괴물. 이기면 보물을 준다.'},
+  rest:    {ico:'🏕️', nm:'모닥불',          ds:'하트를 채우거나 카드를 손본다.'},
+  treasure:{ico:'💎', nm:'보물 상자',        ds:'보물 하나를 그냥 준다.'},
+  boss:    {ico:'👑', nm:'층의 주인',        ds:'이 층을 지키는 큰 괴물.'}
+};
+
+function renderMap(){
+  show('s-map');
+  $('mapHud').innerHTML = hudHTML();
+  $('mapFloor').textContent = R.endless
+      ? '끝없는 미궁 '+R.floor+'층'
+      : R.floor+'층  ·  '+(R.step+1)+'번째 방';
+  $('mapHint').innerHTML = R.step>=R.maxStep
+      ? '이 층의 <b>주인</b>이 기다린다. 준비됐으면 들어가자.'
+      : '길이 갈린다. <b>하나만</b> 고를 수 있다.';
+  $('mapPaths').innerHTML = R.choices.map((c,i)=>{
+    const info = ROOMINFO[c.t];
+    return '<button class="node '+c.t+'" onclick="enterRoom('+i+')">'
+      + '<div class="ico">'+info.ico+'</div><div><div class="nm">'+info.nm+'</div>'
+      + '<div class="ds">'+info.ds+'</div></div></button>';
+  }).join('');
+}
+
+function hudHTML(){
+  let h = '<div class="hearts">'+'❤️'.repeat(R.hp)+'🖤'.repeat(Math.max(0,R.maxHp-R.hp))+'</div>';
+  h += '<div class="chip">✨ <b>'+R.dust+'</b></div>';
+  h += '<div class="chip">'+R.floor+'층</div>';
+  if(R.relics.length) h += '<div class="relics">'+R.relics.map(k=>
+      '<div class="relic" onclick="toast(\''+RELICS[k].ico+' <b>'+RELICS[k].name+'</b><br>'
+      + RELICS[k].desc.replace(/'/g,"") + '\')">'+RELICS[k].ico+'</div>').join('')+'</div>';
+  return h;
+}
+
+function enterRoom(i){
+  SND.click();
+  const t = R.choices[i].t;
+  if(t==='rest') return roomRest();
+  if(t==='treasure') return roomTreasure();
+  startBattle(t);
+}
+
+/* 방 하나를 끝내고 다음으로 */
+function nextRoom(){
+  R.step++;
+  if(R.step > R.maxStep){          /* 보스까지 잡았다 */
+    R.step = 0; R.floor++;
+    if(!R.endless && R.floor > 3) return runClear();
+  }
+  buildChoices(); renderMap();
+}
+</script>
+<script>
+/* ══════════════════════════════════════════════════════════
+   3. 전투
+   ══════════════════════════════════════════════════════════ */
+
+/* 몸집은 약수가 많은 수로 고른다 — 계산이 지저분해지지 않게 */
+const SIZES = {
+  fight: [[12,16,18,20],[24,30,36,40],[36,48,60,72],[48,60,72,90]],
+  elite: [[18,20,24,30],[36,40,48],[60,72,80],[72,90,120]],
+  /* 보스는 1/8 보다 작게 부숴야 하므로 몸집을 작게 잡는다 */
+  boss:  [[12,16,18],[24,30,36],[36,48,60],[48,60,72]]
+};
+function sizeFor(kind, floor){
+  const row = SIZES[kind][Math.min(floor,4)-1];
+  return row ? pick(row) : pick(SIZES[kind][3]) + (floor-4)*8;
+}
+
+const HALF_TOPS = [[9,15],[15,25],[25,27],[45,75]];   /* ÷2 하면 4와1/2 · 7와1/2 … */
+function makeMonster(kind, floor, half, forced){
+  let size = F(sizeFor(kind, floor));
+  if(half) size = F(pick(HALF_TOPS[Math.min(floor,4)-1]), 2);
+  let trait = 'none';
+  const pool = floor<=1 ? ['none','none','none','swell']
+             : floor===2 ? ['none','swell','even','odd','rush']
+                         : ['none','swell','even','odd','rush','hard'];
+  if(kind==='fight') trait = pick(pool);
+  if(kind==='elite') trait = pick(['swell','even','odd','rush','hard']);
+  if(kind==='boss')  trait = pick(['swell','hard','rush','swell']);
+  if(forced) trait = forced;
+  /* 반올림하면 15→23 처럼 2·3·5 밖 소인수가 생겨 어떤 카드도 안 통하게 된다 */
+  if(trait==='hard') size = (size.n % 2 === 0) ? mul(size, F(3,2)) : mul(size, F(2,1));
+  let fuse = kind==='boss'?6 : kind==='elite'?6 : 7;
+  if(trait==='rush') fuse = 2;
+  if(trait==='hard') fuse = 6;
+  if(floor <= 1) fuse++;                    /* 첫 층은 여유 있게 */
+  if(R.relics.includes('sand')) fuse++;
+  const i = ri(0,FACES.length-1);
+  return { face:FACES[i], name:NAMES[i], size, trait, fuse, fuseMax:fuse, cap:val(size)*1.5, swellLeft:3,
+           swell:0, alive:true, kind };
+}
+
+function startBattle(kind){
+  const f = R.floor;
+  let mons;
+  if(kind==='boss'){
+    mons = [ makeMonster('boss', f, f>=3 && Math.random()<0.4) ];
+    mons[0].name = ['왕눈 대왕','부풀 대왕','통뼈 대왕','으르렁 대왕'][Math.min(f,4)-1] || '미궁의 주인';
+    SND.boss();
+  } else if(kind==='elite'){
+    mons = [ makeMonster('elite', f, f>=2 && Math.random()<0.35) ];
+  } else {
+    if(Math.random()<0.22 && f>=2){           /* 쌍둥이 */
+      mons = [ makeMonster('fight', Math.max(1,f-1)), makeMonster('fight', Math.max(1,f-1)) ];
+      mons[1].face = mons[0].face; mons[1].name = mons[0].name+' 아우'; mons[0].name += ' 형';
+    } else {
+      mons = [ makeMonster('fight', f, f>=2 && Math.random()<0.25) ];
+    }
+  }
+  R.btl = { kind, mons, combo:0, busy:false, shield:R.relics.includes('shield'),
+            wand:R.relics.includes('wand'), target:null, over:false };
+  R.disc = R.disc.concat(R.hand); R.hand = [];   /* 순서 중요 — 반대로 하면 손패가 사라진다 */
+  drawUp();
+  logB(kind==='boss' ? '👑 <b>'+mons[0].name+'</b>이 길을 막았다!'
+      : mons.length>1 ? '괴물 <b>둘</b>이 나타났다!' : '<b>'+mons[0].name+'</b>이 나타났다!');
+  renderBattle(); show('s-battle');
+}
+
+/* 덱에서 손패 채우기 — 지금 통하는 카드를 먼저 집어 준다 */
+function drawUp(){
+  if(!R.deck.length && !R.disc.length && !R.hand.length){   /* 최후의 안전장치 */
+    R.deck = shuffle(startDeck());
+  }
+  const live = (R.btl && !R.btl.over) ? R.btl.mons.filter(m=>m.alive) : [];
+  while(R.hand.length < R.handSize){
+    if(!R.deck.length){
+      if(!R.disc.length) break;
+      R.deck = shuffle(R.disc); R.disc = [];
+    }
+    let idx = R.deck.length - 1;
+    if(live.length){
+      for(let i=R.deck.length-1;i>=0;i--){
+        if(live.some(m=>cardWorks(R.deck[i], m))){ idx = i; break; }
+      }
+    }
+    R.hand.push(R.deck.splice(idx,1)[0]);
+  }
+  rescueIfStuck();
+}
+
+/* 손에 통하는 카드가 한 장도 없으면 미궁이 빌려 준다.
+   아이가 「아무것도 못 하는 화면」 앞에 앉는 일이 없어야 한다. */
+function rescueIfStuck(){
+  if(!R.btl || R.btl.over) return;
+  const live = R.btl.mons.filter(m=>m.alive);
+  if(!live.length) return;
+  if(R.hand.some(c=>live.some(m=>cardWorks(c,m)))) return;
+  let cands = POOL.filter(p=>live.some(m=>cardWorks(newCard(p), m)));
+  let free = 0;
+  if(!cands.length){
+    /* 어떤 카드도 딱 나눠지지 않는 몸집이다(7 같은 수). 규칙을 넘겨서라도 한 장 준다 */
+    const m0 = live[0];
+    cands = POOL.slice().sort((x,y)=> mul(m0.size,F(x.n,x.d)).d - mul(m0.size,F(y.n,y.d)).d).slice(0,3);
+    free = 1;
+  }
+  const help = newCard(pick(cands));
+  help.lent = 1; if(free) help.free = 1;   /* 빌린 카드 — 쓰고 나면 사라진다 */
+  R.hand.push(help);
+  SND.ding();
+  toast('🕯️ 미궁이 카드를 빌려 줬다 · '+fText(cardF(help)));
+}
+
+function logB(html){ $('btlLog').innerHTML = html; }
+
+function faceSize(m){
+  const v = val(m.size);
+  return Math.round(26 + Math.min(v, 30) * 4.2);
+}
+
+function renderBattle(){
+  if(!R || !R.btl) return;
+  $('btlHud').innerHTML = hudHTML() + (R.btl.shield?'<div class="chip">🛡️ 방패</div>':'');
+  const B = R.btl;
+  const monsHTML = B.mons.map((m,i)=>{
+    if(!m.alive) return '';
+    const near = val(m.size) < killLine(m)*2.5;
+    const t = TRAITS[m.trait];
+    const selectable = B.target!==null && B.target.pending;
+    return '<div class="mon'+(selectable?' pick':'')+'" id="mon'+i+'"'
+      + (selectable? ' onclick="chooseTarget('+i+')"':'') + '>'
+      + '<span class="face" style="font-size:'+faceSize(m)+'px">'+m.face+'</span>'
+      + '<div class="monname">'+m.name+'</div>'
+      + '<div class="monsize'+(near?' near':'')+'">크기 '+fh(m.size)+'</div>'
+      + '<div class="fuse">⚡ '+m.fuse+'턴 뒤 공격</div>'
+      + (t.tag? '<div class="trait">'+t.tag+'</div>':'')
+      + '</div>';
+  }).join('');
+  const tr = B.mons.filter(m=>m.alive && m.trait!=='none');
+  const isBoss = B.kind==='boss';
+  $('arena').innerHTML = '<div class="mons">'+monsHTML+'</div>'
+    + '<div class="goalbar">크기를 <b>'+(isBoss?fh(F(1,2)):'1')+'보다 작게</b> 만들면 펑!'
+    + (isBoss?' <span style="color:var(--gold)">몸이 질기다</span>':'')
+    + '<br><span style="font-size:12px">크기를 <b>나눌 수 있는 분모</b>의 카드만 통한다</span></div>'
+    + (tr.length? '<div class="trait" style="margin-top:6px">'+TRAITS[tr[0].trait].tag+' : '+TRAITS[tr[0].trait].desc+'</div>':'');
+
+  const live = B.mons.filter(m=>m.alive);
+  $('btlHand').innerHTML = R.hand.map((c,i)=>{
+    const f = cardF(c);
+    const blocked = live.length>0 && live.every(m=>!cardWorks(c, m));
+    return '<button class="pcard'+(c.up?' up':'')+(blocked?' dis':'')+'" onclick="tapCard('+i+')">'
+      + fh(f) + '<span class="tag">'+(blocked?'🔒 안 통함':cardName(f))+'</span></button>';
+  }).join('');
+  const allLocked = R.hand.length>0 && live.length>0
+        && R.hand.every(c=>live.every(m=>!cardWorks(c,m)));
+  $('btlDeck').innerHTML = '🎴 남은 카드 '+R.deck.length+' · 쓴 카드 '+R.disc.length
+    + ' <button class="btn ghost" style="min-height:32px;padding:4px 10px;font-size:12.5px;margin-left:6px'
+    + (allLocked?';border-color:var(--gold);color:var(--gold)':'')+'" onclick="mulligan()">손패 바꾸기</button>';
+  if(allLocked) logB('통하는 카드가 하나도 없다! <span class="why">아래 <b>손패 바꾸기</b>를 누르자. 한 턴을 쓴다.</span>');
+}
+
+/* 괴물이 사라지는 선. 보스는 몸이 질겨서 훨씬 더 잘게 부숴야 한다. */
+function killLine(m){ return m.kind==='boss' ? 1/2 : 1; }
+function isDown(m){ return val(m.size) < killLine(m); }
+
+/* 이 카드가 이 괴물에게 통하는가.
+   몸집이 클 때는 "카드의 분모로 크기가 딱 나눠져야" 한다 — 그래야 곱한 값이
+   계속 깔끔하다. 몸집이 작아지면(SOFT_SIZE 이하) 느슨하게 풀어 준다. */
+function cardWorks(c, m){
+  if(c.free) return true;          /* 미궁이 빌려 준 카드 */
+  const f = cardF(c);
+  if(m.trait==='even' && f.d % 2 !== 0) return false;
+  if(m.trait==='odd'  && f.d % 2 !== 1) return false;
+  const r = mul(m.size, f);
+  if(val(r) < killLine(m)) return true;        /* 마지막 일격은 언제나 통한다 */
+  if(val(m.size) > SOFT_SIZE) return m.size.n % f.d === 0;
+  return r.d <= DENOM_LIMIT;
+}
+function whyBlocked(c, m){
+  const f = cardF(c);
+  if(m.trait==='even' && f.d % 2 !== 0) return '🛡️ 짝수껍질! 분모가 <b>짝수</b>인 카드만 통해.';
+  if(m.trait==='odd'  && f.d % 2 !== 1) return '🛡️ 홀수껍질! 분모가 <b>홀수</b>인 카드만 통해.';
+  return '🔒 <b>딱 나눠지지 않아!</b> '
+       + '<span class="why">'+fText(m.size)+' 을(를) <b>'+f.d+'</b>로 나눌 수 있어야 이 카드가 통해. 다른 분모를 찾아보자.</span>';
+}
+
+function tapCard(i){
+  if(!R || !R.btl || R.btl.over || R.btl.busy) return;
+  const alive = R.btl.mons.map((m,j)=>({m,j})).filter(x=>x.m.alive);
+  if(alive.length > 1){
+    R.btl.target = {card:i, pending:true};
+    logB('어느 괴물에게 쓸까? <span class="why">괴물을 눌러 골라.</span>');
+    renderBattle(); return;
+  }
+  useCard(i, alive[0].j);
+}
+function chooseTarget(j){
+  if(!R || !R.btl || R.btl.busy) return;
+  const t = R.btl.target; if(!t||!t.pending) return;
+  R.btl.target = null; useCard(t.card, j);
+}
+
+function useCard(ci, mi){
+  if(!R || !R.btl) return;
+  const c = R.hand[ci], m = R.btl.mons[mi];
+  if(!c || !m || !m.alive) return;
+  if(!cardWorks(c, m)){
+    SND.bad();
+    logB(whyBlocked(c, m));      /* 카드도 턴도 잃지 않는다 — 다시 고르면 된다 */
+    renderBattle(); return;
+  }
+  SND.tap();
+  /* 요술 지팡이 — 이 전투 첫 카드는 계산 없이 성공 */
+  if(R.btl.wand){
+    R.btl.wand = false;
+    R.btl.busy = true;
+    applyCard(ci, mi, true, null, mul(m.size, cardF(c)));
+    return;
+  }
+  openCalc(ci, mi);
+}
+
+/* 손패를 통째로 바꾼다 — 껍질 때문에 막혔을 때의 탈출구. 대신 한 턴을 쓴다. */
+function mulligan(){
+  if(!R || !R.btl || R.btl.over || R.btl.busy) return;
+  SND.click();
+  R.disc = R.disc.concat(R.hand); R.hand = [];
+  drawUp();
+  logB('손패를 바꿨다. <span class="why">한 턴을 썼어.</span>');
+  monsterTurn();
+}
+</script>
+<script>
+/* ══════════════════════════════════════════════════════════
+   4. 계산 — 마법을 쓰려면 답을 맞혀야 한다
+   ══════════════════════════════════════════════════════════ */
+
+function openCalc(ci, mi){
+  if(!R || !R.btl || !R.btl.mons[mi] || !R.hand[ci]) return;
+  const a = R.btl.mons[mi].size, b = cardF(R.hand[ci]);
+  const ans = mul(a,b);
+  const opts = [{f:ans, ok:true}];
+  for(const w of shuffle(WRONGS.slice())){
+    if(opts.length>=3) break;
+    const v = w.make(a,b);
+    if(!v || v.n<=0 || v.d<=0) continue;
+    if(val(v) > 400) continue;
+    if(opts.some(o=>eqF(o.f,v))) continue;
+    opts.push({f:v, ok:false, why:w.why});
+  }
+  shuffle(opts);
+  SHEET = {ci, mi, a, b, ans, opts, done:false, hint:false};
+  R.btl.busy = true;   /* 계산하는 동안 괴물 차례가 끼어들지 못하게 */
+  renderSheet();
+  if(SHEET) $('sheet').classList.add('on');
+}
+
+function renderSheet(){
+  const S = SHEET; if(!S || !R || !R.btl) return;
+  const m = R.btl.mons[S.mi]; if(!m) return;
+  let h = '<div class="center eyebrow">축소 마법</div>';
+  h += '<div class="qeq">'+fh(S.a)+'<span style="opacity:.6">×</span>'+fh(S.b)
+     + '<span style="opacity:.6">=</span><span style="color:var(--gold)">?</span></div>';
+  h += '<div class="qtip">'+m.name+'의 크기 '+fText(S.a)+' 에 카드 '+fText(S.b)+' 을 곱하면?</div>';
+  h += '<div class="opts">' + S.opts.map((o,i)=>
+        '<button class="opt" id="opt'+i+'" onclick="answer('+i+')">'+fh(o.f)+'</button>').join('') + '</div>';
+  h += '<div style="text-align:center;margin-top:12px">'
+     + '<button class="btn ghost" onclick="toggleHint()">💡 어떻게 곱하지?</button></div>';
+  h += '<div class="hintbox'+(S.hint?' on':'')+'" id="hintBox">'+hintHTML(S.a,S.b)+'</div>';
+  $('sheetBox').innerHTML = h;
+}
+
+function toggleHint(){
+  SND.tap(); SHEET.hint = !SHEET.hint;
+  $('hintBox').classList.toggle('on', SHEET.hint);
+}
+
+/* 힌트 — 답은 안 준다. 어떻게 곱하는지만 보여 준다. */
+function hintHTML(a,b){
+  let h = '';
+  if(a.d===1){
+    h += '자연수는 <b>분모가 1</b>이라고 생각하면 돼. '+a.n+' = '+fhRaw(a.n,1)+'<br>';
+  } else if(a.n > a.d){
+    const m = mixParts(a);
+    h += '대분수는 먼저 <b>가분수</b>로. '+fh(a)+' = '+fhRaw(a.n,a.d)
+       + ' <span class="muted">('+m.w+'×'+m.d+'+'+m.n+'='+a.n+')</span><br>';
+  }
+  h += '<div class="big">'+fhRaw(a.n,a.d)+' × '+fhRaw(b.n,b.d)+' = '
+     + '<span class="fr"><b>'+a.n+'×'+b.n+'</b><i>'+a.d+'×'+b.d+'</i></span></div>';
+  h += '<div class="center muted">분자는 분자끼리, 분모는 분모끼리.</div>';
+  const svg = hintPicture(a,b);
+  if(svg) h += svg + '<div class="center muted">'
+    + (a.d===1 ? '전체를 '+b.d+'묶음으로 나눈 것 중 '+b.n+'묶음'
+               : '가로로 '+a.n+'/'+a.d+', 세로로 '+b.n+'/'+b.d+' — 겹친 칸이 답이야')
+    + '</div>';
+  return h;
+}
+
+/* 띠 모델(자연수×분수) · 넓이 모델(분수×분수) */
+function hintPicture(a,b){
+  const W = 280;
+  if(a.d===1 && a.n<=48 && a.n % b.d === 0){
+    const n=a.n, per=n/b.d, cw=W/n, H=42;
+    let s = '<svg width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'">';
+    for(let i=0;i<n;i++){
+      const on = i < per*b.n;
+      s += '<rect x="'+(i*cw)+'" y="6" width="'+cw+'" height="30" fill="'+(on?'#7c6cff':'#2e2752')
+        + '" stroke="#efeaff" stroke-width="'+(n>28?0.5:1)+'"/>';
+    }
+    for(let g=1; g<b.d; g++)
+      s += '<line x1="'+(g*per*cw)+'" y1="2" x2="'+(g*per*cw)+'" y2="40" stroke="#ffd166" stroke-width="2.5"/>';
+    return s+'</svg>';
+  }
+  if(a.n < a.d && a.d<=9 && b.d<=9){
+    const cw = W/a.d, ch = 150/b.d;
+    let s = '<svg width="'+W+'" height="152" viewBox="0 0 '+W+' 152">';
+    for(let x=0;x<a.d;x++) for(let y=0;y<b.d;y++){
+      const both = x<a.n && y<b.n;
+      const one  = x<a.n || y<b.n;
+      s += '<rect x="'+(x*cw)+'" y="'+(y*ch)+'" width="'+cw+'" height="'+ch+'" fill="'
+        + (both?'#ffd166':(one?'#3d3570':'#211c3c'))+'" stroke="#efeaff" stroke-width="1"/>';
+    }
+    return s+'</svg>';
+  }
+  return '';
+}
+
+function answer(k){
+  const S = SHEET; if(!S || S.done || !R || !R.btl) return;
+  S.done = true;
+  const o = S.opts[k];
+  S.opts.forEach((x,i)=>{ if(x.ok) $('opt'+i).classList.add('right'); });
+  if(o.ok){
+    SND.ok();
+    setTimeout(()=>{ closeSheet(); applyCard(S.ci, S.mi, true, null, S.ans); }, 620);
+  } else {
+    SND.bad();
+    $('opt'+k).classList.add('wrong');
+    $('opt'+k).classList.remove('right');
+    const box = $('hintBox'); box.classList.add('on');
+    box.innerHTML = '<div style="color:var(--bad);font-weight:700;margin-bottom:6px">이렇게 생각했구나</div>'
+      + o.why + '<div style="margin-top:8px">맞는 계산: '+fhRaw(S.a.n,S.a.d)+' × '+fhRaw(S.b.n,S.b.d)
+      + ' = ' + fhRaw(S.a.n*S.b.n, S.a.d*S.b.d) + ' = ' + fh(S.ans) + '</div>';
+    setTimeout(()=>{ closeSheet(); applyCard(S.ci, S.mi, false, o.why); }, 2400);
+  }
+}
+function closeSheet(){ $('sheet').classList.remove('on'); SHEET=null; }
+
+/* ── 카드 효과 적용 ── */
+function applyCard(ci, mi, success, why, expected){
+  if(!R || !R.btl || !R.btl.mons[mi]) return;   /* 지난 판의 예약이 뒤늦게 도착한 것 */
+  const c = R.hand[ci], m = R.btl.mons[mi];
+  if(!c) return;
+  R.hand.splice(ci,1); if(!c.lent) R.disc.push(c);
+  const b = cardF(c);
+
+  if(!success){
+    R.btl.combo = 0;
+    logB('💥 마법 실패! <span class="why">'+(why||'')+'</span>');
+    renderBattle();
+    setTimeout(monsterTurn, 700);
+    return;
+  }
+
+  const before = m.size;
+  /* 계산창에 보여 준 값을 그대로 쓴다 — 그 사이 크기가 변했더라도 */
+  m.size = expected || mul(before, b);
+  R.btl.combo++;
+  let extra = '';
+  if(R.relics.includes('combo') && R.btl.combo>=3){
+    const h = mul(m.size, F(1,2));
+    if(m.size.n % 2 === 0 || h.n/h.d < killLine(m)){
+      R.btl.combo = 0; m.size = h;
+      extra = ' <span style="color:var(--gold)">🔥 연속 마법! 절반으로 더!</span>';
+    }
+  }
+  SND.shrink();
+  logB(stepsHTML(before, b, expected || mul(before,b)) + extra);
+  renderBattle();
+  const el = $('mon'+mi); if(el) el.classList.add('hit');
+
+  if(isDown(m)){
+    m.alive = false;
+    setTimeout(()=>{
+      const e = $('mon'+mi); if(e) e.classList.add('pop');
+      SND.pop();
+    }, 260);
+    setTimeout(()=>{
+      R.kills++; M.kills++;
+      if(R.btl.mons.every(x=>!x.alive)) return winBattle();
+      renderBattle(); drawUp(); monsterTurn();
+    }, 850);
+    return;
+  }
+  drawUp();
+  setTimeout(monsterTurn, 620);
+}
+
+function stepsHTML(a,b,c){
+  let s = fh(a)+' × '+fh(b)+' = ';
+  if(a.d!==1 && a.n>a.d) s += fhRaw(a.n,a.d)+' × '+fhRaw(b.n,b.d)+' = ';
+  const rn=a.n*b.n, rd=a.d*b.d;
+  s += fhRaw(rn,rd);
+  if(!(rn===c.n && rd===c.d)) s += ' = '+fh(c);
+  else if(rd!==1 && rn>rd) s += ' = '+fh(c);
+  return '<span style="font-size:15px">'+s+'</span>';
+}
+
+/* ── 괴물 차례 ── */
+function monsterTurn(){ if(!R || !R.btl) return; monsterTurnCore(); if(R.btl) R.btl.busy = false; }
+function monsterTurnCore(){
+  const B = R.btl; if(!B || B.over) return;
+  if(B.mons.every(m=>!m.alive)) return winBattle();
+  let hurt = 0, grew = [];
+  B.mons.forEach((m,i)=>{
+    if(!m.alive) return;
+    if(m.trait==='swell'){
+      m.swell++;
+      if(m.swell>=3 && m.swellLeft > 0 && val(m.size) < m.cap){
+        m.swellLeft--;
+        m.swell = 0;
+        /* 1과 1/2 을 곱해 커진다. 그것 때문에 몸이 잘게 쪼개져 버리면 대신 2배 */
+        m.size = (m.size.n % 2 === 0) ? mul(m.size, F(3,2)) : mul(m.size, F(2,1));
+        grew.push(i);
+      }
+    }
+    m.fuse--;
+    if(m.fuse<=0){ m.fuse = m.fuseMax; hurt++; }
+  });
+  renderBattle();
+  grew.forEach(i=>{ const e=$('mon'+i); if(e) e.classList.add('grow'); });
+  if(grew.length){ SND.grow(); logB('🎈 <b>부풀었다!</b> <span class="why">1보다 큰 수( 1과 1/2 )를 곱하면 도리어 커진다.</span>'); }
+
+  if(hurt>0){
+    if(B.shield){ B.shield=false; SND.ding(); logB('🛡️ 방패가 공격을 막았다!'); renderBattle(); return; }
+    R.hp -= hurt; SND.hurt();
+    logB('💢 공격을 받았다! <span class="why">하트가 '+hurt+'개 줄었어.</span>');
+    renderBattle();
+    if(R.hp<=0){ B.over=true; setTimeout(gameOver, 800); return; }
+  }
+  drawUp(); renderBattle();
+}
+
+/* ── 승리 ── */
+function winBattle(){
+  if(!R || !R.btl) return;
+  const B = R.btl; B.over = true; B.busy = false;
+  const gain = B.kind==='boss'?20 : B.kind==='elite'?10 : 5;
+  R.dust += gain;
+  SND.get();
+  setTimeout(()=>roomReward(B.kind, gain), 500);
+}
+</script>
+<script>
+/* ══════════════════════════════════════════════════════════
+   5. 방 — 보상 · 모닥불 · 보물 · 끝
+   ══════════════════════════════════════════════════════════ */
+
+function rollCards(n){
+  const out = [];
+  let guard = 0;
+  while(out.length < n && guard++ < 60){
+    const r = Math.random();
+    const tier = r<0.55 ? 1 : r<0.87 ? 2 : 3;
+    const cand = POOL.filter(p=>p.r===tier);
+    const c = newCard(pick(cand));
+    if(out.some(o=>o.n===c.n && o.d===c.d)) continue;
+    out.push(c);
+  }
+  return out;
+}
+
+function roomReward(kind, gain){
+  const offer = rollCards(3);
+  window._offer = offer;
+  let h = '<div class="center"><div class="big-emo">🎉</div>'
+        + '<h2 style="font-size:24px;margin:4px 0">괴물을 없앴다!</h2>'
+        + '<div class="muted">마법가루 <b style="color:var(--gold)">+'+gain+'</b></div></div>';
+  if(kind==='elite' || kind==='boss'){
+    const left = Object.keys(RELICS).filter(k=>!R.relics.includes(k));
+    if(left.length){
+      const rk = pick(left); window._relic = rk;
+      h += '<div style="margin-top:14px"><div class="eyebrow center">보물</div>'
+        + '<button class="relicrow" onclick="takeRelic()"><div class="ico">'+RELICS[rk].ico+'</div>'
+        + '<div><div style="font-weight:700">'+RELICS[rk].name+'</div>'
+        + '<div class="muted">'+RELICS[rk].desc+'</div></div></button></div>';
+    }
+  }
+  h += '<div class="eyebrow center" style="margin-top:16px">카드 한 장 고르기</div>'
+     + '<div class="pickrow">' + offer.map((c,i)=>{
+        const f = cardF(c);
+        return '<button class="pick" onclick="takeCard('+i+')"><div class="cf">'+fh(f)+'</div>'
+          + '<div class="cn">'+cardName(f)+'</div>'
+          + '<div class="cd">곱하면 크기가<br>'+Math.round((1-f.n/f.d)*100)+'% 줄어</div></button>';
+       }).join('') + '</div>'
+     + '<div class="center"><button class="btn ghost" onclick="skipCard()">안 가져갈래</button></div>';
+  $('evBody').innerHTML = h; show('s-event');
+}
+function takeRelic(){
+  if(window._relic){ gainRelic(window._relic); window._relic=null;
+    document.querySelector('.relicrow').outerHTML =
+      '<div class="relicrow done" style="border-color:var(--good)"><div class="ico">✅</div><div>보물을 챙겼다</div></div>'; }
+}
+function takeCard(i){
+  SND.get(); R.disc.push(window._offer[i]);
+  toast('카드 '+fText(cardF(window._offer[i]))+' 를 얻었다');
+  nextRoom();
+}
+function skipCard(){ SND.click(); nextRoom(); }
+
+/* ── 모닥불 ── */
+function roomRest(){
+  let h = '<div class="center"><div class="big-emo">🏕️</div>'
+        + '<h2 style="font-size:23px;margin:4px 0">모닥불</h2>'
+        + '<div class="muted">하나만 할 수 있다.</div></div><div style="margin-top:16px">';
+  const heal = Math.max(2, Math.ceil(R.maxHp*0.6));
+  h += '<button class="relicrow" style="border-color:var(--hp)" onclick="restHeal()">'
+     + '<div class="ico">❤️</div><div><div style="font-weight:700">쉬기</div>'
+     + '<div class="muted">하트 '+heal+'개 회복 (지금 '+R.hp+'/'+R.maxHp+')</div></div></button>';
+  h += '<button class="relicrow" style="border-color:var(--gold)" onclick="restMerge()">'
+     + '<div class="ico">✳️</div><div><div style="font-weight:700">카드 합치기</div>'
+     + '<div class="muted">두 장을 <b>곱해서</b> 한 장으로. 계산을 맞혀야 성공한다</div></div></button>';
+  h += '<button class="relicrow" style="border-color:var(--acc2)" onclick="restUpgrade()">'
+     + '<div class="ico">⚒️</div><div><div style="font-weight:700">카드 벼리기</div>'
+     + '<div class="muted">카드 하나의 분자를 1 줄인다 — 더 많이 작아진다</div></div></button>';
+  h += '<button class="relicrow" style="border-color:var(--muted)" onclick="restRemove()">'
+     + '<div class="ico">🗑️</div><div><div style="font-weight:700">카드 버리기</div>'
+     + '<div class="muted">약한 카드를 빼면 좋은 카드가 자주 나온다</div></div></button>';
+  h += '</div>';
+  $('evBody').innerHTML = h; show('s-event');
+}
+function restHeal(){
+  SND.ding(); R.hp = Math.min(R.maxHp, R.hp + Math.max(2,Math.ceil(R.maxHp*0.6)));
+  toast('하트를 회복했다'); nextRoom();
+}
+function allCards(){ return R.deck.concat(R.disc, R.hand); }
+function restUpgrade(){ pickFromDeck('벼릴 카드를 고르자', 'up'); }
+function restRemove(){ pickFromDeck('버릴 카드를 고르자', 'rm'); }
+
+function pickFromDeck(title, mode){
+  SND.click();
+  const cards = allCards();
+  let h = '<div class="center"><h2 style="font-size:21px;margin-bottom:4px">'+title+'</h2>'
+    + '<div class="muted">'+(mode==='up'?'분자가 1 줄어 더 세진다':'덱에서 완전히 사라진다')+'</div></div>'
+    + '<div class="deckview">' + cards.map((c,i)=>{
+        const f = cardF(c);
+        const bad = mode==='up' && !canUp(c);
+        return '<button class="mini'+(c.up?' up':'')+'" '+(bad?'disabled style="opacity:.3"':'')
+          + ' onclick="doDeck(\''+mode+'\',\''+c.uid+'\')">'+fh(f)+'</button>';
+      }).join('') + '</div>'
+    + '<div class="center" style="margin-top:16px"><button class="btn ghost" onclick="roomRest()">돌아가기</button></div>';
+  $('evBody').innerHTML = h;
+}
+function doDeck(mode, uid){
+  const find = arr => arr.findIndex(c=>c.uid===uid);
+  for(const arr of [R.deck, R.disc, R.hand]){
+    const i = find(arr);
+    if(i>=0){
+      if(mode==='up'){ arr[i].up = (arr[i].up||0)+1; SND.get(); toast('카드를 벼렸다 → '+fText(cardF(arr[i]))); }
+      else { SND.click(); toast('카드 '+fText(cardF(arr[i]))+' 를 버렸다'); arr.splice(i,1); }
+      break;
+    }
+  }
+  nextRoom();
+}
+
+/* ── 카드 합치기 ── 전투에서는 잘 안 나오는 (분수)×(분수)가 여기서 나온다 */
+function findCard(uid){
+  for(const arr of [R.deck, R.disc, R.hand]){
+    const i = arr.findIndex(c=>c.uid===uid);
+    if(i>=0) return {arr, i, c:arr[i]};
+  }
+  return null;
+}
+function restMerge(){ R.merge = {a:null, b:null}; pickMerge(); }
+function pickMerge(){
+  SND.click();
+  const a = R.merge.a;
+  let h = '<div class="center"><div class="big-emo">✳️</div>'
+    + '<h2 style="font-size:22px;margin:4px 0">카드 합치기</h2>'
+    + '<div class="muted">두 장을 곱해 <b>한 장</b>으로 만든다.<br>'
+    + (a ? '이제 <b>곱할 카드</b>를 고르자 (같은 카드를 누르면 취소)' : '먼저 카드 하나를 고르자')
+    + '</div></div>';
+  if(a) h += '<div class="center" style="font-size:30px;margin-top:12px">'+fh(cardF(a))+'<span style="opacity:.5"> × ?</span></div>';
+  h += '<div class="deckview">' + allCards().map(c=>
+      '<button class="mini'+(c.up?' up':'')+((a&&c.uid===a.uid)?' sel':'')
+      + '" onclick="mergePick(\''+c.uid+'\')">'+fh(cardF(c))+'</button>').join('') + '</div>'
+    + '<div class="center" style="margin-top:16px"><button class="btn ghost" onclick="roomRest()">돌아가기</button></div>';
+  $('evBody').innerHTML = h;
+}
+function mergePick(uid){
+  const f = findCard(uid); if(!f) return;
+  if(!R.merge.a){ SND.tap(); R.merge.a = f.c; return pickMerge(); }
+  if(R.merge.a.uid === uid){ SND.tap(); R.merge.a = null; return pickMerge(); }
+  R.merge.b = f.c; openMerge();
+}
+function openMerge(){
+  const a = cardF(R.merge.a), b = cardF(R.merge.b);
+  const ans = mul(a,b);
+  const opts = [{f:ans, ok:true}];
+  for(const w of shuffle(WRONGS.slice())){
+    if(opts.length>=3) break;
+    const v = w.make(a,b);
+    if(!v || v.n<=0 || val(v)>400) continue;
+    if(opts.some(o=>eqF(o.f,v))) continue;
+    opts.push({f:v, ok:false, why:w.why});
+  }
+  shuffle(opts);
+  SHEET = {mode:'merge', a, b, ans, opts, done:false, hint:false};
+  renderMergeSheet();
+  if(SHEET) $('sheet').classList.add('on');
+}
+function renderMergeSheet(){
+  const S = SHEET;
+  let h = '<div class="center eyebrow">카드 합치기</div>';
+  h += '<div class="qeq">'+fh(S.a)+'<span style="opacity:.6">×</span>'+fh(S.b)
+     + '<span style="opacity:.6">=</span><span style="color:var(--gold)">?</span></div>';
+  h += '<div class="qtip">맞히면 이 값을 가진 카드 <b>한 장</b>이 된다.<br>두 장은 사라진다.</div>';
+  h += '<div class="opts">' + S.opts.map((o,i)=>
+        '<button class="opt" id="opt'+i+'" onclick="mergeAnswer('+i+')">'+fh(o.f)+'</button>').join('') + '</div>';
+  h += '<div style="text-align:center;margin-top:12px">'
+     + '<button class="btn ghost" onclick="toggleHint()">💡 어떻게 곱하지?</button></div>';
+  h += '<div class="hintbox'+(S.hint?' on':'')+'" id="hintBox">'+hintHTML(S.a,S.b)+'</div>';
+  $('sheetBox').innerHTML = h;
+}
+function mergeAnswer(k){
+  const S = SHEET; if(!S || S.done) return;
+  S.done = true;
+  const o = S.opts[k];
+  S.opts.forEach((x,i)=>{ if(x.ok) $('opt'+i).classList.add('right'); });
+  if(o.ok){
+    SND.get();
+    setTimeout(()=>{
+      closeSheet();
+      for(const uid of [R.merge.a.uid, R.merge.b.uid]){
+        const f = findCard(uid); if(f) f.arr.splice(f.i,1);
+      }
+      const made = newCard({n:S.ans.n, d:S.ans.d});
+      R.disc.push(made);
+      toast('✳️ '+fText(S.ans)+' 카드가 되었다!');
+      nextRoom();
+    }, 700);
+  } else {
+    SND.bad();
+    $('opt'+k).classList.add('wrong'); $('opt'+k).classList.remove('right');
+    const box = $('hintBox'); box.classList.add('on');
+    box.innerHTML = '<div style="color:var(--bad);font-weight:700;margin-bottom:6px">이렇게 생각했구나</div>'
+      + o.why + '<div style="margin-top:8px">맞는 계산: '+fhRaw(S.a.n,S.a.d)+' × '+fhRaw(S.b.n,S.b.d)
+      + ' = ' + fhRaw(S.a.n*S.b.n, S.a.d*S.b.d) + ' = ' + fh(S.ans) + '</div>';
+    setTimeout(()=>{ closeSheet(); toast('합치기에 실패했다. 카드는 그대로.'); nextRoom(); }, 2600);
+  }
+}
+
+/* ── 보물 상자 ── */
+function roomTreasure(){
+  const left = Object.keys(RELICS).filter(k=>!R.relics.includes(k));
+  if(!left.length){ R.dust += 12; toast('보물 대신 마법가루 +12'); return nextRoom(); }
+  const rk = pick(left); gainRelic(rk);
+  $('evBody').innerHTML = '<div class="center"><div class="big-emo">💎</div>'
+    + '<h2 style="font-size:23px;margin:6px 0">'+RELICS[rk].ico+' '+RELICS[rk].name+'</h2>'
+    + '<div class="muted" style="max-width:320px;margin:0 auto">'+RELICS[rk].desc+'</div>'
+    + '<div style="margin-top:20px"><button class="btn acc" onclick="nextRoom()">챙기고 가기</button></div></div>';
+  show('s-event');
+}
+
+/* ══════════════════════════════════════════════════════════
+   6. 끝 — 죽음 · 클리어 · 기록
+   ══════════════════════════════════════════════════════════ */
+function endStats(){
+  return '<div style="max-width:320px;margin:16px auto 0">'
+    + '<div class="statline"><span>내려간 층</span><b>'+R.floor+'층</b></div>'
+    + '<div class="statline"><span>없앤 괴물</span><b>'+R.kills+'마리</b></div>'
+    + '<div class="statline"><span>모은 마법가루</span><b>✨ '+R.dust+'</b></div></div>';
+}
+function bankDust(bonus){
+  R.dust += (bonus||0);
+  M.dust += R.dust;
+  if(R.floor > M.bestFloor) M.bestFloor = R.floor;
+  saveM();
+}
+function gameOver(){
+  bankDust(0);
+  SND.tone(300,0.6,'sawtooth',0.14,0,90);
+  $('overBody').innerHTML = '<div class="big-emo">💀</div>'
+    + '<h2 style="font-size:26px;margin:6px 0">쓰러졌다</h2>'
+    + '<div class="muted">괜찮아. 마법가루는 남는다.</div>'
+    + endStats()
+    + '<div style="margin-top:22px;display:flex;flex-direction:column;gap:10px;align-items:center">'
+    + '<button class="btn acc big" onclick="startRun()">🚪 다시 들어가기</button>'
+    + '<button class="btn ghost" onclick="goTitle()">처음으로</button></div>';
+  show('s-over');
+}
+function runClear(){
+  bankDust(40);
+  M.clears++; M.unlock.endless = true; saveM();
+  SND.ok(); setTimeout(()=>SND.ding(), 400);
+  $('overBody').innerHTML = '<div class="big-emo">👑</div>'
+    + '<h2 style="font-size:26px;margin:6px 0">미궁을 깼다!</h2>'
+    + '<div class="muted">3층을 모두 지났다. 마법가루 <b style="color:var(--gold)">+40</b></div>'
+    + endStats()
+    + '<div style="margin-top:22px;display:flex;flex-direction:column;gap:10px;align-items:center">'
+    + '<button class="btn gold big" onclick="goEndless()">🌀 끝없는 미궁으로</button>'
+    + '<div class="muted" style="font-size:12.5px">하트와 카드를 그대로 들고 더 깊이 내려간다</div>'
+    + '<button class="btn ghost" onclick="goTitle()">여기서 마치기</button></div>';
+  show('s-over');
+}
+function goEndless(){
+  SND.click(); R.endless = true; R.dust = 0;
+  R.step = 0; buildChoices(); renderMap();
+}
+function goTitle(){ SND.click(); R = null; renderTitle(); show('s-title'); }
+
+/* ══════════════════════════════════════════════════════════
+   7. 타이틀 · 상점 · 안내
+   ══════════════════════════════════════════════════════════ */
+const UNLOCKS = [
+  {k:'hp',    cost:35, ico:'❤️', nm:'튼튼한 몸',   ds:'하트 하나를 더 갖고 시작한다'},
+  {k:'half',  cost:55, ico:'🎴', nm:'반쪽 카드',   ds:'시작 덱에 1/2 카드가 들어간다'},
+  {k:'hand',  cost:75, ico:'🖐️', nm:'큰 손',      ds:'손에 드는 카드가 다섯 장이 된다'},
+  {k:'relic', cost:95, ico:'💎', nm:'행운의 시작', ds:'보물 하나를 갖고 시작한다'}
+];
+
+function renderTitle(){
+  const s = [];
+  s.push('<div class="chip">✨ 마법가루 <b>'+M.dust+'</b></div>');
+  if(M.bestFloor) s.push('<div class="chip">가장 깊이 <b>'+M.bestFloor+'층</b></div>');
+  if(M.kills) s.push('<div class="chip">없앤 괴물 <b>'+M.kills+'</b></div>');
+  if(M.clears) s.push('<div class="chip">깬 횟수 <b>'+M.clears+'</b></div>');
+  $('titleStats').innerHTML = s.join('');
+  $('sndBtn').textContent = M.snd ? '🔊' : '🔇';
+}
+
+function openShop(){
+  SND.click();
+  let h = '<div class="center"><div class="big-emo">✨</div>'
+    + '<h2 style="font-size:23px;margin:4px 0">마법가루 상점</h2>'
+    + '<div class="muted">한 번 사면 <b>계속</b> 쓸 수 있다. 지금 가진 가루 '
+    + '<b style="color:var(--gold)">'+M.dust+'</b></div></div><div style="margin-top:16px">';
+  h += UNLOCKS.map(u=>{
+    const has = !!M.unlock[u.k], can = M.dust >= u.cost;
+    return '<button class="shopitem'+(has?' done':'')+'" '+(has?'':'onclick="buy(\''+u.k+'\')"')+'>'
+      + '<div class="ico">'+u.ico+'</div>'
+      + '<div style="flex:1"><div style="font-weight:700">'+u.nm+(has?' ✅':'')+'</div>'
+      + '<div class="muted">'+u.ds+'</div></div>'
+      + '<div class="cost">'+(has?'가짐':(can?'✨'+u.cost:'<span style="color:var(--muted)">✨'+u.cost+'</span>'))+'</div></button>';
+  }).join('');
+  h += '</div><div class="center" style="margin-top:18px">'
+    + '<button class="btn acc" onclick="goTitle()">돌아가기</button></div>';
+  $('evBody').innerHTML = h; show('s-event');
+}
+function buy(k){
+  const u = UNLOCKS.find(x=>x.k===k);
+  if(M.dust < u.cost){ SND.bad(); toast('마법가루가 '+(u.cost-M.dust)+' 모자라'); return; }
+  M.dust -= u.cost; M.unlock[k] = 1; saveM(); SND.get();
+  toast(u.ico+' '+u.nm+' 를 열었다!'); openShop();
+}
+
+function openDeck(){
+  SND.click();
+  const cards = allCards();
+  let h = '<div class="center"><h2 style="font-size:22px;margin-bottom:4px">🎴 내 카드 '+cards.length+'장</h2>'
+    + '<div class="muted">노란 카드는 벼린 카드</div></div>'
+    + '<div class="deckview">'+cards.map(c=>'<div class="mini'+(c.up?' up':'')+'">'+fh(cardF(c))+'</div>').join('')+'</div>';
+  if(R.relics.length){
+    h += '<div class="eyebrow center" style="margin-top:18px">보물</div><div style="margin-top:8px">'
+      + R.relics.map(k=>'<div class="relicrow"><div class="ico">'+RELICS[k].ico+'</div>'
+      + '<div><div style="font-weight:700">'+RELICS[k].name+'</div><div class="muted">'+RELICS[k].desc+'</div></div></div>').join('')
+      + '</div>';
+  }
+  h += '<div class="center" style="margin-top:18px"><button class="btn acc" onclick="renderMap()">돌아가기</button></div>';
+  $('evBody').innerHTML = h; show('s-event');
+}
+
+function openHowto(){
+  SND.click();
+  $('evBody').innerHTML =
+     '<div class="center"><div class="big-emo">📖</div><h2 style="font-size:23px;margin:4px 0">하는 법</h2></div>'
+   + '<div class="card" style="margin-top:14px;line-height:1.8;font-size:15px">'
+   + '<b>1.</b> 괴물마다 <b>크기</b>가 있다. 예를 들어 12.<br>'
+   + '<b>2.</b> 손에 든 <b>분수 카드</b>를 곱해서 크기를 줄인다.<br>'
+   + '&nbsp;&nbsp;&nbsp;12 × '+fh(F(2,3))+' = 8 &nbsp;→&nbsp; 8 × '+fh(F(3,4))+' = 6 …<br>'
+   + '<b>3.</b> 크기가 <b style="color:var(--good)">1보다 작아지면</b> 괴물은 펑 하고 사라진다.<br>'
+   + '<b>4.</b> 카드를 쓰려면 <b>답을 골라야</b> 한다. 틀리면 마법이 실패하고 한 턴을 잃는다.<br>'
+   + '<b>5.</b> 괴물은 <b>⚡ 남은 턴</b>이 0이 되면 공격한다. 하트가 다 없어지면 끝.'
+   + '</div>'
+   + '<div class="card" style="margin-top:10px;line-height:1.8;font-size:15px;border-color:var(--acc2)">'
+   + '<b style="color:var(--acc2)">🔒 흐린 카드는 왜 안 통할까?</b><br>'
+   + '괴물의 몸은 <b>딱 나눠질 때만</b> 쪼개진다. 크기가 12인 괴물에게 '
+   + fh(F(3,4))+' 카드가 통하는 건 <b>12를 4로 나눌 수 있어서</b>다. '
+   + fh(F(3,5))+' 는 12가 5로 안 나눠져서 튕긴다.<br>'
+   + '<span style="color:var(--muted)">몸집이 아주 작아지면(6 이하) 이 규칙은 느슨해진다.</span>'
+   + '</div>'
+   + '<div class="card" style="margin-top:10px;line-height:1.8;font-size:15px;border-color:var(--gold)">'
+   + '<b style="color:var(--gold)">왜 곱했는데 작아질까?</b><br>'
+   + '1보다 <b>작은</b> 수를 곱하면 원래보다 작아진다. '
+   + fh(F(2,3))+' 을 곱하는 건 「전체의 '+fh(F(2,3))+' 만큼만 남긴다」는 뜻이니까.<br>'
+   + '반대로 <b>부풀이</b> 괴물은 1보다 큰 수를 곱해서 스스로 커진다.'
+   + '</div>'
+   + '<div class="center" style="margin-top:18px"><button class="btn acc" onclick="goTitle()">알겠어</button></div>';
+  show('s-event');
+}
+
+/* ── QR ── */
+function showQR(){ SND.tap(); $('qrOverlay').classList.add('on'); }
+function hideQR(){ $('qrOverlay').classList.remove('on'); }
+
+/* ── 멈춤 지킴이 ──
+   괴물 차례가 어떤 까닭으로든 끝나지 않으면 화면이 굳는다. 아이는 그걸
+   「고장」으로 받아들이고 다시 안 켠다. 4초 넘게 굳어 있으면 스스로 푼다.
+   계산창을 열어 둔 동안은 아이가 오래 생각하는 것이므로 건드리지 않는다. */
+setInterval(function(){
+  if(!R || !R.btl || R.btl.over) return;
+  if($('sheet').classList.contains('on')){
+    if(SHEET){ R.btl.busyAt = 0; return; }   /* 아이가 생각하는 중 — 건드리지 않는다 */
+    closeSheet();                            /* 내용 없는 창 = 고장. 닫고 아래로 */
+  }
+  if(!R.btl.busy){ R.btl.busyAt = 0; return; }
+  if(!R.btl.busyAt){ R.btl.busyAt = Date.now(); return; }
+  if(Date.now() - R.btl.busyAt > 4000){
+    R.btl.busy = false; R.btl.busyAt = 0;
+    drawUp(); renderBattle();
+  }
+}, 1000);
+
+/* ── 시작 ── */
+renderTitle();
+const QR_SVG = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 41 41\" shape-rendering=\"crispEdges\"><path fill=\"#ffffff\" d=\"M0 0h41v41H0z\"/><path stroke=\"#0a1628\" d=\"M2 2.5h7m2 0h2m1 0h2m2 0h2m3 0h1m1 0h1m1 0h1m2 0h1m1 0h7M2 3.5h1m5 0h1m2 0h1m1 0h1m1 0h1m2 0h2m2 0h3m3 0h3m1 0h1m5 0h1M2 4.5h1m1 0h3m1 0h1m1 0h8m5 0h1m4 0h3m1 0h1m1 0h3m1 0h1M2 5.5h1m1 0h3m1 0h1m1 0h2m2 0h1m2 0h1m1 0h1m4 0h2m1 0h3m2 0h1m1 0h3m1 0h1M2 6.5h1m1 0h3m1 0h1m1 0h2m1 0h2m1 0h7m2 0h1m1 0h2m3 0h1m1 0h3m1 0h1M2 7.5h1m5 0h1m1 0h1m1 0h1m1 0h3m2 0h1m3 0h2m2 0h3m2 0h1m5 0h1M2 8.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M10 9.5h7m1 0h3m1 0h2m2 0h1m2 0h1M2 10.5h1m1 0h5m6 0h1m1 0h2m4 0h1m1 0h4m1 0h1m1 0h5M10 11.5h2m1 0h2m1 0h2m1 0h2m1 0h1m2 0h1m4 0h2m1 0h1m3 0h1M2 12.5h2m2 0h5m2 0h3m1 0h3m1 0h1m1 0h1m2 0h1m2 0h1m1 0h1m3 0h1m1 0h2M11 13.5h1m1 0h2m2 0h1m3 0h3m5 0h2m1 0h1m1 0h1m3 0h1M2 14.5h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h4m1 0h2m1 0h1m1 0h7m1 0h5M5 15.5h2m2 0h2m1 0h1m1 0h1m1 0h1m1 0h1m1 0h3m1 0h2m4 0h1m2 0h1m3 0h1M2 16.5h2m1 0h1m2 0h1m3 0h1m2 0h3m2 0h1m1 0h1m1 0h1m2 0h4m1 0h4m1 0h2M4 17.5h2m1 0h1m3 0h1m1 0h2m1 0h1m1 0h1m2 0h2m2 0h1m2 0h2m3 0h2m2 0h1M3 18.5h6m2 0h2m4 0h1m2 0h5m2 0h2m2 0h2m1 0h1m1 0h1m1 0h1M2 19.5h1m1 0h2m1 0h1m1 0h3m1 0h3m1 0h3m3 0h1m1 0h1m1 0h1m2 0h1m2 0h1m1 0h3M2 20.5h1m3 0h1m1 0h1m1 0h1m3 0h1m1 0h1m5 0h3m1 0h1m2 0h6m2 0h2M3 21.5h1m3 0h1m5 0h1m1 0h1m2 0h1m1 0h1m2 0h2m1 0h1m1 0h5m5 0h1M2 22.5h1m1 0h1m3 0h1m2 0h4m1 0h1m2 0h1m4 0h5m2 0h2m1 0h3M2 23.5h1m3 0h2m1 0h1m1 0h2m5 0h4m1 0h1m1 0h1m2 0h1m1 0h1m4 0h1M2 24.5h1m1 0h1m1 0h4m2 0h1m1 0h2m1 0h3m2 0h2m2 0h1m1 0h2m3 0h3m1 0h2M2 25.5h4m4 0h4m2 0h1m1 0h8m2 0h7m2 0h2M2 26.5h8m1 0h4m1 0h1m1 0h1m2 0h1m1 0h1m1 0h4m2 0h4m1 0h1m1 0h1M2 27.5h1m1 0h2m1 0h1m1 0h2m1 0h2m1 0h1m1 0h1m2 0h1m1 0h4m1 0h1m5 0h1m2 0h1M2 28.5h1m1 0h2m1 0h2m6 0h7m4 0h1m2 0h2m2 0h1m2 0h3M2 29.5h1m1 0h4m5 0h1m3 0h1m2 0h4m1 0h1m5 0h4m3 0h1M2 30.5h1m1 0h1m1 0h5m1 0h1m1 0h4m1 0h1m1 0h1m3 0h4m1 0h9M10 31.5h2m8 0h3m2 0h3m1 0h2m3 0h2M2 32.5h7m4 0h3m1 0h1m2 0h1m1 0h1m1 0h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h3M2 33.5h1m5 0h1m1 0h1m1 0h1m4 0h1m10 0h1m1 0h1m3 0h2M2 34.5h1m1 0h3m1 0h1m1 0h2m1 0h1m2 0h1m3 0h15m1 0h1m1 0h1M2 35.5h1m1 0h3m1 0h1m1 0h4m1 0h1m1 0h3m5 0h2m2 0h1m1 0h2m1 0h1m1 0h1m1 0h1M2 36.5h1m1 0h3m1 0h1m1 0h3m6 0h1m2 0h1m1 0h1m1 0h1m1 0h4m3 0h4M2 37.5h1m5 0h1m2 0h6m1 0h1m4 0h1m1 0h1m2 0h4m2 0h2m2 0h1M2 38.5h7m1 0h2m1 0h2m1 0h1m1 0h2m4 0h5m5 0h5\"/></svg>";
+const GAME_URL = "https://leixlix-pixel.github.io/toolbox/fraction-shrink-dungeon.html";
+(function(){
+  const box = $("qrHome");
+  box.innerHTML = '<div class="qrlab">📱 태블릿에서 바로 열기 · 눌러서 크게</div>' + QR_SVG
+    + '<div class="qrcap">' + GAME_URL + '</div>';
+  box.style.cursor = "pointer";
+  box.onclick = showQR;
+  $("qrBig").innerHTML = QR_SVG;
+})();
+document.addEventListener('keydown', e=>{
+  if(e.key==='Escape'){ if($('sheet').classList.contains('on')) return; hideQR(); }
+});
+</script>
+
+
+
+
+</body>
+</html>

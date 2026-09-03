@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>의식 음악 듣기 기록장 · 음악 보고서 (A4 2장)</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1c2430; --navy:#123a63; --navy2:#1d5b95; --red:#c0392b;
+  --gold:#c8963e; --green:#2e7d5b; --plum:#7d4a86; --teal:#1f7a86;
+  --line:#c9c2b2; --soft:#e7e1d4; --muted:#6d6b66;
+}
+@page{ size:A4; margin:0 }
+html,body{background:#4a5260;font-family:'Noto Sans KR',sans-serif;color:var(--ink)}
+
+.no-print{background:#0d1520;color:#e7ecf3;padding:12px 18px;display:flex;
+  align-items:center;gap:14px;font-size:15px;font-weight:700;flex-wrap:wrap}
+.no-print button{background:var(--red);color:#fff;border:0;border-radius:9px;
+  min-height:40px;padding:9px 20px;font-family:inherit;font-size:16px;font-weight:900;cursor:pointer}
+.no-print span{color:#93a1b3;font-weight:500}
+
+.page{width:210mm;height:297mm;background:#fff;margin:16px auto;
+  padding:13mm 14mm 12mm;position:relative;overflow:hidden;
+  display:flex;flex-direction:column;
+  box-shadow:0 10px 30px rgba(0,0,0,.4);print-color-adjust:exact;-webkit-print-color-adjust:exact}
+
+/* ── 머리 ── */
+.head{display:flex;align-items:flex-end;gap:12px;border-bottom:3px solid var(--navy);padding-bottom:7px}
+.head .ttl{font-size:21pt;font-weight:900;color:var(--navy);line-height:1.1;letter-spacing:-.02em}
+.head .sub{font-size:10pt;font-weight:700;color:var(--muted);margin-bottom:3px}
+.head .who{margin-left:auto;font-size:10.5pt;font-weight:700;white-space:nowrap}
+.head .who u{text-decoration:none;border-bottom:1.4px solid #888;display:inline-block;min-width:16mm}
+.head .who u.nm{min-width:26mm}
+
+/* ── 문항 ── */
+.q{margin-top:4mm;display:flex;flex-direction:column}
+.q>.qh{display:flex;align-items:center;gap:7px;margin-bottom:2mm}
+.qn{background:var(--navy);color:#fff;font-size:11pt;font-weight:900;
+  width:8.5mm;height:8.5mm;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none}
+.qt{font-size:12.5pt;font-weight:900;color:var(--navy);line-height:1.25}
+.qs{font-size:9.5pt;font-weight:500;color:var(--muted);margin-left:auto;text-align:right;line-height:1.3}
+
+.fill{border-bottom:1.5px solid #999;display:inline-block;min-width:22mm;height:1.05em}
+.fill.w{min-width:38mm} .fill.s{min-width:14mm}
+
+/* 채우기 문장 */
+.sent{font-size:11pt;line-height:1.95;font-weight:500}
+.word{display:inline-block;background:var(--soft);border:1.2px solid var(--line);
+  border-radius:5px;padding:1px 7px;font-size:10pt;font-weight:700;margin:0 2px}
+
+/* 표 */
+table{width:100%;border-collapse:collapse;font-size:10.5pt}
+th{background:var(--navy);color:#fff;padding:5px 4px;font-weight:900;font-size:10pt;border:1px solid var(--navy)}
+td{border:1px solid var(--line);padding:4px 6px;vertical-align:top;line-height:1.4}
+td.c{text-align:center;font-weight:700}
+td.h{background:#f2eee4;font-weight:700;text-align:center;font-size:10pt}
+td.blank{height:7.5mm}
+
+/* 줄 잇기 */
+.match{display:flex;align-items:stretch}
+.mcol{flex:1;display:flex;flex-direction:column;gap:2mm}
+.mi{position:relative;border:1.4px solid var(--line);border-radius:6px;
+  padding:3.5px 12px;font-size:10.5pt;font-weight:700;background:#fff;
+  display:flex;align-items:center;min-height:8mm}
+.mcol.r .mi{font-weight:500;padding-left:14px}
+.mi i{position:absolute;width:2.4mm;height:2.4mm;border-radius:50%;
+  background:#fff;border:1.4px solid #777;top:50%;transform:translateY(-50%)}
+.mcol .mi i{right:-1.2mm}
+.mcol.r .mi i{left:-1.2mm;right:auto}
+.mgap{width:26mm;flex:none}
+
+/* 체크 상자 */
+.ck{display:inline-block;width:3.6mm;height:3.6mm;border:1.4px solid #666;border-radius:2px;
+  margin-right:3px;vertical-align:-1px}
+.ckrow{font-size:10.3pt;line-height:1.8;font-weight:500}
+.ckrow b{font-weight:900}
+
+/* 신호 격자 */
+.sig{display:flex;gap:4px;align-items:stretch}
+.sig .lab{width:15mm;flex:none;background:var(--teal);color:#fff;border-radius:5px;
+  display:flex;align-items:center;justify-content:center;font-size:10pt;font-weight:900}
+.sig .cell{flex:1;border:1.4px solid var(--line);border-radius:5px;min-height:11mm;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-size:9.5pt;font-weight:700;color:#999;text-align:center;line-height:1.2;padding:2px}
+.sig .cell b{color:var(--ink);font-size:10.5pt}
+.sig .cell.given{background:#f2eee4;color:var(--ink)}
+
+/* 쓰기 칸 */
+.write{border:1.6px solid var(--line);border-radius:6px;overflow:hidden;display:flex;flex-direction:column;flex:1}
+.write .ln{flex:1;border-bottom:1px solid #cfc8b8;min-height:7.5mm}
+.write .ln:last-child{border-bottom:none}
+
+/* 보고서 3칸 */
+.rep{display:flex;flex-direction:column;flex:1;min-height:0;gap:3mm}
+.rbox{display:flex;flex-direction:column;flex:1;min-height:0;
+  border:2px solid var(--line);border-radius:8px;overflow:hidden}
+.rbox>.rh{display:flex;align-items:center;gap:7px;padding:4px 8px;color:#fff}
+.rbox>.rh .rt{font-size:12pt;font-weight:900}
+.rbox>.rh .rd{font-size:9pt;font-weight:500;margin-left:auto;opacity:.92;text-align:right;line-height:1.25}
+.rbox .body{flex:1;display:flex;flex-direction:column;min-height:0}
+.rbox .body .ln{flex:1;min-height:7.2mm;border-bottom:1px solid #cfc8b8}
+.rbox .body .ln:last-child{border-bottom:none}
+.rbox .hint{background:#faf7ef;border-bottom:1px solid #cfc8b8;padding:2.5px 8px;
+  font-size:8.5pt;color:var(--muted);font-weight:500;line-height:1.3;white-space:nowrap;overflow:hidden}
+.r1>.rh{background:var(--navy2)} .r1{border-color:var(--navy2)}
+.r2>.rh{background:var(--gold)}  .r2{border-color:var(--gold)}
+.r3>.rh{background:var(--red)}   .r3{border-color:var(--red)}
+
+/* 영상 목록 */
+.vlist{font-size:9.3pt;line-height:1.55}
+.vlist div{padding:1.5px 0}
+.vlist code{font-family:Consolas,monospace;font-size:9pt;background:#f2eee4;
+  border:1px solid var(--line);border-radius:3px;padding:0 4px}
+
+.note{background:#fffaf0;border:1.5px dashed var(--gold);border-radius:7px;
+  padding:5px 9px;font-size:9.5pt;line-height:1.45;font-weight:500}
+.foot{margin-top:auto;padding-top:4px;border-top:1px solid var(--soft);
+  font-size:8.5pt;color:var(--muted);display:flex}
+.foot .r{margin-left:auto}
+
+@media print{
+  html,body{background:#fff}
+  .no-print{display:none}
+  .page{margin:0;box-shadow:none;page-break-after:always}
+  .page:last-child{page-break-after:auto}
+}
+</style>
+</head>
+<body>
+
+<div class="no-print">
+  <button onclick="window.print()">🖨 인쇄하기 (A4 2장)</button>
+  <span>인쇄 설정에서 <b>‘배경 그래픽’을 켜고</b>, 배율은 <b>100%</b>, 여백은 <b>없음</b>으로.</span>
+</div>
+
+<!-- ══════════════════ 1면 ══════════════════ -->
+<div class="page">
+
+  <div class="head">
+    <div>
+      <div class="sub">음악 5학년 · 3단원 「음악의 즐거움을 함께해요」 · 교과서 64~65쪽</div>
+      <div class="ttl">의식 음악 듣기 기록장</div>
+    </div>
+    <div class="who">5학년 <u>&nbsp;</u>반 &nbsp;이름 <u class="nm">&nbsp;</u></div>
+  </div>
+
+  <!-- 1 -->
+  <div class="q">
+    <div class="qh"><div class="qn">1</div>
+      <div class="qt">의식 음악이 무엇인지 채워 봅시다.</div>
+      <div class="qs">보기에서 골라 쓰기</div></div>
+    <div style="margin-bottom:2.5mm">
+      <span class="word">순서</span><span class="word">감상</span><span class="word">한 부분</span>
+      <span class="word">특별한</span><span class="word">신호</span>
+    </div>
+    <div class="sent">
+      의식이란 정해진 <span class="fill s"></span>대로 치르는 중요한 일이다.
+      의식 음악은 그 일과 함께 붙어 있는 음악으로,
+      <span class="fill s"></span>하려고 만든 음악이 아니라 의식의 <span class="fill"></span>으로 쓰인다.<br>
+      의식 음악이 하는 일은 세 가지다. 첫째, 지금부터가 <span class="fill s"></span> 시간이라고 알린다.
+      둘째, 여러 사람의 마음과 몸을 하나로 맞춘다. 셋째, 지금이 어느 순서인지
+      <span class="fill s"></span>를 보낸다.
+    </div>
+  </div>
+
+  <!-- 2 -->
+  <div class="q">
+    <div class="qh"><div class="qn">2</div>
+      <div class="qt">우리나라의 의식 음악을 알맞게 이어 봅시다.</div>
+      <div class="qs">선으로 잇기</div></div>
+    <div class="match">
+      <div class="mcol">
+        <div class="mi" style="color:var(--red)">종묘제례악<i></i></div>
+        <div class="mi">문묘제례악<i></i></div>
+        <div class="mi" style="color:var(--gold)">영산재<i></i></div>
+        <div class="mi" style="color:var(--plum)">씻김굿<i></i></div>
+        <div class="mi" style="color:var(--teal)">대취타<i></i></div>
+      </div>
+      <div class="mgap"></div>
+      <div class="mcol r">
+        <div class="mi"><i></i>임금의 행차와 군대 행진</div>
+        <div class="mi"><i></i>죽은 이를 보내는 무속 의식</div>
+        <div class="mi"><i></i>조선 왕과 왕비의 제사</div>
+        <div class="mi"><i></i>공자를 모시는 제사(석전대제)</div>
+        <div class="mi"><i></i>불교의 큰 재(齋)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3 -->
+  <div class="q">
+    <div class="qh"><div class="qn">3</div>
+      <div class="qt">「종묘제례악」을 들으며 표시해 봅시다.</div>
+      <div class="qs">들으면서 바로 체크</div></div>
+    <table>
+      <tr><td class="h" style="width:20%">빠르기</td>
+        <td class="ckrow"><span class="ck"></span>아주 느리다 &nbsp;<span class="ck"></span>보통이다 &nbsp;<span class="ck"></span>빠르다</td></tr>
+      <tr><td class="h">한 글자의 길이</td>
+        <td class="ckrow"><span class="ck"></span>아주 길게 끈다 &nbsp;<span class="ck"></span>보통이다 &nbsp;<span class="ck"></span>짧게 끊는다</td></tr>
+      <tr><td class="h">들리는 소리</td>
+        <td class="ckrow"><span class="ck"></span>쇠붙이(종) &nbsp;<span class="ck"></span>돌(경쇠) &nbsp;<span class="ck"></span>피리·대금
+          &nbsp;<span class="ck"></span>북 &nbsp;<span class="ck"></span>사람 노랫소리 &nbsp;<span class="ck"></span>긁는 소리</td></tr>
+      <tr><td class="h">어울리는 낱말<br><span style="font-weight:500;font-size:8.5pt">두 개까지</span></td>
+        <td class="ckrow"><span class="ck"></span>엄숙하다 &nbsp;<span class="ck"></span>웅장하다 &nbsp;<span class="ck"></span>신난다
+          &nbsp;<span class="ck"></span>낯설다 &nbsp;<span class="ck"></span>차분하다 &nbsp;<span class="ck"></span>지루하다
+          &nbsp;<span class="ck"></span>(직접) <span class="fill s"></span></td></tr>
+      <tr><td class="h">가장 인상 깊은 것</td>
+        <td style="height:9mm"></td></tr>
+    </table>
+  </div>
+
+  <!-- 4 -->
+  <div class="q" style="flex:1;min-height:0">
+    <div class="qh"><div class="qn">4</div>
+      <div class="qt">시작과 끝을 알리는 신호를 순서대로 써 봅시다.</div>
+      <div class="qs">교과서 65쪽 ③번</div></div>
+
+    <div style="font-size:10pt;font-weight:900;color:var(--teal);margin-bottom:2mm">
+      시작 — 집례가 “드오!” 하고 외친 뒤</div>
+    <div class="sig">
+      <div class="lab">시작</div>
+      <div class="cell given"><b>박</b>한 번</div>
+      <div class="cell">(&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)<br>한 번</div>
+      <div class="cell">(&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)<br>두 번</div>
+      <div class="cell">(&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)<br>한 번</div>
+      <div class="cell">(&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)<br>한 번</div>
+    </div>
+    <div style="font-size:9pt;color:var(--muted);margin-top:1.5mm">
+      ↑ 가운데 세 칸을 <b>세 번</b> 반복한다.</div>
+
+    <div style="font-size:10pt;font-weight:900;color:var(--plum);margin:2.5mm 0 1.5mm">
+      끝 — 집례가 “지오!” 하고 외친 뒤</div>
+    <div class="sig">
+      <div class="lab" style="background:var(--plum)">끝</div>
+      <div class="cell">(&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)</div>
+      <div class="cell">(&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)<br><span style="font-size:8.5pt">+ 어 딱 딱</span></div>
+      <div class="cell">(&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)<br><span style="font-size:8.5pt">+ 어 드르륵</span></div>
+      <div class="cell" style="color:#bbb">…&nbsp;세 번 …</div>
+      <div class="cell given"><b>어</b><br><span style="font-size:8.5pt">드르륵 (마지막)</span></div>
+    </div>
+    <div class="note" style="margin-top:3mm">
+      <b>우리 모둠이 쓸 물건</b> — 박 → <span class="fill"></span> 축 → <span class="fill"></span> 절고 → <span class="fill"></span> 어 → <span class="fill"></span>
+    </div>
+  </div>
+
+  <div class="foot"><div>의식 음악 (1/2)</div><div class="r">음악 5학년 64~65쪽</div></div>
+</div>
+
+<!-- ══════════════════ 2면 ══════════════════ -->
+<div class="page">
+
+  <div class="head">
+    <div>
+      <div class="sub">교과서 65쪽 ④번 — “종묘제례악”의 의미와 특징, 가치가 드러나게</div>
+      <div class="ttl">음악 보고서</div>
+    </div>
+    <div class="who">5학년 <u>&nbsp;</u>반 &nbsp;이름 <u class="nm">&nbsp;</u></div>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:8px;margin-top:4mm;
+    border:1.6px solid var(--line);border-radius:7px;padding:5px 9px">
+    <span style="font-size:10.5pt;font-weight:900;color:var(--navy);white-space:nowrap">보고서 제목</span>
+    <span style="flex:1;border-bottom:1.5px solid #999;height:1.2em"></span>
+    <span style="font-size:8.5pt;color:var(--muted);white-space:nowrap">예) 600년째 멈추지 않은 음악</span>
+  </div>
+
+  <div class="rep" style="margin-top:4mm">
+
+    <div class="rbox r1">
+      <div class="rh"><span class="rt">의미</span>
+        <span class="rd">이 음악은 무엇인가 — 누가 · 언제 · 어디서 · 무엇을 위해</span></div>
+      <div class="hint">쓸 거리 : 왕과 왕비의 제사 음악 · 세종이 만들고 세조 때부터 · 노래·연주·춤이 함께 · 국가무형유산 1호 · 유네스코 등재</div>
+      <div class="body">
+        <div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div>
+      </div>
+    </div>
+
+    <div class="rbox r2">
+      <div class="rh"><span class="rt">특징</span>
+        <span class="rd">어떻게 들리고 어떻게 하는가 — 내 귀로 들은 것</span></div>
+      <div class="hint">쓸 거리 : 아주 느리다 · 한 글자를 길게 끈다 · 등가와 헌가가 번갈아 · 축으로 시작 어로 끝 · 64명이 똑같이 춤춘다</div>
+      <div class="body">
+        <div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div>
+      </div>
+    </div>
+
+    <div class="rbox r3">
+      <div class="rh"><span class="rt">가치</span>
+        <span class="rd">왜 소중한가 — <b>누구에게</b> · <b>왜</b> 를 꼭 넣어 쓸 것</span></div>
+      <div class="hint">“좋았다·신기했다”로 끝내면 감상문이다. 「악보가 남아서 …」 「그래서 우리에게 …이다」처럼 이어 쓸 것</div>
+      <div class="body">
+        <div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="display:flex;gap:4mm;margin-top:3.5mm">
+    <div style="flex:1.25">
+      <div style="font-size:10.5pt;font-weight:900;color:var(--navy);margin-bottom:1.5mm">
+        내가 들어 본 음악에 ✓ 하고, 한마디씩 적기</div>
+      <table>
+        <tr><th style="width:9%">✓</th><th style="width:45%">들은 음악</th><th>한마디</th></tr>
+        <tr><td class="c" style="height:7mm"></td><td>종묘제례악 <span style="color:#888">(왕실 제사)</span></td><td></td></tr>
+        <tr><td class="c" style="height:7mm"></td><td>문묘제례악 <span style="color:#888">(공자 제사)</span></td><td></td></tr>
+        <tr><td class="c" style="height:7mm"></td><td>영산재 / 씻김굿 / 대취타 <span style="color:#888">(택1)</span></td><td></td></tr>
+        <tr><td class="c" style="height:7mm"></td><td>모차르트 「레퀴엠」 <span style="color:#888">(장례 미사)</span></td><td></td></tr>
+        <tr><td class="c" style="height:7mm"></td><td>「Zadok the Priest」 <span style="color:#888">(대관식)</span></td><td></td></tr>
+        <tr><td class="c" style="height:7mm"></td><td>가믈란 <span style="color:#888">(발리 사원 의식)</span></td><td></td></tr>
+      </table>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column">
+      <div style="font-size:10.5pt;font-weight:900;color:var(--green);margin-bottom:1.5mm">
+        우리 반이 의식 음악을 만든다면</div>
+      <div class="write" style="flex:none">
+        <div class="ln" style="min-height:6mm;position:relative">
+          <span style="position:absolute;left:5px;top:2px;font-size:8.5pt;color:#aaa">어떤 순간에?</span></div>
+        <div class="ln" style="min-height:6mm"></div>
+        <div class="ln" style="min-height:6mm;position:relative">
+          <span style="position:absolute;left:5px;top:2px;font-size:8.5pt;color:#aaa">시작 소리는?</span></div>
+        <div class="ln" style="min-height:6mm"></div>
+        <div class="ln" style="min-height:6mm;position:relative">
+          <span style="position:absolute;left:5px;top:2px;font-size:8.5pt;color:#aaa">끝 소리는?</span></div>
+        <div class="ln" style="min-height:6mm"></div>
+      </div>
+      <div class="note" style="margin-top:3mm;font-size:9pt">
+        <b>몇 년 뒤 후배들도</b> 그 소리를 그대로 쓴다면,
+        그것이 우리 학교의 의식 음악이 된다.</div>
+    </div>
+  </div>
+
+  <div style="margin-top:3.5mm;border:1.5px solid var(--soft);border-radius:7px;padding:4px 9px">
+    <div style="font-size:9.5pt;font-weight:900;color:var(--navy);margin-bottom:1.5mm">
+      🔎 집에서 다시 듣고 싶다면 — 유튜브에서 아래 제목으로 찾거나, 주소창에 <code style="font-family:Consolas,monospace">youtu.be/코드</code></div>
+    <div class="vlist" style="display:flex;gap:6mm">
+      <div style="flex:1">
+        <div>· 유네스코 인류무형문화유산 — 종묘제례 및 종묘제례악 <code>9y6_TwIplmI</code></div>
+        <div>· 조선왕조 영혼의 음악 「종묘제례악」(국립국악원) <code>eDjs1r-U-ms</code></div>
+        <div>· 일무 「춤의 기억」 — 보태평지무 중 전폐희문 <code>HoL1psqhIUE</code></div>
+        <div>· 제례 악기 「축」과 「어」 <code>vWl-0qYOsLA</code></div>
+      </div>
+      <div style="flex:1">
+        <div>· 문묘제례악 (국립국악원 토요명품공연) <code>LjwBp_QK388</code></div>
+        <div>· 한국의 인류유산 — 영산재 <code>u-_9wSIThd8</code></div>
+        <div>· 모차르트 「레퀴엠」 중 라크리모사 <code>UZalR6UcfPk</code></div>
+        <div>· 헨델 「Zadok the Priest」 (2023 대관식) <code>Sm_PNbQebdA</code></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><div>음악 보고서 (2/2)</div><div class="r">음악 5학년 64~65쪽</div></div>
+</div>
+
+</body>
+</html>

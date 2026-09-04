@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>수송 레이스 — 4단원 마무리</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --ink:#1c2430; --navy:#123a63; --navy2:#1d5b95;
+  --red:#c0392b; --gold:#c8963e; --green:#2e7d5b;
+  --paper:#f6f2e9; --line:#d9d2c4; --muted:#6d6b66;
+}
+
+html,body{min-height:100%}
+body{background:#0d1520;font-family:'Noto Sans KR',sans-serif;color:var(--ink);
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;
+  display:flex;justify-content:center;padding:14px}
+
+#app{width:100%;max-width:860px;background:var(--paper);border-radius:20px;
+  box-shadow:0 18px 50px rgba(0,0,0,.55);padding:22px;display:flex;flex-direction:column;gap:16px}
+
+.screen{display:none;flex-direction:column;gap:16px}
+.screen.on{display:flex}
+
+/* ── 표지 ── */
+.title{font-size:38px;font-weight:900;color:var(--navy);line-height:1.2;text-align:center}
+.title small{display:block;font-size:19px;font-weight:700;color:var(--gold);margin-bottom:8px}
+.lede{font-size:19px;line-height:1.6;font-weight:500;color:var(--ink);text-align:center}
+
+.rules{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+.rules li{font-size:18px;line-height:1.6;font-weight:500;margin-left:20px;padding:2px 0}
+.rules b{color:var(--red);font-weight:900}
+
+.btn{min-height:56px;border:0;border-radius:14px;background:var(--navy2);color:#fff;
+  font-family:inherit;font-size:22px;font-weight:900;cursor:pointer;padding:14px 24px;
+  box-shadow:0 5px 0 #0f2f52;transition:transform .06s}
+.btn:active{transform:translateY(3px);box-shadow:0 2px 0 #0f2f52}
+.btn.ghost{background:#fff;color:var(--navy2);border:2px solid var(--navy2);box-shadow:0 5px 0 #c9d6e3}
+.btn.ghost:active{box-shadow:0 2px 0 #c9d6e3}
+.btnrow{display:flex;gap:12px;flex-wrap:wrap}
+.btnrow>.btn{flex:1;min-width:150px}
+
+.best{text-align:center;font-size:17px;font-weight:700;color:var(--muted)}
+
+/* ── 트랙 ── */
+.track{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 14px}
+.lane{position:relative;height:52px;margin:5px 0}
+.laneline{position:absolute;left:0;right:0;top:50%;height:12px;transform:translateY(-50%);
+  border-radius:7px;background:repeating-linear-gradient(90deg,#e8e2d5 0 22px,#f4efe4 22px 44px)}
+.goal{position:absolute;right:0;top:0;bottom:0;width:16px;border-radius:5px;
+  background:repeating-linear-gradient(45deg,#1c2430 0 6px,#fff 6px 12px)}
+.car{position:absolute;top:50%;transform:translate(-50%,-50%);font-size:34px;
+  transition:left .35s cubic-bezier(.2,.9,.3,1);line-height:1;z-index:2}
+.lanetag{font-size:15px;font-weight:900;color:var(--muted);margin-left:2px}
+
+.meta{display:flex;justify-content:space-between;align-items:center;font-size:17px;font-weight:900;color:var(--navy)}
+.streak{color:var(--gold)}
+
+/* ── 문제 ── */
+.qbox{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 20px;
+  box-shadow:0 6px 16px rgba(30,25,15,.08)}
+.qno{display:inline-block;background:var(--navy2);color:#fff;font-size:16px;font-weight:900;
+  border-radius:999px;padding:4px 14px;margin-bottom:10px}
+.qtext{font-size:25px;font-weight:900;line-height:1.45;color:var(--ink)}
+
+.opts{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.opt{min-height:58px;text-align:left;border:2px solid var(--line);background:#fff;border-radius:13px;
+  font-family:inherit;font-size:20px;font-weight:700;color:var(--ink);padding:14px 18px;cursor:pointer;
+  line-height:1.4;display:flex;align-items:center;gap:12px}
+.opt .mk{flex:none;width:30px;height:30px;border-radius:50%;background:#eef2f7;color:var(--navy2);
+  font-size:16px;font-weight:900;display:flex;align-items:center;justify-content:center}
+.opt:active{background:#f2f6fb}
+.opt.right{border-color:var(--green);background:#eaf6f0}
+.opt.right .mk{background:var(--green);color:#fff}
+.opt.wrong{border-color:var(--red);background:#fdeceb}
+.opt.wrong .mk{background:var(--red);color:#fff}
+.opt.dim{opacity:.45}
+.opts.locked .opt{cursor:default}
+
+.ox{flex-direction:row;gap:12px}
+.ox .opt{flex:1;justify-content:center;font-size:30px;font-weight:900;min-height:84px}
+
+.fb{border-radius:14px;padding:15px 18px;font-size:19px;line-height:1.55;font-weight:500;display:none}
+.fb.on{display:block}
+.fb.good{background:#eaf6f0;border:2px solid var(--green)}
+.fb.bad{background:#fdeceb;border:2px solid var(--red)}
+.fb .h{font-size:21px;font-weight:900;margin-bottom:5px}
+.fb.good .h{color:var(--green)}
+.fb.bad .h{color:var(--red)}
+
+/* ── 결과 ── */
+.res{text-align:center}
+.res .big{font-size:44px;font-weight:900;line-height:1.25}
+.res .score{font-size:24px;font-weight:700;color:var(--ink);margin-top:10px}
+.review{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;
+  max-height:300px;overflow-y:auto;display:none}
+.review.on{display:block}
+.review h3{font-size:19px;font-weight:900;color:var(--red);margin-bottom:10px}
+.rv{border-bottom:1px dashed var(--line);padding:10px 0}
+.rv:last-child{border-bottom:0}
+.rv .q{font-size:18px;font-weight:900;color:var(--ink);line-height:1.4}
+.rv .a{font-size:17px;font-weight:700;color:var(--green);margin-top:4px}
+.rv .w{font-size:16px;font-weight:500;color:var(--muted);margin-top:3px;line-height:1.45}
+
+.sound{background:none;border:0;font-size:22px;cursor:pointer;padding:4px 8px;font-family:inherit}
+.foot{display:flex;justify-content:space-between;align-items:center;font-size:14px;color:var(--muted);font-weight:700}
+
+/* ── QR — 외부 서비스 링크를 쓰지 않고 SVG 를 파일 안에 넣는다 ── */
+.qrbox{text-align:center;cursor:pointer}
+.qrbox svg{width:122px;height:122px;border-radius:10px;border:6px solid #fff;background:#fff;display:block;margin:0 auto}
+.qrlab{font-size:14px;color:var(--muted);font-weight:700;margin-bottom:7px}
+.qrcap{font-size:12px;color:var(--muted);margin-top:6px;word-break:break-all}
+.overlay{position:fixed;inset:0;background:rgba(10,18,30,.9);display:none;
+  align-items:center;justify-content:center;z-index:99;padding:24px}
+.overlay.on{display:flex}
+.overlay svg{width:min(76vw,420px);height:auto;background:#fff;border-radius:16px;border:14px solid #fff}
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- 표지 -->
+  <section class="screen on" id="scTitle">
+    <div class="title"><small>실과 · 4. 생활과 수송 · 단원 마무리</small>수송 레이스</div>
+    <p class="lede">문제를 맞히면 내 자동차가 앞으로 나간다.<br>배달 로봇보다 먼저 결승선에 닿아 보자.</p>
+    <div class="rules">
+      <ul>
+        <li>문제는 모두 <b>12개</b>. 맞히면 한 칸 전진.</li>
+        <li><b>3개 연속</b>으로 맞히면 그 문제는 <b>두 칸</b> 전진.</li>
+        <li>틀리면 제자리 — 대신 <b>왜 틀렸는지</b> 알려 준다.</li>
+        <li>배달 로봇은 매 문제마다 저 혼자 달린다. 방심하면 진다.</li>
+        <li>12문제가 끝났을 때 <b>로봇보다 앞서 있으면</b> 이긴다.</li>
+      </ul>
+    </div>
+    <button class="btn" onclick="startGame()">시작하기</button>
+    <div class="best" id="bestLine"></div>
+    <div class="qrbox" id="qrHome" onclick="showQR()"></div>
+    <div class="foot">
+      <span>소리를 켜면 더 재미있다</span>
+      <button class="sound" id="sndBtn" onclick="toggleSound()">🔊</button>
+    </div>
+  </section>
+
+  <!-- 게임 -->
+  <section class="screen" id="scPlay">
+    <div class="track">
+      <div class="lanetag">🚗 나</div>
+      <div class="lane"><div class="laneline"></div><div class="goal"></div><div class="car" id="carMe">🚗</div></div>
+      <div class="lanetag">🤖 배달 로봇</div>
+      <div class="lane"><div class="laneline"></div><div class="goal"></div><div class="car" id="carAi">🤖</div></div>
+    </div>
+    <div class="meta">
+      <span id="qCount">1 / 12</span>
+      <span class="streak" id="streakLbl"></span>
+      <span id="posLbl">나 0칸 · 로봇 0칸</span>
+    </div>
+    <div class="qbox">
+      <div class="qno" id="qno">문제 1</div>
+      <div class="qtext" id="qtext"></div>
+      <div class="opts" id="opts"></div>
+    </div>
+    <div class="fb" id="fb"></div>
+    <button class="btn" id="nextBtn" style="display:none" onclick="nextQ()">다음 문제 ▶</button>
+  </section>
+
+  <!-- 결과 -->
+  <section class="screen" id="scEnd">
+    <div class="res">
+      <div class="big" id="endBig"></div>
+      <div class="score" id="endScore"></div>
+    </div>
+    <div class="review" id="review"></div>
+    <div class="btnrow">
+      <button class="btn ghost" id="reviewBtn" onclick="toggleReview()">틀린 문제 다시 보기</button>
+      <button class="btn" onclick="startGame()">한 판 더</button>
+    </div>
+    <div class="best" id="bestLine2"></div>
+  </section>
+
+</div>
+
+<div class="overlay" id="qrOverlay" onclick="hideQR()"><div id="qrBig"></div></div>
+
+<script>
+/* ── 소리 — 파일 없이 Web Audio 로 그 자리에서 만든다 ── */
+const SND = {
+  ctx:null, on:true,
+  init(){ if(!this.ctx){ try{ this.ctx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } },
+  tone(f,dur,type,vol,delay,slide){
+    if(!this.ctx || !this.on) return;
+    const t0 = this.ctx.currentTime + (delay||0);
+    const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+    o.type = type||'square';
+    o.frequency.setValueAtTime(f,t0);
+    if(slide) o.frequency.exponentialRampToValueAtTime(Math.max(40,slide), t0+dur);
+    g.gain.setValueAtTime(0.0001,t0);                                    /* 0 에서 시작해야 */
+    g.gain.exponentialRampToValueAtTime((vol==null?0.16:vol)*0.9, t0+0.012); /* 딱 소리가 안 난다 */
+    g.gain.exponentialRampToValueAtTime(0.0001, t0+dur);
+    o.connect(g); g.connect(this.ctx.destination);
+    o.start(t0); o.stop(t0+dur+0.02);
+  },
+  click(){ this.tone(660,0.06,'square',0.10); },
+  ok(){ this.tone(660,0.10,'triangle',0.18); this.tone(880,0.10,'triangle',0.18,0.09); this.tone(1320,0.20,'triangle',0.16,0.18); },
+  bad(){ this.tone(220,0.28,'sawtooth',0.14,0,110); },
+  move(){ this.tone(420,0.07,'sine',0.12,0,620); },
+  win(){ [523,659,784,1046].forEach((f,i)=>this.tone(f,0.24,'triangle',0.18,i*0.13)); },
+  lose(){ [392,349,294,247].forEach((f,i)=>this.tone(f,0.26,'sine',0.15,i*0.14)); }
+};
+function toggleSound(){
+  SND.on = !SND.on;
+  document.getElementById('sndBtn').textContent = SND.on ? '🔊' : '🔈';
+  if(SND.on){ SND.init(); SND.click(); }
+}
+
+/* ── 문제 — 16개 중 12개를 뽑아 쓴다 ────────────────────
+   오답마다 이유를 따로 달았다. 「틀렸어요」 하나로 끝내면 아무것도 안 남는다. */
+const POOL = [
+  { q:'‘수송’이란 무엇일까요?',
+    o:[ {t:'사람이나 물건을 실어 다른 장소로 옮기는 것', ok:true},
+        {t:'소식이나 정보를 멀리 전하는 것', w:'그건 통신이야. 수송은 무언가를 <b>실어야</b> 성립해.'},
+        {t:'필요한 물건을 만들어 파는 것', w:'그건 생산과 판매지. 옮기는 일이 빠졌어.'},
+        {t:'길이나 다리를 새로 만드는 것', w:'그건 건설이야 — 다음 단원에서 배운다.'} ],
+    a:'사람이나 물건을 <b>실어서</b> 다른 장소로 옮기는 것이 수송이다.' },
+
+  { q:'전화로 친구에게 목소리를 보내는 것도 수송이다.', ox:true,
+    o:[ {t:'⭕', w:'옮겨진 건 <b>소식</b>이지 사람이나 물건이 아니야. 그건 통신이라고 해.'},
+        {t:'❌', ok:true} ],
+    a:'수송은 <b>실어서</b> 옮기는 것. 목소리는 실리지 않는다.' },
+
+  { q:'옛날 수송 수단을 움직인 힘이 <b>아닌</b> 것은?',
+    o:[ {t:'동력 기관', ok:true},
+        {t:'사람의 힘', w:'사람이 수레를 끌었지. 옛날 힘이 맞아.'},
+        {t:'동물의 힘', w:'말이 마차를 끌었지. 옛날 힘이 맞아.'},
+        {t:'바람의 힘', w:'돛단배가 바람으로 갔지. 옛날 힘이 맞아.'} ],
+    a:'동력 기관은 <b>오늘날</b>의 것이다. 옛날에는 사람·동물·바람의 힘을 썼다.' },
+
+  { q:'동력 기관은 무엇을 하는 장치일까요?',
+    o:[ {t:'에너지를 이용해 움직이는 힘을 만든다', ok:true},
+        {t:'가려는 쪽으로 방향을 바꾼다', w:'그건 <b>조향</b> 장치가 하는 일이야.'},
+        {t:'속도를 줄이거나 멈추게 한다', w:'그건 <b>제동</b> 장치가 하는 일이야.'},
+        {t:'사람이 앉을 자리를 만들어 준다', w:'그건 장치가 아니라 그냥 의자지.'} ],
+    a:'동력 기관 = 에너지를 이용해 <b>힘을 만드는 장치</b>.' },
+
+  { q:'잠수함은 어떤 수송 수단일까요?',
+    o:[ {t:'수상 수송 수단', ok:true},
+        {t:'육상 수송 수단', w:'땅 위를 달리지 않잖아.'},
+        {t:'항공 우주 수송 수단', w:'하늘이 아니라 물속이야.'},
+        {t:'어디에도 들지 않는다', w:'물에서 다니니 <b>수상</b>에 든다.'} ],
+    a:'물에서 이동하면 수상 수송 수단. 물 위든 물속이든 마찬가지다.' },
+
+  { q:'항공 우주 수송 수단이 <b>아닌</b> 것은?',
+    o:[ {t:'기차', ok:true},
+        {t:'여객기', w:'하늘을 나니 항공 우주 수송 수단이야.'},
+        {t:'헬리콥터', w:'하늘을 나니 항공 우주 수송 수단이야.'},
+        {t:'우주선', w:'이름 그대로 항공 우주 수송 수단이지.'} ],
+    a:'기차는 땅 위를 달리는 <b>육상</b> 수송 수단이다.' },
+
+  { q:'힘을 만들어 바퀴에 전달하는 장치는?',
+    o:[ {t:'구동 장치', ok:true},
+        {t:'조향 장치', w:'그건 방향을 바꾸는 장치야.'},
+        {t:'제동 장치', w:'그건 멈추게 하는 장치야.'},
+        {t:'냉방 장치', w:'그건 시원하게 해 주는 것이고, 수송 수단의 구성 요소가 아니야.'} ],
+    a:'구동 = 움직이게. 힘을 만들어 바퀴에 전달한다.' },
+
+  { q:'핸들이라고도 부르는 장치는?',
+    o:[ {t:'조향 장치', ok:true},
+        {t:'구동 장치', w:'구동은 <b>움직이게</b> 하는 장치야.'},
+        {t:'제동 장치', w:'제동은 브레이크. <b>서게</b> 하는 장치야.'},
+        {t:'조명 장치', w:'그건 전조등이지.'} ],
+    a:'조향 = 돌게. 가려는 쪽으로 방향을 바꾼다.' },
+
+  { q:'브레이크는 어떤 장치일까요?',
+    o:[ {t:'제동 장치', ok:true},
+        {t:'구동 장치', w:'구동은 힘을 만드는 쪽이야. 브레이크는 반대지.'},
+        {t:'조향 장치', w:'조향은 방향을 바꾸는 쪽이야.'},
+        {t:'동력 기관', w:'동력 기관은 힘을 만드는 장치야.'} ],
+    a:'제동 = 서게. 속도를 줄이거나 멈추게 한다.' },
+
+  { q:'자전거에는 구동·조향·제동 장치가 없다.', ox:true,
+    o:[ {t:'⭕', w:'페달과 체인이 <b>구동</b>, 손잡이가 <b>조향</b>, 브레이크 레버가 <b>제동</b>이야. 이름만 다를 뿐 다 있어.'},
+        {t:'❌', ok:true} ],
+    a:'어떤 수송 수단이든 이 셋은 있다. 자전거도 배도 비행기도.' },
+
+  { q:'친환경 에너지는 어떤 에너지일까요?',
+    o:[ {t:'생산하거나 이용하는 과정에서 환경을 오염시키지 않는 에너지', ok:true},
+        {t:'값이 가장 싼 에너지', w:'싸다고 친환경은 아니야. 석탄은 싸지만 친환경이 아니지.'},
+        {t:'아주 오래 쓸 수 있는 에너지', w:'오래 가는 것과 깨끗한 것은 다른 이야기야.'},
+        {t:'전기로 만들어 낸 에너지', w:'그 전기를 <b>무엇으로</b> 만들었는지가 문제야.'} ],
+    a:'햇빛·바람처럼 <b>만들 때도 쓸 때도</b> 오염시키지 않는 에너지다.' },
+
+  { q:'전기 자동차는 배기가스가 안 나오니 무조건 친환경이다.', ox:true,
+    o:[ {t:'⭕', w:'차에서는 안 나와도 <b>그 전기를 만든 발전소</b>에서 나왔을 수 있어. 만들 때·쓸 때·버릴 때를 다 봐야 해.'},
+        {t:'❌', ok:true} ],
+    a:'전기를 무엇으로 만들었느냐에 따라 답이 달라진다.' },
+
+  { q:'종이 롤러에 짐을 많이 매달아 무겁게 하면 더 멀리 굴러간다.', ox:true,
+    o:[ {t:'⭕', w:'우리가 직접 해 봤지. 무거우면 <b>끌어내리는 힘</b>도 커지지만 <b>마찰</b>도 같이 커져서 서로 지워져.'},
+        {t:'❌', ok:true} ],
+    a:'무게는 거리를 늘려 주지 않는다. 실험에서 확인한 그대로다.' },
+
+  { q:'자율주행 자동차에 <b>없는</b> 것은?',
+    o:[ {t:'운전하는 사람', ok:true},
+        {t:'구동 장치', w:'힘을 만들어 움직여야 하니 반드시 있어.'},
+        {t:'조향 장치', w:'방향을 바꿔야 하니 반드시 있어.'},
+        {t:'제동 장치', w:'멈춰야 하니 반드시 있어. 오히려 더 중요하지.'} ],
+    a:'장치는 그대로 있다. 없어진 건 <b>그 장치를 조작하던 사람</b>이다.' },
+
+  { q:'로봇이 바깥 길보다 창고 안에서 먼저 일하게 된 까닭은?',
+    o:[ {t:'길과 상황이 늘 비슷해서 판단할 것이 적기 때문에', ok:true},
+        {t:'창고가 바깥보다 훨씬 넓어서', w:'넓이는 상관없어. 어려운 건 <b>예상 못 할 일</b>이 얼마나 생기냐야.'},
+        {t:'창고에는 전기가 많이 있어서', w:'전기는 바깥에서도 배터리로 쓸 수 있어.'},
+        {t:'사람들이 창고에서 일하기 싫어해서', w:'그런 이유로 기술이 정해지지는 않아.'} ],
+    a:'창고 안은 비도 안 오고, 뛰어드는 아이도 없다. <b>단순한 곳부터</b> 로봇이 들어간다.' },
+
+  { q:'우주 엘리베이터가 아직 못 만들어지는 가장 큰 까닭은?',
+    o:[ {t:'그만큼 긴 줄이 제 무게를 못 견디고 끊어지기 때문에', ok:true},
+        {t:'우주에 갈 이유가 없기 때문에', w:'이유는 많아. 로켓보다 훨씬 싸게 짐을 올릴 수 있거든.'},
+        {t:'타려는 사람이 없기 때문에', w:'사람이 아니라 <b>재료</b>가 문제야.'},
+        {t:'전기가 부족하기 때문에', w:'전기는 구할 수 있어. 못 구하는 건 튼튼한 줄이야.'} ],
+    a:'생각은 100년 전에 나왔다. 막힌 것은 <b>재료</b> 하나다.' }
+];
+
+const TOTAL = 12, GOAL = 14;
+
+function shuffle(a){
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+
+let Q=[], idx=0, me=0, ai=0, streak=0, correct=0, missed=[], answered=false;
+
+function screen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on', s.id===id));
+  window.scrollTo(0,0);
+}
+
+function startGame(){
+  SND.init(); SND.click();
+  Q = shuffle(POOL.slice()).slice(0,TOTAL).map(q => {
+    const o = q.ox ? q.o.slice() : shuffle(q.o.slice());   /* OX 는 순서를 안 섞는다 */
+    return { q:q.q, ox:!!q.ox, o:o, a:q.a };
+  });
+  idx=0; me=0; ai=0; streak=0; correct=0; missed=[];
+  screen('scPlay');
+  drawTrack();
+  renderQ();
+}
+
+function drawTrack(){
+  const pos = n => 'calc(4% + ' + (n/GOAL) * 88 + '%)';
+  document.getElementById('carMe').style.left = pos(me);
+  document.getElementById('carAi').style.left = pos(ai);
+  document.getElementById('posLbl').textContent = '나 ' + me + '칸 · 로봇 ' + ai + '칸';
+  document.getElementById('streakLbl').textContent = streak >= 2 ? ('🔥 ' + streak + '연속') : '';
+}
+
+function renderQ(){
+  answered = false;
+  const q = Q[idx];
+  document.getElementById('qCount').textContent = (idx+1) + ' / ' + TOTAL;
+  document.getElementById('qno').textContent = '문제 ' + (idx+1);
+  document.getElementById('qtext').innerHTML = q.q;
+  const wrap = document.getElementById('opts');
+  wrap.className = 'opts' + (q.ox ? ' ox' : '');
+  wrap.innerHTML = '';
+  q.o.forEach((op,i) => {
+    const b = document.createElement('button');
+    b.className = 'opt';
+    b.innerHTML = q.ox ? op.t : ('<span class="mk">' + '①②③④'[i] + '</span><span>' + op.t + '</span>');
+    b.onclick = () => answer(i);
+    wrap.appendChild(b);
+  });
+  document.getElementById('fb').className = 'fb';
+  document.getElementById('nextBtn').style.display = 'none';
+}
+
+function answer(i){
+  if(answered) return;
+  answered = true;
+  const q = Q[idx], picked = q.o[i], right = !!picked.ok;
+  const btns = [...document.getElementById('opts').children];
+  btns.forEach((b,n) => {
+    if(q.o[n].ok) b.classList.add('right');
+    else if(n === i) b.classList.add('wrong');
+    else b.classList.add('dim');
+  });
+
+  const fb = document.getElementById('fb');
+  if(right){
+    correct++; streak++;
+    const step = (streak % 3 === 0) ? 2 : 1;
+    me = Math.min(GOAL, me + step);
+    SND.ok();
+    setTimeout(()=>SND.move(), 140);
+    fb.className = 'fb on good';
+    fb.innerHTML = '<div class="h">맞았다! ' + (step === 2 ? '3연속 — 두 칸 전진!' : '한 칸 전진') + '</div>' + q.a;
+  } else {
+    streak = 0;
+    missed.push({ q:q.q, a:q.a, w:picked.w || '' });
+    SND.bad();
+    fb.className = 'fb on bad';
+    fb.innerHTML = '<div class="h">아깝다</div>' + (picked.w ? picked.w + '<br>' : '') + '👉 ' + q.a;
+  }
+
+  /* 배달 로봇도 저 혼자 달린다 */
+  if(Math.random() < 0.70) ai = Math.min(GOAL, ai + 1);
+
+  drawTrack();
+  document.getElementById('nextBtn').textContent = (idx + 1 >= TOTAL) ? '결과 보기 🏁' : '다음 문제 ▶';
+  document.getElementById('nextBtn').style.display = 'block';
+}
+
+function nextQ(){
+  SND.click();
+  idx++;
+  if(idx >= TOTAL) return endGame();
+  renderQ();
+  window.scrollTo(0,0);
+}
+
+function endGame(){
+  screen('scEnd');
+  const won = me > ai, tie = me === ai;
+  document.getElementById('endBig').innerHTML = won
+    ? '<span style="color:#2e7d5b">🏁 이겼다!</span>'
+    : tie ? '<span style="color:#c8963e">🏁 비겼다</span>'
+          : '<span style="color:#c0392b">🏁 로봇이 먼저 갔다</span>';
+  document.getElementById('endScore').innerHTML =
+    '12문제 중 <b>' + correct + '개</b> 정답 &nbsp;·&nbsp; 나 ' + me + '칸 · 로봇 ' + ai + '칸';
+  if(won) SND.win(); else SND.lose();
+
+  const rv = document.getElementById('review');
+  rv.classList.remove('on');
+  const btn = document.getElementById('reviewBtn');
+  if(missed.length === 0){
+    rv.innerHTML = '';
+    btn.style.display = 'none';
+  } else {
+    btn.style.display = 'block';
+    btn.textContent = '틀린 문제 다시 보기 (' + missed.length + ')';
+    rv.innerHTML = '<h3>다시 볼 문제</h3>' + missed.map(m =>
+      '<div class="rv"><div class="q">' + m.q + '</div>' +
+      '<div class="a">👉 ' + m.a + '</div>' +
+      (m.w ? '<div class="w">' + m.w + '</div>' : '') + '</div>').join('');
+  }
+  saveBest();
+}
+
+function toggleReview(){
+  SND.click();
+  document.getElementById('review').classList.toggle('on');
+}
+
+/* 기록은 이 태블릿 안에만 남는다 — 반 전체 순위는 만들지 않는다 */
+const KEY = 'transport-race-best';
+function saveBest(){
+  let best = 0;
+  try { best = parseInt(localStorage.getItem(KEY) || '0', 10) || 0; } catch(e) {}
+  if(correct > best){
+    best = correct;
+    try { localStorage.setItem(KEY, String(best)); } catch(e) {}
+  }
+  showBest(best);
+}
+/* ── QR — 방화벽에 걸리지 않게 외부 서비스를 안 쓰고 SVG 를 그대로 품고 있다 ── */
+const GAME_URL = "https://leixlix-pixel.github.io/toolbox/transport-review-game.html";
+const QR_SVG = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 53 53\" shape-rendering=\"crispEdges\"><path fill=\"#ffffff\" d=\"M0 0h53v53H0z\"/><path stroke=\"#123a63\" d=\"M2 2.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m2 0h2m1 0h1m3 0h1m1 0h1m2 0h2m2 0h3m2 0h1m1 0h7M2 3.5h1m5 0h1m1 0h2m1 0h5m1 0h2m5 0h2m1 0h5m2 0h1m2 0h4m1 0h1m5 0h1M2 4.5h1m1 0h3m1 0h1m1 0h1m6 0h3m2 0h1m1 0h1m1 0h2m1 0h4m3 0h1m4 0h2m1 0h1m1 0h3m1 0h1M2 5.5h1m1 0h3m1 0h1m2 0h5m2 0h2m2 0h1m1 0h3m2 0h4m3 0h4m1 0h1m2 0h1m1 0h3m1 0h1M2 6.5h1m1 0h3m1 0h1m3 0h2m1 0h1m1 0h1m2 0h2m2 0h7m3 0h1m2 0h3m4 0h1m1 0h3m1 0h1M2 7.5h1m5 0h1m1 0h2m1 0h6m1 0h2m2 0h1m3 0h3m1 0h2m2 0h3m1 0h1m3 0h1m5 0h1M2 8.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M10 9.5h2m2 0h2m2 0h2m3 0h2m3 0h1m3 0h3m2 0h2m3 0h1M4 10.5h3m1 0h1m1 0h3m1 0h1m1 0h2m2 0h1m1 0h10m6 0h1m1 0h6m2 0h3M3 11.5h1m1 0h1m1 0h1m3 0h3m3 0h1m1 0h1m1 0h2m1 0h2m1 0h5m5 0h3m3 0h4M3 12.5h1m1 0h4m1 0h3m1 0h2m1 0h1m1 0h1m1 0h1m2 0h1m1 0h1m1 0h1m2 0h2m1 0h1m1 0h1m1 0h3m2 0h1m4 0h3M3 13.5h1m1 0h1m6 0h4m2 0h4m1 0h4m4 0h2m3 0h1m2 0h2m3 0h1m1 0h2M2 14.5h1m3 0h1m1 0h1m2 0h1m3 0h2m1 0h1m1 0h1m1 0h1m1 0h2m2 0h1m6 0h1m1 0h2m1 0h5m2 0h2m1 0h1M3 15.5h3m1 0h1m1 0h1m1 0h4m2 0h3m1 0h5m1 0h5m3 0h1m1 0h3m1 0h1m1 0h4m1 0h1M6 16.5h5m4 0h3m3 0h2m3 0h1m3 0h1m4 0h1m1 0h1m2 0h3m2 0h4m1 0h1M6 17.5h2m1 0h5m1 0h9m1 0h1m1 0h3m1 0h3m2 0h1m2 0h4m1 0h1m1 0h1m1 0h1M3 18.5h2m1 0h1m1 0h2m1 0h2m2 0h6m1 0h6m1 0h2m1 0h1m2 0h4m1 0h1m2 0h3m1 0h1m2 0h1M2 19.5h2m1 0h1m1 0h1m1 0h1m1 0h1m1 0h8m2 0h1m1 0h2m3 0h1m3 0h1m1 0h1m2 0h3m2 0h1m2 0h3M3 20.5h1m3 0h2m1 0h1m2 0h2m2 0h2m3 0h2m2 0h1m1 0h3m2 0h1m1 0h1m2 0h1m4 0h2m2 0h1m1 0h2M2 21.5h1m3 0h1m2 0h1m2 0h2m1 0h1m1 0h1m1 0h3m2 0h1m2 0h1m1 0h3m3 0h2m2 0h3m2 0h3m2 0h2M2 22.5h2m3 0h2m4 0h3m1 0h1m5 0h4m1 0h1m3 0h1m1 0h1m2 0h6m1 0h2m2 0h1M2 23.5h4m6 0h4m3 0h1m4 0h1m1 0h2m3 0h4m6 0h1m1 0h2m2 0h2M4 24.5h7m5 0h13m3 0h2m2 0h1m1 0h1m1 0h1m1 0h6m1 0h2M3 25.5h2m1 0h1m3 0h2m2 0h2m1 0h1m6 0h1m3 0h1m4 0h1m5 0h4m3 0h2M2 26.5h1m3 0h1m1 0h1m1 0h4m3 0h1m4 0h1m1 0h1m1 0h1m1 0h1m2 0h1m3 0h1m1 0h2m3 0h1m1 0h1m1 0h3m1 0h1M6 27.5h1m3 0h2m3 0h1m3 0h1m3 0h2m3 0h1m3 0h2m3 0h1m3 0h2m3 0h1m1 0h3M3 28.5h1m1 0h9m1 0h1m1 0h1m1 0h1m3 0h6m1 0h1m1 0h1m2 0h4m1 0h1m1 0h7m1 0h1M2 29.5h2m1 0h2m8 0h1m1 0h3m2 0h3m1 0h2m3 0h1m3 0h2m2 0h2m1 0h2m1 0h1m3 0h2M2 30.5h2m1 0h1m1 0h4m1 0h2m1 0h2m2 0h1m3 0h1m1 0h1m2 0h1m1 0h1m1 0h4m1 0h6m4 0h2m1 0h1M2 31.5h4m4 0h5m1 0h1m1 0h3m4 0h2m1 0h3m3 0h2m2 0h2m2 0h6m1 0h1M2 32.5h3m2 0h3m1 0h1m1 0h1m1 0h1m4 0h1m1 0h1m1 0h2m1 0h1m3 0h1m1 0h5m2 0h1m2 0h2m1 0h1m2 0h2M3 33.5h1m1 0h1m1 0h1m2 0h2m1 0h1m2 0h1m1 0h8m2 0h2m2 0h1m5 0h2m2 0h2m1 0h2m2 0h2M2 34.5h5m1 0h2m2 0h3m1 0h2m1 0h1m3 0h2m4 0h2m2 0h5m3 0h1m1 0h1m2 0h5M3 35.5h2m1 0h1m2 0h2m2 0h1m1 0h1m3 0h3m1 0h1m1 0h2m1 0h1m5 0h1m6 0h3m1 0h1m2 0h2M8 36.5h1m1 0h1m3 0h1m1 0h2m1 0h1m2 0h1m2 0h2m1 0h2m1 0h1m1 0h5m2 0h2m1 0h4m2 0h2M2 37.5h2m2 0h2m2 0h2m1 0h1m1 0h3m1 0h3m3 0h3m1 0h2m2 0h1m2 0h1m3 0h1m1 0h2m1 0h1m4 0h1M3 38.5h1m4 0h1m3 0h2m2 0h1m2 0h2m2 0h2m1 0h4m5 0h4m2 0h1m2 0h7M2 39.5h5m3 0h2m4 0h5m2 0h1m4 0h3m1 0h2m2 0h1m1 0h2m1 0h1m2 0h2m1 0h1M3 40.5h1m3 0h5m1 0h2m1 0h3m3 0h1m1 0h1m2 0h1m3 0h1m3 0h1m1 0h4m1 0h3m1 0h1m2 0h2M3 41.5h3m3 0h6m2 0h2m1 0h3m1 0h2m1 0h2m1 0h1m3 0h2m1 0h1m7 0h3m1 0h2M2 42.5h3m3 0h1m2 0h1m1 0h3m4 0h2m2 0h7m1 0h2m3 0h3m1 0h6m2 0h2M10 43.5h1m1 0h2m1 0h1m1 0h5m2 0h1m3 0h2m1 0h3m1 0h1m1 0h2m3 0h1m3 0h1M2 44.5h7m3 0h1m2 0h3m2 0h1m1 0h1m1 0h1m1 0h1m1 0h4m2 0h1m2 0h1m1 0h1m2 0h1m1 0h1m1 0h2m1 0h2M2 45.5h1m5 0h1m2 0h1m1 0h2m2 0h2m2 0h2m1 0h1m3 0h3m1 0h5m2 0h4m3 0h1m3 0h1M2 46.5h1m1 0h3m1 0h1m1 0h2m4 0h1m1 0h1m1 0h1m2 0h6m4 0h1m1 0h1m1 0h10m1 0h2M2 47.5h1m1 0h3m1 0h1m1 0h1m3 0h2m2 0h3m7 0h1m1 0h1m1 0h3m3 0h2m1 0h1m1 0h1m2 0h1m1 0h1m1 0h1M2 48.5h1m1 0h3m1 0h1m1 0h1m1 0h3m3 0h1m2 0h1m2 0h1m1 0h1m1 0h3m2 0h5m2 0h1m1 0h4m3 0h2M2 49.5h1m5 0h1m3 0h2m2 0h1m2 0h2m2 0h2m2 0h1m1 0h8m2 0h7m4 0h1M2 50.5h7m3 0h1m2 0h1m1 0h5m2 0h2m2 0h1m1 0h4m1 0h1m1 0h2m1 0h1m1 0h1m3 0h1m1 0h3\"/></svg>";
+function showQR(){ SND.click(); document.getElementById('qrBig').innerHTML = QR_SVG; document.getElementById('qrOverlay').classList.add('on'); }
+function hideQR(){ document.getElementById('qrOverlay').classList.remove('on'); }
+document.getElementById('qrHome').innerHTML =
+  '<div class="qrlab">📱 태블릿에서 바로 열기 · 눌러서 크게</div>' + QR_SVG +
+  '<div class="qrcap">' + GAME_URL + '</div>';
+document.addEventListener('keydown', e => { if(e.key === 'Escape') hideQR(); });
+
+function showBest(best){
+  if(best === undefined){
+    try { best = parseInt(localStorage.getItem(KEY) || '0', 10) || 0; } catch(e) { best = 0; }
+  }
+  const t = best > 0 ? ('이 태블릿의 최고 기록 — 12문제 중 ' + best + '개') : '아직 기록이 없다';
+  document.getElementById('bestLine').textContent = t;
+  document.getElementById('bestLine2').textContent = t;
+}
+showBest();
+</script>
+</body>
+</html>

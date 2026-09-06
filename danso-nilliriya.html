@@ -1,0 +1,1408 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>단소로 늴리리야 — 소리 내기부터 연주까지</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --ink:#1c2430; --bam:#3d7a52; --bam2:#2b5c3b; --clay:#b0703a;
+  --navy:#123a63; --navy2:#1d5b95;
+  --red:#c0392b; --gold:#c8963e; --plum:#7d4a86;
+  --paper:#f7f4ec; --line:#ddd6c6; --muted:#6d6b66;
+}
+
+html,body{height:100%;background:#0e1a14;font-family:'Noto Sans KR',sans-serif;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;overflow:hidden}
+
+/* 율명 한자 — 확장한자(㳞) 폴백 체인 */
+.yul{font-family:'Noto Sans KR','Batang','Gulim','Malgun Gothic','SimSun',serif}
+
+#stage{position:absolute;left:50%;top:50%;width:1280px;height:720px;
+  transform-origin:center center;background:var(--paper);overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,.6)}
+
+.slide{position:absolute;inset:0;padding:34px 48px;display:none;
+  flex-direction:column;background:var(--paper);--acc:var(--bam)}
+.slide.on{display:flex}
+.slide::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(circle at 10% 6%,rgba(61,122,82,.10),transparent 44%),
+             radial-gradient(circle at 94% 96%,rgba(176,112,58,.09),transparent 44%)}
+.slide>*{position:relative;z-index:1}
+
+.eyebrow{display:inline-block;font-size:20px;font-weight:700;color:#fff;
+  background:var(--acc);padding:5px 17px;border-radius:999px;margin-bottom:10px;align-self:flex-start}
+h1.title{font-size:54px;font-weight:900;color:var(--bam2);line-height:1.16;letter-spacing:-.02em}
+h2.stitle{font-size:37px;font-weight:900;color:var(--acc);line-height:1.2;letter-spacing:-.02em}
+.rule{width:88px;height:6px;border-radius:4px;
+  background:linear-gradient(90deg,var(--bam),var(--gold));margin:7px 0 14px}
+p.body{font-size:25px;line-height:1.5;color:var(--ink);font-weight:500}
+p.body+p.body{margin-top:9px}
+.small{font-size:21px;line-height:1.48}
+.tiny{font-size:18px;line-height:1.45}
+.mutedt{color:var(--muted)}
+
+b.hl{font-weight:900;color:var(--red);background:linear-gradient(transparent 62%,rgba(192,57,43,.20) 62%);padding:0 2px}
+b.hn{font-weight:900;color:var(--bam2);background:linear-gradient(transparent 62%,rgba(61,122,82,.20) 62%);padding:0 2px}
+b.hg{font-weight:900;color:var(--clay);background:linear-gradient(transparent 62%,rgba(176,112,58,.20) 62%);padding:0 2px}
+
+.cols{display:flex;gap:24px;flex:1;min-height:0;align-items:center}
+.col{flex:1;min-width:0}
+.rowc{display:flex;gap:16px;align-items:center}
+
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 18px;
+  box-shadow:0 6px 16px rgba(30,25,15,.09)}
+.card h3{font-size:22px;font-weight:900;color:var(--acc);margin-bottom:6px}
+
+.term{background:#fff;border-left:8px solid var(--gold);border-radius:8px;padding:12px 16px;
+  box-shadow:0 5px 14px rgba(30,25,15,.10)}
+.term .t{font-size:22px;font-weight:900;color:var(--clay);margin-bottom:2px}
+.term .d{font-size:20px;font-weight:500;color:var(--ink);line-height:1.45}
+
+.act{background:#fff;border:3px dashed var(--bam);border-radius:16px;padding:15px 20px}
+.act-h{display:flex;align-items:center;gap:11px;margin-bottom:8px}
+.act-badge{background:var(--bam);color:#fff;font-weight:900;font-size:19px;
+  padding:4px 14px;border-radius:999px;white-space:nowrap}
+.act-t{font-size:24px;font-weight:900;color:var(--bam2)}
+
+table.tbl{width:100%;border-collapse:collapse;font-size:20px;text-align:center}
+table.tbl th{background:var(--acc);color:#fff;padding:8px 6px;font-weight:900;font-size:19px}
+table.tbl td{border:1px solid var(--line);padding:9px 8px;background:#fff;color:var(--ink);font-weight:700}
+table.tbl td.dim{background:#efeade;color:var(--muted);font-weight:500;font-size:18px}
+table.tbl td.lead{background:#fff;font-weight:900;font-size:22px}
+table.tbl td.lft{text-align:left;font-weight:500;font-size:19px;line-height:1.4}
+
+/* ---------- 소리 단추 ---------- */
+.play{display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  min-height:52px;padding:11px 21px;border:0;border-radius:13px;cursor:pointer;
+  background:var(--bam);color:#fff;font-family:inherit;font-size:21px;font-weight:900;
+  box-shadow:0 5px 0 #22482e;transition:transform .06s,box-shadow .06s}
+.play:active{transform:translateY(3px);box-shadow:0 2px 0 #22482e}
+.play.gold{background:var(--gold);box-shadow:0 5px 0 #966b1f}
+.play.plum{background:var(--plum);box-shadow:0 5px 0 #56305c}
+.play.navy{background:var(--navy2);box-shadow:0 5px 0 #0e3a63}
+.play.clay{background:var(--clay);box-shadow:0 5px 0 #7d4c22}
+.play.grey{background:#5c6470;box-shadow:0 5px 0 #3b424b}
+.play.sm{min-height:44px;font-size:19px;padding:9px 16px;border-radius:11px}
+.play.on{background:var(--red)!important;box-shadow:0 5px 0 #8c2418!important}
+
+/* ---------- 율명 건반 ---------- */
+.keys{display:flex;gap:8px}
+.key{flex:1;min-height:104px;border-radius:13px;border:3px solid var(--line);background:#fff;
+  cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:1px;transition:transform .07s,background .07s;padding:6px 2px}
+.key .ch{font-size:34px;font-weight:900;color:var(--bam2);line-height:1}
+.key .rd{font-size:16px;font-weight:700;color:var(--muted)}
+.key .gy{font-size:19px;font-weight:900;color:var(--clay)}
+.key:active,.key.lit{transform:translateY(4px);background:#f0f8f1;border-color:var(--bam)}
+.key.hi{border-color:#d9b96a;background:#fffaf0}
+.key.hi .ch{color:#9a6f1c}
+
+/* ---------- 정간보 ---------- */
+.jang{display:flex;gap:4px;width:100%}
+.jcell{flex:1;min-width:0;min-height:120px;background:#fff;border:2px solid var(--line);border-radius:8px;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+  padding:6px 2px 5px;cursor:pointer;transition:transform .1s,background .1s,border-color .1s}
+.jcell.beat3{border-left:4px solid var(--clay)}
+.jcell .jy{font-size:32px;font-weight:900;color:var(--bam2);line-height:1.06;text-align:center;margin-top:2px}
+.jcell .jy.two{font-size:24px}
+.jcell .jw{font-size:21px;font-weight:700;color:var(--clay);margin-top:auto;padding-top:3px}
+.jcell .jn{font-size:13px;font-weight:700;color:#b9b3a5}
+.jcell.hold{background:#f4f1e7}
+.jcell.hold .jy{color:#b9b3a5;font-size:22px}
+.jcell.lit{transform:translateY(-5px);background:#fff3d9;border-color:var(--gold);
+  box-shadow:0 6px 14px rgba(200,150,62,.35)}
+.jcell.rest .jy{color:var(--muted);font-size:22px}
+
+/* 세 장단을 한 화면에 겹쳐 놓는 자리는 칸이 낮으므로 글자도 줄인다 */
+#allrows .jcell .jy{font-size:23px}
+#allrows .jcell .jy.two{font-size:17px}
+#allrows .jcell .jw{font-size:16px}
+#allrows .jcell .jn{font-size:11px}
+
+.jrow{display:flex;align-items:stretch;gap:8px}
+.jlbl{width:74px;flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:var(--bam);color:#fff;border-radius:9px;font-size:17px;font-weight:900;line-height:1.25;text-align:center}
+
+/* 굿거리 12칸 머리 */
+.gutlbl{display:flex;gap:4px;margin-bottom:4px}
+.gutlbl span{flex:1;text-align:center;font-size:15px;font-weight:700;color:var(--muted)}
+.gutlbl span.g{color:var(--clay);font-weight:900}
+
+/* ---------- 운지표 ---------- */
+.fingrow{display:flex;gap:6px;justify-content:center;align-items:flex-end}
+.fingbox{background:#fff;border:2px solid var(--line);border-radius:12px;padding:8px 4px 6px;
+  display:flex;flex-direction:column;align-items:center;cursor:pointer;transition:transform .08s,border-color .08s,background .08s}
+.fingbox:active,.fingbox.lit{transform:translateY(-4px);border-color:var(--gold);background:#fffaf0}
+.fingbox .fh{font-size:26px;font-weight:900;color:var(--bam2);line-height:1}
+.fingbox .fg{font-size:16px;font-weight:900;color:var(--clay);margin-top:1px}
+.fingbox .ff{font-size:13px;font-weight:700;color:var(--muted);margin-top:2px}
+
+.diag{display:flex;gap:14px;align-items:center}
+
+/* 장단 연습 슬라이드의 오른쪽 팁 — 720px 안에 들어가도록 압축 */
+.tips .term{padding:10px 15px}
+.tips .term+.term{margin-top:9px}
+.tips .term .t{font-size:21px}
+.tips .term .d{font-size:19px;line-height:1.42}
+
+.chk{display:flex;gap:8px;align-items:center;font-size:20px;font-weight:700;color:var(--ink)}
+.chk .box{width:26px;height:26px;border:3px solid var(--bam);border-radius:6px;flex:none}
+
+.numlist{list-style:none;display:flex;flex-direction:column;gap:9px}
+.numlist li{display:flex;gap:11px;align-items:flex-start;font-size:22px;line-height:1.45;font-weight:500;color:var(--ink)}
+.numlist .n{flex:none;width:32px;height:32px;border-radius:999px;background:var(--bam);color:#fff;
+  font-size:19px;font-weight:900;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.numlist .n.c2{background:var(--clay)}
+
+.bubble{background:#fff;border-radius:15px;padding:12px 16px;box-shadow:0 5px 13px rgba(30,25,15,.10);
+  font-size:20px;line-height:1.45;font-weight:600;color:var(--ink);border:2px solid var(--gold)}
+
+/* 표지 */
+.cover{justify-content:center;align-items:center;text-align:center;padding:0;
+  background:linear-gradient(158deg,#2b5c3b,#16362a 76%)}
+.cover .num{color:#ffd98a;font-size:22px;font-weight:900;margin-bottom:12px;letter-spacing:.06em}
+.cover h1{color:#fff;font-size:62px;font-weight:900;line-height:1.2}
+.cover .sub{color:#cfe3d3;font-size:24px;font-weight:500;margin-top:20px;line-height:1.5}
+
+.closing{justify-content:center;align-items:center;text-align:center;padding:0;
+  background:linear-gradient(160deg,#b0703a,#6d3f18 78%)}
+.closing .num{color:#ffe6bd;font-size:22px;font-weight:900;margin-bottom:12px}
+.closing h1{color:#fff;font-size:48px;font-weight:900;line-height:1.32}
+.closing .sub{color:#f2e0cd;font-size:23px;font-weight:500;margin-top:20px;line-height:1.5}
+
+.bar{position:fixed;left:0;right:0;bottom:0;height:46px;background:#122019;color:#cfe0d4;
+  display:flex;align-items:center;gap:10px;padding:0 14px;font-size:15px;z-index:50}
+.bar button{background:#244833;color:#e8f2ea;border:0;border-radius:7px;padding:7px 13px;
+  font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+#prog{position:fixed;left:0;top:0;height:4px;background:var(--bam);z-index:60;transition:width .18s}
+.zone{position:fixed;top:0;bottom:46px;width:8%;z-index:40;cursor:pointer}
+#zl{left:0}#zr{right:0}
+</style>
+</head>
+<body>
+
+<div id="prog"></div>
+<div id="stage"></div>
+<div class="zone" id="zl"></div>
+<div class="zone" id="zr"></div>
+<div class="bar no-print">
+  <button onclick="go(-1)">◀ 이전</button>
+  <button onclick="go(1)">다음 ▶</button>
+  <span id="counter">1 / 1</span>
+  <span style="flex:1"></span>
+  <span style="opacity:.7">← → 넘김 · F 전체화면 · 🔊 소리 켜 두세요</span>
+  <button onclick="fs()">전체화면</button>
+</div>
+
+<script>
+/* =========================================================================
+   율명 — 단소가 내는 여덟 음
+   실제 음높이는 전통 단소(황종 = E♭) 기준. 계이름은 경토리 솔라도레미.
+   fing = [뒤(엄지), 앞1, 앞2, 앞3]  1=막음 0=엶.  앞4(맨 아래)는 늘 열어 둔다.
+   oct 1 = 청성(한 옥타브 위) — 운지는 같고 김을 세게 분다(역취).
+   ========================================================================= */
+const YUL = {
+  '仲': {read:'중려',   gye:'솔',  f:415.30, fing:[1,1,1,1], oct:0, base:'仲'},
+  '林': {read:'임종',   gye:'라',  f:466.16, fing:[1,1,1,0], oct:0, base:'林'},
+  '無': {read:'무역',   gye:'도',  f:554.37, fing:[1,1,0,0], oct:0, base:'無'},
+  '潢': {read:'황종청', gye:'레',  f:622.25, fing:[1,0,0,0], oct:0, base:'潢'},
+  '汰': {read:'태주청', gye:'미',  f:698.46, fing:[0,0,0,0], oct:0, base:'汰'},
+  '㳞': {read:'중려청', gye:'솔˙', f:830.61, fing:[1,1,1,1], oct:1, base:'仲'},
+  '淋': {read:'임종청', gye:'라˙', f:932.33, fing:[1,1,1,0], oct:1, base:'林'},
+  '潕': {read:'무역청', gye:'도˙', f:1108.73,fing:[1,1,0,0], oct:1, base:'無'}
+};
+const ORDER = ['仲','林','無','潢','汰','㳞','淋','潕'];
+
+/* =========================================================================
+   늴리리야 — 교과서 59쪽 3번 「선택 1 단소」 정간보를 그대로 옮긴 것
+   굿거리 한 장단 = 12정간. 세 장단.
+   y: 한 칸에 들어가는 율명(둘이면 반 박씩). '-' = 앞 음 이어짐, '△' = 쉼
+   빈 배열 = 앞 음이 그대로 이어지는 칸
+   ========================================================================= */
+const JANG = [
+  { t:'첫째 장단', s:'늴리리야 늴리리야', cells:[
+    {y:['淋'],w:'늴'}, {y:['淋'],w:'리'}, {y:['淋'],w:'리'},
+    {y:['㳞'],w:'야'}, {y:[],w:''},      {y:[],w:''},
+    {y:['淋'],w:'늴'}, {y:['潕'],w:'리'}, {y:['淋'],w:'리'},
+    {y:['㳞'],w:'야'}, {y:[],w:''},      {y:['淋','㳞'],w:''}
+  ]},
+  { t:'둘째 장단', s:'니나노 난실로 내가 돌아간다', cells:[
+    {y:['汰'],w:'니'},     {y:['汰'],w:'나'},     {y:['-','汰'],w:'노'},
+    {y:['汰','㳞'],w:'난'}, {y:['汰','潢'],w:'실'}, {y:['無'],w:'로'},
+    {y:['潢','汰'],w:'내가'},{y:['潢','無'],w:'돌아'},{y:['林'],w:'간'},
+    {y:['仲'],w:'다'},     {y:[],w:''},          {y:['△'],w:''}
+  ]},
+  { t:'셋째 장단', s:'늴늴리리 늴리리야', cells:[
+    {y:['無'],w:'늴'}, {y:[],w:''},          {y:[],w:''},
+    {y:['仲'],w:'늴'}, {y:['無'],w:'리'},     {y:['汰','潢'],w:'리'},
+    {y:['無'],w:'늴'}, {y:['潢','無'],w:'리'}, {y:['林'],w:'리'},
+    {y:['仲'],w:'야'}, {y:[],w:''},          {y:['△'],w:''}
+  ]}
+];
+
+/* =========================================================================
+   소리
+   ========================================================================= */
+let ac = null, timers = [], curBtn = null, running = false;
+
+function audio(){
+  if(!ac) ac = new (window.AudioContext || window.webkitAudioContext)();
+  if(ac.state === 'suspended') ac.resume();
+  return ac;
+}
+function clearLit(){
+  document.querySelectorAll('.lit').forEach(e => e.classList.remove('lit'));
+  document.querySelectorAll('.play.on').forEach(e => {
+    e.classList.remove('on');
+    if(e.dataset.label) e.textContent = e.dataset.label;
+  });
+  curBtn = null; running = false;
+}
+function stopAll(){
+  timers.forEach(clearTimeout); timers = [];
+  clearLit();
+  if(ac){ try{ ac.close(); }catch(e){} ac = null; }
+}
+function mark(btn){
+  if(!btn) return;
+  if(!btn.dataset.label) btn.dataset.label = btn.textContent;
+  btn.classList.add('on'); btn.textContent = '■ 멈추기';
+  curBtn = btn; running = true;
+}
+
+/* --- 단소 한 음 : 사인파 + 옥타브 배음 + 숨소리 --- */
+function danso(a, t, f, d, vol){
+  const v = (vol === undefined ? .22 : vol);
+  const out = a.createGain();
+  out.gain.setValueAtTime(0, t);
+  out.gain.linearRampToValueAtTime(v, t + .055);          /* 부드러운 어택 */
+  out.gain.setValueAtTime(v, t + Math.max(.06, d * .74));
+  out.gain.exponentialRampToValueAtTime(.0008, t + d * .99);
+  out.connect(a.destination);
+
+  /* 기본음 */
+  const o1 = a.createOscillator(); o1.type = 'sine'; o1.frequency.value = f;
+  const g1 = a.createGain(); g1.gain.value = 1;
+  /* 옥타브 배음 — 단소 특유의 맑고 뻥 뚫린 소리 */
+  const o2 = a.createOscillator(); o2.type = 'sine'; o2.frequency.value = f * 2;
+  const g2 = a.createGain(); g2.gain.value = .17;
+  /* 3배음 아주 조금 */
+  const o3 = a.createOscillator(); o3.type = 'sine'; o3.frequency.value = f * 3;
+  const g3 = a.createGain(); g3.gain.value = .05;
+
+  /* 가벼운 흔들림(자연스러운 김) */
+  const lfo = a.createOscillator(), lg = a.createGain();
+  lfo.type = 'sine'; lfo.frequency.value = 5.2; lg.gain.value = f * .006;
+  lfo.connect(lg); lg.connect(o1.frequency); lg.connect(o2.frequency);
+
+  /* 숨소리 — 짧은 노이즈를 대역통과로 */
+  const nb = a.createBuffer(1, Math.ceil(a.sampleRate * Math.min(d, 1.4)), a.sampleRate);
+  const nd = nb.getChannelData(0);
+  for(let i = 0; i < nd.length; i++) nd[i] = (Math.random() * 2 - 1);
+  const ns = a.createBufferSource(); ns.buffer = nb;
+  const nf = a.createBiquadFilter(); nf.type = 'bandpass'; nf.frequency.value = f * 2.1; nf.Q.value = 1.4;
+  const ng = a.createGain();
+  ng.gain.setValueAtTime(.075, t);
+  ng.gain.exponentialRampToValueAtTime(.010, t + .22);
+
+  o1.connect(g1); g1.connect(out);
+  o2.connect(g2); g2.connect(out);
+  o3.connect(g3); g3.connect(out);
+  ns.connect(nf); nf.connect(ng); ng.connect(out);
+
+  o1.start(t); o2.start(t); o3.start(t); lfo.start(t); ns.start(t);
+  const e = t + d + .03;
+  o1.stop(e); o2.stop(e); o3.stop(e); lfo.stop(e); try{ ns.stop(e); }catch(x){}
+}
+
+/* --- 바람만 새는 소리(소리가 안 날 때) --- */
+function breath(a, t, d, bright){
+  const nb = a.createBuffer(1, Math.ceil(a.sampleRate * d), a.sampleRate);
+  const nd = nb.getChannelData(0);
+  for(let i = 0; i < nd.length; i++) nd[i] = (Math.random() * 2 - 1);
+  const ns = a.createBufferSource(); ns.buffer = nb;
+  const f = a.createBiquadFilter(); f.type = 'bandpass';
+  f.frequency.value = bright || 2200; f.Q.value = .7;
+  const g = a.createGain();
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(.30, t + .10);
+  g.gain.setValueAtTime(.30, t + d * .7);
+  g.gain.exponentialRampToValueAtTime(.001, t + d * .99);
+  ns.connect(f); f.connect(g); g.connect(a.destination);
+  ns.start(t); try{ ns.stop(t + d + .02); }catch(x){}
+}
+
+/* --- 삑 갈라지는 소리 --- */
+function crack(a, t, f){
+  danso(a, t, f, .25, .18);
+  danso(a, t + .22, f * 2, .18, .20);
+  breath(a, t + .38, .30, 3200);
+  danso(a, t + .60, f, .30, .16);
+}
+
+/* --- 장구(굿거리) --- */
+function drum(a, t, kind){
+  if(kind === 'low' || kind === 'both'){
+    const o = a.createOscillator(), g = a.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(150, t);
+    o.frequency.exponentialRampToValueAtTime(62, t + .10);
+    g.gain.setValueAtTime(.40, t);
+    g.gain.exponentialRampToValueAtTime(.001, t + .28);
+    o.connect(g); g.connect(a.destination); o.start(t); o.stop(t + .30);
+  }
+  if(kind === 'high' || kind === 'both'){
+    const o = a.createOscillator(), g = a.createGain(), f = a.createBiquadFilter();
+    o.type = 'square';
+    o.frequency.setValueAtTime(1450, t);
+    o.frequency.exponentialRampToValueAtTime(760, t + .05);
+    f.type = 'bandpass'; f.frequency.value = 1700; f.Q.value = 1.1;
+    g.gain.setValueAtTime(.14, t);
+    g.gain.exponentialRampToValueAtTime(.001, t + .10);
+    o.connect(f); f.connect(g); g.connect(a.destination); o.start(t); o.stop(t + .12);
+  }
+}
+/* 굿거리 12정간 — 1 덩 / 4 기덕 / 7 쿵 / 10 더러러러 */
+function gutgeori(a, t0, beat){
+  drum(a, t0 + beat * 0,  'both');
+  drum(a, t0 + beat * 3,  'high');
+  drum(a, t0 + beat * 6,  'low');
+  drum(a, t0 + beat * 9,  'low');
+  for(let k = 0; k < 4; k++) drum(a, t0 + beat * 10 + k * beat * .25, 'high');
+}
+
+/* =========================================================================
+   단소 그림 (SVG)
+   ========================================================================= */
+function fingSVG(fing, opt){
+  opt = opt || {};
+  const w = opt.w || 74, oct = opt.oct || 0, labels = opt.labels;
+  const H = 250, cx = 50;
+  const holes = [
+    {y:74,  back:true,  on:fing[0], lb:'왼손 엄지 (뒤)'},
+    {y:112, back:false, on:fing[1], lb:'왼손 검지'},
+    {y:145, back:false, on:fing[2], lb:'왼손 중지'},
+    {y:178, back:false, on:fing[3], lb:'오른손 검지'},
+    {y:211, back:false, on:0,       lb:'막지 않음', never:true}
+  ];
+  let s = '<svg viewBox="0 0 ' + (labels ? 260 : 100) + ' ' + H + '" width="' + w + '" style="display:block;overflow:visible">';
+  s += '<defs><linearGradient id="bg' + (opt.id||0) + '" x1="0" y1="0" x2="1" y2="0">' +
+       '<stop offset="0" stop-color="#c9a86b"/><stop offset=".38" stop-color="#e7d3a8"/>' +
+       '<stop offset=".72" stop-color="#c9a86b"/><stop offset="1" stop-color="#9d7c44"/>' +
+       '</linearGradient></defs>';
+  /* 관 */
+  s += '<rect x="' + (cx-15) + '" y="10" width="30" height="' + (H-18) + '" rx="14" fill="url(#bg' + (opt.id||0) + ')" stroke="#8a6a37" stroke-width="2"/>';
+  /* 대나무 마디 */
+  [96, 162, 228].forEach(y => {
+    s += '<path d="M ' + (cx-15) + ' ' + y + ' Q ' + cx + ' ' + (y+5) + ' ' + (cx+15) + ' ' + y + '" fill="none" stroke="#8a6a37" stroke-width="2" opacity=".55"/>';
+  });
+  /* 취구 — 위 끝의 U자 홈 */
+  s += '<path d="M ' + (cx-9) + ' 10 L ' + (cx-9) + ' 30 Q ' + cx + ' 44 ' + (cx+9) + ' 30 L ' + (cx+9) + ' 10 Z" fill="#f7f4ec" stroke="#8a6a37" stroke-width="2"/>';
+  /* 구멍 */
+  holes.forEach(h => {
+    const fill = h.on ? '#2b2b2b' : '#fff';
+    const dash = h.back ? ' stroke-dasharray="4 3"' : '';
+    const stk  = h.never ? '#c3bbaa' : (h.back ? '#1d5b95' : '#5b4a2a');
+    s += '<circle cx="' + cx + '" cy="' + h.y + '" r="9" fill="' + fill + '" stroke="' + stk + '" stroke-width="2.6"' + dash + '/>';
+    if(h.never) s += '<line x1="' + (cx-5) + '" y1="' + (h.y-5) + '" x2="' + (cx+5) + '" y2="' + (h.y+5) + '" stroke="#c3bbaa" stroke-width="2"/>';
+    if(labels){
+      s += '<line x1="' + (cx+13) + '" y1="' + h.y + '" x2="106" y2="' + h.y + '" stroke="#c9c1b0" stroke-width="1.6"/>';
+      s += '<text x="112" y="' + (h.y+6) + '" font-size="16" font-weight="700" fill="' +
+           (h.never ? '#a49b8a' : (h.back ? '#1d5b95' : '#3f3625')) + '" font-family="Noto Sans KR">' + h.lb + '</text>';
+    }
+  });
+  /* 역취 표시 */
+  if(oct){
+    s += '<g><path d="M 14 40 L 14 22 L 8 30 M 14 22 L 20 30" fill="none" stroke="#c0392b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>' +
+         '<text x="4" y="58" font-size="14" font-weight="900" fill="#c0392b" font-family="Noto Sans KR">세게</text></g>';
+  }
+  s += '</svg>';
+  return s;
+}
+
+/* 큰 도해(구조 설명용) */
+function dansoBig(){
+  const cx = 96, H = 470;
+  let s = '<svg viewBox="0 0 460 ' + H + '" width="100%" style="max-height:470px;display:block">';
+  s += '<defs><linearGradient id="bgb" x1="0" y1="0" x2="1" y2="0">' +
+       '<stop offset="0" stop-color="#c9a86b"/><stop offset=".38" stop-color="#e7d3a8"/>' +
+       '<stop offset=".72" stop-color="#c9a86b"/><stop offset="1" stop-color="#9d7c44"/></linearGradient></defs>';
+  s += '<rect x="' + (cx-26) + '" y="18" width="52" height="' + (H-40) + '" rx="24" fill="url(#bgb)" stroke="#8a6a37" stroke-width="3"/>';
+  [170, 300, 415].forEach(y => {
+    s += '<path d="M ' + (cx-26) + ' ' + y + ' Q ' + cx + ' ' + (y+9) + ' ' + (cx+26) + ' ' + y + '" fill="none" stroke="#8a6a37" stroke-width="3" opacity=".5"/>';
+  });
+  s += '<path d="M ' + (cx-16) + ' 18 L ' + (cx-16) + ' 52 Q ' + cx + ' 78 ' + (cx+16) + ' 52 L ' + (cx+16) + ' 18 Z" fill="#f7f4ec" stroke="#8a6a37" stroke-width="3"/>';
+
+  const items = [
+    {y:40,  t:'취구(吹口)', d:'입김을 부는 U자 홈', c:'#c0392b', big:true},
+    {y:128, t:'제1공 (뒤)', d:'왼손 엄지 — 뒤쪽에 있다', c:'#1d5b95', back:true},
+    {y:212, t:'제2공', d:'왼손 검지', c:'#3d7a52'},
+    {y:288, t:'제3공', d:'왼손 중지', c:'#3d7a52'},
+    {y:364, t:'제4공', d:'오른손 검지', c:'#3d7a52'},
+    {y:432, t:'제5공', d:'막지 않는다', c:'#a49b8a', never:true}
+  ];
+  items.forEach(it => {
+    if(it.big){
+      s += '<line x1="' + (cx+20) + '" y1="' + it.y + '" x2="196" y2="' + it.y + '" stroke="' + it.c + '" stroke-width="2.4"/>';
+    } else {
+      const fill = it.never ? '#fff' : (it.back ? '#fff' : '#2b2b2b');
+      const dash = it.back ? ' stroke-dasharray="6 4"' : '';
+      s += '<circle cx="' + cx + '" cy="' + it.y + '" r="14" fill="' + fill + '" stroke="' + it.c + '" stroke-width="4"' + dash + '/>';
+      if(it.never) s += '<line x1="' + (cx-8) + '" y1="' + (it.y-8) + '" x2="' + (cx+8) + '" y2="' + (it.y+8) + '" stroke="#a49b8a" stroke-width="3"/>';
+      s += '<line x1="' + (cx+18) + '" y1="' + it.y + '" x2="196" y2="' + it.y + '" stroke="' + it.c + '" stroke-width="2.4"/>';
+    }
+    s += '<text x="206" y="' + (it.y - 3) + '" font-size="24" font-weight="900" fill="' + it.c + '" font-family="Noto Sans KR">' + it.t + '</text>';
+    s += '<text x="206" y="' + (it.y + 22) + '" font-size="19" font-weight="500" fill="#4a4438" font-family="Noto Sans KR">' + it.d + '</text>';
+  });
+  s += '</svg>';
+  return s;
+}
+
+/* =========================================================================
+   슬라이드
+   ========================================================================= */
+const SLIDES = [];
+
+/* 1 표지 */
+SLIDES.push(`
+<section class="slide cover">
+  <div class="num">5학년 음악 · 3단원 · 교과서 59쪽</div>
+  <h1>단소로 늴리리야</h1>
+  <div class="sub">소리 하나 내는 것부터 · 한 장단 끝까지</div>
+  <div class="sub" style="font-size:20px;margin-top:34px;opacity:.75">
+    화면의 <b style="color:#ffd98a">율명·칸·단추</b>를 누르면 그 음이 실제로 들립니다
+  </div>
+</section>`);
+
+/* 2 왜 안 나는가 */
+SLIDES.push(`
+<section class="slide" style="--acc:var(--clay)">
+  <span class="eyebrow">시작하기 전에</span>
+  <h2 class="stitle">단소는 처음에 소리가 안 난다. 그게 정상이다.</h2>
+  <div class="rule"></div>
+  <div class="cols" style="gap:26px">
+    <div class="col">
+      <p class="body">리코더는 입에 물고 불면 <b class="hn">누구나 첫날에 소리가 난다.</b>
+        입김이 지나갈 길이 악기 안에 <b class="hn">미리 만들어져</b> 있기 때문이다.</p>
+      <p class="body" style="margin-top:14px">단소에는 그 길이 없다. 위쪽이 그냥 <b class="hl">뻥 뚫린 홈</b>이다.
+        김이 지나갈 길을 <b class="hl">입술로 내가 만들어야</b> 한다.</p>
+      <div class="term" style="margin-top:18px">
+        <div class="t">그래서 순서가 이렇다</div>
+        <div class="d">① 소리 내기 → ② 음 짚기 → ③ 곡 불기.<br>
+          ①이 되기 전에는 ②로 못 간다. 오늘 ①에 시간을 많이 쓴다.</div>
+      </div>
+    </div>
+    <div class="col" style="flex:0 0 470px">
+      <div class="card">
+        <h3>귀로 먼저 — 세 가지 소리</h3>
+        <p class="small mutedt" style="margin-bottom:10px">처음에는 대개 아래 둘이 난다. 부끄러운 게 아니다.</p>
+        <div style="display:flex;flex-direction:column;gap:9px">
+          <button class="play grey sm" data-snd="wind">🌬 쉬— 바람만 샌다</button>
+          <button class="play clay sm" data-snd="crack">💥 삑— 갈라진다</button>
+          <button class="play sm" data-snd="good">🎵 이게 단소 소리다</button>
+        </div>
+        <p class="tiny mutedt" style="margin-top:12px">
+          바람 소리가 난다는 건 <b class="hg">김이 홈에 닿고 있다</b>는 뜻이다.
+          방향만 조금 바꾸면 소리가 된다. 다 온 것이다.</p>
+      </div>
+    </div>
+  </div>
+</section>`);
+
+/* 3 구조 */
+SLIDES.push(`
+<section class="slide">
+  <span class="eyebrow">단소의 생김새</span>
+  <h2 class="stitle">구멍은 다섯, 쓰는 손가락은 넷</h2>
+  <div class="rule"></div>
+  <div class="cols" style="gap:30px;align-items:flex-start">
+    <div class="col" style="flex:0 0 470px">${dansoBig()}</div>
+    <div class="col">
+      <div class="term">
+        <div class="t">대나무 · 길이 약 40cm</div>
+        <div class="d">황죽이나 오죽으로 만든다. 세로로 부는 <b class="hn">종적(縱笛)</b>이다.</div>
+      </div>
+      <div class="term" style="margin-top:12px;border-left-color:var(--navy2)">
+        <div class="t" style="color:var(--navy2)">제1공은 뒤에 있다</div>
+        <div class="d">앞에서는 보이지 않는다. 왼손 엄지로 막는다.
+          운지표에서 <b style="color:#1d5b95">점선 동그라미</b>가 이 구멍이다.</div>
+      </div>
+      <div class="term" style="margin-top:12px;border-left-color:#a49b8a">
+        <div class="t" style="color:#8b8271">제5공은 막지 않는다</div>
+        <div class="d">맨 아래 구멍은 음높이를 다듬는 자리라 <b class="hg">늘 열어 둔다.</b>
+          그래서 실제로 움직이는 손가락은 넷뿐이다.</div>
+      </div>
+      <div class="bubble" style="margin-top:14px">
+        <b class="hl">대금과 다른 점</b> — 대금에는 갈대청을 붙이는 청공이 있어 소리가 갈라지듯 울린다.
+        단소에는 청공이 없어 <b class="hn">맑고 곧은 소리</b>가 난다.
+      </div>
+    </div>
+  </div>
+</section>`);
+
+/* 4 잡는 법 */
+SLIDES.push(`
+<section class="slide" style="--acc:var(--navy2)">
+  <span class="eyebrow">잡는 법</span>
+  <h2 class="stitle">왼손이 위, 오른손이 아래</h2>
+  <div class="rule"></div>
+  <div class="cols" style="gap:26px;align-items:center">
+    <div class="col" style="flex:0 0 300px;display:flex;justify-content:center">
+      <div style="width:250px">${fingSVG([1,1,1,1], {w:250, labels:true, id:'big'})}</div>
+    </div>
+    <div class="col">
+      <ul class="numlist">
+        <li><span class="n">1</span><div><b class="hn">왼손이 위</b>, 오른손이 아래. 한 번 정하면 바꾸지 않는다.</div></li>
+        <li><span class="n">2</span><div>손가락은 <b class="hl">손끝을 세우지 말고 바닥살(지문 있는 곳)</b>로 구멍을 덮는다.
+          손끝으로 누르면 틈이 생겨 소리가 샌다.</div></li>
+        <li><span class="n">3</span><div>막을 때 <b class="hg">힘을 주지 않는다.</b> 살짝 얹기만 해도 덮인다.
+          꽉 누르면 손가락이 굳어 다음 음으로 못 옮긴다.</div></li>
+        <li><span class="n">4</span><div>오른손 엄지로 단소 <b class="hn">뒤쪽을 받쳐</b> 준다. 이 엄지가 악기를 들고 있다.</div></li>
+        <li><span class="n">5</span><div>어깨와 팔꿈치의 <b class="hl">힘을 뺀다.</b> 팔꿈치는 몸에서 주먹 하나만큼 띄운다.</div></li>
+      </ul>
+      <div class="bubble" style="margin-top:14px">
+        <b class="hg">구멍이 덜 막혔는지 확인하는 법</b> — 다 막고 손을 뗀 뒤 손가락 끝을 본다.
+        <b class="hl">동그란 자국</b>이 또렷하면 잘 막힌 것이다.
+      </div>
+    </div>
+  </div>
+</section>`);
+
+/* 5 소리 내기 */
+SLIDES.push(`
+<section class="slide" style="--acc:var(--red)">
+  <span class="eyebrow">가장 중요한 것</span>
+  <h2 class="stitle">소리 내는 법 — 다섯 걸음</h2>
+  <div class="rule"></div>
+  <div class="cols" style="gap:22px;align-items:flex-start">
+    <div class="col">
+      <ul class="numlist" style="gap:11px">
+        <li><span class="n c2">1</span><div><b class="hl">취구를 아랫입술에 댄다.</b>
+          입술 위가 아니라 <b class="hn">아랫입술과 턱이 만나는 자리</b>에 홈을 얹는다.</div></li>
+        <li><span class="n c2">2</span><div>단소를 <b class="hn">몸 앞으로 곧게</b> 세운다. 옆으로 기울지 않게.</div></li>
+        <li><span class="n c2">3</span><div>입술을 <b class="hl">「우」 모양으로 좁혀</b> 가는 김을 만든다.
+          촛불 하나를 조용히 끄는 정도.</div></li>
+        <li><span class="n c2">4</span><div>그 김이 <b class="hl">홈의 모서리에 부딪혀 반은 안으로, 반은 밖으로</b> 갈라지게 한다.
+          이 갈라짐이 소리다.</div></li>
+        <li><span class="n c2">5</span><div>소리가 안 나면 <b class="hl">단소를 돌리지 말고 고개를 아주 조금씩</b>
+          끄덕여 각도를 찾는다. 1mm 차이로 난다.</div></li>
+      </ul>
+    </div>
+    <div class="col" style="flex:0 0 430px">
+      <div class="card" style="border-color:var(--red);border-width:2px">
+        <h3 style="color:var(--red)">먼저 이것부터 — 단소 없이</h3>
+        <p class="small">빈 <b class="hl">음료수 병</b> 입구에 아랫입술을 대고 불어 보자.
+          「부—」 하고 낮은 소리가 나면, <b class="hn">그 입 모양 그대로가 단소 부는 입</b>이다.</p>
+        <p class="small" style="margin-top:8px">병으로 되는 사람은 단소도 된다. 원리가 똑같다.</p>
+      </div>
+      <div class="card" style="margin-top:12px">
+        <h3>다음은 이렇게</h3>
+        <p class="small">구멍을 <b class="hg">하나도 막지 말고</b> 취구만 대고 소리를 찾는다.
+          손가락까지 신경 쓰면 둘 다 안 된다. <b class="hl">소리부터 잡고</b> 손가락은 그다음이다.</p>
+        <div style="margin-top:11px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="play sm" data-snd="good">🎵 목표 소리 듣기</button>
+          <button class="play grey sm" data-snd="wind">🌬 아직 이 소리라면</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>`);
+
+/* 6 진단표 */
+SLIDES.push(`
+<section class="slide" style="--acc:var(--clay)">
+  <span class="eyebrow">소리가 안 날 때</span>
+  <h2 class="stitle">증상을 보고 고친다</h2>
+  <div class="rule" style="margin-bottom:10px"></div>
+  <table class="tbl" style="font-size:19px">
+    <tr><th style="width:23%">이런 소리가 난다</th><th style="width:30%">까닭</th><th>이렇게 해 본다</th></tr>
+    <tr><td class="lead">쉬— 바람만</td><td class="dim">김이 굵어 흩어진다</td>
+      <td class="lft"><b class="hl">「우」</b>로 입술을 더 좁힌다. 김의 굵기는 <b class="hn">이쑤시개 하나</b>쯤.</td></tr>
+    <tr><td class="lead">났다 안 났다</td><td class="dim">취구 각도가 흔들린다</td>
+      <td class="lft">단소를 돌리지 말고 <b class="hl">고개를 조금씩</b> 끄덕여 잘 나는 자리를 찾아 <b class="hn">그대로 멈춘다.</b></td></tr>
+    <tr><td class="lead">삑— 갈라진다</td><td class="dim">김이 너무 세다</td>
+      <td class="lft">세기를 <b class="hl">절반</b>으로. 단소는 세게 부는 악기가 아니다.</td></tr>
+    <tr><td class="lead">낮은 음이 안 난다</td><td class="dim">김이 세고 빠르다</td>
+      <td class="lft">손을 데우듯 <b class="hg">「호—」 따뜻한 김</b>으로 천천히.</td></tr>
+    <tr><td class="lead">높은 음이 안 난다</td><td class="dim">김이 느리다</td>
+      <td class="lft"><b class="hg">「휘—」 빠르고 가늘게.</b> 입술을 조금 더 좁히고 아랫입술을 살짝 앞으로.</td></tr>
+    <tr><td class="lead">답답하다 · 샌다</td><td class="dim">구멍이 덜 막혔다</td>
+      <td class="lft">손가락 <b class="hl">바닥살</b>로 완전히 덮는다. 특히 <b class="hn">뒤 구멍(엄지)</b>이 잘 샌다.</td></tr>
+    <tr><td class="lead">침이 찬다</td><td class="dim">정상이다</td>
+      <td class="lft">취구를 아래로 향해 <b class="hg">가볍게 턴다.</b> 고장이 아니다.</td></tr>
+  </table>
+  <div class="bubble" style="margin-top:12px">
+    <b class="hl">30초 규칙</b> — 30초 불어도 안 나면 잠깐 쉰다. 계속 불면 어지럽고,
+    입술에 힘이 들어가 <b class="hn">될 것도 안 된다.</b> 쉬었다 하면 갑자기 난다.
+  </div>
+</section>`);
+
+/* 7 율명 */
+SLIDES.push(`
+<section class="slide">
+  <span class="eyebrow">음이름</span>
+  <h2 class="stitle">단소의 음이름은 한자다 — 율명(律名)</h2>
+  <div class="rule"></div>
+  <p class="body">서양 음악의 <b class="hn">도레미</b>, 우리 음악의 <b class="hl">율명</b>.
+    늴리리야에 쓰이는 음은 아래 <b class="hl">여덟</b>이다. 눌러서 들어 보자.</p>
+  <div class="keys" style="margin-top:16px">${
+    ORDER.map(ch => {
+      const y = YUL[ch];
+      return '<button class="key' + (y.oct ? ' hi' : '') + '" data-note="' + ch + '">' +
+             '<span class="ch yul">' + ch + '</span>' +
+             '<span class="rd">' + y.read + '</span>' +
+             '<span class="gy">' + y.gye + '</span></button>';
+    }).join('')
+  }</div>
+  <div class="cols" style="margin-top:16px;gap:18px;align-items:flex-start;flex:0 0 auto">
+    <div class="col">
+      <div class="term">
+        <div class="t">계이름을 보면 익숙하다</div>
+        <div class="d"><b class="hl">솔 라 도 레 미</b> — 지난 시간에 배운 <b class="hn">경토리</b> 다섯 음 그대로다.
+          단소는 이 다섯 음과 그 <b class="hg">한 옥타브 위</b>를 낸다.</div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="term" style="border-left-color:var(--gold)">
+        <div class="t">삼수변(氵)이 붙으면 한 옥타브 위</div>
+        <div class="d"><span class="yul">仲</span>→<span class="yul">㳞</span> ·
+          <span class="yul">林</span>→<span class="yul">淋</span> ·
+          <span class="yul">無</span>→<span class="yul">潕</span>.
+          물 수(水)를 옆에 적어 <b class="hl">「맑을 청(淸)」</b>, 곧 높은 음이라는 표시다.</div>
+      </div>
+    </div>
+    <div class="col" style="flex:0 0 210px">
+      <button class="play gold" data-scale="1" style="width:100%">🎼 다섯 음 오르내리기</button>
+      <p class="tiny mutedt" style="margin-top:8px;text-align:center">
+        솔 라 도 레 미 — 이 순서에 귀를 익혀 둘 것</p>
+    </div>
+  </div>
+</section>`);
+
+/* 8 청성 */
+SLIDES.push(`
+<section class="slide" style="--acc:var(--gold)">
+  <span class="eyebrow">교과서 말풍선</span>
+  <h2 class="stitle">「한 옥타브 높은 음은 조금 세게 불어요」</h2>
+  <div class="rule"></div>
+  <div class="cols" style="gap:26px;align-items:center">
+    <div class="col">
+      <p class="body"><b class="hl">손가락은 똑같다.</b> 바꾸는 것은 <b class="hn">김의 빠르기</b>뿐이다.</p>
+      <p class="body" style="margin-top:12px">천천히 불면 낮은 음(<b>평취</b>),
+        더 빠르고 가늘게 불면 <b class="hg">한 옥타브 위</b>가 난다(<b>역취</b>).
+        하나의 운지로 <b class="hl">두 음</b>을 얻는 것이다.</p>
+      <div class="term" style="margin-top:16px;border-left-color:var(--red)">
+        <div class="t" style="color:var(--red)">세게 ≠ 크게</div>
+        <div class="d">배로 밀어 크게 부는 게 아니라 <b class="hl">입술을 좁혀 김을 빠르게</b> 하는 것이다.
+          「후—」가 아니라 <b class="hn">「휘—」</b>.</div>
+      </div>
+      <div style="margin-top:14px;display:flex;gap:9px;flex-wrap:wrap">
+        <button class="play" data-pair="仲|㳞">🔊 <span class="yul">仲</span> → <span class="yul">㳞</span> (솔 → 솔˙)</button>
+        <button class="play" data-pair="林|淋">🔊 <span class="yul">林</span> → <span class="yul">淋</span> (라 → 라˙)</button>
+        <button class="play" data-pair="無|潕">🔊 <span class="yul">無</span> → <span class="yul">潕</span> (도 → 도˙)</button>
+      </div>
+    </div>
+    <div class="col" style="flex:0 0 470px">
+      <div class="card">
+        <h3>같은 운지, 다른 김</h3>
+        <div style="display:flex;justify-content:space-around;align-items:flex-end;margin-top:6px">
+          <div style="text-align:center">
+            <div style="width:96px">${fingSVG([1,1,1,0], {w:96, id:'p1'})}</div>
+            <div style="font-size:26px;font-weight:900;color:var(--bam2);margin-top:4px" class="yul">林</div>
+            <div style="font-size:17px;font-weight:700;color:var(--muted)">천천히 → 라</div>
+          </div>
+          <div style="font-size:38px;color:var(--gold);font-weight:900;padding-bottom:52px">＝</div>
+          <div style="text-align:center">
+            <div style="width:96px">${fingSVG([1,1,1,0], {w:96, oct:1, id:'p2'})}</div>
+            <div style="font-size:26px;font-weight:900;color:#9a6f1c;margin-top:4px" class="yul">淋</div>
+            <div style="font-size:17px;font-weight:700;color:var(--red)">빠르게 → 라˙</div>
+          </div>
+        </div>
+      </div>
+      <p class="tiny mutedt" style="margin-top:10px;text-align:center">
+        늴리리야 첫째 장단은 온통 높은 음이다. 여기가 이 곡의 <b class="hl">가장 어려운 대목</b>이다.</p>
+    </div>
+  </div>
+</section>`);
+
+/* 9 운지표 */
+SLIDES.push(`
+<section class="slide" style="--acc:var(--navy2)">
+  <span class="eyebrow">운지법</span>
+  <h2 class="stitle">여덟 음의 손가락 자리</h2>
+  <div class="rule" style="margin-bottom:8px"></div>
+  <p class="small mutedt">● 막음 &nbsp;/&nbsp; ○ 엶 &nbsp;/&nbsp;
+    <b style="color:#1d5b95">점선</b> = 뒤 구멍(왼손 엄지) &nbsp;/&nbsp;
+    <span style="color:#a49b8a">✕</span> = 늘 열어 두는 제5공 &nbsp;·&nbsp;
+    <b class="hg">눌러 보세요</b></p>
+  <div class="fingrow" style="margin-top:10px;flex:1;align-items:center">${
+    ORDER.map((ch, i) => {
+      const y = YUL[ch];
+      return '<div class="fingbox" data-note="' + ch + '" style="flex:1">' +
+             '<div class="fh yul">' + ch + '</div>' +
+             '<div class="fg">' + y.gye + '</div>' +
+             fingSVG(y.fing, {w:98, oct:y.oct, id:'f' + i}) +
+             '<div class="ff">' + (y.oct ? '세게 (역취)' : '보통 (평취)') + '</div>' +
+             '</div>';
+    }).join('')
+  }</div>
+  <div class="rowc" style="margin-top:8px">
+    <div class="bubble" style="flex:1">
+      <b class="hn">외우는 요령</b> — <span class="yul">仲</span>은 다 막고,
+      한 음 올라갈 때마다 <b class="hl">아래 손가락부터 하나씩 뗀다.</b>
+      <span class="yul">汰</span>에서 다 떼면 끝. 그 위 세 음은 <b class="hg">같은 손가락으로 세게</b>.
+    </div>
+    <button class="play navy" data-scale="2">🎼 여덟 음 차례로</button>
+  </div>
+</section>`);
+
+/* 10 정간보 읽는 법 */
+SLIDES.push(`
+<section class="slide" style="--acc:var(--plum)">
+  <span class="eyebrow">악보 읽기</span>
+  <h2 class="stitle">정간보 — 칸 하나가 한 박이다</h2>
+  <div class="rule"></div>
+  <div class="cols" style="gap:26px;align-items:flex-start">
+    <div class="col">
+      <ul class="numlist" style="gap:10px">
+        <li><span class="n" style="background:var(--plum)">1</span><div>교과서는 <b class="hn">세로</b>로 읽는다.
+          위에서 아래로 내려가고, 한 줄이 끝나면 <b class="hl">왼쪽</b> 줄로 옮긴다.</div></li>
+        <li><span class="n" style="background:var(--plum)">2</span><div><b class="hl">칸 하나 = 한 박.</b>
+          한 칸에 글자가 <b class="hn">둘</b>이면 그 칸을 반씩 나눠 두 음을 분다.</div></li>
+        <li><span class="n" style="background:var(--plum)">3</span><div><b class="hg">빈 칸</b>은 쉬는 게 아니라
+          <b class="hl">앞 음을 그대로 이어서</b> 부는 곳이다. 길게 늘이라는 뜻.</div></li>
+        <li><span class="n" style="background:var(--plum)">4</span><div><b class="yul" style="font-size:24px">△</b> 는
+          소리를 <b class="hl">끊고 쉬는</b> 표시다.</div></li>
+        <li><span class="n" style="background:var(--plum)">5</span><div>굿거리장단이라 <b class="hn">한 줄이 12칸</b>,
+          <b class="hg">3칸씩 네 묶음</b>이다.</div></li>
+      </ul>
+      <div class="bubble" style="margin-top:14px">
+        <b class="hl">다음 장부터는 가로로 폈다.</b> 교과서의 세로 악보를 그대로 눕힌 것이라
+        칸 순서와 율명은 <b class="hn">교과서와 똑같다.</b>
+      </div>
+    </div>
+    <div class="col" style="flex:0 0 440px">
+      <div class="card">
+        <h3>굿거리 12칸</h3>
+        <div class="gutlbl" style="margin-top:4px">${
+          ['덩','','','기덕','','','쿵','','','더러','러러',''].map((g,i)=>
+            '<span class="' + (g ? 'g' : '') + '">' + (g || (i+1)) + '</span>').join('')
+        }</div>
+        <div class="jang">${
+          Array.from({length:12}, (_,i) =>
+            '<div class="jcell' + (i % 3 === 0 ? ' beat3' : '') + '" style="min-height:52px">' +
+            '<div class="jn">' + (i+1) + '</div></div>').join('')
+        }</div>
+        <div style="margin-top:12px;text-align:center">
+          <button class="play plum sm" data-gut="1">🥁 굿거리 한 장단 듣기</button>
+        </div>
+        <p class="tiny mutedt" style="margin-top:10px">
+          <b class="hg">덩 – – 기덕 – – 쿵 – – 더러러러</b><br>
+          무릎을 치며 이 12칸을 먼저 몸에 넣으면 악보가 훨씬 쉬워진다.</p>
+      </div>
+    </div>
+  </div>
+</section>`);
+
+/* 11~13 장단별 연습 */
+JANG.forEach((j, idx) => {
+  SLIDES.push(`
+<section class="slide" style="--acc:var(--bam)">
+  <span class="eyebrow">늴리리야 · ${j.t}</span>
+  <h2 class="stitle">${j.s}</h2>
+  <div class="rule" style="margin-bottom:10px"></div>
+  <div class="jrow" style="margin-bottom:6px">
+    <div class="jlbl" style="background:transparent"></div>
+    <div class="gutlbl" style="flex:1;margin:0">${
+      ['덩','','','기덕','','','쿵','','','더러','러러',''].map((g,i)=>
+        '<span class="' + (g ? 'g' : '') + '">' + (g || '') + '</span>').join('')
+    }</div>
+  </div>
+  <div class="jrow">
+    <div class="jlbl">${j.t}</div>
+    <div class="jang" data-jang="${idx}" style="flex:1"></div>
+  </div>
+  <div class="rowc" style="margin-top:14px;gap:10px;flex-wrap:wrap">
+    <button class="play sm" data-jplay="${idx}|slow">🐢 아주 느리게</button>
+    <button class="play navy sm" data-jplay="${idx}|mid">🚶 연습 빠르기</button>
+    <button class="play clay sm" data-jplay="${idx}|full">🎵 제 빠르기 + 장단</button>
+    <span style="flex:1"></span>
+    <span class="tiny mutedt">칸을 누르면 그 음 하나만 들리고 운지가 보입니다</span>
+  </div>
+  <div class="cols" style="margin-top:12px;align-items:flex-start;gap:20px;flex:1">
+    <div class="col" style="flex:0 0 300px">
+      <div class="card" id="fingview${idx}" style="min-height:186px">
+        <h3>운지</h3>
+        <p class="small mutedt">위 칸을 눌러 보세요.</p>
+      </div>
+    </div>
+    <div class="col tips">${TIPS(idx)}</div>
+  </div>
+</section>`);
+});
+
+function TIPS(i){
+  if(i === 0) return `
+    <div class="term" style="border-left-color:var(--red)">
+      <div class="t" style="color:var(--red)">여기가 제일 어렵다 — 전부 높은 음</div>
+      <div class="d"><span class="yul">淋 㳞 潕</span> 는 모두 <b class="hl">세게 부는 음(역취)</b>이다.
+        손가락은 <span class="yul">林 仲 無</span> 와 똑같으니 <b class="hn">김만 빠르게</b> 하면 된다.</div>
+    </div>
+    <div class="term">
+      <div class="t">5·6번 칸의 빈칸</div>
+      <div class="d">쉬는 게 아니라 <b class="hl">「야—」를 길게 늘이는</b> 자리다.
+        여기서 <b class="hn">숨을 몰래 채워</b> 두면 뒤가 편하다.</div>
+    </div>
+    <div class="term" style="border-left-color:var(--navy2)">
+      <div class="t" style="color:var(--navy2)">먼저 이렇게 연습</div>
+      <div class="d">① 소리 없이 손가락만 12칸 &nbsp; ② <span class="yul">淋</span> 한 음만 길게 네 번
+        &nbsp; ③ 처음 4칸만 &nbsp; ④ 전체</div>
+    </div>`;
+  if(i === 1) return `
+    <div class="term" style="border-left-color:var(--clay)">
+      <div class="t" style="color:var(--clay)">한 칸에 두 음 — 여기서 많이 넘어진다</div>
+      <div class="d">4·5·7·8번 칸이 그렇다. <b class="hl">한 박을 반으로 쪼개</b> 두 음을 분다.
+        「내가」·「돌아」처럼 <b class="hn">가사 두 글자가 한 칸</b>에 든 곳을 보면 안다.</div>
+    </div>
+    <div class="term">
+      <div class="t">3번 칸의 <span class="yul">－</span></div>
+      <div class="d">앞 음(<span class="yul">汰</span>)을 <b class="hg">반 박 더 끌었다가</b>
+        다시 <span class="yul">汰</span>를 분다. 혀로 「투」 하고 <b class="hn">한 번 끊어</b> 주면 된다.</div>
+    </div>
+    <div class="term" style="border-left-color:var(--navy2)">
+      <div class="t" style="color:var(--navy2)">내려오는 길이 보인다</div>
+      <div class="d"><span class="yul">汰 → 潢 → 無 → 林 → 仲</span> —
+        <b class="hl">미 레 도 라 솔</b>로 차례차례 내려온다. 손가락을 <b class="hn">하나씩 다시 덮는</b> 것이다.</div>
+    </div>`;
+  return `
+    <div class="term">
+      <div class="t">낮은 음으로 끝난다</div>
+      <div class="d">첫째 장단과 정반대다. <span class="yul">仲</span>(솔)은 <b class="hl">가장 낮은 음</b>이라
+        <b class="hn">따뜻하고 느린 김</b>이 필요하다. 세게 불면 한 옥타브 위로 튄다.</div>
+    </div>
+    <div class="term" style="border-left-color:var(--clay)">
+      <div class="t" style="color:var(--clay)">2·3번 칸의 빈칸</div>
+      <div class="d">첫 「늴」을 <b class="hl">세 박 동안</b> 끄는 자리다. 여기서 소리가 흔들리기 쉬우니
+        <b class="hn">김의 세기를 끝까지 똑같이</b> 유지한다.</div>
+    </div>
+    <div class="term" style="border-left-color:var(--navy2)">
+      <div class="t" style="color:var(--navy2)">마지막 <span class="yul">△</span></div>
+      <div class="d">소리를 <b class="hl">깨끗하게 끊는다.</b> 스르르 흐지부지 끝내지 말고,
+        <b class="hn">김을 딱 멈춰</b> 마무리한다.</div>
+    </div>`;
+}
+
+/* 14 전체 */
+SLIDES.push(`
+<section class="slide" style="--acc:var(--bam2)">
+  <span class="eyebrow">이어 불기</span>
+  <h2 class="stitle">세 장단을 붙여 보자</h2>
+  <div class="rule" style="margin-bottom:10px"></div>
+  <div id="allrows" style="display:flex;flex-direction:column;gap:6px"></div>
+  <div class="rowc" style="margin-top:11px;gap:10px;flex-wrap:wrap">
+    <button class="play sm" data-aplay="slow">🐢 아주 느리게</button>
+    <button class="play navy sm" data-aplay="mid">🚶 연습 빠르기</button>
+    <button class="play clay sm" data-aplay="full">🎵 제 빠르기 + 장단</button>
+    <span style="flex:1"></span>
+    <span class="tiny mutedt">쭉 이어서 세 장단</span>
+  </div>
+  <div class="cols" style="margin-top:14px;gap:18px;align-items:flex-start;flex:0 0 auto">
+    <div class="col">
+      <div class="term" style="border-left-color:var(--red)">
+        <div class="t" style="color:var(--red)">숨은 여기서 쉰다</div>
+        <div class="d">첫째 장단 <b class="hl">끝(11번 칸)</b>, 둘째 장단 <b class="hl">△</b>,
+          셋째 장단 <b class="hl">△</b>. 세 군데뿐이다. 아무 데서나 쉬면 장단이 어긋난다.</div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="term">
+        <div class="t">높은 데서 낮은 데로</div>
+        <div class="d">첫째 장단은 <b class="hg">전부 높은 음</b>, 셋째 장단은 <b class="hn">낮은 음</b>으로 내려온다.
+          곡 전체가 <b class="hl">높은 데서 시작해 가라앉는</b> 모양이다.</div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="term" style="border-left-color:var(--navy2)">
+        <div class="t" style="color:var(--navy2)">잘 안 되면</div>
+        <div class="d">셋째 장단부터 연습한다. <b class="hl">낮은 음이 쉽다.</b>
+          셋째 → 둘째 → 첫째 순으로 익히고 마지막에 붙인다.</div>
+      </div>
+    </div>
+  </div>
+</section>`);
+
+/* 15 한걸음 더 */
+SLIDES.push(`
+<section class="slide" style="--acc:var(--gold)">
+  <span class="eyebrow">교과서 59쪽 · 한걸음 더 4번</span>
+  <h2 class="stitle">경토리의 특징을 살린 음 더하기</h2>
+  <div class="rule"></div>
+  <div class="cols" style="gap:24px;align-items:center">
+    <div class="col" style="flex:0 0 400px">
+      <div class="card" style="border:2px solid var(--gold)">
+        <h3 style="color:#9a6f1c">주황색 칸을 이렇게 바꾼다</h3>
+        <div style="display:flex;align-items:center;justify-content:center;gap:22px;margin:14px 0 8px">
+          <div style="text-align:center">
+            <div class="yul" style="font-size:56px;font-weight:900;color:var(--bam2);
+              background:#ffe0b2;border:2px solid var(--gold);border-radius:10px;padding:6px 20px">淋</div>
+            <div class="tiny mutedt" style="margin-top:6px">한 음</div>
+          </div>
+          <div style="font-size:34px;color:var(--gold);font-weight:900">➜</div>
+          <div style="text-align:center">
+            <div style="background:#ffe0b2;border:2px solid var(--gold);border-radius:10px;padding:4px 20px">
+              <div class="yul" style="font-size:34px;font-weight:900;color:var(--clay);line-height:1.05">潕</div>
+              <div class="yul" style="font-size:34px;font-weight:900;color:var(--bam2);line-height:1.05">淋</div>
+            </div>
+            <div class="tiny mutedt" style="margin-top:6px">한 칸에 두 음</div>
+          </div>
+        </div>
+        <p class="small" style="text-align:center"><b class="hn">첫째 장단의 1번·7번 칸</b> 두 곳이다.</p>
+      </div>
+      <div style="margin-top:12px;display:flex;gap:8px;justify-content:center">
+        <button class="play grey sm" data-orn="plain">🔊 그냥 <span class="yul">淋</span></button>
+        <button class="play gold sm" data-orn="sigim">✨ <span class="yul">潕淋</span> 로</button>
+      </div>
+    </div>
+    <div class="col">
+      <p class="body"><span class="yul">潕</span>(도˙)를 <b class="hl">아주 짧게 스치고</b>
+        곧바로 <span class="yul">淋</span>(라˙)로 내려앉는다. 위에서 <b class="hn">미끄러져 내려오는</b> 소리다.</p>
+      <div class="term" style="margin-top:14px">
+        <div class="t">이것이 시김새다</div>
+        <div class="d">음을 하나 더 넣은 게 아니라 <b class="hl">앞 음을 꾸며 주는 장식</b>이다.
+          국악에서는 이런 꾸밈을 <b class="hn">시김새</b>라고 한다.</div>
+      </div>
+      <div class="term" style="margin-top:11px;border-left-color:var(--plum)">
+        <div class="t" style="color:var(--plum)">지난 시간과 이어진다</div>
+        <div class="d">「전문가가 부르는 늴리리야는 <b class="hg">음이 추가되어 화려한 느낌</b>이 든다」
+          — 교과서 58쪽 2번에서 들었던 그 차이가 <b class="hl">바로 이것</b>이다.
+          음을 더 넣고 시김새를 얹는 것.</div>
+      </div>
+      <div class="bubble" style="margin-top:12px">
+        <b class="hl">손가락은 어떻게?</b> <span class="yul">潕</span>는 <span class="yul">無</span>운지,
+        <span class="yul">淋</span>은 <span class="yul">林</span>운지. 둘 다 세게 부는 음이니
+        <b class="hn">가운뎃손가락 하나만</b> 덮으면 된다. 김은 그대로 둔다.
+      </div>
+    </div>
+  </div>
+</section>`);
+
+/* 16 연습 차례 */
+SLIDES.push(`
+<section class="slide" style="--acc:var(--navy2)">
+  <span class="eyebrow">오늘 이렇게 연습한다</span>
+  <h2 class="stitle">교과서 아래쪽 체크 두 줄</h2>
+  <div class="rule"></div>
+  <div class="cols" style="gap:22px;align-items:flex-start">
+    <div class="col">
+      <div class="act">
+        <div class="act-h"><span class="act-badge">1</span><span class="act-t">바른 자세로 3번 연주하기</span></div>
+        <p class="small">허리를 펴고, 어깨 힘을 빼고, 단소를 <b class="hn">몸 앞으로 곧게</b>.
+          거울이나 짝이 <b class="hl">옆에서</b> 봐 준다 — 단소가 기울지 않았는지.</p>
+        <div style="display:flex;gap:16px;margin-top:11px">
+          <span class="chk"><span class="box"></span>1번</span>
+          <span class="chk"><span class="box"></span>2번</span>
+          <span class="chk"><span class="box"></span>3번</span>
+        </div>
+      </div>
+      <div class="act" style="margin-top:13px;border-color:var(--clay)">
+        <div class="act-h"><span class="act-badge" style="background:var(--clay)">2</span>
+          <span class="act-t" style="color:var(--clay)">높은 소리에 유의하며 3번 연주하기</span></div>
+        <p class="small"><span class="yul">淋 㳞 潕</span> 가 <b class="hl">한 옥타브 아래로 떨어지지</b> 않는지 듣는다.
+          떨어지면 <b class="hn">김을 더 빠르게</b>.</p>
+        <div style="display:flex;gap:16px;margin-top:11px">
+          <span class="chk"><span class="box"></span>1번</span>
+          <span class="chk"><span class="box"></span>2번</span>
+          <span class="chk"><span class="box"></span>3번</span>
+        </div>
+      </div>
+    </div>
+    <div class="col" style="flex:0 0 460px">
+      <div class="card">
+        <h3>혼자 연습할 때 이 차례로</h3>
+        <ul class="numlist" style="gap:8px;margin-top:4px">
+          <li><span class="n" style="width:27px;height:27px;font-size:16px">1</span>
+            <div class="small"><b class="hn">소리 없이</b> 손가락만 — 악보 보며 12칸</div></li>
+          <li><span class="n" style="width:27px;height:27px;font-size:16px">2</span>
+            <div class="small">한 음씩 <b class="hn">길게</b> — 소리가 흔들리지 않을 때까지</div></li>
+          <li><span class="n" style="width:27px;height:27px;font-size:16px">3</span>
+            <div class="small"><b class="hl">셋째 장단</b>부터 (낮은 음이 쉽다)</div></li>
+          <li><span class="n" style="width:27px;height:27px;font-size:16px">4</span>
+            <div class="small">둘째 장단 → 첫째 장단</div></li>
+          <li><span class="n" style="width:27px;height:27px;font-size:16px">5</span>
+            <div class="small">셋을 <b class="hg">붙여서</b> · 장단에 맞춰</div></li>
+        </ul>
+      </div>
+      <div class="card" style="margin-top:12px;border-color:var(--red);border-width:2px">
+        <h3 style="color:var(--red)">이것만은</h3>
+        <p class="small">· 취구는 <b class="hl">침으로 젖는다.</b> 끝나면 털고 마른 천으로 닦는다.<br>
+          · <b class="hn">남의 단소를 불지 않는다.</b><br>
+          · 세워서 보관한다. 밟히면 <b class="hl">갈라진다.</b></p>
+      </div>
+    </div>
+  </div>
+</section>`);
+
+/* 17 마무리 */
+SLIDES.push(`
+<section class="slide closing">
+  <div class="num">오늘의 한 줄</div>
+  <h1>소리가 났다면<br>이미 절반은 끝난 것이다</h1>
+  <div class="sub">
+    나머지 절반은 손가락 — 그건 연습하면 반드시 된다.<br>
+    <span style="font-size:20px;opacity:.85">경토리의 특징 살려 노래 부르기, 단소로 연주하기</span>
+  </div>
+</section>`);
+
+/* =========================================================================
+   렌더
+   ========================================================================= */
+const stage = document.getElementById('stage');
+stage.innerHTML = SLIDES.join('');
+
+/* --- 확장한자(㳞) 폰트 폴백 : 못 그리면 沖 으로 바꾼다 --- */
+(function glyphFix(){
+  /* 폭으로 재면 안 된다 — 한자는 전각 고정폭이라 두부(□)도 폭이 같아서
+     모든 글자가 「미지원」으로 잡힌다. 실제로 찍힌 픽셀 수를 센다. */
+  function drawn(ch){
+    const cv = document.createElement('canvas'); cv.width = cv.height = 60;
+    const x = cv.getContext('2d');
+    x.font = '44px "Noto Sans KR", Batang, Gulim, "Malgun Gothic", serif';
+    x.fillStyle = '#000'; x.fillText(ch, 4, 46);
+    const d = x.getImageData(0, 0, 60, 60).data;
+    let n = 0; for(let i = 3; i < d.length; i += 4) if(d[i] > 0) n++;
+    return n;
+  }
+  const tofu = drawn('￾');                       /* 확실히 없는 글자 = 두부 모양 */
+  const bad = ch => { const n = drawn(ch); return n === 0 || Math.abs(n - tofu) < tofu * .15; };
+  const swap = {};
+  /* 㳞(U+3CDE)은 확장한자라 한글 폰트에 없는 경우가 있다. 그때만 沖으로 바꾼다.
+     潕(U+6F55)는 KS X 1001 안에 있어 폴백이 필요 없다 — 마땅한 대체자도 없다. */
+  if(bad('㳞')) swap['㳞'] = '沖';
+  const keys = Object.keys(swap);
+  if(!keys.length) return;
+  keys.forEach(k => {
+    stage.innerHTML = stage.innerHTML.split(k).join(swap[k]);
+    YUL[swap[k]] = YUL[k];
+    const i = ORDER.indexOf(k); if(i >= 0) ORDER[i] = swap[k];
+    JANG.forEach(j => j.cells.forEach(c2 => {
+      c2.y = c2.y.map(y => y === k ? swap[k] : y);
+    }));
+  });
+})();
+
+/* --- 정간보 칸 그리기 --- */
+function cellHTML(cell, i){
+  const cls = ['jcell'];
+  if(i % 3 === 0) cls.push('beat3');
+  let inner = '';
+  if(!cell.y.length){
+    cls.push('hold');
+    inner = '<div class="jy">〰</div>';
+  } else if(cell.y.length === 1 && cell.y[0] === '△'){
+    cls.push('rest');
+    inner = '<div class="jy">△</div>';
+  } else {
+    const two = cell.y.length > 1;
+    inner = '<div class="jy yul' + (two ? ' two' : '') + '">' +
+            cell.y.map(y => y === '-' ? '－' : y).join('<br>') + '</div>';
+  }
+  return '<div class="' + cls.join(' ') + '" data-cell="' + i + '">' +
+         '<div class="jn">' + (i + 1) + '</div>' + inner +
+         '<div class="jw">' + (cell.w || '') + '</div></div>';
+}
+function renderJang(host, idx){
+  host.innerHTML = JANG[idx].cells.map(cellHTML).join('');
+  host.querySelectorAll('.jcell').forEach(el => {
+    el.onclick = () => cellClick(idx, +el.dataset.cell, el);
+  });
+}
+stage.querySelectorAll('[data-jang]').forEach(h => {
+  const i = +h.dataset.jang;
+  renderJang(h, i);
+  /* 운지 칸을 비워 두면 무엇을 눌러야 하는지 알기 어렵다 — 그 장단의 첫 음을 미리 보여 준다 */
+  const first = JANG[i].cells.find(c => c.y.some(y => YUL[y]));
+  if(first) showFing(i, first.y.find(y => YUL[y]));
+});
+
+/* 전체 보기(14번 슬라이드) */
+const allrows = document.getElementById('allrows');
+if(allrows){
+  allrows.innerHTML = JANG.map((j, i) =>
+    '<div class="jrow"><div class="jlbl" style="font-size:15px">' + j.t + '</div>' +
+    '<div class="jang" data-all="' + i + '" style="flex:1"></div></div>').join('');
+  allrows.querySelectorAll('[data-all]').forEach(h => {
+    const idx = +h.dataset.all;
+    h.innerHTML = JANG[idx].cells.map(cellHTML).join('');
+    h.querySelectorAll('.jcell').forEach(el => {
+      el.style.minHeight = '74px';
+      el.onclick = () => cellClick(idx, +el.dataset.cell, el);
+    });
+  });
+}
+
+/* --- 칸을 눌렀을 때 : 그 음 하나 + 운지 --- */
+function cellClick(jIdx, cIdx, el){
+  const cell = JANG[jIdx].cells[cIdx];
+  const notes = cell.y.filter(y => YUL[y]);
+  if(!notes.length){
+    showFing(jIdx, null, cell.y.length ? '쉼표 — 소리를 끊는다' : '앞 음을 이어서 분다');
+    return;
+  }
+  stopAll();
+  const a = audio();
+  let t = a.currentTime + .05;
+  notes.forEach(n => { danso(a, t, YUL[n].f, .70); t += .40; });
+  el.classList.add('lit');
+  timers.push(setTimeout(() => el.classList.remove('lit'), 260 + notes.length * 400));
+  showFing(jIdx, notes[0]);
+}
+function showFing(jIdx, note, msg){
+  const box = document.getElementById('fingview' + jIdx);
+  if(!box) return;
+  if(!note){
+    box.innerHTML = '<h3>운지</h3><p class="small mutedt">' + (msg || '') + '</p>';
+    return;
+  }
+  const y = YUL[note];
+  box.innerHTML = '<h3>운지</h3>' +
+    '<div style="display:flex;gap:14px;align-items:center">' +
+      '<div style="width:76px;flex:none">' + fingSVG(y.fing, {w:76, oct:y.oct, id:'v' + jIdx}) + '</div>' +
+      '<div>' +
+        '<div class="yul" style="font-size:38px;font-weight:900;color:var(--bam2);line-height:1">' + note + '</div>' +
+        '<div style="font-size:19px;font-weight:900;color:var(--clay);margin-top:2px">' + y.gye + ' · ' + y.read + '</div>' +
+        '<div style="font-size:17px;font-weight:700;color:' + (y.oct ? 'var(--red)' : 'var(--muted)') + ';margin-top:6px">' +
+          (y.oct ? '세게 (역취)' : '보통 (평취)') + '</div>' +
+      '</div>' +
+    '</div>';
+}
+
+/* =========================================================================
+   장단 재생
+   ========================================================================= */
+const SPEED = { slow:.62, mid:.44, full:.30 };
+
+/* 칸들을 실제 음 이벤트로 푼다 */
+function toEvents(cells, beat, t0){
+  const ev = [];
+  let t = t0, last = null;
+  cells.forEach(cell => {
+    if(!cell.y.length){                       /* 빈 칸 = 앞 음 이어짐 */
+      if(last) last.d += beat;
+    } else {
+      const n = cell.y.length, sub = beat / n;
+      cell.y.forEach((ch, k) => {
+        if(ch === '-'){ if(last) last.d += sub; }
+        else if(ch === '△'){ last = null; }
+        else if(YUL[ch]){
+          const e = { t: t + k * sub, f: YUL[ch].f, d: sub, ch: ch };
+          ev.push(e); last = e;
+        }
+      });
+    }
+    t += beat;
+  });
+  return { ev: ev, end: t };
+}
+
+function playJang(list, beat, btn, withDrum, hosts){
+  const same = (curBtn === btn); stopAll(); if(same) return;
+  const a = audio();
+  mark(btn);
+  let t = a.currentTime + .25;
+  const cellsAll = [];
+  list.forEach((idx, n) => {
+    const r = toEvents(JANG[idx].cells, beat, t);
+    r.ev.forEach(e => danso(a, e.t, e.f, Math.max(e.d * .92, .16)));
+    if(withDrum) gutgeori(a, t, beat);
+    /* 칸 점등 */
+    JANG[idx].cells.forEach((c, i) => {
+      cellsAll.push({ at: (t - a.currentTime) + i * beat, jang: idx, cell: i, row: n });
+    });
+    t = r.end;
+  });
+  const hostFor = (jang, row) => {
+    if(hosts === 'all') return document.querySelector('[data-all="' + jang + '"]');
+    return document.querySelector('[data-jang="' + jang + '"]');
+  };
+  cellsAll.forEach(c => {
+    timers.push(setTimeout(() => {
+      document.querySelectorAll('.jcell.lit').forEach(e => e.classList.remove('lit'));
+      const h = hostFor(c.jang, c.row);
+      if(h){ const el = h.children[c.cell]; if(el) el.classList.add('lit'); }
+    }, c.at * 1000));
+  });
+  timers.push(setTimeout(clearLit, (t - a.currentTime) * 1000 + 500));
+}
+
+/* =========================================================================
+   단추
+   ========================================================================= */
+function bindAll(){
+  /* 율명 건반 · 운지표 */
+  stage.querySelectorAll('[data-note]').forEach(el => {
+    el.onclick = () => {
+      const ch = el.dataset.note;
+      if(!YUL[ch]) return;
+      stopAll();
+      const a = audio();
+      danso(a, a.currentTime + .02, YUL[ch].f, 1.0);
+      el.classList.add('lit');
+      timers.push(setTimeout(() => el.classList.remove('lit'), 700));
+    };
+  });
+
+  /* 세 가지 소리 */
+  stage.querySelectorAll('[data-snd]').forEach(b => {
+    b.onclick = () => {
+      const same = (curBtn === b); stopAll(); if(same) return;
+      const a = audio(), t = a.currentTime + .05;
+      mark(b);
+      let dur = 1.6;
+      if(b.dataset.snd === 'wind'){ breath(a, t, 1.5, 2400); dur = 1.6; }
+      else if(b.dataset.snd === 'crack'){ crack(a, t, YUL['潢'].f); dur = 1.2; }
+      else { danso(a, t, YUL['潢'].f, 1.5); dur = 1.7; }
+      timers.push(setTimeout(clearLit, dur * 1000));
+    };
+  });
+
+  /* 음계 훑기 */
+  stage.querySelectorAll('[data-scale]').forEach(b => {
+    b.onclick = () => {
+      const same = (curBtn === b); stopAll(); if(same) return;
+      const a = audio(); mark(b);
+      const five = ['仲','林','無','潢','汰'];
+      const seq = b.dataset.scale === '1'
+        ? five.concat(five.slice(0, 4).reverse())
+        : ORDER.slice();
+      let t = a.currentTime + .1;
+      seq.forEach(ch => {
+        const y = YUL[ch] || YUL[ORDER[0]];
+        danso(a, t, y.f, .52);
+        const kb = stage.querySelector('.slide.on [data-note="' + ch + '"]');
+        if(kb) timers.push(setTimeout(() => {
+          document.querySelectorAll('.key.lit,.fingbox.lit').forEach(e => e.classList.remove('lit'));
+          kb.classList.add('lit');
+        }, (t - a.currentTime) * 1000));
+        t += .55;
+      });
+      timers.push(setTimeout(clearLit, (t - a.currentTime) * 1000 + 300));
+    };
+  });
+
+  /* 옥타브 비교 */
+  stage.querySelectorAll('[data-pair]').forEach(b => {
+    b.onclick = () => {
+      const same = (curBtn === b); stopAll(); if(same) return;
+      const a = audio(); mark(b);
+      const p = b.dataset.pair.split('|');
+      let t = a.currentTime + .1;
+      p.forEach(ch => { const y = YUL[ch]; if(y){ danso(a, t, y.f, .95); t += 1.15; } });
+      timers.push(setTimeout(clearLit, (t - a.currentTime) * 1000));
+    };
+  });
+
+  /* 굿거리 */
+  stage.querySelectorAll('[data-gut]').forEach(b => {
+    b.onclick = () => {
+      const same = (curBtn === b); stopAll(); if(same) return;
+      const a = audio(); mark(b);
+      const beat = .34, t0 = a.currentTime + .15;
+      gutgeori(a, t0, beat); gutgeori(a, t0 + beat * 12, beat);
+      const host = b.closest('.card').querySelector('.jang');
+      for(let r = 0; r < 2; r++) for(let i = 0; i < 12; i++){
+        timers.push(setTimeout(() => {
+          host.querySelectorAll('.jcell').forEach(e => e.classList.remove('lit'));
+          if(host.children[i]) host.children[i].classList.add('lit');
+        }, (.15 + (r * 12 + i) * beat) * 1000));
+      }
+      timers.push(setTimeout(clearLit, (.15 + beat * 24) * 1000 + 300));
+    };
+  });
+
+  /* 시김새 비교 */
+  stage.querySelectorAll('[data-orn]').forEach(b => {
+    b.onclick = () => {
+      const same = (curBtn === b); stopAll(); if(same) return;
+      const a = audio(); mark(b);
+      const L = YUL['淋'].f, M = (YUL['潕'] || YUL['無']).f;
+      let t = a.currentTime + .1, end;
+      const phrase = (t0, sigim) => {
+        /* 늴 리 리 야 */
+        if(sigim){ danso(a, t0, M, .12, .17); danso(a, t0 + .10, L, .45); }
+        else danso(a, t0, L, .52);
+        danso(a, t0 + .55, L, .48);
+        danso(a, t0 + 1.10, L, .48);
+        danso(a, t0 + 1.65, YUL['㳞'] ? YUL['㳞'].f : YUL['仲'].f * 2, .80);
+        return t0 + 2.6;
+      };
+      end = phrase(t, b.dataset.orn === 'sigim');
+      timers.push(setTimeout(clearLit, (end - a.currentTime) * 1000));
+    };
+  });
+
+  /* 장단 재생 */
+  stage.querySelectorAll('[data-jplay]').forEach(b => {
+    b.onclick = () => {
+      const p = b.dataset.jplay.split('|');
+      playJang([+p[0]], SPEED[p[1]], b, p[1] === 'full', 'one');
+    };
+  });
+  stage.querySelectorAll('[data-aplay]').forEach(b => {
+    b.onclick = () => {
+      const sp = b.dataset.aplay;
+      playJang([0,1,2], SPEED[sp], b, sp === 'full', 'all');
+    };
+  });
+}
+bindAll();
+
+/* =========================================================================
+   넘김
+   ========================================================================= */
+const slides = [...stage.querySelectorAll('.slide')];
+let cur = 0;
+function show(i){
+  stopAll();
+  cur = Math.max(0, Math.min(slides.length - 1, i));
+  slides.forEach((s, n) => s.classList.toggle('on', n === cur));
+  document.getElementById('counter').textContent = (cur + 1) + ' / ' + slides.length;
+  const p = document.getElementById('prog');
+  p.style.width = ((cur + 1) / slides.length * 100) + '%';
+  p.style.background = getComputedStyle(slides[cur]).getPropertyValue('--acc');
+}
+function go(d){ show(cur + d); }
+function fit(){
+  const s = Math.min(window.innerWidth / 1280, (window.innerHeight - 46) / 720);
+  stage.style.transform = 'translate(-50%,-50%) scale(' + s + ')';
+}
+function fs(){
+  if(!document.fullscreenElement) document.documentElement.requestFullscreen();
+  else document.exitFullscreen();
+}
+document.addEventListener('keydown', e => {
+  if(['ArrowRight','PageDown',' '].includes(e.key)){ e.preventDefault(); go(1); }
+  if(['ArrowLeft','PageUp'].includes(e.key)){ e.preventDefault(); go(-1); }
+  if(e.key === 'Home') show(0);
+  if(e.key === 'End') show(slides.length - 1);
+  if(e.key === 'f' || e.key === 'F') fs();
+});
+document.getElementById('zl').onclick = () => go(-1);
+document.getElementById('zr').onclick = () => go(1);
+
+let tx = 0, ty = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, {passive:true});
+document.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty;
+  if(Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) go(dx < 0 ? 1 : -1);
+}, {passive:true});
+
+window.addEventListener('resize', fit);
+fit();
+show(0);
+</script>
+</body>
+</html>

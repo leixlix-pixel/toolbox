@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>회계용 계산기</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#eceef3; --card:#fff; --ink:#1b2130; --muted:#6b7280; --line:#dde1e9;
+  --disp:#16203a; --dispInk:#e9f1ff; --dispSub:#8fa6c9;
+  --num:#fff; --numEdge:#d9dee7;
+  --fn:#e8ebf1;
+  --op:#f0932b; --opInk:#fff;
+  --mem:#3f7fd6; --memInk:#fff;
+  --ac:#e05252; --acInk:#fff;
+  --ok:#15803d; --bad:#c02626; --okBg:#e7f6ec; --badBg:#fdeaea;
+}
+html[data-theme="dark"]{
+  --bg:#12151c; --card:#1a1f29; --ink:#e6e9ef; --muted:#8b93a3; --line:#2a3140;
+  --disp:#0c111c; --dispInk:#e9f1ff; --dispSub:#7d93b8;
+  --num:#252b38; --numEdge:#333b4b;
+  --fn:#2d3441;
+  --op:#d97f1f; --mem:#3565a8;
+  --ac:#b84343;
+  --ok:#4ade80; --bad:#f87171; --okBg:#152b1e; --badBg:#2d1717;
+}
+body{
+  font-family:'Noto Sans KR',sans-serif;
+  background:var(--bg); color:var(--ink);
+  touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+  padding:14px; font-size:15px;
+}
+.num-font{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+
+.top{max-width:1060px;margin:0 auto 12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.top h1{font-size:17px;font-weight:700;letter-spacing:-.3px}
+.top .sub{font-size:12px;color:var(--muted)}
+.top .spacer{flex:1}
+.ghost{
+  border:1px solid var(--line);background:var(--card);color:var(--muted);
+  border-radius:9px;padding:7px 11px;font-size:12px;font-family:inherit;cursor:pointer;
+}
+.ghost:active{transform:translateY(1px)}
+
+.wrap{max-width:1060px;margin:0 auto;display:grid;grid-template-columns:minmax(320px,400px) 1fr;gap:14px;align-items:start}
+@media(max-width:800px){.wrap{grid-template-columns:1fr}}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}
+
+/* ---------- 디스플레이 ---------- */
+.disp{background:var(--disp);border-radius:13px;padding:12px 14px 10px;margin-bottom:12px}
+.disp .flags{display:flex;gap:9px;align-items:center;height:16px;margin-bottom:4px}
+.flag{font-size:10px;font-weight:700;color:var(--dispSub);letter-spacing:.5px}
+.flag.on{color:#ffc46b}
+.disp .main{
+  color:var(--dispInk);text-align:right;font-size:34px;font-weight:500;
+  line-height:1.15;word-break:break-all;min-height:40px;
+}
+.disp .main.err{color:#ff8a8a}
+.disp .expr{color:var(--dispSub);text-align:right;font-size:12px;height:16px;margin-top:2px;overflow:hidden}
+.regs{display:flex;gap:8px;margin-top:9px}
+.reg{
+  flex:1;background:rgba(255,255,255,.06);border-radius:9px;padding:6px 9px;
+  cursor:pointer;border:1px solid transparent;text-align:left;font-family:inherit;
+}
+.reg:active{border-color:var(--dispSub)}
+.reg .k{font-size:10px;color:var(--dispSub);font-weight:700;letter-spacing:.5px}
+.reg .v{font-size:14px;color:var(--dispInk);text-align:right;margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ---------- 설정줄 ---------- */
+.opts{display:flex;gap:14px;margin-bottom:11px;flex-wrap:wrap}
+.optg{display:flex;align-items:center;gap:5px}
+.optg>span{font-size:11px;color:var(--muted);margin-right:1px}
+.seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{
+  border:0;background:transparent;color:var(--muted);font-family:inherit;
+  font-size:11px;font-weight:700;padding:6px 9px;cursor:pointer;min-width:32px;
+}
+.seg button.on{background:var(--mem);color:var(--memInk)}
+
+/* ---------- 키패드 ---------- */
+.pad{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+.pad button{
+  border:1px solid var(--numEdge);background:var(--num);color:var(--ink);
+  border-radius:11px;min-height:52px;font-family:inherit;font-size:19px;font-weight:500;
+  cursor:pointer;user-select:none;
+}
+.pad button:active{transform:translateY(1px);filter:brightness(.94)}
+.pad .fn{background:var(--fn);font-size:15px;font-weight:700}
+.pad .m{background:var(--mem);border-color:var(--mem);color:var(--memInk);font-size:14px;font-weight:700}
+.pad .op{background:var(--op);border-color:var(--op);color:var(--opInk);font-size:22px;font-weight:700}
+.pad .ac{background:var(--ac);border-color:var(--ac);color:var(--acInk);font-size:15px;font-weight:700}
+.pad .eq{background:var(--op);border-color:var(--op);color:var(--opInk);font-size:24px;font-weight:700}
+.pad .w2{grid-column:span 2}
+
+/* ---------- 사이드 ---------- */
+.side{display:grid;gap:14px}
+.ph{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.ph h2{font-size:13px;font-weight:700}
+.ph .spacer{flex:1}
+.mini{
+  border:1px solid var(--line);background:transparent;color:var(--muted);
+  border-radius:7px;padding:5px 9px;font-size:11px;font-family:inherit;cursor:pointer;
+}
+.mini:active{transform:translateY(1px)}
+.hint{font-size:11px;color:var(--muted);line-height:1.7}
+
+/* 테이프 */
+.tape{max-height:290px;overflow-y:auto;border-top:1px solid var(--line);padding-top:6px}
+.tape .row{display:flex;align-items:baseline;gap:8px;padding:3px 6px;border-radius:6px;cursor:pointer}
+.tape .row:active{background:var(--fn)}
+.tape .row .o{width:16px;color:var(--op);font-weight:700;font-size:14px;flex:none}
+.tape .row .v{flex:1;text-align:right;font-size:15px}
+.tape .row.res{border-top:1.5px solid var(--ink);margin-top:2px;padding-top:5px;font-weight:700}
+.tape .row.res .o{color:var(--muted);font-size:12px}
+.tape .empty{color:var(--muted);font-size:12px;padding:14px 4px;text-align:center}
+
+/* 검산 */
+.led{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.col h3{font-size:11px;font-weight:700;color:var(--muted);margin-bottom:5px;letter-spacing:.5px}
+.col .list{
+  min-height:74px;max-height:150px;overflow-y:auto;border:1px solid var(--line);
+  border-radius:9px;padding:5px;margin-bottom:6px;
+}
+.col .list div{text-align:right;font-size:13px;padding:3px 5px;border-radius:5px;cursor:pointer}
+.col .list div:active{background:var(--badBg)}
+.col .list .none{color:var(--muted);font-size:11px;text-align:center;padding:20px 0;cursor:default}
+.col .sum{display:flex;justify-content:space-between;align-items:baseline;background:var(--fn);border-radius:8px;padding:6px 9px}
+.col .sum b{font-size:10px;color:var(--muted);letter-spacing:.5px}
+.col .sum span{font-size:15px;font-weight:700}
+.putbtns{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:9px}
+.putbtns button{
+  border:1px solid var(--mem);background:transparent;color:var(--mem);
+  border-radius:9px;min-height:44px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;
+}
+.putbtns button:active{background:var(--mem);color:var(--memInk)}
+.diff{
+  margin-top:9px;border-radius:10px;padding:9px 12px;
+  display:flex;justify-content:space-between;align-items:baseline;
+  background:var(--badBg);color:var(--bad);font-weight:700;
+}
+.diff.ok{background:var(--okBg);color:var(--ok)}
+.diff .lab{font-size:12px}
+.diff .val{font-size:17px}
+
+kbd{background:var(--fn);border:1px solid var(--line);border-radius:4px;padding:1px 5px;font-size:11px;font-family:inherit}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <h1>회계용 계산기</h1>
+  <span class="sub">14자리 · 메모리 · 테이프 · 대차 검산</span>
+  <span class="spacer"></span>
+  <button class="ghost" id="themeBtn" onclick="toggleTheme()">🌙 어둡게</button>
+</div>
+
+<div class="wrap">
+
+  <!-- ================= 계산기 ================= -->
+  <div class="card">
+    <div class="disp">
+      <div class="flags">
+        <span class="flag" id="fM">M</span>
+        <span class="flag" id="fGT">GT</span>
+        <span class="flag" id="fDec">F</span>
+        <span class="flag" id="fRnd">5/4</span>
+      </div>
+      <div class="main num-font" id="main">0</div>
+      <div class="expr num-font" id="expr"></div>
+      <div class="regs">
+        <button class="reg" onclick="recall('M')" title="눌러서 불러오기">
+          <div class="k">MEMORY</div><div class="v num-font" id="regM">0</div>
+        </button>
+        <button class="reg" onclick="recall('GT')" title="눌러서 불러오기">
+          <div class="k">GRAND TOTAL</div><div class="v num-font" id="regGT">0</div>
+        </button>
+      </div>
+    </div>
+
+    <div class="opts">
+      <div class="optg">
+        <span>소수점</span>
+        <div class="seg" id="segDec">
+          <button data-v="F" class="on">F</button>
+          <button data-v="0">0</button>
+          <button data-v="2">2</button>
+          <button data-v="3">3</button>
+        </div>
+      </div>
+      <div class="optg">
+        <span>끝처리</span>
+        <div class="seg" id="segRnd">
+          <button data-v="5/4" class="on">5/4</button>
+          <button data-v="CUT">절사</button>
+          <button data-v="UP">올림</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="pad">
+      <button class="m" onclick="memClear()">MC</button>
+      <button class="m" onclick="recall('M')">MR</button>
+      <button class="m" onclick="memAdd(-1)">M−</button>
+      <button class="m" onclick="memAdd(1)">M+</button>
+      <button class="m" onclick="gtKey()">GT</button>
+
+      <button class="ac" onclick="allClear()">AC</button>
+      <button class="fn" onclick="clearEntry()">CE</button>
+      <button class="fn" onclick="backspace()">⌫</button>
+      <button class="fn" onclick="percent()">%</button>
+      <button class="op" onclick="setOp('/')">÷</button>
+
+      <button onclick="digit('7')">7</button>
+      <button onclick="digit('8')">8</button>
+      <button onclick="digit('9')">9</button>
+      <button class="fn" onclick="negate()">±</button>
+      <button class="op" onclick="setOp('*')">×</button>
+
+      <button onclick="digit('4')">4</button>
+      <button onclick="digit('5')">5</button>
+      <button onclick="digit('6')">6</button>
+      <button class="fn" onclick="sqrt()">√</button>
+      <button class="op" onclick="setOp('-')">−</button>
+
+      <button onclick="digit('1')">1</button>
+      <button onclick="digit('2')">2</button>
+      <button onclick="digit('3')">3</button>
+      <button onclick="dot()">.</button>
+      <button class="op" onclick="setOp('+')">+</button>
+
+      <button class="w2" onclick="digit('0')">0</button>
+      <button onclick="digit('00')">00</button>
+      <button class="eq w2" onclick="equals()">=</button>
+    </div>
+  </div>
+
+  <!-- ================= 사이드 ================= -->
+  <div class="side">
+
+    <div class="card">
+      <div class="ph">
+        <h2>📄 계산 기록 (테이프)</h2>
+        <span class="spacer"></span>
+        <button class="mini" onclick="copyTape()">복사</button>
+        <button class="mini" onclick="clearTape()">지우기</button>
+      </div>
+      <div class="tape num-font" id="tape"></div>
+    </div>
+
+    <div class="card">
+      <div class="ph">
+        <h2>⚖️ 대차 검산</h2>
+        <span class="spacer"></span>
+        <button class="mini" onclick="clearLedger()">비우기</button>
+      </div>
+      <div class="putbtns">
+        <button onclick="put('D')">← 차변에 담기</button>
+        <button onclick="put('C')">대변에 담기 →</button>
+      </div>
+      <div class="led">
+        <div class="col">
+          <h3>차변 (DEBIT)</h3>
+          <div class="list num-font" id="listD"></div>
+          <div class="sum"><b>합계</b><span class="num-font" id="sumD">0</span></div>
+        </div>
+        <div class="col">
+          <h3>대변 (CREDIT)</h3>
+          <div class="list num-font" id="listC"></div>
+          <div class="sum"><b>합계</b><span class="num-font" id="sumC">0</span></div>
+        </div>
+      </div>
+      <div class="diff ok" id="diff"><span class="lab">차액</span><span class="val num-font">0</span></div>
+      <p class="hint" style="margin-top:9px">담긴 숫자를 누르면 지워진다.</p>
+    </div>
+
+    <div class="card">
+      <div class="ph"><h2>⌨️ 키보드</h2></div>
+      <p class="hint">
+        <kbd>0-9</kbd> <kbd>.</kbd> 숫자 · <kbd>+</kbd> <kbd>-</kbd> <kbd>*</kbd> <kbd>/</kbd> 연산 ·
+        <kbd>Enter</kbd> 계산 · <kbd>Backspace</kbd> 한 자리 지움 ·
+        <kbd>Delete</kbd> CE · <kbd>Esc</kbd> AC · <kbd>%</kbd> 퍼센트<br>
+        <kbd>m</kbd> M+ · <kbd>n</kbd> M− · <kbd>r</kbd> MR · <kbd>g</kbd> GT ·
+        <kbd>d</kbd> 차변 담기 · <kbd>k</kbd> 대변 담기
+      </p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ============ 상태 ============ */
+var entry = '0';       // 입력 중인 문자열
+var typing = false;    // 지금 숫자를 치고 있는가
+var acc = 0;           // 누산값
+var pending = null;    // 대기 중인 연산자
+var lastOp = null;     // 테이프에 붙일 직전 연산자
+var mem = 0;
+var gt = 0;
+var err = false;
+var tape = [];
+var ledD = [];
+var ledC = [];
+var decMode = 'F';
+var rndMode = '5/4';
+var MAXDIG = 14;
+
+/* ============ 숫자 처리 ============ */
+function clean(x){ return parseFloat(x.toPrecision(13)); }
+
+function applyDec(x){
+  if(!isFinite(x)) return x;
+  if(decMode === 'F') return clean(x);
+  var p = Math.pow(10, Number(decMode));
+  var y = clean(x * p);
+  var s = y < 0 ? -1 : 1;
+  y = Math.abs(y);
+  if(rndMode === 'CUT') y = Math.floor(y);
+  else if(rndMode === 'UP') y = Math.ceil(y);
+  else y = Math.round(y);
+  return clean(s * y / p);
+}
+
+function fmt(n){
+  if(!isFinite(n)) return 'Error';
+  var s;
+  if(decMode === 'F'){
+    s = String(clean(n));
+    if(s.indexOf('e') >= 0) return 'Error';
+  } else {
+    if(Math.abs(n) >= 1e15) return 'Error';
+    s = n.toFixed(Number(decMode));
+  }
+  var neg = s.charAt(0) === '-';
+  if(neg) s = s.slice(1);
+  var parts = s.split('.');
+  var i = parts[0], f = parts[1];
+  var count = i.replace(/^0$/, '').length + (f ? f.length : 0);
+  if(count > MAXDIG) return 'Error';
+  i = i.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return (neg ? '-' : '') + i + (f ? '.' + f : '');
+}
+
+function fmtEntry(s){
+  var neg = s.charAt(0) === '-';
+  if(neg) s = s.slice(1);
+  var hasDot = s.indexOf('.') >= 0;
+  var parts = s.split('.');
+  var i = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return (neg ? '-' : '') + i + (hasDot ? '.' + (parts[1] || '') : '');
+}
+
+function cur(){ var v = parseFloat(entry); return isNaN(v) ? 0 : v; }
+function digitsOf(s){ return s.replace(/[-.]/g, '').replace(/^0+(?=\d)/, '').length; }
+
+/* ============ 화면 ============ */
+function render(){
+  var el = document.getElementById('main');
+  el.textContent = err ? 'Error' : (typing ? fmtEntry(entry) : fmt(cur()));
+  el.className = 'main num-font' + (err ? ' err' : '');
+
+  var sym = {'+':'+', '-':'−', '*':'×', '/':'÷'};
+  document.getElementById('expr').textContent = (pending && !err) ? (fmt(acc) + ' ' + sym[pending]) : '';
+
+  document.getElementById('regM').textContent = fmt(mem);
+  document.getElementById('regGT').textContent = fmt(gt);
+  document.getElementById('fM').className = 'flag' + (mem !== 0 ? ' on' : '');
+  document.getElementById('fGT').className = 'flag' + (gt !== 0 ? ' on' : '');
+  var fd = document.getElementById('fDec');
+  fd.textContent = decMode;
+  fd.className = 'flag' + (decMode !== 'F' ? ' on' : '');
+  var fr = document.getElementById('fRnd');
+  fr.textContent = rndMode;
+  fr.className = 'flag' + (rndMode !== '5/4' ? ' on' : '');
+}
+
+function setVal(n){
+  if(!isFinite(n)){ err = true; entry = '0'; typing = false; render(); return; }
+  entry = String(clean(n));
+  typing = false; err = false;
+  render();
+}
+
+/* ============ 입력 ============ */
+function digit(d){
+  if(err) allClear();
+  if(!typing){
+    entry = (d === '00' ? '0' : d);
+    typing = true;
+  } else {
+    if(digitsOf(entry) + d.length > MAXDIG) return;
+    if(entry === '0') entry = (d === '00' ? '0' : d);
+    else if(entry === '-0') entry = '-' + (d === '00' ? '0' : d);
+    else entry += d;
+  }
+  render();
+}
+
+function dot(){
+  if(err) allClear();
+  if(!typing){ entry = '0.'; typing = true; }
+  else if(entry.indexOf('.') < 0) entry += '.';
+  render();
+}
+
+function backspace(){
+  if(err){ allClear(); return; }
+  if(!typing){ entry = '0'; typing = true; render(); return; }
+  entry = entry.slice(0, -1);
+  if(entry === '' || entry === '-') entry = '0';
+  render();
+}
+
+function clearEntry(){ entry = '0'; typing = false; err = false; render(); }
+
+function allClear(){
+  entry = '0'; typing = false; acc = 0; pending = null; lastOp = null; err = false;
+  render();
+}
+
+function negate(){
+  if(err) return;
+  if(typing) entry = (entry.charAt(0) === '-') ? entry.slice(1) : ('-' + entry);
+  else setVal(-cur());
+  render();
+}
+
+function sqrt(){
+  if(err) return;
+  var v = cur();
+  if(v < 0){ err = true; render(); return; }
+  setVal(applyDec(Math.sqrt(v)));
+}
+
+function percent(){
+  if(err) return;
+  if(pending === '+' || pending === '-') setVal(applyDec(acc * cur() / 100));
+  else setVal(applyDec(cur() / 100));
+}
+
+/* ============ 연산 ============ */
+function compute(a, b, op){
+  var r;
+  if(op === '+') r = a + b;
+  else if(op === '-') r = a - b;
+  else if(op === '*') r = a * b;
+  else if(op === '/'){
+    if(b === 0){ err = true; return 0; }
+    r = a / b;
+  } else return b;
+  return applyDec(r);
+}
+
+function setOp(op){
+  if(err) return;
+  var v = cur();
+  if(pending === null){
+    pushTape(null, v);
+    acc = v;
+  } else if(typing){
+    pushTape(lastOp, v);
+    var r = compute(acc, v, pending);
+    if(err){ render(); return; }
+    acc = r;
+  }
+  lastOp = op;
+  pending = op;
+  entry = String(acc);
+  typing = false;
+  render();
+}
+
+function equals(){
+  if(err) return;
+  if(pending === null){ typing = false; render(); return; }
+  var v = cur();
+  pushTape(lastOp, v);
+  var r = compute(acc, v, pending);
+  if(err){ render(); return; }
+  pushTape('=', r, 'res');
+  gt = applyDec(gt + r);
+  acc = r;
+  pending = null;
+  lastOp = null;
+  setVal(r);
+}
+
+/* ============ 메모리 · GT ============ */
+function memAdd(sign){
+  if(err) return;
+  mem = applyDec(mem + sign * cur());
+  typing = false;
+  render();
+}
+function memClear(){ mem = 0; render(); }
+function recall(which){
+  if(err) allClear();
+  setVal(which === 'M' ? mem : gt);
+}
+var gtTap = 0, gtTimer = null;
+function gtKey(){
+  gtTap++;
+  if(gtTap >= 2){
+    gt = 0; gtTap = 0;
+    clearTimeout(gtTimer);
+    flash('GT를 지웠다');
+    render();
+    return;
+  }
+  recall('GT');
+  clearTimeout(gtTimer);
+  gtTimer = setTimeout(function(){ gtTap = 0; }, 600);
+}
+
+/* ============ 테이프 ============ */
+function pushTape(op, v, t){
+  tape.push({op: op, v: v, t: t || 'in'});
+  if(tape.length > 400) tape.splice(0, tape.length - 400);
+  renderTape();
+}
+function renderTape(){
+  var box = document.getElementById('tape');
+  if(!tape.length){
+    box.innerHTML = '<div class="empty">계산하면 여기에 쌓인다.<br>줄을 누르면 그 숫자를 다시 불러온다.</div>';
+    return;
+  }
+  var sym = {'+':'+', '-':'−', '*':'×', '/':'÷'};
+  var html = '';
+  for(var i = 0; i < tape.length; i++){
+    var r = tape[i];
+    var mark = (r.t === 'res') ? '=' : (r.op ? sym[r.op] : '');
+    html += '<div class="row' + (r.t === 'res' ? ' res' : '') + '" onclick="tapeClick(' + i + ')">'
+          + '<span class="o">' + mark + '</span>'
+          + '<span class="v">' + fmt(r.v) + '</span></div>';
+  }
+  box.innerHTML = html;
+  box.scrollTop = box.scrollHeight;
+}
+function tapeClick(i){ setVal(tape[i].v); }
+function clearTape(){ tape = []; renderTape(); }
+function copyTape(){
+  if(!tape.length){ flash('기록이 없다'); return; }
+  var sym = {'+':'+', '-':'-', '*':'x', '/':'/'};
+  var lines = [];
+  for(var i = 0; i < tape.length; i++){
+    var r = tape[i];
+    lines.push((r.t === 'res' ? '=' : (r.op ? sym[r.op] : ' ')) + ' ' + fmt(r.v));
+  }
+  var txt = lines.join('\n');
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(
+      function(){ flash('테이프를 복사했다'); },
+      function(){ flash('복사 실패'); }
+    );
+  } else {
+    flash('복사 실패');
+  }
+}
+
+/* ============ 대차 검산 ============ */
+function put(side){
+  if(err) return;
+  (side === 'D' ? ledD : ledC).push(cur());
+  typing = false;
+  renderLedger();
+  render();
+}
+function drop(side, i){
+  (side === 'D' ? ledD : ledC).splice(i, 1);
+  renderLedger();
+}
+function clearLedger(){ ledD = []; ledC = []; renderLedger(); }
+
+function renderLedger(){
+  drawSide(ledD, 'D', 'listD');
+  drawSide(ledC, 'C', 'listC');
+  var sD = applyDec(sum(ledD));
+  var sC = applyDec(sum(ledC));
+  document.getElementById('sumD').textContent = fmt(sD);
+  document.getElementById('sumC').textContent = fmt(sC);
+  var d = applyDec(sD - sC);
+  var box = document.getElementById('diff');
+  var both = ledD.length + ledC.length;
+  box.className = 'diff' + (d === 0 ? ' ok' : '');
+  var tail = (both === 0) ? '' : (d === 0 ? ' · 일치' : (d > 0 ? ' · 차변 초과' : ' · 대변 초과'));
+  box.querySelector('.val').textContent = fmt(d) + tail;
+}
+function sum(a){ var s = 0; for(var i = 0; i < a.length; i++) s += a[i]; return s; }
+function drawSide(arr, side, id){
+  var el = document.getElementById(id);
+  if(!arr.length){ el.innerHTML = '<div class="none">비어 있음</div>'; return; }
+  var html = '';
+  for(var i = 0; i < arr.length; i++){
+    html += '<div onclick="drop(\'' + side + '\',' + i + ')">' + fmt(arr[i]) + '</div>';
+  }
+  el.innerHTML = html;
+  el.scrollTop = el.scrollHeight;
+}
+
+/* ============ 설정 ============ */
+function bindSeg(id, cb){
+  var seg = document.getElementById(id);
+  var btns = seg.querySelectorAll('button');
+  for(var i = 0; i < btns.length; i++){
+    (function(b){
+      b.onclick = function(){
+        for(var j = 0; j < btns.length; j++) btns[j].className = '';
+        b.className = 'on';
+        cb(b.getAttribute('data-v'));
+      };
+    })(btns[i]);
+  }
+}
+bindSeg('segDec', function(v){ decMode = v; renderTape(); renderLedger(); render(); });
+bindSeg('segRnd', function(v){ rndMode = v; renderTape(); renderLedger(); render(); });
+
+/* ============ 테마 ============ */
+function toggleTheme(){
+  var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  setTheme(dark ? 'light' : 'dark');
+  try{ localStorage.setItem('acalc-theme', dark ? 'light' : 'dark'); }catch(e){}
+}
+function setTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  document.getElementById('themeBtn').textContent = (t === 'dark') ? '☀️ 밝게' : '🌙 어둡게';
+}
+(function(){
+  var saved = null;
+  try{ saved = localStorage.getItem('acalc-theme'); }catch(e){}
+  if(saved) setTheme(saved);
+  else if(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) setTheme('dark');
+})();
+
+/* ============ 알림 ============ */
+var flashTimer = null;
+function flash(msg){
+  var el = document.getElementById('flashbox');
+  if(!el){
+    el = document.createElement('div');
+    el.id = 'flashbox';
+    el.style.cssText = 'position:fixed;left:50%;bottom:24px;transform:translateX(-50%);'
+      + 'background:#16203a;color:#e9f1ff;padding:9px 16px;border-radius:10px;'
+      + 'font-size:13px;z-index:99;box-shadow:0 4px 16px rgba(0,0,0,.28)';
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.style.display = 'block';
+  clearTimeout(flashTimer);
+  flashTimer = setTimeout(function(){ el.style.display = 'none'; }, 1400);
+}
+
+/* ============ 키보드 ============ */
+document.addEventListener('keydown', function(e){
+  if(e.ctrlKey || e.metaKey || e.altKey) return;
+  var k = e.key;
+  if(k >= '0' && k <= '9'){ digit(k); e.preventDefault(); return; }
+  if(k === '.' || k === ','){ dot(); e.preventDefault(); return; }
+  if(k === '+' || k === '-' || k === '*' || k === '/'){ setOp(k); e.preventDefault(); return; }
+  if(k === 'Enter' || k === '='){ equals(); e.preventDefault(); return; }
+  if(k === 'Backspace'){ backspace(); e.preventDefault(); return; }
+  if(k === 'Delete'){ clearEntry(); e.preventDefault(); return; }
+  if(k === 'Escape'){ allClear(); e.preventDefault(); return; }
+  if(k === '%'){ percent(); e.preventDefault(); return; }
+  var l = k.toLowerCase();
+  if(l === 'm'){ memAdd(1); e.preventDefault(); return; }
+  if(l === 'n'){ memAdd(-1); e.preventDefault(); return; }
+  if(l === 'r'){ recall('M'); e.preventDefault(); return; }
+  if(l === 'g'){ gtKey(); e.preventDefault(); return; }
+  if(l === 'd'){ put('D'); e.preventDefault(); return; }
+  if(l === 'k'){ put('C'); e.preventDefault(); return; }
+});
+
+render(); renderTape(); renderLedger();
+</script>
+</body>
+</html>

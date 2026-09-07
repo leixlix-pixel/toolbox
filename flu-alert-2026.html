@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>9월인데 벌써 독감? — 독감이 뭐고, 무엇을 조심하고, 어떻게 대응할까</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --ink:#1c2430; --teal:#1f7a8c; --teal2:#14505c; --sky:#3a91a8;
+  --red:#c0392b; --red2:#8c2418; --amber:#d98324; --green:#2e7d5b;
+  --plum:#7d4a86; --navy:#123a63;
+  --paper:#f6f4ed; --line:#ddd8c8; --muted:#6d6b66;
+}
+
+html,body{height:100%;background:#0c1a1e;font-family:'Noto Sans KR',sans-serif;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;overflow:hidden}
+
+#stage{position:absolute;left:50%;top:50%;width:1280px;height:720px;
+  transform-origin:center center;background:var(--paper);overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,.6)}
+
+.slide{position:absolute;inset:0;padding:32px 46px;display:none;
+  flex-direction:column;background:var(--paper);--acc:var(--teal)}
+.slide.on{display:flex}
+.slide::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(circle at 8% 5%,rgba(31,122,140,.10),transparent 44%),
+             radial-gradient(circle at 95% 96%,rgba(217,131,36,.08),transparent 44%)}
+.slide>*{position:relative;z-index:1}
+
+.eyebrow{display:inline-block;font-size:19px;font-weight:700;color:#fff;
+  background:var(--acc);padding:5px 17px;border-radius:999px;margin-bottom:9px;align-self:flex-start}
+h1.title{font-size:54px;font-weight:900;color:var(--teal2);line-height:1.16;letter-spacing:-.02em}
+h2.stitle{font-size:36px;font-weight:900;color:var(--acc);line-height:1.2;letter-spacing:-.02em}
+.rule{width:86px;height:6px;border-radius:4px;
+  background:linear-gradient(90deg,var(--teal),var(--amber));margin:7px 0 13px}
+p.body{font-size:24px;line-height:1.5;color:var(--ink);font-weight:500}
+p.body+p.body{margin-top:8px}
+.small{font-size:21px;line-height:1.46}
+.tiny{font-size:17px;line-height:1.42}
+.mutedt{color:var(--muted)}
+.src{font-size:15px;color:var(--muted);margin-top:auto;padding-top:8px;font-weight:500}
+
+b.hl{font-weight:900;color:var(--red);background:linear-gradient(transparent 62%,rgba(192,57,43,.20) 62%);padding:0 2px}
+b.hn{font-weight:900;color:var(--teal2);background:linear-gradient(transparent 62%,rgba(31,122,140,.22) 62%);padding:0 2px}
+b.hg{font-weight:900;color:#96601a;background:linear-gradient(transparent 62%,rgba(217,131,36,.24) 62%);padding:0 2px}
+
+.cols{display:flex;gap:22px;flex:1;min-height:0;align-items:center}
+.col{flex:1;min-width:0}
+.rowc{display:flex;gap:14px;align-items:center}
+
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px 17px;
+  box-shadow:0 6px 16px rgba(30,25,15,.09)}
+.card h3{font-size:22px;font-weight:900;color:var(--acc);margin-bottom:5px}
+
+.term{background:#fff;border-left:8px solid var(--amber);border-radius:8px;padding:11px 16px;
+  box-shadow:0 5px 14px rgba(30,25,15,.10)}
+.term .t{font-size:21px;font-weight:900;color:#96601a;margin-bottom:2px}
+.term .d{font-size:19px;font-weight:500;color:var(--ink);line-height:1.42}
+
+.act{background:#fff;border:3px dashed var(--teal);border-radius:16px;padding:14px 19px}
+.act-h{display:flex;align-items:center;gap:11px;margin-bottom:7px}
+.act-badge{background:var(--teal);color:#fff;font-weight:900;font-size:19px;
+  padding:4px 14px;border-radius:999px;white-space:nowrap}
+.act-t{font-size:23px;font-weight:900;color:var(--teal2)}
+
+.ask{background:linear-gradient(100deg,#14505c,#1f7a8c);color:#fff;border-radius:14px;
+  padding:13px 20px;box-shadow:0 7px 18px rgba(20,80,92,.32)}
+.ask .q{font-size:26px;font-weight:900;line-height:1.34}
+.ask .s{font-size:19px;font-weight:500;color:#cfe8ee;margin-top:5px;line-height:1.4}
+
+table.tbl{width:100%;border-collapse:collapse;font-size:20px;text-align:center}
+table.tbl th{background:var(--acc);color:#fff;padding:8px 6px;font-weight:900;font-size:19px}
+table.tbl td{border:1px solid var(--line);padding:9px 8px;background:#fff;color:var(--ink);font-weight:700}
+table.tbl td.dim{background:#efece2;color:var(--muted);font-weight:700;font-size:18px}
+table.tbl td.lft{text-align:left;font-weight:500;font-size:19px;line-height:1.38}
+
+/* ---------- 막대그래프 ---------- */
+.bars{display:flex;align-items:flex-end;gap:16px;height:100%}
+.barw{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
+.barv{font-size:23px;font-weight:900;color:var(--teal2);margin-bottom:4px}
+.bar1{width:100%;border-radius:9px 9px 0 0;background:linear-gradient(180deg,var(--sky),var(--teal2));
+  height:0;transition:height .85s cubic-bezier(.2,.7,.3,1)}
+.bar1.red{background:linear-gradient(180deg,#e05b4a,var(--red2))}
+.bar1.grey{background:linear-gradient(180deg,#b6b1a4,#8c887c)}
+.barl{font-size:17px;font-weight:700;color:var(--muted);margin-top:6px;text-align:center;line-height:1.25}
+.seen .bar1{height:var(--h)}
+
+.bigno{font-size:104px;font-weight:900;color:var(--red);line-height:1;letter-spacing:-.03em}
+.bigno small{font-size:34px;font-weight:900;color:var(--ink)}
+.vs{font-size:44px;font-weight:900;color:var(--muted);line-height:1}
+
+/* ---------- 증상 분류 카드 ---------- */
+.symgrid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.sym{background:#fff;border:3px solid var(--line);border-radius:13px;padding:11px 14px;
+  cursor:pointer;font-family:inherit;font-size:20px;font-weight:700;color:var(--ink);
+  text-align:left;line-height:1.32;min-height:60px;display:flex;align-items:center;
+  justify-content:space-between;gap:10px;transition:transform .08s,border-color .15s,background .15s}
+.sym:active{transform:translateY(3px)}
+.sym .tagg{font-size:17px;font-weight:900;color:#fff;background:#c9c4b6;border-radius:7px;
+  padding:3px 10px;white-space:nowrap;opacity:0;transition:opacity .2s}
+.sym.done .tagg{opacity:1}
+.sym.cold.done{border-color:var(--sky);background:#eef7f9}
+.sym.cold.done .tagg{background:var(--sky)}
+.sym.flu.done{border-color:var(--red);background:#fdf0ee}
+.sym.flu.done .tagg{background:var(--red)}
+
+/* ---------- 손씻기 타이머 ---------- */
+.steps{display:flex;gap:9px;margin-top:10px}
+.step{flex:1;background:#fff;border:3px solid var(--line);border-radius:12px;padding:9px 4px;
+  text-align:center;transition:background .2s,border-color .2s,transform .2s}
+.step .ic{font-size:32px;line-height:1.1}
+.step .nm{font-size:16px;font-weight:900;color:var(--muted);margin-top:3px;line-height:1.2}
+.step.lit{background:#e9f6f8;border-color:var(--teal);transform:translateY(-5px)}
+.step.lit .nm{color:var(--teal2)}
+.step.past{background:#f0efe7;border-color:#cfcabb}
+.timer{font-size:66px;font-weight:900;color:var(--teal2);line-height:1;font-variant-numeric:tabular-nums}
+.timer.fin{color:var(--green)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-height:52px;padding:11px 22px;border:0;border-radius:13px;cursor:pointer;
+  background:var(--teal);color:#fff;font-family:inherit;font-size:21px;font-weight:900;
+  box-shadow:0 5px 0 #0f4552;transition:transform .06s,box-shadow .06s}
+.btn:active{transform:translateY(3px);box-shadow:0 2px 0 #0f4552}
+.btn.red{background:var(--red);box-shadow:0 5px 0 var(--red2)}
+.btn.amber{background:var(--amber);box-shadow:0 5px 0 #96601a}
+.btn.grey{background:#5c6470;box-shadow:0 5px 0 #3b424b}
+.btn.sm{min-height:44px;font-size:18px;padding:9px 16px;border-radius:11px}
+
+/* ---------- 전파 경로 ---------- */
+.paths{display:flex;gap:14px;flex:1;min-height:0}
+.path{flex:1;background:#fff;border:1px solid var(--line);border-radius:15px;padding:15px 15px 13px;
+  box-shadow:0 6px 16px rgba(30,25,15,.09);display:flex;flex-direction:column}
+.path .ic{font-size:46px;line-height:1.05}
+.path .h{font-size:25px;font-weight:900;margin:6px 0 5px}
+.path .d{font-size:18.5px;line-height:1.45;color:var(--ink);font-weight:500}
+.path .fix{margin-top:auto;padding-top:9px;font-size:18px;font-weight:900;line-height:1.35}
+.p1{border-top:8px solid var(--red)} .p1 .h{color:var(--red)} .p1 .fix{color:var(--red)}
+.p2{border-top:8px solid var(--amber)} .p2 .h{color:#96601a} .p2 .fix{color:#96601a}
+.p3{border-top:8px solid var(--teal)} .p3 .h{color:var(--teal2)} .p3 .fix{color:var(--teal2)}
+
+/* ---------- 타임라인 ---------- */
+.tl{display:flex;align-items:stretch;gap:0;margin-top:6px}
+.tl .n{flex:1;background:#fff;border:2px solid var(--line);padding:11px 13px;position:relative}
+.tl .n:first-child{border-radius:13px 0 0 13px}
+.tl .n:last-child{border-radius:0 13px 13px 0}
+.tl .n .d{font-size:18px;font-weight:900;color:#fff;background:var(--teal);
+  display:inline-block;padding:3px 11px;border-radius:999px;margin-bottom:6px}
+.tl .n.warn .d{background:var(--red)}
+.tl .n.ok .d{background:var(--green)}
+.tl .n .x{font-size:18.5px;font-weight:700;line-height:1.38;color:var(--ink)}
+
+.checkl{list-style:none}
+.checkl li{font-size:21px;line-height:1.45;font-weight:600;color:var(--ink);
+  padding-left:32px;position:relative;margin-bottom:8px}
+.checkl li::before{content:'✓';position:absolute;left:0;top:-1px;color:var(--teal);
+  font-size:24px;font-weight:900}
+.checkl li.no::before{content:'✕';color:var(--red)}
+
+/* ---------- 표지 / 마무리 ---------- */
+.cover{justify-content:center;padding:0 74px;
+  background:linear-gradient(155deg,#0f4a57,#1f7a8c 55%,#2b8ea0)}
+.cover .kicker{color:#bfe6ee;font-size:23px;font-weight:900;letter-spacing:.02em;margin-bottom:14px}
+.cover h1{color:#fff;font-size:74px;font-weight:900;line-height:1.14;letter-spacing:-.03em}
+.cover .sub{color:#e2f3f7;font-size:25px;font-weight:500;margin-top:20px;line-height:1.5}
+.cover .tag{margin-top:26px;display:inline-block;background:rgba(255,255,255,.16);
+  color:#fff;font-size:19px;font-weight:700;padding:8px 18px;border-radius:999px;align-self:flex-start}
+
+.closing{justify-content:center;align-items:center;text-align:center;padding:0 70px;
+  background:linear-gradient(160deg,#1f7a8c,#0f3a45 78%)}
+.closing h1{color:#fff;font-size:46px;font-weight:900;line-height:1.34}
+.closing .sub{color:#cfe8ee;font-size:23px;font-weight:500;margin-top:20px;line-height:1.55}
+.closing .three{display:flex;gap:14px;margin-top:26px}
+.closing .three div{background:rgba(255,255,255,.15);border-radius:14px;padding:14px 26px;
+  color:#fff;font-size:26px;font-weight:900}
+
+.bar{position:fixed;left:0;right:0;bottom:0;height:46px;background:#0f2429;color:#cfe0e4;
+  display:flex;align-items:center;gap:10px;padding:0 14px;font-size:15px;z-index:50}
+.bar button{background:#1f4a53;color:#e8f2f4;border:0;border-radius:7px;padding:7px 13px;
+  font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+#prog{position:fixed;left:0;top:0;height:4px;background:var(--teal);z-index:60;transition:width .18s}
+.zone{position:fixed;top:0;bottom:46px;width:8%;z-index:40;cursor:pointer}
+#zl{left:0}#zr{right:0}
+</style>
+</head>
+<body>
+
+<div id="prog"></div>
+<div id="stage"></div>
+<div class="zone" id="zl"></div>
+<div class="zone" id="zr"></div>
+<div class="bar no-print">
+  <button onclick="go(-1)">◀ 이전</button>
+  <button onclick="go(1)">다음 ▶</button>
+  <span id="counter">1 / 1</span>
+  <span style="flex:1"></span>
+  <span style="opacity:.7">← → 넘김 · F 전체화면 · 카드와 단추는 눌러 보세요</span>
+  <button onclick="fs()">전체화면</button>
+</div>
+
+<script>
+/* =========================================================================
+   소리 — 파일 없이 Web Audio 로 낸다 (손씻기 타이머용)
+   ========================================================================= */
+let AC = null;
+function ac(){ if(!AC) AC = new (window.AudioContext || window.webkitAudioContext)(); return AC; }
+function beep(freq, dur, vol){
+  try{
+    const c = ac(), o = c.createOscillator(), g = c.createGain();
+    o.type = 'sine'; o.frequency.value = freq;
+    g.gain.setValueAtTime(0, c.currentTime);
+    g.gain.linearRampToValueAtTime(vol || .18, c.currentTime + .02);
+    g.gain.exponentialRampToValueAtTime(.0001, c.currentTime + dur);
+    o.connect(g); g.connect(c.destination);
+    o.start(); o.stop(c.currentTime + dur + .03);
+  }catch(e){}
+}
+function chime(){ [523,659,784,1047].forEach((f,i) => setTimeout(() => beep(f,.32,.16), i*130)); }
+
+/* =========================================================================
+   슬라이드
+   ========================================================================= */
+const stage = document.getElementById('stage');
+const SLIDES = [];
+
+/* 1 ─ 표지 */
+SLIDES.push(`
+<section class="slide cover">
+  <div class="kicker">창의적 체험활동 · 보건 &nbsp;|&nbsp; 5학년 1반</div>
+  <h1>9월인데,<br>벌써 독감?</h1>
+  <div class="sub">독감이 대체 뭐고, 무엇을 조심하고, 어떻게 대응할까</div>
+  <div class="tag">2026년 9월 · 지난주 통계가 이상합니다</div>
+</section>`);
+
+/* 2 ─ 숫자 하나 */
+SLIDES.push(`
+<section class="slide" style="--acc:var(--red)">
+  <span class="eyebrow">먼저, 숫자 하나</span>
+  <h2 class="stitle">지난주 통계가 이상합니다</h2>
+  <div class="rule"></div>
+  <div class="cols">
+    <div class="col" style="flex:.85">
+      <p class="body">병원에 온 환자 <b class="hn">1,000명 중</b><br>독감이 의심되는 사람</p>
+      <div style="display:flex;align-items:flex-end;gap:18px;margin-top:14px">
+        <div>
+          <div class="tiny mutedt" style="font-weight:900">올해 8월 마지막 주</div>
+          <div class="bigno">13.3<small>명</small></div>
+        </div>
+        <div class="vs">vs</div>
+        <div>
+          <div class="tiny mutedt" style="font-weight:900">작년 같은 주</div>
+          <div class="bigno" style="color:var(--muted);font-size:72px">6.4<small style="font-size:26px">명</small></div>
+        </div>
+      </div>
+      <p class="small" style="margin-top:14px"><b class="hl">딱 두 배가 넘습니다.</b></p>
+    </div>
+    <div class="col" style="flex:1.15;height:100%;display:flex;flex-direction:column">
+      <div class="tiny mutedt" style="font-weight:900;margin-bottom:6px">4주 동안 이렇게 올랐습니다</div>
+      <div style="flex:1;min-height:0;padding-bottom:4px">
+        <div class="bars">
+          <div class="barw"><div class="barv">7.0</div><div class="bar1 grey" style="--h:33%"></div><div class="barl">8월<br>둘째 주</div></div>
+          <div class="barw"><div class="barv">7.5</div><div class="bar1 grey" style="--h:36%"></div><div class="barl">8월<br>셋째 주</div></div>
+          <div class="barw"><div class="barv">9.2</div><div class="bar1" style="--h:44%"></div><div class="barl">8월<br>넷째 주</div></div>
+          <div class="barw"><div class="barv" style="color:var(--red)">13.3</div><div class="bar1 red" style="--h:64%"></div><div class="barl" style="color:var(--red);font-weight:900">8월<br>마지막 주</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="ask" style="margin-top:6px"><div class="q">독감은 보통 <b style="color:#ffd9a0">11월에서 1월</b> 사이에 옵니다. 그런데 왜 지금일까요?</div></div>
+  <div class="src">질병관리청 인플루엔자 표본감시, 2026년 35주(8월 23일~29일)</div>
+</section>`);
+
+/* 3 ─ 1등이 우리다 */
+SLIDES.push(`
+<section class="slide" style="--acc:var(--red)">
+  <span class="eyebrow">그런데 더 이상한 것</span>
+  <h2 class="stitle">가장 많이 걸린 나이가, 우리입니다</h2>
+  <div class="rule"></div>
+  <div style="flex:1;min-height:0;display:flex;flex-direction:column">
+    <div style="flex:1;min-height:0">
+      <div class="bars">
+        <div class="barw"><div class="barv" style="color:var(--red);font-size:29px">36.5</div><div class="bar1 red" style="--h:82%"></div><div class="barl" style="color:var(--red);font-weight:900;font-size:19px">7~12세<br><span style="font-size:16px">초등학생</span></div></div>
+        <div class="barw"><div class="barv">22.6</div><div class="bar1" style="--h:51%"></div><div class="barl">1~6세<br><span style="font-size:15px">유아</span></div></div>
+        <div class="barw"><div class="barv">14.9</div><div class="bar1 grey" style="--h:34%"></div><div class="barl">19~49세<br><span style="font-size:15px">부모님</span></div></div>
+        <div class="barw"><div class="barv">14.6</div><div class="bar1 grey" style="--h:33%"></div><div class="barl">13~18세<br><span style="font-size:15px">중·고등</span></div></div>
+        <div class="barw"><div class="barv">7.5</div><div class="bar1 grey" style="--h:17%"></div><div class="barl">50~64세<br><span style="font-size:15px">어른</span></div></div>
+      </div>
+    </div>
+    <p class="body" style="margin-top:12px">7~12세는 <b class="hl">지금 이 교실에 앉아 있는 나이</b>입니다.
+      50대 어른보다 <b class="hl">거의 다섯 배</b> 많습니다.</p>
+  </div>
+  <div class="ask" style="margin-top:8px"><div class="q">왜 하필 우리 나이가 제일 많을까요?</div>
+    <div class="s">어른보다 몸이 약해서일까요? — 아닙니다. 이유는 몸이 아니라 <b>있는 자리</b>에 있습니다.</div></div>
+</section>`);
+
+/* 4 ─ 왜 우리가 */
+SLIDES.push(`
+<section class="slide">
+  <span class="eyebrow">이유 세 가지</span>
+  <h2 class="stitle">학교는 독감이 가장 먼저 도착하는 곳입니다</h2>
+  <div class="rule"></div>
+  <div class="paths">
+    <div class="path p3">
+      <div class="ic">🏫</div>
+      <div class="h">하루 여섯 시간,<br>같은 공기</div>
+      <div class="d">어른은 하루 종일 한 방에 스물다섯 명이 모여 있지 않습니다. 우리는 그렇습니다. 그것도 매일.</div>
+    </div>
+    <div class="path p3">
+      <div class="ic">🤝</div>
+      <div class="h">거리가<br>가깝습니다</div>
+      <div class="d">어른들은 회의를 해도 1미터쯤 떨어져 앉습니다. 우리는 어깨가 닿고, 지우개를 빌리고, 같은 공을 만집니다.</div>
+    </div>
+    <div class="path p3">
+      <div class="ic">📖</div>
+      <div class="h">몸에 적힌<br>기록이 짧습니다</div>
+      <div class="d">우리 몸은 한 번 이긴 바이러스를 적어 둡니다. 어른 몸에는 삼사십 년치가 적혀 있고, 우리 몸에는 <b class="hn">열한 해치</b>뿐입니다.</div>
+    </div>
+  </div>
+  <div class="ask" style="margin-top:12px">
+    <div class="q">그래서 독감은 <b style="color:#ffd9a0">학교에서 시작해서 집으로 갑니다.</b></div>
+    <div class="s">내가 걸리면 다음은 동생, 그다음은 할머니입니다. 어른보다 아기와 노인이 훨씬 위험합니다.</div>
+  </div>
+</section>`);
+
+/* 5 ─ 독한 감기가 아니다 */
+SLIDES.push(`
+<section class="slide" style="--acc:var(--plum)">
+  <span class="eyebrow">독감이 뭐냐 ①</span>
+  <h2 class="stitle">독감은 '독한 감기'가 아닙니다</h2>
+  <div class="rule"></div>
+  <p class="body">이름이 닮아서 생긴 오해입니다. 둘은 <b class="hl">아예 다른 병</b>입니다. 범인부터 다릅니다.</p>
+  <div class="cols" style="flex:1;gap:20px">
+    <div class="col">
+      <div class="card" style="--acc:var(--sky);border-top:8px solid var(--sky)">
+        <h3 style="color:var(--sky);font-size:26px">감기</h3>
+        <p class="small">범인이 <b class="hn">200종이 넘습니다.</b> 라이노바이러스, 코로나바이러스, 아데노바이러스… 매번 다른 녀석이 옵니다.</p>
+        <p class="small" style="margin-top:7px">범인이 너무 많아서 <b class="hn">백신을 만들 수가 없습니다.</b></p>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card" style="border-top:8px solid var(--red)">
+        <h3 style="color:var(--red);font-size:26px">독감 (인플루엔자)</h3>
+        <p class="small">범인이 <b class="hl">딱 한 가족</b>입니다. 인플루엔자 바이러스 A형과 B형.</p>
+        <p class="small" style="margin-top:7px">범인을 알기 때문에 <b class="hl">백신을 만들 수 있고</b>, 잘 듣는 <b class="hl">치료약도 있습니다.</b></p>
+      </div>
+    </div>
+  </div>
+  <div class="term" style="margin-top:6px">
+    <div class="t">그래서 이렇게 기억하세요</div>
+    <div class="d">감기는 <b>여럿이 돌아가며</b> 오는 병, 독감은 <b>한 놈이 몰려서</b> 오는 병.
+      그래서 독감은 한 반, 한 학년이 한꺼번에 앓습니다.</div>
+  </div>
+</section>`);
+
+/* 6 ─ 증상 분류 인터랙티브 */
+SLIDES.push(`
+<section class="slide" style="--acc:var(--plum)">
+  <span class="eyebrow">독감이 뭐냐 ② · 활동</span>
+  <h2 class="stitle">이건 감기일까요, 독감일까요?</h2>
+  <div class="rule" style="margin-bottom:9px"></div>
+  <p class="small" style="margin-bottom:10px">먼저 손을 들어 답해 보고, 그다음 카드를 눌러 확인합니다.</p>
+  <div class="symgrid" id="symgrid">
+    <button class="sym flu" data-a="독감">아침엔 멀쩡했는데 점심에 못 일어났다<span class="tagg">독감</span></button>
+    <button class="sym cold" data-a="감기">코가 막히고 재채기가 난다<span class="tagg">감기</span></button>
+    <button class="sym flu" data-a="독감">열이 38.5도까지 올랐다<span class="tagg">독감</span></button>
+    <button class="sym cold" data-a="감기">목이 조금 칼칼하다<span class="tagg">감기</span></button>
+    <button class="sym flu" data-a="독감">온몸 마디마디가 쑤신다<span class="tagg">독감</span></button>
+    <button class="sym cold" data-a="감기">사흘쯤 지나니 저절로 나았다<span class="tagg">감기</span></button>
+    <button class="sym flu" data-a="독감">미리 맞아 둘 수 있는 주사가 있다<span class="tagg">독감</span></button>
+    <button class="sym cold" data-a="감기">힘들지만 학교는 갈 만하다<span class="tagg">감기</span></button>
+  </div>
+  <div class="ask" style="margin-top:12px">
+    <div class="q">가장 큰 단서는 <b style="color:#ffd9a0">'갑자기'</b>입니다.</div>
+    <div class="s">감기는 슬금슬금 이삼일에 걸쳐 시작합니다. 독감은 몇 시간 만에 사람을 눕힙니다.</div>
+  </div>
+</section>`);
+
+/* 7 ─ 전파 경로 */
+SLIDES.push(`
+<section class="slide" style="--acc:var(--amber)">
+  <span class="eyebrow">뭘 조심할까 · 길목 찾기</span>
+  <h2 class="stitle">바이러스가 나에게 오는 길은 셋뿐입니다</h2>
+  <div class="rule"></div>
+  <div class="paths">
+    <div class="path p1">
+      <div class="ic">💨</div>
+      <div class="h">① 침방울</div>
+      <div class="d">기침 한 번에 침방울 수천 개가 튀어나와 <b>2미터</b>까지 날아갑니다. 교실 한 분단 폭입니다.</div>
+      <div class="fix">→ 소매로 막는다</div>
+    </div>
+    <div class="path p2">
+      <div class="ic">🤚</div>
+      <div class="h">② 손</div>
+      <div class="d">문고리, 태블릿, 리코더, 급식 배식대, 사물함. 바이러스는 물건 위에서 <b>몇 시간</b>씩 버팁니다.</div>
+      <div class="fix">→ 30초 손 씻기</div>
+    </div>
+    <div class="path p3">
+      <div class="ic">🪟</div>
+      <div class="h">③ 고인 공기</div>
+      <div class="d">창문을 닫아 두면 아까 누가 뱉은 공기를 우리가 계속 다시 마십니다.</div>
+      <div class="fix">→ 쉬는 시간마다 환기</div>
+    </div>
+  </div>
+  <p class="body" style="margin-top:12px">길이 셋뿐이라는 건 <b class="hn">막을 곳도 셋뿐</b>이라는 뜻입니다. 하나씩 봅시다.</p>
+</section>`);
+
+/* 8 ─ 손씻기 타이머 */
+SLIDES.push(`
+<section class="slide">
+  <span class="eyebrow">뭘 조심할까 ① · 손</span>
+  <h2 class="stitle">30초가 얼마나 긴지 재 봅시다</h2>
+  <div class="rule" style="margin-bottom:9px"></div>
+  <div class="cols" style="gap:22px;align-items:flex-start">
+    <div class="col" style="flex:.95">
+      <p class="small"><b class="hn">비누</b>로, <b class="hn">흐르는 물</b>에, <b class="hn">30초.</b>
+        물로만 헹구면 바이러스의 기름막이 안 벗겨집니다. 비누가 그 막을 녹입니다.</p>
+      <div class="card" style="margin-top:11px;padding:11px 15px">
+        <h3 style="font-size:20px">언제 씻나</h3>
+        <ul class="checkl" style="margin-top:5px">
+          <li style="font-size:19px;margin-bottom:5px">급식 먹기 전</li>
+          <li style="font-size:19px;margin-bottom:5px">밖에서 교실로 들어왔을 때</li>
+          <li style="font-size:19px;margin-bottom:5px">화장실 다녀온 뒤</li>
+          <li style="font-size:19px;margin-bottom:0">기침이나 재채기를 한 뒤</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col" style="flex:1.05;text-align:center">
+      <div class="timer" id="washT">30</div>
+      <div class="small mutedt" id="washMsg" style="font-weight:700;margin-top:2px">단추를 누르면 시작합니다</div>
+      <button class="btn" id="washBtn" style="margin-top:11px" onclick="washStart()">▶ 30초 재 보기</button>
+      <div class="steps" id="washSteps">
+        <div class="step"><div class="ic">🖐</div><div class="nm">손바닥</div></div>
+        <div class="step"><div class="ic">🤚</div><div class="nm">손등</div></div>
+        <div class="step"><div class="ic">🤞</div><div class="nm">손가락<br>사이</div></div>
+        <div class="step"><div class="ic">👍</div><div class="nm">엄지</div></div>
+        <div class="step"><div class="ic">💅</div><div class="nm">손톱</div></div>
+        <div class="step"><div class="ic">⌚</div><div class="nm">손목</div></div>
+      </div>
+      <p class="tiny mutedt" style="margin-top:9px;font-weight:700">한 곳에 5초씩 — 이렇게 세면 30초가 됩니다</p>
+    </div>
+  </div>
+</section>`);
+
+/* 9 ─ 기침 예절 */
+SLIDES.push(`
+<section class="slide" style="--acc:var(--amber)">
+  <span class="eyebrow">뭘 조심할까 ② · 기침</span>
+  <h2 class="stitle">손으로 막지 말고, 소매로 막습니다</h2>
+  <div class="rule"></div>
+  <div class="cols" style="gap:20px">
+    <div class="col">
+      <div class="card" style="border-top:8px solid var(--red)">
+        <h3 style="color:var(--red);font-size:24px">✋ 손으로 막으면</h3>
+        <p class="small">기침 → 손바닥에 바이러스 → <b class="hl">3초 뒤 문고리</b> → 다음 사람 손 → 그 사람 입.</p>
+        <p class="small" style="margin-top:7px">막았는데 오히려 <b class="hl">옮기는 도구</b>를 하나 만든 셈입니다.</p>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card" style="border-top:8px solid var(--green)">
+        <h3 style="color:var(--green);font-size:24px">👕 소매로 막으면</h3>
+        <p class="small">소매는 그 뒤에 <b class="hn">아무것도 만지지 않습니다.</b> 문고리도, 친구 어깨도.</p>
+        <p class="small" style="margin-top:7px">그래서 소매가 손보다 안전합니다.</p>
+      </div>
+    </div>
+  </div>
+  <div class="term" style="margin-top:12px">
+    <div class="t">휴지가 있다면 이 순서</div>
+    <div class="d">휴지로 막는다 → <b>곧바로 쓰레기통</b>에 버린다 → <b>손을 씻는다.</b>
+      주머니에 넣어 두면 주머니가 바이러스 창고가 됩니다.</div>
+  </div>
+  <p class="body" style="margin-top:10px">그리고 기침이 나는 날은 <b class="hn">마스크</b>가 가장 확실합니다. 남을 위한 것이면서, 사실은 나를 위한 것이기도 합니다.</p>
+</section>`);
+
+/* 10 ─ 환기 */
+SLIDES.push(`
+<section class="slide">
+  <span class="eyebrow">뭘 조심할까 ③ · 공기</span>
+  <h2 class="stitle">쉬는 시간 10분 중 3분은 창문을 엽니다</h2>
+  <div class="rule"></div>
+  <div class="cols" style="gap:20px">
+    <div class="col" style="flex:1.1">
+      <p class="body">우리 교실은 겨울이 오면 창문을 잘 안 엽니다. 춥기 때문입니다.
+        그런데 <b class="hl">닫힌 교실은 아까 뱉은 공기를 계속 다시 마시는 방</b>입니다.</p>
+      <div class="card" style="margin-top:12px">
+        <h3>맞통풍이 훨씬 빠릅니다</h3>
+        <p class="small">창문 하나만 열면 공기가 잘 안 나갑니다.
+          <b class="hn">앞문과 뒤쪽 창문을 같이</b> 열면 바람 길이 생겨서 3분이면 공기가 다 바뀝니다.</p>
+      </div>
+    </div>
+    <div class="col" style="flex:.9">
+      <div class="act">
+        <div class="act-h"><span class="act-badge">우리 반 규칙</span></div>
+        <ul class="checkl">
+          <li>쉬는 시간 종 → 창문 당번이 창문과 문을 함께 연다</li>
+          <li>3분 뒤 닫는다 (추운 날은 겉옷 입고 견딘다)</li>
+          <li>점심 먹고 온 뒤에는 꼭 한 번</li>
+        </ul>
+      </div>
+      <p class="tiny mutedt" style="margin-top:9px;font-weight:700">※ 창문 당번을 오늘 정합니다. 한 주씩 돌아가며 맡습니다.</p>
+    </div>
+  </div>
+</section>`);
+
+/* 11 ─ 왜 매년 맞나 */
+SLIDES.push(`
+<section class="slide" style="--acc:var(--plum)">
+  <span class="eyebrow">궁금한 것 · 왜?</span>
+  <h2 class="stitle">작년에 맞았는데 왜 또 맞아야 하나요?</h2>
+  <div class="rule"></div>
+  <p class="body">우리 몸은 한 번 싸워 본 바이러스의 <b class="hn">얼굴을 기억</b>해 둡니다. 다음에 오면 바로 알아보고 물리칩니다.</p>
+  <div class="cols" style="gap:18px;flex:1">
+    <div class="col">
+      <div class="card" style="text-align:center;border-top:8px solid var(--teal)">
+        <div style="font-size:52px">🧠</div>
+        <h3 style="font-size:21px">우리 몸</h3>
+        <p class="small">한 번 이긴 얼굴을 그려서 붙여 둡니다</p>
+      </div>
+    </div>
+    <div class="col" style="flex:.35;display:flex;align-items:center;justify-content:center">
+      <div style="font-size:40px;color:var(--muted);font-weight:900">그런데</div>
+    </div>
+    <div class="col">
+      <div class="card" style="text-align:center;border-top:8px solid var(--red)">
+        <div style="font-size:52px">🦠</div>
+        <h3 style="font-size:21px;color:var(--red)">인플루엔자</h3>
+        <p class="small">해마다 <b class="hl">얼굴을 조금씩 바꿉니다</b></p>
+      </div>
+    </div>
+    <div class="col" style="flex:.35;display:flex;align-items:center;justify-content:center">
+      <div style="font-size:40px;color:var(--muted);font-weight:900">그래서</div>
+    </div>
+    <div class="col">
+      <div class="card" style="text-align:center;border-top:8px solid var(--amber)">
+        <div style="font-size:52px">💉</div>
+        <h3 style="font-size:21px;color:#96601a">백신도 매년 새로</h3>
+        <p class="small">올해 올 얼굴을 예상해서 다시 만듭니다</p>
+      </div>
+    </div>
+  </div>
+  <div class="term" style="margin-top:8px">
+    <div class="t">한 가지 더 — 미리 맞아야 하는 이유</div>
+    <div class="d">주사를 맞고 몸이 준비를 끝내는 데 <b>2주</b>쯤 걸립니다. 유행이 시작된 뒤에 맞으면 늦습니다.</div>
+  </div>
+</section>`);
+
+/* 12 ─ 예방접종 일정 */
+SLIDES.push(`
+<section class="slide" style="--acc:var(--green)">
+  <span class="eyebrow">어떻게 대응할까 ①</span>
+  <h2 class="stitle">올해 무료 접종은 9월 21일에 시작합니다</h2>
+  <div class="rule"></div>
+  <div class="cols" style="gap:20px">
+    <div class="col" style="flex:1.05">
+      <div class="card" style="border-top:8px solid var(--green)">
+        <h3 style="color:var(--green);font-size:24px">5학년은 무료 대상입니다</h3>
+        <p class="small">올해부터 지원 나이가 <b class="hn">13세에서 14세로 늘었습니다.</b>
+          우리 반은 모두 해당합니다.</p>
+        <p class="small" style="margin-top:7px">기간은 <b class="hn">9월 21일부터 내년 4월 30일까지</b>.
+          1회 접종 대상 어린이는 <b class="hn">9월 28일부터</b>입니다.</p>
+      </div>
+      <div class="act" style="margin-top:11px;border-color:var(--green)">
+        <div class="act-h"><span class="act-badge" style="background:var(--green)">집에 가서 할 일</span></div>
+        <p class="small">오늘 이 이야기를 부모님께 전하고, <b class="hn">우리 집은 언제 맞을지</b> 정해 오기.
+          동생과 할머니도 함께 맞으면 훨씬 좋습니다.</p>
+      </div>
+    </div>
+    <div class="col" style="flex:.95">
+      <div class="term" style="border-left-color:var(--green)">
+        <div class="t" style="color:var(--green)">맞아도 걸릴 수 있습니다. 그래도 맞습니다.</div>
+        <div class="d">백신은 담장이지 방패가 아닙니다. 넘어오는 바이러스가 있어도
+          <b>훨씬 가볍게 앓고 지나갑니다.</b> 폐렴 같은 큰 병으로 번지는 것을 막아 줍니다.</div>
+      </div>
+      <p class="body" style="margin-top:12px">특히 <b class="hl">아기·할머니·할아버지</b>는 독감이 폐렴으로 이어지면 위험합니다.
+        우리가 맞는 것은 우리를 위한 일이면서, 그 사람들을 위한 일이기도 합니다.</p>
+    </div>
+  </div>
+  <div class="src">질병관리청, 2026~2027절기 인플루엔자 국가예방접종 계획</div>
+</section>`);
+
+/* 13 ─ 아플 때 */
+SLIDES.push(`
+<section class="slide" style="--acc:var(--red)">
+  <span class="eyebrow">어떻게 대응할까 ②</span>
+  <h2 class="stitle">이런 느낌이면, 참지 말고 바로 말합니다</h2>
+  <div class="rule"></div>
+  <div class="cols" style="gap:20px;flex:none">
+    <div class="col">
+      <div class="card" style="border-top:8px solid var(--red)">
+        <h3 style="color:var(--red);font-size:22px">몸이 보내는 신호</h3>
+        <ul class="checkl" style="margin-top:6px">
+          <li class="no" style="font-size:19px;margin-bottom:5px">갑자기 열이 오른다</li>
+          <li class="no" style="font-size:19px;margin-bottom:5px">온몸이 쑤시고 무겁다</li>
+          <li class="no" style="font-size:19px;margin-bottom:5px">추워서 몸이 떨린다</li>
+          <li class="no" style="font-size:19px;margin-bottom:0">머리가 아프고 기운이 없다</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col" style="flex:1.25">
+      <div class="term" style="border-left-color:var(--red)">
+        <div class="t" style="color:var(--red)">빨리 말해야 하는 진짜 이유</div>
+        <div class="d">독감에는 잘 듣는 치료약이 있는데, <b>증상이 시작되고 48시간 안에</b> 먹어야 제일 잘 듣습니다.
+          하루를 참으면 그만큼 약이 덜 듣습니다.</div>
+      </div>
+      <p class="body" style="margin-top:11px">그러니까 <b class="hn">참는 것이 씩씩한 게 아닙니다.</b> 빨리 말하는 것이 똑똑한 겁니다.</p>
+    </div>
+  </div>
+  <div class="tl" style="margin-top:14px">
+    <div class="n warn"><div class="d">1</div><div class="x">이상하다 싶으면<br><b>선생님께 바로</b></div></div>
+    <div class="n warn"><div class="d">2</div><div class="x">보건실에서<br><b>열을 잰다</b></div></div>
+    <div class="n"><div class="d">3</div><div class="x">집에 연락하고<br><b>병원에 간다</b></div></div>
+    <div class="n ok"><div class="d">4</div><div class="x">집에서 쉬며<br><b>약을 먹는다</b></div></div>
+  </div>
+</section>`);
+
+/* 14 ─ 언제 다시 오나 */
+SLIDES.push(`
+<section class="slide" style="--acc:var(--green)">
+  <span class="eyebrow">어떻게 대응할까 ③</span>
+  <h2 class="stitle">나으면 언제 학교에 오나요?</h2>
+  <div class="rule"></div>
+  <div class="ask" style="background:linear-gradient(100deg,#1e6b4e,#2e7d5b)">
+    <div class="q">열이 떨어지고 <b style="color:#ffe9a8">하루가 더 지난 뒤</b>에 옵니다.</div>
+    <div class="s">정확히는 — 해열제를 먹지 않은 채로 열이 정상으로 돌아오고, 그 상태로 <b>24시간</b>이 지날 때까지 쉽니다.</div>
+  </div>
+  <div class="cols" style="gap:20px;margin-top:14px">
+    <div class="col">
+      <div class="card">
+        <h3 style="font-size:21px">왜 하루를 더 쉬나요?</h3>
+        <p class="small">열이 내려도 <b class="hn">바이러스는 아직 나옵니다.</b>
+          내 몸은 편해졌지만 옆자리 친구에게는 아직 위험합니다.</p>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card" style="border-top:8px solid var(--green)">
+        <h3 style="font-size:21px;color:var(--green)">결석 걱정은 하지 마세요</h3>
+        <p class="small">독감으로 쉬는 날은 <b class="hn">출석으로 인정</b>됩니다.
+          개근상이 사라지지 않습니다. 진료확인서만 챙겨 오면 됩니다.</p>
+      </div>
+    </div>
+  </div>
+  <div class="term" style="margin-top:12px">
+    <div class="t">해열제를 먹고 열이 내린 것은 '나은 것'이 아닙니다</div>
+    <div class="d">약 기운이 열을 잠깐 눌러 놓은 것뿐입니다. 약을 먹지 않고도 열이 없어야 진짜입니다.</div>
+  </div>
+</section>`);
+
+/* 15 ─ 가장 중요한 것 */
+SLIDES.push(`
+<section class="slide" style="--acc:var(--navy)">
+  <span class="eyebrow">가장 중요한 이야기</span>
+  <h2 class="stitle">아프면 쉬는 것이, 이 계절의 예의입니다</h2>
+  <div class="rule"></div>
+  <p class="body">"아파도 학교는 가야지"라고 배운 사람이 많습니다.
+    성실한 말처럼 들리지만, 독감에서는 <b class="hl">틀린 말</b>입니다.</p>
+  <div class="cols" style="gap:20px;flex:1">
+    <div class="col">
+      <div class="card" style="border-top:8px solid var(--red);height:100%">
+        <h3 style="color:var(--red);font-size:23px">아픈 채로 오면</h3>
+        <p class="small">힘든 사람이 <b class="hl">한 명에서 스물다섯 명</b>이 됩니다.
+          그리고 그 스물다섯 명이 각자 집으로 가져갑니다.</p>
+        <p class="small" style="margin-top:8px">내 동생, 친구네 아기, 우리 할머니에게.</p>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card" style="border-top:8px solid var(--green);height:100%">
+        <h3 style="color:var(--green);font-size:23px">쉬면</h3>
+        <p class="small">나는 이틀 먼저 낫고, <b class="hn">반은 조용히 지나갑니다.</b></p>
+        <p class="small" style="margin-top:8px">쉬는 것은 빠지는 게 아니라,
+          내가 할 수 있는 <b class="hn">가장 큰 배려</b>입니다.</p>
+      </div>
+    </div>
+  </div>
+  <div class="ask" style="margin-top:12px;background:linear-gradient(100deg,#123a63,#1d5b95)">
+    <div class="q">그리고 아파서 쉬고 온 친구에게 <b style="color:#ffd9a0">"왜 빠졌어?"라고 묻지 않기.</b></div>
+    <div class="s">그 친구는 우리를 위해 쉰 것입니다.</div>
+  </div>
+</section>`);
+
+/* 16 ─ 활동 */
+SLIDES.push(`
+<section class="slide" style="--acc:var(--amber)">
+  <span class="eyebrow">모둠 활동 · 10분</span>
+  <h2 class="stitle">우리 반 독감 약속 세 가지를 정합시다</h2>
+  <div class="rule"></div>
+  <div class="act" style="border-color:var(--amber)">
+    <div class="act-h"><span class="act-badge" style="background:var(--amber)">이렇게 합니다</span>
+      <span class="act-t">모둠에서 셋을 고르고, 하나는 새로 만듭니다</span></div>
+    <p class="small">아래 칸에서 우리 반에 꼭 필요한 것을 <b class="hg">세 개</b> 고르고,
+      여기 없는 우리만의 약속을 <b class="hg">하나</b> 더 만들어 칠판에 붙입니다. 그다음 다 같이 투표합니다.</p>
+  </div>
+  <div class="symgrid" style="margin-top:13px;grid-template-columns:1fr 1fr 1fr;gap:10px">
+    <div class="sym" style="cursor:default;font-size:19px">급식 전에는 꼭 손을 씻는다</div>
+    <div class="sym" style="cursor:default;font-size:19px">기침은 무조건 소매에</div>
+    <div class="sym" style="cursor:default;font-size:19px">쉬는 시간마다 창문 3분</div>
+    <div class="sym" style="cursor:default;font-size:19px">기침 나는 날은 마스크</div>
+    <div class="sym" style="cursor:default;font-size:19px">몸이 이상하면 바로 말한다</div>
+    <div class="sym" style="cursor:default;font-size:19px">물병·간식을 나눠 먹지 않는다</div>
+    <div class="sym" style="cursor:default;font-size:19px">태블릿은 쓰고 나서 닦는다</div>
+    <div class="sym" style="cursor:default;font-size:19px">쉬고 온 친구에게 묻지 않기</div>
+    <div class="sym" style="cursor:default;font-size:19px;border-style:dashed;color:var(--muted)">＋ 우리가 만든 약속</div>
+  </div>
+</section>`);
+
+/* 17 ─ 열린 질문 */
+SLIDES.push(`
+<section class="slide" style="--acc:var(--plum)">
+  <span class="eyebrow">마지막 되물음</span>
+  <h2 class="stitle">그런데 왜 올해는 9월에 왔을까요?</h2>
+  <div class="rule"></div>
+  <p class="body">이건 <b class="hn">아직 아무도 확실히 모릅니다.</b> 전문가들도 이유를 찾는 중입니다.
+    다만 이렇게 말하는 사람들이 있습니다.</p>
+  <div class="cols" style="gap:18px;flex:1">
+    <div class="col">
+      <div class="card" style="height:100%">
+        <h3 style="font-size:21px">① 만난 적 없는 몸</h3>
+        <p class="small">몇 해 동안 모두가 마스크를 쓰고 거리를 두었습니다.
+          그동안 독감을 앓아 본 사람이 적어서, 지금 <b class="hn">기억이 없는 몸이 많이 쌓였다</b>는 이야기입니다.</p>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card" style="height:100%">
+        <h3 style="font-size:21px">② 달라진 날씨</h3>
+        <p class="small">여름이 길어지고 가을이 짧아졌습니다.
+          바이러스가 돌기 좋은 <b class="hn">서늘하고 건조한 날</b>이 언제 오는지가 예전과 달라졌습니다.</p>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card" style="height:100%">
+        <h3 style="font-size:21px">③ 더 많이 오간다</h3>
+        <p class="small">사람들이 나라 밖을 훨씬 많이 오갑니다.
+          <b class="hn">남반구는 지금이 겨울</b>입니다. 그곳에서 돌던 독감이 비행기를 타고 옵니다.</p>
+      </div>
+    </div>
+  </div>
+  <div class="ask" style="margin-top:10px">
+    <div class="q">셋 중 무엇이 가장 그럴듯한가요? 왜 그렇게 생각했나요?</div>
+    <div class="s">정답이 없는 질문입니다. 근거를 대며 말해 봅시다.</div>
+  </div>
+</section>`);
+
+/* 18 ─ 마무리 */
+SLIDES.push(`
+<section class="slide closing">
+  <h1>우리가 할 수 있는 건<br>어렵지 않습니다</h1>
+  <div class="three">
+    <div>🤚 손</div>
+    <div>👕 소매</div>
+    <div>🪟 창문</div>
+  </div>
+  <div class="sub">그리고 하나 더 — <b style="color:#ffe9a8">아프면 쉰다.</b><br>
+    이 넷이면 우리 반은 이 가을을 조용히 지나갈 수 있습니다.</div>
+</section>`);
+
+stage.innerHTML = SLIDES.join('');
+
+/* =========================================================================
+   증상 카드
+   ========================================================================= */
+document.querySelectorAll('.sym[data-a]').forEach(b => {
+  b.onclick = () => {
+    b.classList.toggle('done');
+    if(b.classList.contains('done')) beep(b.classList.contains('flu') ? 392 : 587, .16, .13);
+  };
+});
+
+/* =========================================================================
+   손씻기 30초 타이머
+   ========================================================================= */
+let washTimer = null;
+function washStop(){
+  if(washTimer){ clearInterval(washTimer); washTimer = null; }
+  const b = document.getElementById('washBtn');
+  if(b){ b.textContent = '▶ 30초 재 보기'; b.classList.remove('red'); }
+}
+function washReset(){
+  washStop();
+  const t = document.getElementById('washT');
+  if(!t) return;
+  t.textContent = '30'; t.classList.remove('fin');
+  document.getElementById('washMsg').textContent = '단추를 누르면 시작합니다';
+  document.querySelectorAll('#washSteps .step').forEach(s => s.classList.remove('lit','past'));
+}
+function washStart(){
+  if(washTimer){ washReset(); return; }
+  const t = document.getElementById('washT'), msg = document.getElementById('washMsg');
+  const steps = [...document.querySelectorAll('#washSteps .step')];
+  const btn = document.getElementById('washBtn');
+  let left = 30;
+  btn.textContent = '■ 멈추기'; btn.classList.add('red');
+  t.classList.remove('fin');
+
+  const paint = () => {
+    t.textContent = left;
+    const idx = Math.min(5, Math.floor((30 - left) / 5));
+    steps.forEach((s, i) => {
+      s.classList.toggle('lit', i === idx);
+      s.classList.toggle('past', i < idx);
+    });
+    msg.textContent = steps[idx].querySelector('.nm').textContent.replace(/\s+/g, ' ') + ' 문지르기';
+  };
+  paint();
+  beep(660, .12, .14);
+
+  washTimer = setInterval(() => {
+    left--;
+    if(left <= 0){
+      clearInterval(washTimer); washTimer = null;
+      t.textContent = '0'; t.classList.add('fin');
+      msg.textContent = '30초 끝! 생각보다 길지요?';
+      steps.forEach(s => { s.classList.remove('lit'); s.classList.add('past'); });
+      btn.textContent = '↻ 다시';
+      btn.classList.remove('red');
+      chime();
+      return;
+    }
+    paint();
+    if(left % 5 === 0) beep(880, .09, .10);
+  }, 1000);
+}
+
+/* =========================================================================
+   넘김
+   ========================================================================= */
+const slides = [...stage.querySelectorAll('.slide')];
+let cur = 0;
+function show(i){
+  washReset();
+  cur = Math.max(0, Math.min(slides.length - 1, i));
+  slides.forEach((s, n) => s.classList.toggle('on', n === cur));
+  slides[cur].classList.add('seen');
+  document.getElementById('counter').textContent = (cur + 1) + ' / ' + slides.length;
+  const p = document.getElementById('prog');
+  p.style.width = ((cur + 1) / slides.length * 100) + '%';
+  p.style.background = getComputedStyle(slides[cur]).getPropertyValue('--acc');
+}
+function go(d){ show(cur + d); }
+function fit(){
+  const s = Math.min(window.innerWidth / 1280, (window.innerHeight - 46) / 720);
+  stage.style.transform = 'translate(-50%,-50%) scale(' + s + ')';
+}
+function fs(){
+  if(!document.fullscreenElement) document.documentElement.requestFullscreen();
+  else document.exitFullscreen();
+}
+document.addEventListener('keydown', e => {
+  if(['ArrowRight','PageDown',' '].includes(e.key)){ e.preventDefault(); go(1); }
+  if(['ArrowLeft','PageUp'].includes(e.key)){ e.preventDefault(); go(-1); }
+  if(e.key === 'Home') show(0);
+  if(e.key === 'End') show(slides.length - 1);
+  if(e.key === 'f' || e.key === 'F') fs();
+});
+document.getElementById('zl').onclick = () => go(-1);
+document.getElementById('zr').onclick = () => go(1);
+
+let tx = 0, ty = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, {passive:true});
+document.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty;
+  if(Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) go(dx < 0 ? 1 : -1);
+}, {passive:true});
+
+window.addEventListener('resize', fit);
+fit();
+show(0);
+</script>
+</body>
+</html>

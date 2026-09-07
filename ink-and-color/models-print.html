@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>수묵화·수묵담채화 보고 그리기</title>
+<style>
+@page { size: A4 portrait; margin: 8mm; }
+*{ box-sizing:border-box; margin:0; padding:0; }
+html,body{
+  font-family:'Malgun Gothic','맑은 고딕',sans-serif;
+  color:#1d1b18; background:#fff;
+  -webkit-print-color-adjust:exact; print-color-adjust:exact;
+}
+.sheet{
+  width:194mm; height:281mm;
+  margin:0 auto; padding:0;
+  display:flex; flex-direction:column;
+}
+/* ------------------------------------------------ 머리 */
+.head{
+  flex:none;
+  border-bottom:1.6px solid #1d1b18; padding-bottom:2.2mm; margin-bottom:3.5mm;
+}
+.hrow{ display:flex; align-items:baseline; gap:8px; }
+.head h1{ font-size:16pt; font-weight:800; letter-spacing:-.5px; }
+.head .name{ margin-left:auto; font-size:9pt; color:#5c554c; white-space:nowrap; }
+.head .sub{ font-size:9.5pt; color:#4a443c; margin-top:1.2mm; line-height:1.35; }
+.chip{
+  font-size:8.5pt; font-weight:700; color:#fff; background:#1d1b18;
+  padding:1.5px 8px; border-radius:9px; position:relative; top:-2px;
+}
+.chip.c{ background:#8a5a34; }
+
+/* ------------------------------------------------ 칸 */
+.grid{
+  flex:1; min-height:0; display:grid;
+  grid-template-columns:repeat(2,1fr); grid-template-rows:repeat(2,1fr); gap:5mm;
+}
+.cell{ display:flex; flex-direction:column; min-height:0; }
+.box{
+  flex:1; min-height:0; border:1px solid #b9b0a0; border-radius:2px;
+  background:#fdfbf5; overflow:hidden;
+}
+.box svg{ display:block; width:100%; height:100%; }
+.cap{ flex:none; padding-top:1.6mm; }
+.cap .t{ font-size:11pt; font-weight:800; }
+.cap .h{ font-size:8.6pt; color:#5c554c; line-height:1.35; margin-top:.6mm; }
+
+/* ------------------------------------------------ 화면에서만 */
+.screen{ padding:14px; background:#2a2723; }
+@media print{ .screen{ padding:0; background:#fff; } .noprint{ display:none; } }
+.noprint{
+  max-width:210mm; margin:0 auto 12px; color:#e8e1d3; font-size:14px;
+  display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+}
+.noprint button{
+  font:inherit; font-weight:700; padding:8px 16px; border-radius:8px;
+  border:0; background:#e8e1d3; color:#2a2723; cursor:pointer;
+}
+.paper{ background:#fff; box-shadow:0 6px 24px rgba(0,0,0,.4); padding:8mm; margin:0 auto 16px; width:210mm; }
+.paper.first{ page-break-after:always; break-after:page; }
+@media print{ .paper{ box-shadow:none; padding:0; margin:0; width:auto; } }
+</style>
+</head>
+<body>
+
+<div class="screen">
+  <div class="noprint">
+    <button onclick="print()">인쇄</button>
+    <span>A4 <b>세로 · 양면(짧은 쪽으로 넘기기)</b>, 배율 100%, 「배경 그래픽」 켜기</span>
+  </div>
+
+  <!-- ================================================ 앞면 : 수묵화 -->
+  <div class="paper first">
+  <div class="sheet">
+    <div class="head">
+      <div class="hrow">
+        <h1><span class="chip">수묵화</span> 보고 그리기</h1>
+        <span class="name">5학년 ( &nbsp;&nbsp;)반 ( &nbsp;&nbsp;)번 이름 (&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)</span>
+      </div>
+      <div class="sub"><b>먹 하나로 그린다.</b> 색은 쓰지 않는다 — 진한 먹 · 중간 먹 · 옅은 먹, 이 세 가지로만 나타낸다.
+        붓을 세게 누르면 굵고, 살짝 들면 가늘다. <b>뒷면에 수묵담채화가 있다.</b></div>
+    </div>
+    <div class="grid" id="row1"></div>
+  </div>
+  </div>
+
+  <!-- ============================================ 뒷면 : 수묵담채화 -->
+  <div class="paper">
+  <div class="sheet">
+    <div class="head">
+      <div class="hrow">
+        <h1><span class="chip c">수묵담채화</span> 보고 그리기</h1>
+        <span class="name">5학년 ( &nbsp;&nbsp;)반 ( &nbsp;&nbsp;)번 이름 (&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)</span>
+      </div>
+      <div class="sub"><b>먹으로 그리고 색을 옅게 얹는다.</b> 먼저 먹으로 형태를 다 잡은 뒤,
+        물을 많이 섞은 색을 <b>한 번만</b> 얇게 칠한다. 색을 진하게 여러 번 덧칠하면 수묵담채화가 아니다.</div>
+    </div>
+    <div class="grid" id="row2"></div>
+  </div>
+  </div>
+</div>
+
+<script>
+/* ====================================================================
+   붓획 엔진
+   - 중심선을 따라 폭(=필압)을 주고 폐곡선을 만든다
+   - 폭에 미세한 흔들림을 얹어 붓털 자국을 낸다
+   - 획 방향으로 농도가 변하는 그라데이션을 쓴다 (먹이 마른다)
+   ==================================================================== */
+let DEFS=[], GN=0;
+function rnd(i,s){ const v=Math.sin((i+1)*12.9898+s*78.233)*43758.5453; return v-Math.floor(v); }
+
+function cr(p0,p1,p2,p3,t){
+  const t2=t*t, t3=t2*t;
+  return {
+    x:0.5*((2*p1.x)+(-p0.x+p2.x)*t+(2*p0.x-5*p1.x+4*p2.x-p3.x)*t2+(-p0.x+3*p1.x-3*p2.x+p3.x)*t3),
+    y:0.5*((2*p1.y)+(-p0.y+p2.y)*t+(2*p0.y-5*p1.y+4*p2.y-p3.y)*t2+(-p0.y+3*p1.y-3*p2.y+p3.y)*t3)
+  };
+}
+function sample(pts,N){
+  const a=pts.map(p=>({x:p[0],y:p[1]}));
+  const p=[a[0],...a,a[a.length-1]];
+  const segs=p.length-3, out=[], steps=Math.max(5,Math.ceil(N/segs));
+  for(let s=0;s<segs;s++)
+    for(let i=0;i<steps;i++) out.push(cr(p[s],p[s+1],p[s+2],p[s+3],i/steps));
+  out.push(a[a.length-1]);
+  return out;
+}
+/* 폭 프로파일 */
+const P={
+  leaf:  w=>t=>w*Math.pow(Math.sin(Math.PI*t),0.55),   // 양끝 뾰족 (대나무 잎)
+  tip:   w=>t=>w*Math.pow(1-t,0.8)+0.35,               // 굵게 시작→뾰족 (난초 잎)
+  head:  w=>t=>w*Math.pow(t,0.8)+0.35,
+  even:  (a,b)=>t=>a+(b-a)*t,
+  swell: w=>t=>w*(0.4+0.6*Math.sin(Math.PI*t))
+};
+/* 획 방향 그라데이션 */
+function cs(c){                       // rgba() → [색, 투명도] — stop 은 둘을 따로 받는다
+  const m=/rgba?\(([^)]+)\)/.exec(c);
+  if(!m) return [c,1];
+  const p=m[1].split(',').map(function(v){ return parseFloat(v); });
+  return ['rgb('+p[0]+','+p[1]+','+p[2]+')', p.length>3?p[3]:1];
+}
+function grad(p0,p1,c0,c1){
+  const id='g'+(GN++), a=cs(c0), b=cs(c1);
+  DEFS.push('<linearGradient id="'+id+'" gradientUnits="userSpaceOnUse" x1="'+p0[0].toFixed(1)+
+    '" y1="'+p0[1].toFixed(1)+'" x2="'+p1[0].toFixed(1)+'" y2="'+p1[1].toFixed(1)+
+    '"><stop offset="0" stop-color="'+a[0]+'" stop-opacity="'+a[1]+'"/>'+
+    '<stop offset="1" stop-color="'+b[0]+'" stop-opacity="'+b[1]+'"/></linearGradient>');
+  return 'url(#'+id+')';
+}
+/* 획 하나 → <path>
+   o.g   : 끝쪽 색 (그라데이션)
+   o.gx  : 그라데이션을 획에 수직으로 (원통감)
+   o.r   : 붓털 거칠기 (기본 .07)
+   o.off : 중심선을 법선으로 밀어낸 정도 (갈필·잎맥용)
+   o.s   : 흔들림 시드                                                   */
+function S(pts,prof,fill,o){
+  o=o||{};
+  const Q=sample(pts,o.n||72), L=[], R=[];
+  const rough=o.r===undefined?0.07:o.r, sd=o.s===undefined?pts[0][0]+pts[0][1]:o.s;
+  for(let i=0;i<Q.length;i++){
+    const t=i/(Q.length-1);
+    let w=prof(t);
+    w*= 1 + rough*(rnd(i,sd)-0.5)*2 + rough*0.6*Math.sin(i*0.9+sd);
+    w=Math.max(0.1,w)/2;
+    const a=Q[Math.max(0,i-1)], b=Q[Math.min(Q.length-1,i+1)];
+    let dx=b.x-a.x, dy=b.y-a.y; const len=Math.hypot(dx,dy)||1; dx/=len; dy/=len;
+    const ox=o.off?-dy*w*2*o.off:0, oy=o.off?dx*w*2*o.off:0;
+    L.push([Q[i].x-dy*w+ox, Q[i].y+dx*w+oy]);
+    R.push([Q[i].x+dy*w+ox, Q[i].y-dx*w+oy]);
+  }
+  let f=fill;
+  if(o.g){
+    const A=Q[0], B=Q[Q.length-1];
+    if(o.gx){
+      let dx=B.x-A.x, dy=B.y-A.y; const l=Math.hypot(dx,dy)||1; dx/=l; dy/=l;
+      const m={x:(A.x+B.x)/2,y:(A.y+B.y)/2}, w=prof(0.5);
+      f=grad([m.x+dy*w/2,m.y-dx*w/2],[m.x-dy*w/2,m.y+dx*w/2],fill,o.g);
+    } else f=grad([A.x,A.y],[B.x,B.y],fill,o.g);
+  }
+  const d='M'+L.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join('L')
+         +'L'+R.reverse().map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join('L')+'Z';
+  return '<path d="'+d+'" fill="'+f+'"/>';
+}
+/* 세로 그라데이션 — 산자락이 아래로 갈수록 사라진다 */
+function vg(y0,y1,c0,c1){ return grad([0,y0],[0,y1],c0,c1); }
+/* 갈필 — 마른 붓이 남기는 흰 긁힘 (종이색으로 얹는다) */
+const PAPER='#fdfbf5';
+function 갈필(pts,prof,offs,o){
+  let s='';
+  offs.forEach(function(v,i){
+    s+=S(pts,t=>Math.max(0.3,prof(t)*0.11),PAPER,{off:v,r:0.5,s:i*7+3,n:(o&&o.n)||60});
+  });
+  return s;
+}
+/* 먹 농도 */
+const INK={ n:'#141210', m:'rgba(20,18,16,.62)', l:'rgba(20,18,16,.32)', x:'rgba(20,18,16,.15)', z:'rgba(20,18,16,.08)' };
+/* 담채 — 앱 팔레트(먹·대자·주홍·등황·초록·청·자주·분홍)를 물에 푼 색 */
+const C={
+  daeja:'rgba(138,90,52,.50)',  daejaD:'rgba(126,80,44,.78)',
+  red:'rgba(190,58,44,.55)',    redD:'rgba(168,40,30,.72)',
+  yellow:'rgba(224,169,43,.55)',yellowD:'rgba(206,150,30,.75)',
+  green:'rgba(74,124,78,.42)',  greenD:'rgba(58,102,62,.70)',
+  blue:'rgba(53,97,143,.26)',   blueD:'rgba(48,88,132,.44)',
+  pink:'rgba(217,138,154,.48)', pinkD:'rgba(200,104,126,.72)'
+};
+
+/* ==================================================================== */
+/* ①  대나무                                                            */
+function bamboo(){
+  let s='';
+  // 마디 다섯 — 원통감을 위해 그라데이션을 획에 수직으로
+  const seg=[[[116,306],[114,280],[113,256]],[[113,250],[112,226],[111,202]],
+             [[111,196],[110,174],[109,150]],[[109,144],[109,124],[109,104]],
+             [[109,98],[110,80],[111,60]]];
+  const wid=[[18,16.6],[16.6,15],[15,13.4],[13.4,11.8],[11.8,10]];
+  seg.forEach(function(p,i){
+    s+=S(p,P.even(wid[i][0],wid[i][1]),INK.n,{g:INK.l,gx:1,r:0.05});
+  });
+  // 마디 — 짧고 진한 가로획
+  [[253,11],[199,10],[147,9.2],[101,8.4],[57,7.4]].forEach(function(m,i){
+    s+=S([[114-m[1],m[0]+2],[114,m[0]-1.5],[114+m[1],m[0]+1.5]],P.swell(5.5),INK.n,{r:0.1,s:i});
+  });
+  // 가지
+  s+=S([[111,198],[146,186],[178,162]],P.tip(6.5),INK.n,{g:INK.m});
+  s+=S([[109,106],[78,96],[48,76]],P.tip(6),INK.n,{g:INK.m});
+  // 잎 — 길고 끝이 뾰족하다. 한 번에 쭉 긋는다
+  const leaves=[
+    [[[178,162],[214,146],[256,132]],11.5,0],
+    [[[178,162],[216,166],[258,178]],10.5,1],
+    [[[178,162],[200,186],[220,216]],9.5,1],
+    [[[178,162],[206,152],[238,150]],8.5,0],
+    [[[48,76],[30,48],[24,16]],10.5,0],
+    [[[48,76],[22,66],[0,64]],9.5,1],
+    [[[48,76],[42,104],[30,134]],9,1],
+    [[[111,60],[136,38],[158,10]],11.5,0],
+    [[[111,60],[92,36],[86,8]],10,0],
+    [[[111,60],[140,60],[168,70]],8.5,1]
+  ];
+  leaves.forEach(function(L,i){
+    s+=S(L[0],P.leaf(L[1]), L[2]?INK.m:INK.n, {g:L[2]?INK.l:INK.m, r:0.09, s:i*3});
+  });
+  return s;
+}
+
+/* ②  난초                                                              */
+function orchid(){
+  let s='';
+  // 잎 — 뿌리에서 시작해 끝으로 갈수록 힘을 뺀다
+  const L=[
+    [[[150,286],[126,236],[92,186],[40,146]],12,0],
+    [[[152,285],[168,232],[198,184],[254,150]],11,0],
+    [[[148,287],[136,230],[140,164],[112,104]],10,0],
+    [[[153,286],[178,248],[216,226],[266,224]],8.5,1],
+    [[[149,286],[120,258],[84,248],[44,256]],7.5,1],
+    [[[151,285],[164,240],[186,196],[178,152]],7,1],
+    [[[147,287],[134,268],[112,276],[92,296]],6,1],
+    [[[152,286],[176,272],[204,276]],5,1]
+  ];
+  L.forEach(function(a,i){ s+=S(a[0],P.tip(a[1]), a[2]?INK.m:INK.n, {g:a[2]?INK.l:INK.m, r:0.06, s:i*5}); });
+  // 꽃대
+  s+=S([[152,280],[166,238],[176,198]],P.even(4,2.4),INK.m,{g:INK.l});
+  s+=S([[148,282],[126,254],[104,238]],P.even(3.4,2),INK.l);
+  // 꽃 — 다섯 장을 짧은 획으로, 가운데에 점
+  function flower(cx,cy,r,ink,rot){
+    let f='';
+    [-100,-30,40,150,212].forEach(function(a,i){
+      const rad=(a+(rot||0))*Math.PI/180, rr=r*(i<3?1:0.82);
+      f+=S([[cx,cy],[cx+Math.cos(rad)*rr*0.5,cy+Math.sin(rad)*rr*0.55],
+            [cx+Math.cos(rad)*rr,cy+Math.sin(rad)*rr]],P.leaf(7),ink,{r:0.12,s:i});
+    });
+    f+='<circle cx="'+cx+'" cy="'+cy+'" r="2.8" fill="'+INK.n+'"/>';
+    [-70,-20,30].forEach(function(a){
+      const rad=a*Math.PI/180;
+      f+=S([[cx,cy],[cx+Math.cos(rad)*r*0.42,cy+Math.sin(rad)*r*0.42]],P.even(1.6,.5),INK.n);
+    });
+    return f;
+  }
+  s+=flower(178,194,23,INK.m,0);
+  s+=flower(102,234,18,INK.l,25);
+  // 봉오리
+  s+=S([[176,152],[180,142],[176,132]],P.swell(9),INK.m,{r:0.1});
+  // 흙
+  s+=S([[110,296],[148,292],[192,298]],P.leaf(5),INK.x);
+  s+=S([[128,303],[164,301],[204,306]],P.leaf(4),INK.z);
+  return s;
+}
+
+/* ③  매화                                                              */
+function plum(){
+  let s='';
+  // 늙은 가지 — 굵게 시작해 꺾이며 올라간다
+  const main=[[4,306],[42,270],[86,262],[122,224],[126,186],[168,158],[218,146],[262,112],[290,66]];
+  s+=S(main,P.even(21,5),INK.m,{g:INK.n,r:0.16});
+  s+=갈필(main,P.even(21,5),[0.34,-0.2,0.66],{n:110});
+  // 잔가지
+  const b1=[[126,186],[142,150],[128,112],[140,74]];
+  const b2=[[168,158],[186,120],[176,84]];
+  const b3=[[42,270],[28,232],[6,206]];
+  const b4=[[218,146],[248,158],[282,158]];
+  const b5=[[86,262],[76,228],[86,200]];
+  [b1,b2,b3,b4,b5].forEach(function(b,i){
+    s+=S(b,P.even(7.5-i*0.7,1.8),INK.n,{g:INK.m,r:0.18,s:i*9});
+  });
+  s+=S([[140,74],[160,54],[186,48]],P.even(3.4,1.2),INK.n,{r:0.22});
+  s+=S([[28,232],[12,246],[0,242]],P.even(3,1.2),INK.n,{r:0.22});
+  s+=S([[248,158],[254,182],[248,204]],P.even(3,1.2),INK.n,{r:0.22});
+  // 꽃 — 꽃잎 다섯 장을 옅은 먹 곡선으로, 수술은 진하게
+  function blossom(cx,cy,r,ink){
+    let f='';
+    for(let i=0;i<5;i++){
+      const a=(-90+i*72)*Math.PI/180, a2=a+0.62, a0=a-0.62;
+      const p0=[cx+Math.cos(a0)*r*0.42, cy+Math.sin(a0)*r*0.42];
+      const p1=[cx+Math.cos(a)*r*1.02,  cy+Math.sin(a)*r*1.02];
+      const p2=[cx+Math.cos(a2)*r*0.42, cy+Math.sin(a2)*r*0.42];
+      f+='<path d="M'+p0[0].toFixed(1)+','+p0[1].toFixed(1)+' Q'+p1[0].toFixed(1)+','+p1[1].toFixed(1)+
+         ' '+p2[0].toFixed(1)+','+p2[1].toFixed(1)+'" fill="none" stroke="'+ink+
+         '" stroke-width="'+(r*0.16).toFixed(1)+'" stroke-linecap="round"/>';
+    }
+    for(let i=0;i<6;i++){
+      const a=(-118+i*32)*Math.PI/180;
+      f+=S([[cx,cy],[cx+Math.cos(a)*r*0.62,cy+Math.sin(a)*r*0.62]],P.even(1.5,.5),INK.n);
+      f+='<circle cx="'+(cx+Math.cos(a)*r*0.66).toFixed(1)+'" cy="'+(cy+Math.sin(a)*r*0.66).toFixed(1)+'" r="1.5" fill="'+INK.n+'"/>';
+    }
+    f+='<circle cx="'+cx+'" cy="'+cy+'" r="2.4" fill="'+INK.n+'"/>';
+    return f;
+  }
+  [[140,146,14],[130,108,13],[144,70,12],[184,44,13],[186,80,12],[172,118,11],
+   [28,228,14],[4,202,12],[80,196,13],[254,180,12],[248,204,11],[282,158,13],
+   [292,62,13],[268,96,11],[104,246,13],[64,286,12],[196,148,11]]
+  .forEach(function(b,i){ s+=blossom(b[0],b[1],b[2], i%4===3?INK.m:INK.n); });
+  // 봉오리
+  [[160,52],[112,204],[44,254],[236,132]].forEach(function(p){
+    s+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="4.2" fill="none" stroke="'+INK.n+'" stroke-width="2"/>';
+  });
+  return s;
+}
+
+/* ④  산수 — 멀수록 옅게                                                */
+function landscape(){
+  let s='';
+  const T='rgba(20,18,16,0)';
+  // 먼 산 — 능선만 세우고, 자락은 아래로 갈수록 사라진다
+  s+='<path d="M0,124 C24,96 48,72 74,82 C96,90 112,114 138,110 C168,106 190,78 222,74 C252,70 276,96 300,110 L300,178 L0,178 Z" fill="'+vg(74,166,INK.x,T)+'"/>';
+  s+=S([[0,124],[36,90],[74,82],[112,110],[138,110],[178,82],[222,74],[264,92],[300,110]],P.even(2.6,1.4),INK.l,{r:0.32});
+  // 그 앞의 봉우리 — 조금 더 진하다
+  s+=S([[86,116],[118,88],[156,86],[196,108],[226,116]],P.even(2.4,1.4),INK.m,{r:0.32});
+  for(let i=0;i<9;i++){
+    const x=98+i*14, y=98+rnd(i,4)*16;
+    s+=S([[x,y],[x-3,y+10+rnd(i,7)*12]],P.even(1.8,.4),INK.m,{r:0.35,s:i+40});
+  }
+  // 준법 — 산허리에 짧은 획으로 결을 낸다
+  for(let i=0;i<20;i++){
+    const x=12+i*15, y=94+rnd(i,2)*22;
+    s+=S([[x,y],[x-3,y+8+rnd(i,5)*10]],P.even(1.6,.4),INK.l,{r:0.35,s:i});
+  }
+  // 중경 언덕
+  s+='<path d="M0,184 C36,166 78,174 118,186 C158,198 198,190 240,180 C264,174 284,178 300,184 L300,238 L0,238 Z" fill="'+vg(170,228,INK.l,T)+'"/>';
+  s+=S([[0,184],[46,168],[118,186],[176,192],[240,180],[300,184]],P.even(3,1.6),INK.m,{r:0.28});
+  // 중경의 숲 — 점을 찍어 나타낸다
+  [[30,180],[48,178],[66,180],[142,190],[160,189],[176,190],[214,182],[232,180],[250,181]]
+  .forEach(function(t,i){
+    for(let k=0;k<7;k++){
+      const dx=(rnd(k,i)-0.5)*13, dy=-3-rnd(k,i+5)*11;
+      s+='<circle cx="'+(t[0]+dx).toFixed(1)+'" cy="'+(t[1]+dy).toFixed(1)+'" r="'+(1.8+rnd(k,i+9)*1.8).toFixed(1)+'" fill="'+INK.l+'"/>';
+    }
+    s+=S([[t[0],t[1]],[t[0],t[1]-9]],P.even(1.4,.5),INK.m,{r:0.25,s:i});
+  });
+  // 물 — 여백으로 둔다. 잔물결만 몇 줄
+  [[18,242,74],[128,238,66],[44,258,52],[176,250,70],[100,264,46]].forEach(function(w,i){
+    s+=S([[w[0],w[1]],[w[0]+w[2]*0.5,w[1]-3.5],[w[0]+w[2],w[1]]],P.leaf(2.4),INK.l,{r:0.2,s:i});
+  });
+  // 배
+  s+=S([[194,250],[214,258],[238,248]],P.leaf(4.5),INK.n);
+  s+=S([[215,250],[217,234]],P.even(2,1.2),INK.n);
+  s+='<circle cx="217" cy="241" r="3.6" fill="'+INK.n+'"/>';
+  // 근경 — 바위 언덕. 윤곽과 결이 가장 진하다
+  s+='<path d="M0,286 C42,264 86,268 126,276 C156,282 180,280 204,272 C218,282 228,296 234,310 L0,310 Z" fill="'+vg(272,310,INK.x,INK.m)+'"/>';
+  s+=S([[0,286],[42,266],[86,268],[126,276],[168,280],[204,272],[220,286],[234,310]],P.even(3.6,1.6),INK.n,{r:0.24});
+  [[22,296],[62,300],[104,298],[146,296]].forEach(function(p,i){
+    s+=S([[p[0],p[1]],[p[0]+16,p[1]+3]],P.leaf(2.6),INK.n,{r:0.3,s:i});
+  });
+  // 소나무 — 굽은 줄기에 솔잎 다발이 얹힌다
+  function pine(x,y,h,sc){
+    let f=S([[x,y],[x-4*sc,y-h*0.42],[x+3*sc,y-h*0.76],[x+1*sc,y-h]],P.even(9*sc,3*sc),INK.n,{g:INK.m,r:0.18});
+    // 껍질 결
+    for(let i=0;i<5;i++){
+      const yy=y-h*(0.12+i*0.16);
+      f+=S([[x-3*sc,yy],[x+3*sc,yy-2*sc]],P.leaf(1.6*sc),INK.m,{r:0.3,s:i});
+    }
+    function tuft(cx,cy,r,dir,sd){          // 솔잎 다발 — 작은 부채 셋이 모인다
+      let g='';
+      [[-24,0.9,0,0],[16,0.85,r*0.5,r*0.16],[-4,0.7,r*0.16,-r*0.34]].forEach(function(f,j){
+        const fx=cx+f[2], fy=cy+f[3];
+        for(let i=0;i<9;i++){
+          const a=(dir+f[0]-40+i*10)*Math.PI/180, rr=r*f[1]*(0.72+rnd(i,sd+j)*0.45);
+          g+=S([[fx,fy],[fx+Math.cos(a)*rr,fy+Math.sin(a)*rr]],P.even(1.5*sc,.3),INK.n,{r:0.3,s:i+sd+j,n:12});
+        }
+      });
+      return g;
+    }
+    [[-1,0.46,-30,17,-70],[1,0.63,28,15,-110],[-1,0.8,-25,14,-72],[1,0.99,8,17,-90]].forEach(function(b,k){
+      const bx=x+b[0]*2.5*sc, by=y-h*b[1], ex=bx+b[2]*sc, ey=by-8*sc;
+      f+=S([[bx,by],[bx+b[2]*0.5*sc,by-3*sc],[ex,ey]],P.even(3.4*sc,1.3*sc),INK.n,{r:0.22,s:k});
+      f+=tuft(ex,ey,b[3]*sc,b[4],k*3);
+    });
+    return f;
+  }
+  s+=pine(56,290,84,1.05);
+  s+=pine(112,298,56,0.78);
+  // 바위
+  s+=S([[152,284],[180,276],[206,282]],P.leaf(7),INK.n,{r:0.22});
+  s+=S([[162,294],[188,290]],P.leaf(4),INK.m,{r:0.22});
+  return s;
+}
+
+/* ⑤  감 — 먹 가지에 주홍 열매                                          */
+function persimmon(){
+  let s='';
+  const br=[[0,80],[68,108],[148,140],[228,178],[300,214]];
+  s+=S(br,P.even(14,5),INK.n,{g:INK.m,r:0.12});
+  s+=갈필(br,P.even(14,5),[0.3,-0.3],{n:70});
+  s+=S([[148,140],[168,176],[166,198]],P.even(6,3.2),INK.n,{r:0.15});
+  s+=S([[68,108],[88,146],[86,166]],P.even(5.4,3),INK.n,{r:0.15});
+  s+=S([[228,178],[240,208],[236,224]],P.even(5,2.8),INK.n,{r:0.15});
+  function kaki(cx,cy,r,sd){
+    let f='';
+    // 열매 — 아래가 살짝 넓은 납작한 원
+    f+='<path d="M'+(cx-r)+','+(cy-r*0.1)+' C'+(cx-r)+','+(cy-r*0.78)+' '+(cx-r*0.5)+','+(cy-r*0.92)+' '+cx+','+(cy-r*0.9)+
+       ' C'+(cx+r*0.5)+','+(cy-r*0.92)+' '+(cx+r)+','+(cy-r*0.78)+' '+(cx+r)+','+(cy-r*0.1)+
+       ' C'+(cx+r)+','+(cy+r*0.62)+' '+(cx+r*0.55)+','+(cy+r*0.88)+' '+cx+','+(cy+r*0.88)+
+       ' C'+(cx-r*0.55)+','+(cy+r*0.88)+' '+(cx-r)+','+(cy+r*0.62)+' '+(cx-r)+','+(cy-r*0.1)+' Z" fill="'+C.red+'"/>';
+    // 아래쪽만 한 번 더 — 둥글게 보인다
+    f+='<path d="M'+(cx-r*0.94)+','+(cy+r*0.12)+' C'+(cx-r*0.8)+','+(cy+r*0.78)+' '+(cx+r*0.8)+','+(cy+r*0.78)+' '+(cx+r*0.94)+','+(cy+r*0.12)+
+       ' C'+(cx+r*0.7)+','+(cy+r*0.5)+' '+(cx-r*0.7)+','+(cy+r*0.5)+' '+(cx-r*0.94)+','+(cy+r*0.12)+' Z" fill="'+C.redD+'" opacity=".5"/>';
+    // 꼭지 넉 장
+    for(let i=0;i<4;i++){
+      const a=(-180+i*60-30)*Math.PI/180;
+      f+=S([[cx,cy-r*0.8],[cx+Math.cos(a)*r*0.46,cy-r*0.84+Math.sin(a)*r*0.3],
+            [cx+Math.cos(a)*r*0.8,cy-r*0.76+Math.sin(a)*r*0.42]],P.tip(9),INK.n,{r:0.14,s:i+sd});
+    }
+    f+=S([[cx,cy-r*0.82],[cx-1,cy-r*1.14]],P.even(3.6,2.4),INK.n);
+    return f;
+  }
+  s+=kaki(166,230,38,1);
+  s+=kaki(88,192,31,4);
+  s+=kaki(238,252,28,7);
+  // 잎 — 초록에 먹 잎맥
+  [[[[148,140],[184,116],[224,110]],21,C.green],
+   [[[148,140],[176,158],[212,156]],17,C.green],
+   [[[68,108],[38,90],[8,94]],18,C.daeja]].forEach(function(L,i){
+    s+=S(L[0],P.leaf(L[1]),L[2],{r:0.09,s:i});
+    s+=S(L[0],P.even(1.8,.6),INK.m,{r:0.2});
+  });
+  return s;
+}
+
+/* ⑥  연꽃                                                              */
+function lotus(){
+  let s='';
+  // 연잎 — 가장자리가 물결진다
+  let d='M8,240 ';
+  for(let i=1;i<=14;i++){
+    const a=Math.PI+i*(Math.PI/14);
+    const w=1+0.045*Math.sin(i*2.1);
+    d+='L'+(94+Math.cos(a)*86*w).toFixed(1)+','+(240+Math.sin(a)*44*w).toFixed(1)+' ';
+  }
+  d+='Z';
+  s+='<path d="'+d+'" fill="'+C.green+'"/>';
+  for(let i=0;i<6;i++){
+    const a=(190+i*32)*Math.PI/180;
+    s+=S([[94,240],[94+Math.cos(a)*80,240+Math.sin(a)*40]],P.even(1.8,.4),C.greenD,{r:0.25,s:i});
+  }
+  s+='<circle cx="94" cy="240" r="3.4" fill="'+C.greenD+'"/>';
+  // 옆으로 오므린 작은 잎
+  s+='<path d="M196,288 C210,266 244,258 272,268 C288,274 294,284 288,292 C258,300 218,298 196,288 Z" fill="'+C.green+'"/>';
+  s+=S([[196,288],[236,272],[288,292]],P.even(2.2,1),C.greenD,{r:0.2});
+  // 줄기 — 잔가시가 있다
+  s+=S([[94,246],[100,282],[96,310]],P.even(5,4),C.greenD,{r:0.1});
+  s+=S([[214,158],[224,224],[234,296]],P.even(5,4),C.greenD,{r:0.1});
+  for(let i=0;i<6;i++){
+    const y=180+i*20;
+    s+='<circle cx="'+(217+i*1.6).toFixed(1)+'" cy="'+y+'" r="1.6" fill="'+INK.m+'"/>';
+  }
+  // 꽃 — 아래 꽃잎은 벌어지고 위 꽃잎은 모인다
+  const cx=214, cy=120;
+  const petal=[[-90,58,1],[-58,54,1],[-122,54,1],[-30,48,0],[-150,48,0],
+               [-8,40,0],[-172,40,0],[-68,34,1],[-112,34,1]];
+  petal.forEach(function(p,i){
+    const a=p[0]*Math.PI/180, r=p[1];
+    const pts=[[cx,cy+24],[cx+Math.cos(a)*r*0.5,cy+22+Math.sin(a)*r*0.6],
+               [cx+Math.cos(a)*r,cy+18+Math.sin(a)*r]];
+    s+=S(pts,P.leaf(p[2]?24:20), C.pink, {g:C.pinkD, r:0.08, s:i*3});
+    s+=S(pts,P.even(1.5,.4),INK.l,{r:0.25,s:i});
+  });
+  s+='<ellipse cx="'+cx+'" cy="'+(cy+20)+'" rx="14" ry="9" fill="'+C.yellow+'"/>';
+  for(let i=0;i<8;i++)
+    s+=S([[cx-10+i*2.9,cy+20],[cx-11+i*3.1,cy+6]],P.even(1.7,.5),C.yellowD,{r:0.2,s:i});
+  // 봉오리 — 꽃잎 세 장이 모여 뾰족하다
+  [[-90,26],[-118,22],[-62,22]].forEach(function(p,i){
+    const a=p[0]*Math.PI/180;
+    const pts=[[92,186],[92+Math.cos(a)*p[1]*0.5,182+Math.sin(a)*p[1]*0.6],
+               [92+Math.cos(a)*p[1],178+Math.sin(a)*p[1]]];
+    s+=S(pts,P.leaf(13),C.pink,{g:C.pinkD,r:0.09,s:i});
+    s+=S(pts,P.even(1.3,.4),INK.l,{r:0.3,s:i});
+  });
+  s+=S([[92,190],[96,218],[92,246]],P.even(4.4,4),C.greenD,{r:0.1});
+  // 물
+  [[6,300,66],[132,306,74]].forEach(function(w,i){
+    s+=S([[w[0],w[1]],[w[0]+w[2]*0.5,w[1]-3],[w[0]+w[2],w[1]]],P.leaf(2.4),C.blueD,{r:0.2,s:i});
+  });
+  return s;
+}
+
+/* ⑦  새와 가지                                                         */
+function bird(){
+  let s='';
+  const br=[[0,226],[68,210],[152,202],[234,186],[300,164]];
+  s+=S(br,P.even(12,4),INK.n,{g:INK.m,r:0.13});
+  s+=갈필(br,P.even(12,4),[0.32,-0.28],{n:70});
+  s+=S([[152,202],[190,228],[228,242]],P.even(5,2),INK.n,{r:0.16});
+  s+=S([[68,210],[42,236],[14,248]],P.even(4.6,1.8),INK.n,{r:0.16});
+  // 몸통 — 대자를 옅게
+  s+='<path d="M110,122 C130,96 176,94 202,116 C224,136 234,160 228,174 C214,186 166,188 136,172 C112,158 100,140 110,122 Z" fill="'+C.daeja+'"/>';
+  // 등 — 진한 먹
+  s+='<path d="M116,116 C140,94 180,94 204,118 C216,130 222,142 222,152 C196,134 150,126 116,116 Z" fill="'+INK.m+'"/>';
+  // 머리
+  s+='<circle cx="110" cy="120" r="28" fill="'+C.daeja+'"/>';
+  s+='<path d="M84,112 C88,90 112,84 130,96 C141,104 141,114 137,120 C120,111 99,109 84,112 Z" fill="'+INK.n+'"/>';
+  s+='<circle cx="102" cy="114" r="4.8" fill="'+INK.n+'"/>';
+  s+='<circle cx="100.4" cy="112.4" r="1.6" fill="#fff"/>';
+  // 부리
+  s+='<path d="M86,120 L60,126 L86,133 Z" fill="'+INK.n+'"/>';
+  s+=S([[60,126],[86,127]],P.even(1.2,1.2),PAPER);
+  // 날개 — 깃 세 겹
+  s+=S([[134,134],[176,142],[214,162]],P.leaf(10),INK.n,{g:INK.m,r:0.1});
+  s+=S([[138,148],[178,156],[212,172]],P.leaf(8),INK.m,{r:0.1});
+  s+=S([[144,160],[178,166],[206,178]],P.leaf(5.5),INK.l,{r:0.1});
+  // 꼬리
+  s+=S([[226,170],[256,182],[292,200]],P.tip(12),INK.n,{g:INK.m,r:0.12});
+  s+=S([[226,176],[254,192],[282,212]],P.tip(8),INK.m,{r:0.12});
+  // 다리
+  s+=S([[158,182],[162,200],[160,212]],P.even(3.2,2.2),INK.n);
+  s+=S([[184,180],[190,198],[188,208]],P.even(3.2,2.2),INK.n);
+  // 잎
+  [[[[234,186],[264,170],[296,170]],17],[[[42,236],[20,256],[6,282]],16],
+   [[[190,228],[212,250],[216,278]],15]].forEach(function(L,i){
+    s+=S(L[0],P.leaf(L[1]),C.green,{r:0.09,s:i});
+    s+=S(L[0],P.even(1.6,.5),INK.m,{r:0.2});
+  });
+  return s;
+}
+
+/* ⑧  시골 마을                                                         */
+function village(){
+  let s='';
+  s+='<path d="M0,112 C28,80 56,58 82,68 C104,76 120,100 146,96 C174,92 194,66 224,62 C254,58 276,84 300,98 L300,130 L0,130 Z" fill="'+C.blue+'"/>';
+  s+=S([[0,112],[38,76],[82,68],[120,98],[146,96],[186,68],[224,62],[264,80],[300,98]],P.even(2.2,1.8),C.blueD,{r:0.28});
+  s+='<path d="M74,118 C100,96 122,80 150,86 C178,92 196,112 222,118 L222,138 L74,138 Z" fill="'+C.blueD+'" opacity=".55"/>';
+  s+='<rect x="0" y="132" width="300" height="14" fill="'+PAPER+'"/>';
+  // 언덕
+  s+='<path d="M0,172 C48,154 104,162 154,172 C204,182 256,174 300,166 L300,200 L0,200 Z" fill="'+C.green+'"/>';
+  s+=S([[0,172],[54,156],[104,162],[154,172],[206,180],[256,174],[300,166]],P.even(2,1.6),C.greenD,{r:0.25});
+  // 초가집 — 지붕이 둥글다
+  function house(x,y,w,h,ink){
+    let f='';
+    f+='<rect x="'+(x-w/2)+'" y="'+y+'" width="'+w+'" height="'+h+'" fill="#fff"/>';
+    f+='<path d="M'+(x-w/2-11)+','+(y+3)+' C'+(x-w*0.42)+','+(y-h*0.92)+' '+(x+w*0.42)+','+(y-h*0.92)+' '+(x+w/2+11)+','+(y+3)+
+       ' C'+(x+w*0.3)+','+(y-h*0.2)+' '+(x-w*0.3)+','+(y-h*0.2)+' '+(x-w/2-11)+','+(y+3)+' Z" fill="'+C.daejaD+'"/>';
+    f+=S([[x-w/2-11,y+3],[x-w*0.3,y-h*0.72],[x,y-h*0.8],[x+w*0.3,y-h*0.72],[x+w/2+11,y+3]],P.even(2.4,2),INK.n,{r:0.2});
+    f+=S([[x-w/2,y+h],[x-w/2,y]],P.even(2,2),INK.n);
+    f+=S([[x+w/2,y+h],[x+w/2,y]],P.even(2,2),INK.n);
+    f+=S([[x-w/2,y+h],[x+w/2,y+h]],P.even(2,2),INK.n);
+    f+='<rect x="'+(x-w*0.16)+'" y="'+(y+h*0.3)+'" width="'+(w*0.32)+'" height="'+(h*0.7)+'" fill="'+INK.l+'"/>';
+    f+=S([[x-w*0.16,y+h],[x-w*0.16,y+h*0.3],[x+w*0.16,y+h*0.3],[x+w*0.16,y+h]],P.even(1.8,1.8),INK.n);
+    return f;
+  }
+  s+=house(100,216,86,50);
+  s+=house(220,206,54,34);
+  // 나무
+  function tree(x,y,r,h,sd){
+    let f=S([[x,y],[x+2,y-h*0.55],[x-1,y-h]],P.even(6.5,3.2),INK.n,{g:INK.m,r:0.15});
+    f+=S([[x+1,y-h*0.62],[x-r*0.62,y-h*0.9]],P.even(3.4,1.4),INK.n,{r:0.2});
+    f+=S([[x,y-h*0.72],[x+r*0.66,y-h*0.96]],P.even(3.4,1.4),INK.n,{r:0.2});
+    for(let i=0;i<11;i++){
+      const a=(i*33+sd*20)*Math.PI/180, rr=r*(0.45+rnd(i,sd)*0.5);
+      f+='<circle cx="'+(x+Math.cos(a)*rr*0.62).toFixed(1)+'" cy="'+(y-h-5+Math.sin(a)*rr*0.44).toFixed(1)+
+         '" r="'+(r*0.40).toFixed(1)+'" fill="'+C.green+'"/>';
+    }
+    return f;
+  }
+  s+=tree(34,240,42,56,1);
+  s+=tree(274,232,34,46,3);
+  s+=tree(164,226,27,36,5);
+  // 길
+  s+='<path d="M112,272 C126,250 146,240 166,238 L182,238 C158,248 142,260 136,272 Z" fill="'+C.daeja+'" opacity=".45"/>';
+  // 울타리
+  for(let i=0;i<8;i++) s+=S([[46+i*16,288],[46+i*16,266]],P.even(2.6,2),INK.m,{r:0.15,s:i});
+  s+=S([[42,274],[172,272]],P.even(2.2,2.2),INK.m,{r:0.15});
+  // 땅
+  s+=S([[0,302],[80,297],[164,304],[300,297]],P.leaf(3.6),C.daeja,{r:0.2});
+  s+=S([[196,286],[248,282],[300,288]],P.leaf(3),C.green,{r:0.2});
+  return s;
+}
+
+/* ==================================================================== */
+const SET1=[
+  ['① 대나무','줄기 → 마디 → 가지 → 잎 차례로. 잎은 한 번에 쭉 그어 끝을 뾰족하게.', bamboo],
+  ['② 난초','잎 한 장이 붓질 한 번. 뿌리에서 시작해 끝으로 갈수록 힘을 뺀다.', orchid],
+  ['③ 매화','굵은 가지를 옅은 먹으로 먼저, 꽃과 잔가지는 진한 먹으로 나중에.', plum],
+  ['④ 산수','먼 산은 아주 옅게, 가까운 소나무는 가장 진하게. 물은 그리지 않고 비워 둔다.', landscape]
+];
+const SET2=[
+  ['⑤ 감','가지와 꼭지는 먹, 열매는 주홍. 아래쪽만 한 번 더 칠해 둥글게 보이게.', persimmon],
+  ['⑥ 연꽃','꽃잎은 분홍, 잎은 초록. 색을 칠한 뒤 먹으로 가늘게 윤곽을 잡는다.', lotus],
+  ['⑦ 새','머리와 날개는 진한 먹, 배는 대자를 옅게. 눈은 맨 마지막에 콕.', bird],
+  ['⑧ 마을','먼 산은 청을 물에 많이 풀어서. 지붕은 대자, 나무는 초록.', village]
+];
+function build(id,set){
+  document.getElementById(id).innerHTML = set.map(function(c){
+    DEFS=[];
+    const body=c[2]();
+    return '<div class="cell">'
+         +   '<div class="box"><svg viewBox="-8 -14 316 338" preserveAspectRatio="xMidYMid meet">'
+         +     '<defs>'+DEFS.join('')+'</defs>'+body+'</svg></div>'
+         +   '<div class="cap"><div class="t">'+c[0]+'</div><div class="h">'+c[1]+'</div></div>'
+         + '</div>';
+  }).join('');
+}
+build('row1',SET1);
+build('row2',SET2);
+</script>
+</body>
+</html>

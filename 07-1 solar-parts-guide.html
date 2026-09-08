@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>친환경 건설 구조물 — 부품 고르기 안내</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1c2430; --navy:#123a63; --navy2:#1d5b95; --red:#c0392b;
+  --gold:#a87c2e; --green:#2e7d5b; --line:#c9c2b4; --muted:#5f5d58; --soft:#f4f1e9;
+}
+@page{ size:A4; margin:0 }
+html,body{background:#4a5568;font-family:'Noto Sans KR',sans-serif;color:var(--ink)}
+
+.no-print{background:#1d3350;color:#e8eef7;padding:12px 18px;display:flex;
+  align-items:center;gap:14px;font-size:14px}
+.no-print button{background:#c8963e;color:#231a08;border:0;border-radius:7px;
+  padding:9px 18px;font-size:14px;font-weight:900;cursor:pointer;font-family:inherit}
+
+.page{width:210mm;height:297mm;background:#fff;margin:0 auto;padding:12mm 14mm 10mm;
+  overflow:hidden;display:flex;flex-direction:column;
+  print-color-adjust:exact;-webkit-print-color-adjust:exact}
+
+.head{border-bottom:3px solid var(--navy);padding-bottom:5px;margin-bottom:8px}
+.head h1{font-size:17pt;font-weight:900;color:var(--navy);letter-spacing:-.02em}
+.head .sub{font-size:10.5pt;color:var(--muted);font-weight:700;margin-top:4px}
+.head .tag{display:inline-block;background:var(--navy);color:#fff;font-size:9pt;
+  font-weight:900;padding:3px 11px;border-radius:99px;margin-bottom:5px}
+
+h2.sec{font-size:12.5pt;font-weight:900;color:var(--navy2);margin:8px 0 5px;
+  display:flex;align-items:center;gap:8px}
+h2.sec .n{background:var(--navy2);color:#fff;width:21px;height:21px;border-radius:50%;
+  font-size:10pt;display:flex;align-items:center;justify-content:center;flex:none}
+h2.sec:first-of-type{margin-top:2px}
+
+p.t{font-size:10.5pt;line-height:1.5;font-weight:500}
+b.hl{font-weight:900;color:var(--red)}
+b.hn{font-weight:900;color:var(--navy2)}
+b.hg{font-weight:900;color:var(--green)}
+
+table{width:100%;border-collapse:collapse;font-size:9.4pt}
+th,td{border:1px solid var(--line);padding:5px 8px;line-height:1.38;vertical-align:top}
+th{background:#eaeff5;font-weight:900;color:var(--navy);text-align:center;font-size:10pt}
+td.lb{background:var(--soft);font-weight:900;color:var(--gold);width:23mm;text-align:center;font-size:9.5pt}
+td.a{width:39%} td.b{width:39%}
+
+.figbox{border:1px solid var(--line);border-radius:7px;padding:5px 8px 3px;background:#fdfcf9}
+.figbox svg{width:100%;display:block}
+.figcap{font-size:9pt;color:var(--muted);font-weight:700;text-align:center;margin-top:2px}
+
+.two{display:flex;gap:7mm}
+.two>div{flex:1;min-width:0}
+
+.warn{border:2px solid var(--red);border-radius:8px;padding:6px 10px;background:#fdf3f1;
+  font-size:9.6pt;line-height:1.4;font-weight:700;margin-top:6px}
+.warn b{color:var(--red);font-weight:900}
+
+.ck{display:grid;grid-template-columns:1fr 1fr;gap:4px 8mm;font-size:8.8pt;line-height:1.34}
+.ck div{display:flex;gap:6px;align-items:flex-start}
+.ck .q{color:var(--red);font-weight:900;flex:none}
+
+.foot{margin-top:auto;border-top:2px solid var(--line);padding-top:6px;
+  font-size:8.6pt;color:var(--muted);font-weight:700;line-height:1.45}
+@media print{ body{background:#fff} .no-print{display:none} .page{margin:0} }
+</style>
+</head>
+<body>
+
+<div class="no-print">
+  <span>실과 5단원 · 다른 반 선생님께 드리는 부품 안내 — A4 1장</span>
+  <button onclick="window.print()">🖨 인쇄하기</button>
+</div>
+
+<div class="page">
+
+  <div class="head">
+    <span class="tag">실과 5단원 · 건설과 디지털 기술</span>
+    <h1>친환경 건설 구조물 — 태양 전지판에 무엇을 물릴까</h1>
+    <div class="sub">교과서 준비물의 태양 전지판(2V · 50×50mm) 기준. 하나만 더 사면 되는 두 갈래입니다.</div>
+  </div>
+
+  <h2 class="sec"><span class="n">1</span>둘 중 하나만 고르면 됩니다</h2>
+  <table>
+    <tr><th style="width:22mm">&nbsp;</th><th class="a">㉮ 모터 + 프로펠러</th><th class="b">㉯ LED 전구</th></tr>
+    <tr>
+      <td class="lb">무슨 일이<br>일어나나</td>
+      <td>햇빛을 받으면 <b class="hn">팬이 돈다.</b> 손으로 판을 가리면 눈앞에서 멈춘다.</td>
+      <td>햇빛을 받으면 <b class="hn">불이 켜진다.</b> 교과서에 실린 방식이다.</td>
+    </tr>
+    <tr>
+      <td class="lb">살 것</td>
+      <td>솔라 모터(1.5~6V · 지름 25mm)<br>+ 프로펠러 날개(구멍 2mm)</td>
+      <td><b class="hl">5~9V용</b> 5mm LED (전선이 붙어 나온 것)</td>
+    </tr>
+    <tr>
+      <td class="lb">값</td>
+      <td>모터 1,100원 안팎 · 날개는 5개입 세트가 저렴</td>
+      <td>개당 600원 안팎 (배송비를 꼭 확인)</td>
+    </tr>
+    <tr>
+      <td class="lb">태양전지<br>몇 장</td>
+      <td><b class="hg">2장.</b> 1장이면 날개를 달았을 때 힘이 모자람 · 값이 있어 <b>모둠별</b>이 알맞다</td>
+      <td>백색·파랑은 <b class="hg">2장</b> / <b class="hg">빨강·노랑은 1장</b>으로도 켜짐 — 이 경우 <b>1인 1개</b>도 가능</td>
+    </tr>
+    <tr>
+      <td class="lb">좋은 점</td>
+      <td>멀리서도 보인다. 모둠 전체가 동시에 본다. <b class="hg">야외에서 확인하기 좋다.</b></td>
+      <td>연결이 단순하고 실패가 적다. 교과서 순서를 그대로 따라갈 수 있다.</td>
+    </tr>
+    <tr>
+      <td class="lb">주의할 점</td>
+      <td>날개가 크면 흐린 날 안 돈다 → <b class="hl">날개를 3장으로 잘라내면</b> 잘 돈다</td>
+      <td><b class="hl">밝은 곳에서는 켜져도 안 보인다</b> → 상자 안에 넣고 창문 구멍으로 본다</td>
+    </tr>
+  </table>
+
+  <h2 class="sec"><span class="n">2</span>공통 — 태양 전지판 두 장을 먼저 잇습니다</h2>
+  <div class="figbox">
+    <svg viewBox="0 0 900 168">
+      <rect x="34" y="46" width="120" height="88" rx="7" fill="#22262c" stroke="#5f5d58" stroke-width="3"/>
+      <line x1="94" y1="46" x2="94" y2="134" stroke="#fff" stroke-width="2.5"/>
+      <line x1="34" y1="75" x2="154" y2="75" stroke="#fff" stroke-width="2.5"/>
+      <line x1="34" y1="105" x2="154" y2="105" stroke="#fff" stroke-width="2.5"/>
+      <text x="94" y="158" font-size="19" fill="#1c2430" text-anchor="middle" font-family="Noto Sans KR" font-weight="900">판 A</text>
+      <text x="52" y="36" font-size="22" fill="#c0392b" text-anchor="middle" font-family="Noto Sans KR" font-weight="900">＋</text>
+      <text x="140" y="36" font-size="22" fill="#1c2430" text-anchor="middle" font-family="Noto Sans KR" font-weight="900">－</text>
+
+      <rect x="290" y="46" width="120" height="88" rx="7" fill="#22262c" stroke="#5f5d58" stroke-width="3"/>
+      <line x1="350" y1="46" x2="350" y2="134" stroke="#fff" stroke-width="2.5"/>
+      <line x1="290" y1="75" x2="410" y2="75" stroke="#fff" stroke-width="2.5"/>
+      <line x1="290" y1="105" x2="410" y2="105" stroke="#fff" stroke-width="2.5"/>
+      <text x="350" y="158" font-size="19" fill="#1c2430" text-anchor="middle" font-family="Noto Sans KR" font-weight="900">판 B</text>
+      <text x="308" y="36" font-size="22" fill="#c0392b" text-anchor="middle" font-family="Noto Sans KR" font-weight="900">＋</text>
+      <text x="396" y="36" font-size="22" fill="#1c2430" text-anchor="middle" font-family="Noto Sans KR" font-weight="900">－</text>
+
+      <path d="M140 24 C 190 -2, 258 -2, 308 24" stroke="#a87c2e" stroke-width="6" fill="none"/>
+      <text x="224" y="14" font-size="17" fill="#a87c2e" text-anchor="middle" font-family="Noto Sans KR" font-weight="900">A의 －  ✚  B의 ＋</text>
+
+      <path d="M52 134 C 52 172, 300 176, 470 128" stroke="#c0392b" stroke-width="5" fill="none"/>
+      <path d="M396 134 C 420 160, 448 148, 470 140" stroke="#1c2430" stroke-width="5" fill="none"/>
+      <rect x="474" y="98" width="196" height="60" rx="9" fill="#fff" stroke="#1d5b95" stroke-width="3"/>
+      <text x="572" y="124" font-size="19" fill="#1d5b95" text-anchor="middle" font-family="Noto Sans KR" font-weight="900">모터 또는 LED 로</text>
+      <text x="572" y="147" font-size="17" fill="#5f5d58" text-anchor="middle" font-family="Noto Sans KR" font-weight="700">2V ＋ 2V ＝ 4V</text>
+
+      <text x="700" y="52" font-size="18" fill="#1c2430" font-family="Noto Sans KR" font-weight="900">잇는 방법</text>
+      <text x="700" y="80" font-size="16" fill="#5f5d58" font-family="Noto Sans KR" font-weight="700">① 구리 끝을 마주 댄다</text>
+      <text x="700" y="104" font-size="16" fill="#5f5d58" font-family="Noto Sans KR" font-weight="700">② 여러 번 단단히 꼰다</text>
+      <text x="700" y="128" font-size="16" fill="#5f5d58" font-family="Noto Sans KR" font-weight="700">③ 절연 테이프로 감는다</text>
+      <text x="700" y="152" font-size="15" fill="#c0392b" font-family="Noto Sans KR" font-weight="900">구리가 드러나면 서로 닿아 멈춥니다</text>
+    </svg>
+  </div>
+
+  <h2 class="sec"><span class="n">3</span>마지막 연결 — 여기서 갈립니다</h2>
+  <div class="two">
+    <div class="figbox">
+      <svg viewBox="0 0 420 106">
+        <text x="210" y="22" font-size="20" fill="#1d5b95" text-anchor="middle" font-family="Noto Sans KR" font-weight="900">㉮ 모터 — 색을 안 맞춰도 됩니다</text>
+        <path d="M40 62 L150 62" stroke="#c0392b" stroke-width="8" stroke-linecap="round"/>
+        <path d="M40 92 L150 92" stroke="#1c2430" stroke-width="8" stroke-linecap="round"/>
+        <circle cx="230" cy="77" r="34" fill="#fff" stroke="#1d5b95" stroke-width="5"/>
+        <text x="230" y="86" font-size="24" fill="#1d5b95" text-anchor="middle" font-family="Noto Sans KR" font-weight="900">M</text>
+        <path d="M150 62 L196 70" stroke="#c0392b" stroke-width="6"/>
+        <path d="M150 92 L196 84" stroke="#1c2430" stroke-width="6"/>
+        <text x="352" y="66" font-size="16" fill="#2e7d5b" text-anchor="middle" font-family="Noto Sans KR" font-weight="900">거꾸로 물려도</text>
+        <text x="352" y="88" font-size="16" fill="#2e7d5b" text-anchor="middle" font-family="Noto Sans KR" font-weight="900">반대로 돌 뿐입니다</text>
+      </svg>
+    </div>
+    <div class="figbox">
+      <svg viewBox="0 0 420 106">
+        <text x="210" y="22" font-size="20" fill="#c0392b" text-anchor="middle" font-family="Noto Sans KR" font-weight="900">㉯ LED — 색을 맞춰야 합니다</text>
+        <path d="M40 62 L168 62" stroke="#c0392b" stroke-width="8" stroke-linecap="round"/>
+        <path d="M40 92 L168 92" stroke="#1c2430" stroke-width="8" stroke-linecap="round"/>
+        <path d="M168 62 L214 62" stroke="#c0392b" stroke-width="8" stroke-linecap="round"/>
+        <path d="M168 92 L214 92" stroke="#1c2430" stroke-width="8" stroke-linecap="round"/>
+        <circle cx="168" cy="62" r="7" fill="#a87c2e"/>
+        <circle cx="168" cy="92" r="7" fill="#a87c2e"/>
+        <path d="M214 62 L246 77 L214 92 Z" fill="#f5c342" stroke="#a87c2e" stroke-width="3"/>
+        <path d="M246 58 L246 96" stroke="#a87c2e" stroke-width="5"/>
+        <g stroke="#c8963e" stroke-width="4" stroke-linecap="round">
+          <path d="M258 58 L272 46"/><path d="M262 77 L280 77"/><path d="M258 96 L272 108"/>
+        </g>
+        <text x="356" y="66" font-size="16" fill="#c0392b" text-anchor="middle" font-family="Noto Sans KR" font-weight="900">빨강↔빨강</text>
+        <text x="356" y="88" font-size="16" fill="#c0392b" text-anchor="middle" font-family="Noto Sans KR" font-weight="900">검정↔검정</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="warn">
+    <b>교과서 도움말과 헷갈리는 대목</b> — 교과서의 <b>「같은 색 전선끼리 연결」</b>은 판을 <b>한 장</b>만 쓸 때, 그리고 <b>LED에 물리는 마지막 단계</b>의 이야기입니다.
+    판 <b>두 장을 서로 이을 때는 빨강과 검정</b>을 물어야 합니다. 안 짚어 주면 아이들이 빨강끼리 물어 놓고 왜 안 되는지 모릅니다.
+  </div>
+
+  <h2 class="sec"><span class="n">4</span>안 될 때 이 순서로 봅니다</h2>
+  <div class="ck">
+    <div><span class="q">Q1</span><span><b>햇빛이 직접 닿고 있는가.</b> 교실 형광등 아래에서는 거의 안 됩니다. 창가 직사광선이나 야외여야 합니다.</span></div>
+    <div><span class="q">Q2</span><span><b>판이 해를 마주 보는가.</b> 눕혀 놓으면 빛을 비껴 받아 힘이 크게 떨어집니다.</span></div>
+    <div><span class="q">Q3</span><span><b>이음매의 구리가 실제로 닿았는가.</b> 테이프 위로 꼬면 전기가 흐르지 않습니다.</span></div>
+    <div><span class="q">Q4</span><span><b>(LED) 두 선을 바꿔 끼웠는가.</b> <b>(모터) 날개를 손가락으로 튕겨 주었는가.</b> 멈춘 것을 돌리는 힘이 더 큽니다.</span></div>
+    <div><span class="q">Q5</span><span><b>(모터) 날개가 너무 큰가.</b> 5장 중 2장을 가위로 잘라 3장으로 만들면 훨씬 잘 돕니다.</span></div>
+    <div><span class="q">Q6</span><span><b>판을 한 장 더 이어 볼 것.</b> 3장(6V)까지는 괜찮습니다. <b>4장 이상은 모터가 견디는 힘을 넘습니다.</b></span></div>
+  </div>
+
+  <div class="foot">
+    <b>수업 전날 한 세트만 직접 돌려 보시기를 권합니다.</b> 어긋나는 자리는 거의 전부 «부품 조합이 안 맞음» 또는 «빛이 모자람» 둘 중 하나라, 한 번 돌려 보면 그 자리에서 갈립니다. 잘 돌면 그대로, 힘이 없으면 날개를 자르고, 아예 안 되면 판을 한 장 더 잇습니다.
+  </div>
+
+</div>
+</body>
+</html>

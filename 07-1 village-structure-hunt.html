@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>우리 마을의 건설 구조물 찾기</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1c2430; --navy:#123a63; --navy2:#1d5b95; --red:#c0392b;
+  --gold:#a87c2e; --green:#2e7d5b; --line:#c9c2b4; --muted:#5f5d58; --soft:#f4f1e9;
+}
+@page{ size:A4; margin:0 }
+html,body{background:#4a5568;font-family:'Noto Sans KR',sans-serif;color:var(--ink)}
+
+.no-print{background:#1d3350;color:#e8eef7;padding:12px 18px;display:flex;
+  align-items:center;gap:14px;font-size:14px;flex-wrap:wrap}
+.no-print button{background:#c8963e;color:#231a08;border:0;border-radius:7px;
+  padding:9px 18px;font-size:14px;font-weight:900;cursor:pointer;font-family:inherit}
+
+.page{width:210mm;height:297mm;background:#fff;margin:0 auto 8mm;padding:11mm 14mm 9mm;
+  overflow:hidden;display:flex;flex-direction:column;
+  print-color-adjust:exact;-webkit-print-color-adjust:exact}
+
+.head{border-bottom:3px solid var(--navy);padding-bottom:5px;margin-bottom:6px}
+.head h1{font-size:16.5pt;font-weight:900;color:var(--navy);letter-spacing:-.02em}
+.head .sub{font-size:10pt;color:var(--muted);font-weight:700;margin-top:3px}
+.head .tag{display:inline-block;background:var(--navy);color:#fff;font-size:8.6pt;
+  font-weight:900;padding:3px 11px;border-radius:99px;margin-bottom:5px}
+.head .pn{float:right;font-size:9pt;color:var(--muted);font-weight:900;margin-top:4px}
+
+h2.sec{font-size:12pt;font-weight:900;color:var(--navy2);margin:5px 0 3px;
+  display:flex;align-items:center;gap:8px}
+h2.sec .n{background:var(--navy2);color:#fff;width:21px;height:21px;border-radius:50%;
+  font-size:10pt;display:flex;align-items:center;justify-content:center;flex:none}
+h2.sec .hint{font-size:9pt;font-weight:700;color:var(--muted);margin-left:auto;text-align:right}
+h2.sec.g{color:var(--green)} h2.sec.g .n{background:var(--green)}
+h2.sec.r{color:var(--red)} h2.sec.r .n{background:var(--red)}
+
+p.t{font-size:10pt;line-height:1.5;font-weight:500}
+p.s{font-size:9pt;line-height:1.45;font-weight:700;color:var(--muted)}
+b.hl{font-weight:900;color:var(--red)}
+b.hn{font-weight:900;color:var(--navy2)}
+b.hg{font-weight:900;color:var(--green)}
+
+.who{display:flex;gap:6mm;align-items:flex-end;font-size:10pt;font-weight:700;margin-bottom:2px}
+.who .f{flex:1;border-bottom:1.6px solid var(--ink);height:8mm}
+.who .f.sm{flex:0 0 30mm}
+.who .lb{font-weight:900;color:var(--navy);flex:none;padding-bottom:1.5mm}
+
+.gridbox svg{width:100%;display:block}
+
+.tip{border:1.8px solid var(--gold);border-radius:8px;padding:5px 10px;background:#fdfaf2;
+  font-size:9.2pt;line-height:1.45;font-weight:700}
+.tip b{color:var(--gold);font-weight:900}
+
+.foot{margin-top:auto;border-top:2px solid var(--line);padding-top:5px;
+  font-size:8.4pt;color:var(--muted);font-weight:700;line-height:1.45}
+
+@media print{ body{background:#fff} .no-print{display:none} .page{margin:0} }
+</style>
+</head>
+<body>
+
+<div class="no-print">
+  <span>실과 5단원 ①차시 · <b>우리 마을의 건설 구조물 찾기</b> — A4 1장 · 한 사람에 1부</span>
+  <button onclick="window.print()">🖨 인쇄하기</button>
+  <span style="opacity:.8">태블릿 지도 앱의 「거리 보기」로 우리 마을을 돌아보며 씁니다.</span>
+</div>
+
+<div class="page">
+
+  <div class="head">
+    <span class="pn">실과 5단원 ①차시</span>
+    <span class="tag">교과서 75쪽 · 활동 해 보기</span>
+    <h1>우리 마을의 건설 구조물 찾기</h1>
+    <div class="sub">지도 앱의 「거리 보기」로 우리 마을을 걸어 본다. 늘 지나다니던 것을 <b>이름을 붙여</b> 다시 본다.</div>
+  </div>
+
+  <div class="who">
+    <span class="lb">학년 반</span><span class="f sm"></span>
+    <span class="lb">이름</span><span class="f"></span>
+  </div>
+
+  <h2 class="sec"><span class="n">1</span>먼저 몸풀기 — 어느 쪽일까<span class="hint">건축이면 ○, 토목이면 □ 를 칸에 그린다</span></h2>
+
+  <div class="gridbox">
+    <svg viewBox="0 0 880 122">
+      <g fill="none" stroke="#5f5d58" stroke-width="1.8">
+        <rect x="12" y="10" width="30" height="30" rx="4"/>
+        <rect x="312" y="10" width="30" height="30" rx="4"/>
+        <rect x="612" y="10" width="30" height="30" rx="4"/>
+        <rect x="12" y="72" width="30" height="30" rx="4"/>
+        <rect x="312" y="72" width="30" height="30" rx="4"/>
+        <rect x="612" y="72" width="30" height="30" rx="4"/>
+      </g>
+      <g font-family="Noto Sans KR" font-size="17" font-weight="700" fill="#1c2430">
+        <text x="54" y="32">지하철역</text>
+        <text x="354" y="32">육교</text>
+        <text x="654" y="32">저수지 둑</text>
+        <text x="54" y="94">공항 터미널</text>
+        <text x="354" y="94">지하상가</text>
+        <text x="654" y="94">고속도로 휴게소</text>
+      </g>
+      <g stroke="#c9c2b4" stroke-width="1.2" stroke-dasharray="6 5">
+        <line x1="180" y1="42" x2="292" y2="42"/>
+        <line x1="480" y1="42" x2="592" y2="42"/>
+        <line x1="780" y1="42" x2="868" y2="42"/>
+        <line x1="180" y1="104" x2="292" y2="104"/>
+        <line x1="480" y1="104" x2="592" y2="104"/>
+        <line x1="780" y1="104" x2="868" y2="104"/>
+      </g>
+    </svg>
+  </div>
+
+  <div class="tip" style="margin-top:3px">
+    <b>답이 갈리는 것이 있다 — 그게 정상이다.</b> 기준은 하나다.
+    그 안에서 <b>지내면</b> 건축, 그곳을 <b>지나가면</b> 토목.
+    지하철역처럼 둘 다인 것은 <b>내가 어떤 기준을 댔는지</b>를 옆에 한 마디 적으면 그것이 답이다.
+  </div>
+
+  <h2 class="sec"><span class="n">2</span>우리 마을의 <span style="color:var(--navy2)">건축 구조물</span> 세 가지<span class="hint">사람이 그 안에서 지내는 것</span></h2>
+
+  <div class="gridbox">
+    <svg viewBox="0 0 880 304">
+      <rect x="0" y="0" width="880" height="28" fill="#eef2f7"/>
+      <g stroke="#5f5d58" stroke-width="1.4">
+        <line x1="0" y1="28" x2="880" y2="28"/>
+        <line x1="0" y1="120" x2="880" y2="120"/>
+        <line x1="0" y1="212" x2="880" y2="212"/>
+        <line x1="42" y1="0" x2="42" y2="304"/>
+        <line x1="252" y1="0" x2="252" y2="304"/>
+        <line x1="472" y1="0" x2="472" y2="304"/>
+      </g>
+      <rect x="0.9" y="0.9" width="878.2" height="302.2" fill="none" stroke="#123a63" stroke-width="2.2"/>
+      <g font-family="Noto Sans KR" font-size="15" font-weight="900" fill="#123a63" text-anchor="middle">
+        <text x="147" y="20">이름</text>
+        <text x="362" y="20">어디에 있나</text>
+        <text x="676" y="20">우리에게 어떤 도움을 주나</text>
+      </g>
+      <g font-family="Noto Sans KR" font-size="16" font-weight="900" fill="#5f5d58" text-anchor="middle">
+        <text x="21" y="80">1</text><text x="21" y="172">2</text><text x="21" y="264">3</text>
+      </g>
+    </svg>
+  </div>
+
+  <h2 class="sec g"><span class="n">3</span>우리 마을의 <span style="color:var(--green)">토목 구조물</span> 세 가지<span class="hint">머무르지 않고 지나가거나, 물·전기를 다루는 것</span></h2>
+
+  <div class="gridbox">
+    <svg viewBox="0 0 880 304">
+      <rect x="0" y="0" width="880" height="28" fill="#eaf3ee"/>
+      <g stroke="#5f5d58" stroke-width="1.4">
+        <line x1="0" y1="28" x2="880" y2="28"/>
+        <line x1="0" y1="120" x2="880" y2="120"/>
+        <line x1="0" y1="212" x2="880" y2="212"/>
+        <line x1="42" y1="0" x2="42" y2="304"/>
+        <line x1="252" y1="0" x2="252" y2="304"/>
+        <line x1="472" y1="0" x2="472" y2="304"/>
+      </g>
+      <rect x="0.9" y="0.9" width="878.2" height="302.2" fill="none" stroke="#2e7d5b" stroke-width="2.2"/>
+      <g font-family="Noto Sans KR" font-size="15" font-weight="900" fill="#2e7d5b" text-anchor="middle">
+        <text x="147" y="20">이름</text>
+        <text x="362" y="20">어디에 있나</text>
+        <text x="676" y="20">우리에게 어떤 도움을 주나</text>
+      </g>
+      <g font-family="Noto Sans KR" font-size="16" font-weight="900" fill="#5f5d58" text-anchor="middle">
+        <text x="21" y="80">1</text><text x="21" y="172">2</text><text x="21" y="264">3</text>
+      </g>
+    </svg>
+  </div>
+
+  <h2 class="sec r"><span class="n">4</span>위에 적은 여섯 가지 중에서<span class="hint">없어지면 가장 곤란한 것 하나와 그 까닭</span></h2>
+
+  <div class="gridbox">
+    <svg viewBox="0 0 880 128">
+      <rect x="0.9" y="0.9" width="878.2" height="126.2" fill="none" stroke="#c0392b" stroke-width="2.2"/>
+      <g stroke="#5f5d58" stroke-width="1.4">
+        <line x1="0" y1="42" x2="880" y2="42"/>
+        <line x1="0" y1="85" x2="880" y2="85"/>
+        <line x1="150" y1="0" x2="150" y2="42"/>
+      </g>
+      <g font-family="Noto Sans KR" font-size="15" font-weight="900" fill="#c0392b">
+        <text x="16" y="27">가장 곤란한 것</text>
+        <text x="16" y="70">그 까닭은</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="foot">
+    <b>왜 마지막 질문을 하나</b> — 구조물을 「거기 있는 것」이 아니라 <b>「하는 일」</b>로 보게 만들려고.
+    없어졌을 때 무엇이 멈추는지를 생각하면, 그 구조물이 무슨 일을 하고 있었는지가 그제야 보인다.<br>
+    실과 5단원 「건설과 디지털 기술」 · ①차시 · 교과서 74~75쪽
+  </div>
+
+</div>
+
+</body>
+</html>

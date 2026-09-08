@@ -624,15 +624,17 @@ const KP = {
   },
   focus(i){ this.idx=i; this.paint(); },
   paint(){ this.slots.forEach((el,i)=>el.classList.toggle('act', i===this.idx)); },
+  MAX:3,
   key(ch){
     const el=this.slots[this.idx]; if(!el) return;
-    if(ch==='del'){ SND.tap(); el.textContent = el.textContent.slice(0,-1);
-      if(el.textContent==='' && this.idx>0){} return; }
+    if(ch==='del'){ SND.tap();
+      if(el.textContent==='' && this.idx>0){ this.focus(this.idx-1); return; }
+      el.textContent = el.textContent.slice(0,-1); return; }
+    if(el.textContent.length>=this.MAX){ SND.bad(); return; }
     SND.click();
     el.classList.remove('wrong');
-    if(el.textContent.length>=2) el.textContent='';
     el.textContent += ch;
-    if(el.textContent.length>=2 && this.idx<this.slots.length-1) this.focus(this.idx+1);
+    if(el.textContent.length>=this.MAX && this.idx<this.slots.length-1) this.focus(this.idx+1);
   },
   vals(){ return this.slots.map(el=> el.textContent==='' ? null : parseInt(el.textContent,10)); },
   submit(){ if(this.onSubmit) this.onSubmit(this.vals()); }
@@ -943,7 +945,7 @@ function fillSpec(it){
     const frn = imp(fr).n;
     h+=line('<span class="op">=</span><span class="frslot"><span>'+slot()+'<span class="op" style="font-size:20px">×</span>'+slot()+'</span>'
       +'<span class="bar"></span><span style="font-weight:700;font-size:22px">'+fr.d+'</span></span>');
-    A.push(frn, nt);
+    A.push(...(isNat(p.A) ? [nt, frn] : [frn, nt]));
     h+=line('<span class="op">=</span>'+slotOver(''+fr.d));
     A.push(P0);
   } else {

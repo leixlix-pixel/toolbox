@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>작곡소 — 장조·단조로 네 마디 노래 만들기</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1c2430; --navy:#123a63; --navy2:#1d5b95;
+  --red:#c0392b; --gold:#c8963e; --green:#2e7d5b; --plum:#7d4a86;
+  --paper:#f6f2e9; --line:#d9d2c4; --muted:#6d6b66;
+  --ok:#2e7d5b; --pass:#c8963e; --bad:#c0392b;
+}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--paper);color:var(--ink);
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;
+  padding:12px 16px 28px;min-height:100vh}
+.wrap{max-width:1240px;margin:0 auto}
+
+header{display:flex;align-items:baseline;gap:13px;flex-wrap:wrap;margin-bottom:10px}
+h1{font-size:29px;font-weight:900;color:var(--navy);letter-spacing:-.02em}
+header .sub{font-size:16px;font-weight:700;color:var(--muted)}
+header .now{margin-left:auto;font-size:16px;font-weight:900;color:var(--red);
+  background:#fdf1ef;border:2px solid #f0cfc9;border-radius:9px;padding:5px 12px;display:none}
+header .now.show{display:block}
+
+/* 단계 표시 */
+.steps{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.stp{flex:1;min-width:130px;min-height:44px;border:2px solid var(--line);background:#fff;
+  border-radius:10px;display:flex;align-items:center;justify-content:center;gap:7px;
+  font-size:16px;font-weight:900;color:#b3aa98;cursor:pointer;font-family:inherit}
+.stp .no{width:24px;height:24px;border-radius:50%;background:#e8e1d2;color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:14px}
+.stp.done{color:var(--green);border-color:#bfdccd}
+.stp.done .no{background:var(--green)}
+.stp.on{color:var(--red);border-color:var(--red);background:#fdf1ef}
+.stp.on .no{background:var(--red)}
+
+.pane{display:none}
+.pane.on{display:block}
+
+/* 공통 */
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:15px 18px;
+  box-shadow:0 5px 14px rgba(30,25,15,.08)}
+.lead{font-size:17px;line-height:1.6;margin-bottom:14px}
+.lead b{color:var(--red);font-weight:900}
+.btn{min-height:52px;padding:10px 19px;border:0;border-radius:12px;cursor:pointer;
+  font-family:inherit;font-size:18px;font-weight:900;color:#fff;background:var(--navy2);
+  box-shadow:0 4px 0 #0e3a63;display:inline-flex;align-items:center;justify-content:center;gap:7px}
+.btn:active{transform:translateY(2px);box-shadow:0 2px 0 #0e3a63}
+.btn.red{background:var(--red);box-shadow:0 4px 0 #8c2418}
+.btn.green{background:var(--green);box-shadow:0 4px 0 #1d5540}
+.btn.gold{background:var(--gold);box-shadow:0 4px 0 #966b1f}
+.btn.grey{background:#6b7280;box-shadow:0 4px 0 #444b55}
+.btn.plum{background:var(--plum);box-shadow:0 4px 0 #543059}
+.btn.ghost{background:#fff;color:var(--navy);border:3px solid var(--line);box-shadow:none;font-size:16px}
+.btn.ghost.on{border-color:var(--green);color:var(--green);background:#eef7f2}
+.btn.sm{min-height:42px;font-size:15px;padding:7px 13px}
+.btn:disabled{opacity:.4;cursor:default}
+
+/* 1단계 · 장조 단조 */
+.two{display:flex;gap:16px;flex-wrap:wrap}
+.big{flex:1;min-width:300px;background:#fff;border:4px solid var(--line);border-radius:18px;
+  padding:20px 22px;cursor:pointer;box-shadow:0 6px 16px rgba(30,25,15,.08)}
+.big.maj{border-color:#e0d4b4}
+.big.min{border-color:#cfc6dd}
+.big h2{font-size:31px;font-weight:900;color:var(--navy);margin-bottom:2px}
+.big .en{font-size:15px;font-weight:700;color:var(--muted);margin-bottom:11px}
+.big p{font-size:17px;line-height:1.62;margin-bottom:9px}
+.big .feel{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.big .feel span{font-size:15px;font-weight:700;background:#f4efe2;border-radius:20px;padding:4px 12px}
+.big.min .feel span{background:#efeaf4}
+.big .row{display:flex;gap:8px;flex-wrap:wrap}
+.hintbar{margin-top:14px;font-size:16px;line-height:1.6;background:#fff;border:1px solid var(--line);
+  border-left:6px solid var(--gold);border-radius:10px;padding:12px 15px}
+.hintbar b{color:var(--red)}
+.qrbar{margin-top:14px;display:flex;gap:15px;align-items:center;background:#fff;
+  border:1px solid var(--line);border-radius:12px;padding:12px 16px}
+.qrimg{flex:0 0 108px;width:108px;height:108px;border:3px solid var(--line);border-radius:10px;
+  padding:5px;background:#fff}
+.qrimg svg{display:block;width:100%;height:100%}
+.qrtxt{font-size:15px;line-height:1.6;color:var(--muted)}
+.qrtxt b{color:var(--navy);font-weight:900;font-size:17px}
+.qrurl{font-family:'Gaegu',sans-serif;font-size:17px;color:var(--navy2);margin:2px 0 5px;
+  word-break:break-all}
+
+/* 2단계 · 조 고르기 */
+.keys{display:flex;gap:13px;flex-wrap:wrap;margin-bottom:14px}
+.key{flex:1;min-width:250px;background:#fff;border:4px solid var(--line);border-radius:16px;
+  padding:16px 18px;box-shadow:0 5px 14px rgba(30,25,15,.08)}
+.key.pick{border-color:var(--red);background:#fffaf9}
+.key h3{font-size:25px;font-weight:900;color:var(--navy)}
+.key .sig{font-size:16px;font-weight:900;color:var(--gold);margin-bottom:8px}
+.key dl{font-size:16px;line-height:1.68;margin-bottom:11px}
+.key dt{display:inline;font-weight:900;color:var(--muted)}
+.key dd{display:inline}
+.key dd:after{content:"";display:block}
+.key .row{display:flex;gap:7px}
+.scaleline{font-family:'Gaegu',sans-serif;font-size:23px;color:var(--ink);margin:2px 0 9px;letter-spacing:.03em}
+.scaleline i{font-style:normal;color:var(--red);font-weight:700}
+
+/* 3단계 · 작곡실 */
+.studio{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap}
+.left{flex:1 1 720px;min-width:0}
+.right{flex:0 1 330px;min-width:280px}
+
+.gridbox{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 12px 10px;
+  box-shadow:0 5px 14px rgba(30,25,15,.08);margin-bottom:12px;overflow-x:auto}
+table.grid{border-collapse:separate;border-spacing:0;width:100%;min-width:716px}
+table.grid td{padding:0}
+td.rl{width:66px;text-align:right;padding-right:8px;white-space:nowrap;line-height:1.1}
+td.rl .sy{font-size:18px;font-weight:900;color:var(--navy)}
+td.rl .al{font-size:11px;font-weight:700;color:#a9a294;margin-left:3px}
+td.rl.tonic .sy{color:var(--red)}
+td.rl.oct .sy{color:#8d8574}
+.cell{height:31px;border:2px solid #e7e0d0;border-radius:7px;background:#fdfcf8;cursor:pointer;
+  margin:2px 1.5px;display:block;width:calc(100% - 3px);position:relative}
+.cell.bar1{border-left:4px solid #b3a688}
+.cell.strong{background:#f6f2e6}
+.cell.on{background:var(--ok);border-color:#1d5540;box-shadow:inset 0 -3px 0 rgba(0,0,0,.16)}
+.cell.on.pass{background:var(--pass);border-color:#966b1f}
+.cell.on.bad{background:var(--bad);border-color:#8c2418}
+.cell.hold{background:#bfe0d0;border-color:#9dcbb5}
+.cell.hold.pass{background:#f0dcb4;border-color:#dcc189}
+.cell.hold.bad{background:#f3c3bb;border-color:#e0a79e}
+.cell.now{outline:3px solid var(--navy2);outline-offset:1px}
+tr.beatlbl td{font-size:13px;font-weight:900;color:#a9a294;text-align:center;padding-top:2px}
+tr.beatlbl td.s{color:var(--navy)}
+
+/* 화음 줄 */
+.chordrow{display:flex;gap:5px;margin-bottom:6px;min-width:716px}
+.chordrow .sp{width:66px;flex:0 0 66px;font-size:12px;font-weight:900;color:var(--muted);
+  text-align:right;padding-right:8px;align-self:center;line-height:1.2}
+.cslot{flex:1;background:#f4efe2;border:2px solid #ddd4bd;border-radius:9px;padding:4px 5px 5px;text-align:center}
+.cslot .mn{font-size:12px;font-weight:900;color:#a9a294}
+.cslot .cbtns{display:flex;gap:3px;margin-top:2px}
+.cslot .cb{flex:1;min-height:33px;border:2px solid #ded5c0;background:#fff;border-radius:7px;
+  font-family:inherit;font-size:15px;font-weight:900;color:var(--muted);cursor:pointer;padding:0}
+.cslot .cb.on{background:var(--navy2);border-color:#0e3a63;color:#fff}
+.cslot .cname{font-size:12px;font-weight:700;color:var(--muted);margin-top:3px;height:15px}
+.cslot.playing{border-color:var(--gold);background:#fbf3e2}
+
+/* 코치 */
+.coach{background:#fff;border:1px solid var(--line);border-left:7px solid var(--red);
+  border-radius:12px;padding:13px 16px;margin-bottom:11px;box-shadow:0 4px 12px rgba(30,25,15,.07)}
+.coach .tag{font-size:13px;font-weight:900;color:#fff;background:var(--red);border-radius:6px;
+  padding:2px 9px;display:inline-block;margin-bottom:6px}
+.coach h4{font-size:19px;font-weight:900;color:var(--navy);margin-bottom:5px}
+.coach p{font-size:16px;line-height:1.62}
+.coach p b{color:var(--red);font-weight:900}
+.coach .mini{margin-top:9px;display:flex;gap:6px;flex-wrap:wrap}
+.plan{display:flex;gap:5px;margin-bottom:11px}
+.plan div{flex:1;border:2px solid var(--line);background:#fff;border-radius:9px;padding:7px 4px;
+  text-align:center;cursor:pointer}
+.plan div.on{border-color:var(--red);background:#fdf1ef}
+.plan .rn{font-size:12px;font-weight:900;color:#a9a294}
+.plan .rt{font-size:16px;font-weight:900;color:var(--navy);margin-top:1px}
+.plan div.on .rt{color:var(--red)}
+
+.checkbox{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 15px;
+  box-shadow:0 4px 12px rgba(30,25,15,.07);margin-bottom:11px}
+.checkbox h4{font-size:17px;font-weight:900;color:var(--navy);margin-bottom:7px;
+  display:flex;align-items:center;gap:7px}
+.checkbox h4 .cnt{font-size:14px;font-weight:900;border-radius:20px;padding:2px 10px;color:#fff}
+.checkbox h4 .cnt.good{background:var(--green)}
+.checkbox h4 .cnt.warn{background:var(--bad)}
+.iss{font-size:15px;line-height:1.55;padding:7px 9px;border-radius:8px;margin-bottom:5px;cursor:pointer;
+  border-left:5px solid var(--bad);background:#fdf1ef}
+.iss.tip{border-left-color:var(--gold);background:#fbf5e8}
+.iss.good{border-left-color:var(--green);background:#eef7f2;cursor:default}
+.iss b{font-weight:900}
+.iss .fix{color:var(--navy2);font-weight:900}
+.legend{display:flex;gap:11px;flex-wrap:wrap;font-size:14px;font-weight:700;color:var(--muted);
+  margin-top:8px}
+.legend i{width:15px;height:15px;border-radius:4px;display:inline-block;vertical-align:-2px;margin-right:4px}
+
+.ctrl{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+
+/* 4단계 · 완성 */
+.out{display:flex;gap:13px;flex-wrap:wrap}
+.panel{flex:1;min-width:290px;background:#fff;border:1px solid var(--line);border-radius:14px;
+  padding:14px 17px;box-shadow:0 5px 14px rgba(30,25,15,.08)}
+.panel h3{font-size:19px;font-weight:900;color:var(--navy);margin-bottom:8px}
+.panel h3 .tagm{font-size:14px;font-weight:700;color:var(--muted);margin-left:6px}
+.score{font-family:'Gaegu',sans-serif;font-size:25px;line-height:1.75;word-break:keep-all}
+.score .bar{color:#c9bfa8;padding:0 4px}
+.score .ch{font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:900;color:#fff;
+  background:var(--navy2);border-radius:6px;padding:1px 8px;margin-right:6px}
+.score .rest{color:#c2bbab}
+.score .ln{display:block;margin-bottom:2px}
+.formrow{display:flex;gap:5px;margin-top:5px}
+.formrow div{flex:1;text-align:center;border:2px solid var(--line);border-radius:9px;padding:5px 2px;
+  background:#fff}
+.formrow .fl{font-family:'Gaegu',sans-serif;font-size:27px;font-weight:700;color:var(--navy);line-height:1}
+.formrow .fd{font-size:12px;font-weight:700;color:var(--muted);margin-top:2px}
+.formrow div.same{border-color:#bfdccd;background:#f3faf6}
+.formrow div.diff{border-color:#e6cfa4;background:#fdf8ee}
+.formtxt{font-size:16px;line-height:1.6;margin-top:9px;background:#fff;border:1px solid var(--line);
+  border-left:6px solid var(--plum);border-radius:10px;padding:11px 14px}
+.formtxt b{color:var(--red);font-weight:900}
+.tip{font-size:15px;color:var(--muted);line-height:1.58;margin-top:8px}
+.tip b{color:var(--red);font-weight:900}
+.mono{font-family:'Gaegu',sans-serif;font-size:21px;line-height:1.6}
+
+@media print{
+  .no-print{display:none !important}
+  body{background:#fff;padding:0}
+  .card,.panel{box-shadow:none}
+}
+@media (max-width:720px){
+  h1{font-size:24px}
+  .right{flex:1 1 100%}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>작곡소</h1>
+  <span class="sub">장조·단조로 네 마디 노래 만들기 · 5학년 음악</span>
+  <span class="now" id="nowkey"></span>
+</header>
+
+<nav class="steps no-print">
+  <button class="stp on" data-go="1"><span class="no">1</span>장조? 단조?</button>
+  <button class="stp" data-go="2"><span class="no">2</span>어느 조로</button>
+  <button class="stp" data-go="3"><span class="no">3</span>가락 짓기</button>
+  <button class="stp" data-go="4"><span class="no">4</span>완성곡</button>
+</nav>
+
+<!-- ═══════ 1단계 ═══════ -->
+<section class="pane on" id="p1">
+  <p class="lead">
+    노래는 <b>기분을 먼저 정하고</b> 시작한다. 밝게 갈까, 어둡게 갈까 —
+    그것만 정하면 쓸 수 있는 음이 저절로 정해진다. 아래 두 단추로 <b>같은 가락</b>을
+    장조와 단조로 들어 보고 고르자.
+  </p>
+  <div class="two">
+    <div class="big maj" data-kind="major">
+      <h2>장조</h2>
+      <div class="en">長調 · major — 으뜸음이 <b>도</b></div>
+      <p>세 번째 음까지의 거리가 <b>넓다</b>(반음 4개). 그래서 활짝 열린 소리가 난다.
+         교과서의 「숲속을 걸어요」·「뭉게구름」이 모두 장조다.</p>
+      <div class="feel"><span>밝다</span><span>씩씩하다</span><span>즐겁다</span><span>탁 트인다</span></div>
+      <div class="row">
+        <button class="btn gold sm" data-demo="major">🔊 이 느낌 듣기</button>
+        <button class="btn red" data-kind="major">장조로 만들기 →</button>
+      </div>
+    </div>
+    <div class="big min" data-kind="minor">
+      <h2>단조</h2>
+      <div class="en">短調 · minor — 으뜸음이 <b>라</b></div>
+      <p>세 번째 음까지의 거리가 <b>좁다</b>(반음 3개). 한 뼘 좁아졌을 뿐인데 소리가 가라앉는다.
+         「엄마야 누나야」가 단조다.</p>
+      <div class="feel"><span>어둡다</span><span>그립다</span><span>차분하다</span><span>비장하다</span></div>
+      <div class="row">
+        <button class="btn gold sm" data-demo="minor">🔊 이 느낌 듣기</button>
+        <button class="btn plum" data-kind="minor">단조로 만들기 →</button>
+      </div>
+    </div>
+  </div>
+  <div class="qrbar no-print">
+    <div class="qrimg" id="qrimg"></div>
+    <div class="qrtxt">
+      <b>📱 태블릿에서 바로 열기</b>
+      <div class="qrurl">leixlix-pixel.github.io/toolbox/major-minor-composer.html</div>
+      만들던 곡은 <b>그 태블릿에 저장</b>된다 — 창을 닫았다 다시 열어도 그대로 있다.
+      친구에게 보여 줄 때도 이 QR을 찍으면 된다.
+    </div>
+  </div>
+  <div class="hintbar">
+    두 단추를 <b>번갈아</b> 눌러 보자. 가락도 빠르기도 똑같고 <b>바뀐 건 세 번째 음 하나</b>다.
+    그 반음 하나가 곡의 기분을 통째로 바꾼다. — 단조가 늘 슬픈 건 아니다.
+    빠르고 세게 치면 <b>비장하고 멋있어진다</b>(영화 음악이 단조를 좋아하는 이유).
+  </div>
+</section>
+
+<!-- ═══════ 2단계 ═══════ -->
+<section class="pane" id="p2">
+  <p class="lead">
+    같은 장조라도 <b>어느 음에서 시작하느냐</b>에 따라 조 이름이 달라진다.
+    시작 음이 달라지면 <b>온음·반음 자리를 맞추려고</b> ♯이나 ♭이 붙는다 —
+    그게 악보 맨 앞의 조표다.
+  </p>
+  <div class="keys" id="keylist"></div>
+  <div class="hintbar" id="relnote"></div>
+</section>
+
+<!-- ═══════ 3단계 ═══════ -->
+<section class="pane" id="p3">
+  <div class="plan no-print" id="plan"></div>
+  <div class="studio">
+    <div class="left">
+      <div class="gridbox">
+        <div class="chordrow" id="chordrow"></div>
+        <div id="grid"></div>
+      </div>
+      <div class="ctrl no-print">
+        <button class="btn red" id="playAll">▶ 처음부터</button>
+        <button class="btn green" id="playMel">▶ 가락만</button>
+        <button class="btn navy2" id="playCho">▶ 화음만</button>
+        <button class="btn grey" id="stop">■ 멈춤</button>
+        <button class="btn ghost on" id="tAcc">🎹 반주 켬</button>
+        <button class="btn ghost" id="tSlow">🐢 느리게</button>
+      </div>
+      <div class="ctrl no-print">
+        <button class="btn ghost" id="copy12">1마디 → 2마디 복사</button>
+        <button class="btn ghost" id="tail2">2마디 끝음만 바꾸기</button>
+        <button class="btn ghost" id="flip3">3마디 위아래 뒤집기</button>
+        <button class="btn gold" id="demo">예시 넣기</button>
+        <button class="btn ghost" id="undo" disabled>↩ 되돌리기</button>
+        <button class="btn ghost" id="clear">전부 지우기</button>
+        <button class="btn plum" id="toEnd">완성곡 보기 →</button>
+      </div>
+    </div>
+    <div class="right">
+      <div class="coach" id="coach"></div>
+      <div class="checkbox">
+        <h4>화음과 맞는지 <span class="cnt good" id="cnt">–</span></h4>
+        <div id="isslist"></div>
+        <div class="legend">
+          <span><i style="background:var(--ok)"></i>화음 음</span>
+          <span><i style="background:var(--pass)"></i>지나가는 음</span>
+          <span><i style="background:var(--bad)"></i>부딪히는 음</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ 4단계 ═══════ -->
+<section class="pane" id="p4">
+  <div class="out">
+    <div class="panel">
+      <h3>내 곡 <span class="tagm" id="titlekey"></span></h3>
+      <div class="score" id="score"></div>
+      <h3 style="margin-top:14px">가락이 그린 그림 <span class="tagm">높낮이를 옆에서 본 것</span></h3>
+      <div id="melline"></div>
+      <div class="formrow" id="formrow"></div>
+      <div id="formtxt"></div>
+      <div class="tip" id="endtip"></div>
+      <div class="ctrl no-print" style="margin-top:12px">
+        <button class="btn red" id="playAll2">▶ 들어보기</button>
+        <button class="btn grey" id="stop2">■ 멈춤</button>
+        <button class="btn ghost" id="back3">← 더 고치기</button>
+        <button class="btn ghost" id="print">🖨 인쇄</button>
+      </div>
+    </div>
+    <div class="panel" style="flex:0 1 340px">
+      <h3>피아노로 쳐 보려면</h3>
+      <div class="tip" id="pianotip"></div>
+      <h3 style="margin-top:14px">왼손은 이렇게</h3>
+      <div class="mono" id="lefthand"></div>
+      <div class="tip">왼손은 <b>마디마다 세 음을 한꺼번에</b> 누르고 있으면 된다.
+        오른손이 가락을 친다. 둘이 나눠서 쳐도 좋다.</div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<script>
+/* QR 코드 — 외부 서비스를 부르지 않는다(학교 방화벽에서 막힌다). SVG 로 박아 둔다. */
+const QR = {};
+QR.main = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 39 39" shape-rendering="crispEdges"><path fill="#ffffff" d="M0 0h39v39H0z"/><path stroke="#000000" d="M1 1.5h7m3 0h1m6 0h2m1 0h3m1 0h2m2 0h1m1 0h7M1 2.5h1m5 0h1m5 0h1m3 0h2m1 0h1m1 0h2m3 0h3m1 0h1m5 0h1M1 3.5h1m1 0h3m1 0h1m1 0h1m2 0h3m1 0h1m3 0h3m2 0h1m1 0h1m3 0h1m1 0h3m1 0h1M1 4.5h1m1 0h3m1 0h1m1 0h3m1 0h2m1 0h3m1 0h1m2 0h1m2 0h3m2 0h1m1 0h3m1 0h1M1 5.5h1m1 0h3m1 0h1m1 0h1m2 0h3m4 0h3m2 0h1m2 0h1m3 0h1m1 0h3m1 0h1M1 6.5h1m5 0h1m1 0h2m1 0h1m1 0h2m3 0h1m3 0h1m3 0h2m2 0h1m5 0h1M1 7.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M9 8.5h1m1 0h1m1 0h1m2 0h1m4 0h1m3 0h1m1 0h2M1 9.5h1m1 0h5m2 0h4m5 0h1m1 0h7m1 0h1m1 0h5M3 10.5h1m1 0h2m2 0h3m1 0h6m8 0h1m1 0h1m4 0h1m1 0h1M2 11.5h6m1 0h1m2 0h1m5 0h1m2 0h2m1 0h2m2 0h3m2 0h5M1 12.5h2m1 0h1m4 0h2m3 0h2m1 0h1m4 0h1m1 0h1m4 0h1m1 0h1m2 0h1m2 0h1M2 13.5h1m1 0h1m1 0h6m1 0h2m3 0h1m2 0h1m1 0h5m1 0h3m1 0h5M3 14.5h2m1 0h1m4 0h2m1 0h2m1 0h8m4 0h1m2 0h1m3 0h1M1 15.5h2m1 0h5m1 0h2m1 0h6m2 0h2m3 0h1m1 0h3m1 0h3m1 0h2M1 16.5h1m3 0h2m1 0h2m4 0h11m3 0h1m1 0h4m2 0h1M1 17.5h2m2 0h1m1 0h3m2 0h1m1 0h2m1 0h1m2 0h1m1 0h1m2 0h2m3 0h4m1 0h2M3 18.5h2m1 0h1m1 0h1m1 0h2m1 0h1m1 0h2m1 0h2m1 0h3m1 0h2m2 0h1m2 0h1m2 0h2M3 19.5h3m1 0h1m2 0h1m2 0h1m1 0h3m2 0h1m1 0h2m1 0h1m2 0h1m1 0h4m2 0h2M3 20.5h1m1 0h1m3 0h4m3 0h1m2 0h5m3 0h2m1 0h4m3 0h1M1 21.5h4m1 0h2m2 0h2m2 0h3m1 0h1m1 0h1m2 0h6m1 0h2m1 0h3M2 22.5h1m1 0h1m1 0h1m1 0h2m1 0h1m1 0h1m1 0h1m1 0h1m1 0h2m3 0h1m1 0h2m1 0h1m4 0h1M2 23.5h3m2 0h3m4 0h1m1 0h2m1 0h1m1 0h1m1 0h1m1 0h4m2 0h4m1 0h2M4 24.5h1m1 0h1m1 0h1m3 0h4m1 0h1m2 0h2m2 0h1m3 0h3m1 0h2M4 25.5h2m1 0h3m1 0h1m2 0h2m3 0h9m1 0h3m1 0h1m1 0h1M1 26.5h2m2 0h1m2 0h3m2 0h1m2 0h2m4 0h1m1 0h1m1 0h1m2 0h1m2 0h1m2 0h1M1 27.5h1m3 0h1m1 0h4m1 0h2m4 0h2m1 0h1m6 0h2m3 0h1m2 0h2M1 28.5h1m2 0h1m1 0h1m2 0h1m1 0h1m3 0h1m1 0h1m1 0h1m2 0h1m5 0h6m2 0h2M1 29.5h1m1 0h1m2 0h3m1 0h2m3 0h1m2 0h1m5 0h4m1 0h7m1 0h1M9 30.5h4m2 0h1m2 0h5m1 0h3m1 0h2m3 0h2M1 31.5h7m5 0h1m1 0h2m1 0h1m2 0h2m2 0h1m3 0h1m1 0h1m1 0h1m1 0h3M1 32.5h1m5 0h1m1 0h2m1 0h2m1 0h2m1 0h2m2 0h2m5 0h1m3 0h2m1 0h2M1 33.5h1m1 0h3m1 0h1m1 0h1m3 0h1m3 0h1m2 0h1m1 0h1m1 0h10m1 0h1m1 0h1M1 34.5h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h1m1 0h2m1 0h2m1 0h1m1 0h2m2 0h2m1 0h2m1 0h3m1 0h1M1 35.5h1m1 0h3m1 0h1m1 0h5m2 0h3m1 0h1m2 0h1m1 0h1m1 0h4m5 0h2M1 36.5h1m5 0h1m2 0h1m2 0h2m1 0h1m3 0h3m4 0h4m2 0h1m3 0h1M1 37.5h7m1 0h1m1 0h1m2 0h1m1 0h3m1 0h1m2 0h1m1 0h3m2 0h1m2 0h5"/></svg>';
+if(QR.main) document.getElementById('qrimg').innerHTML = QR.main;
+else document.querySelector('.qrbar').style.display = 'none';
+
+/* ══════════════════════════════════════════════════
+   음악 데이터
+   ══════════════════════════════════════════════════ */
+/* deg: 으뜸음 위 반음 수 (7음 음계). tonic: MIDI 번호 */
+const KEYS = {
+  C: {kind:'major', name:'다장조', abc:'C',  tonic:72, sig:'조표 없음 (흰건반만)',
+      letters:['도 C','레 D','미 E','파 F','솔 G','라 A','시 B'],
+      rel:'가단조', note:'가장 기본. 피아노 흰건반만 쓴다.'},
+  G: {kind:'major', name:'사장조', abc:'G',  tonic:67, sig:'♯ 하나 (파에 ♯)',
+      letters:['도 G','레 A','미 B','파 C','솔 D','라 E','시 F♯'],
+      rel:'마단조', note:'「파」 자리가 검은건반이 된다. 밝고 시원하다.'},
+  F: {kind:'major', name:'바장조', abc:'F',  tonic:65, sig:'♭ 하나 (시에 ♭)',
+      letters:['도 F','레 G','미 A','파 B♭','솔 C','라 D','시 E'],
+      rel:'라단조', note:'교과서 「숲속을 걸어요」가 이 조다. 부드럽고 따뜻하다.'},
+  a: {kind:'minor', name:'가단조', abc:'Am', tonic:69, sig:'조표 없음 (흰건반만)',
+      letters:['라 A','시 B','도 C','레 D','미 E','파 F','솔 G'],
+      rel:'다장조', note:'다장조와 쓰는 음이 똑같다. 으뜸음만 라로 옮긴 것.'},
+  e: {kind:'minor', name:'마단조', abc:'Em', tonic:64, sig:'♯ 하나 (파에 ♯)',
+      letters:['라 E','시 F♯','도 G','레 A','미 B','파 C','솔 D'],
+      rel:'사장조', note:'기타로 치기 가장 쉬운 조. 대중가요에 아주 많다.'},
+  d: {kind:'minor', name:'라단조', abc:'Dm', tonic:62, sig:'♭ 하나 (시에 ♭)',
+      letters:['라 D','시 E','도 F','레 G','미 A','파 B♭','솔 C'],
+      rel:'바장조', note:'무겁고 진지한 소리. 옛날부터 슬픈 곡에 많이 썼다.'}
+};
+const MAJOR_STEPS = [0,2,4,5,7,9,11];
+const MINOR_STEPS = [0,2,3,5,7,8,10];
+const SYL_MAJ = ['도','레','미','파','솔','라','시'];
+const SYL_MIN = ['라','시','도','레','미','파','솔'];
+
+/* 화음 — 음계 자리 번호로 정의. 단조 V 는 7번째 음을 반음 올린다(이끔음) */
+const CHORDS = {
+  major:{
+    I : {deg:[0,2,4], label:'Ⅰ',  kname:'으뜸화음'},
+    IV: {deg:[3,5,7], label:'Ⅳ',  kname:'버금딸림화음'},
+    V : {deg:[4,6,8], label:'Ⅴ',  kname:'딸림화음'}
+  },
+  minor:{
+    I : {deg:[0,2,4], label:'ⅰ',  kname:'으뜸화음'},
+    IV: {deg:[3,5,7], label:'ⅳ',  kname:'버금딸림화음'},
+    V : {deg:[4,6,8], label:'Ⅴ',  kname:'딸림화음', sharp7:true}
+  }
+};
+const PRESETS = [
+  {ch:['I','IV','V','I'],  n:'Ⅰ-Ⅳ-Ⅴ-Ⅰ', d:'가장 기본. 나갔다가 제자리로 돌아온다'},
+  {ch:['I','V','IV','I'],  n:'Ⅰ-Ⅴ-Ⅳ-Ⅰ', d:'세 번째에서 힘을 빼 부드럽게 내려앉는다'},
+  {ch:['I','I','V','I'],   n:'Ⅰ-Ⅰ-Ⅴ-Ⅰ', d:'앞을 오래 끌다가 끝에서 한 번에 맺는다'},
+  {ch:['I','IV','I','V'],  n:'Ⅰ-Ⅳ-Ⅰ-Ⅴ', d:'끝을 열어 둔다 — 다음 절로 이어질 때'}
+];
+const LO = -2, HI = 7;                    /* 음계 자리 번호 범위 (10칸) */
+const STEPS = 16;                          /* 4마디 × 4박 */
+
+/* ══════════════════════════════════════════════════
+   상태
+   ══════════════════════════════════════════════════ */
+const S = {
+  kind:null, key:null,
+  chords:['I','IV','V','I'],
+  notes:new Array(STEPS).fill(null),
+  bar:0, slow:false, acc:true
+};
+let hist = [];
+
+function pushHist(){
+  hist.push(JSON.stringify({n:S.notes, c:S.chords}));
+  if(hist.length > 60) hist.shift();
+  document.getElementById('undo').disabled = hist.length === 0;
+}
+function popHist(){
+  if(!hist.length) return;
+  const o = JSON.parse(hist.pop());
+  S.notes = o.n; S.chords = o.c;
+  document.getElementById('undo').disabled = hist.length === 0;
+  renderGrid(); renderChordRow(); renderCheck(); save();
+}
+
+/* ══════════════════════════════════════════════════
+   음 계산
+   ══════════════════════════════════════════════════ */
+function stepsOf(){ return S.kind === 'minor' ? MINOR_STEPS : MAJOR_STEPS; }
+function sylOf(){   return S.kind === 'minor' ? SYL_MIN : SYL_MAJ; }
+function mod7(i){ return ((i % 7) + 7) % 7; }
+function octOf(i){ return Math.floor(i / 7); }
+
+/* 자리 번호 → MIDI */
+function midiOf(i){
+  const K = KEYS[S.key];
+  return K.tonic + stepsOf()[mod7(i)] + 12 * octOf(i);
+}
+/* 자리 번호 → 계이름 (↑↓ 표시 포함) */
+function sylOfDeg(i){
+  const s = sylOf()[mod7(i)], o = octOf(i);
+  return o > 0 ? s + '↑' : (o < 0 ? s + '↓' : s);
+}
+function letterOf(i){ return KEYS[S.key].letters[mod7(i)].split(' ')[1]; }
+function freq(m){ return 440 * Math.pow(2, (m - 69) / 12); }
+
+/* 화음의 실제 MIDI 세 음 (마디 m) */
+function chordMidis(code){
+  const C = CHORDS[S.kind][code];
+  return C.deg.map(d => {
+    let m = midiOf(d);
+    if(C.sharp7 && mod7(d) === 6) m += 1;    /* 단조 딸림화음의 이끔음 */
+    return m;
+  });
+}
+/* 반주로 울릴 실제 높이 — 가락보다 한 옥타브 아래에 깐다(가락을 덮지 않게) */
+function chordVoice(code){
+  return chordMidis(code).map(m => m - 12).sort((x, y) => x - y);
+}
+/* 화음의 음높이 종류(피치 클래스) 집합 */
+function chordPCs(code){
+  return chordMidis(code).map(m => ((m % 12) + 12) % 12);
+}
+function chordSyls(code){
+  const C = CHORDS[S.kind][code];
+  return C.deg.map(d => {
+    const s = sylOf()[mod7(d)];
+    return (C.sharp7 && mod7(d) === 6) ? s + '♯' : s;
+  });
+}
+function chordLetters(code){
+  const C = CHORDS[S.kind][code];
+  return C.deg.map(d => {
+    const l = KEYS[S.key].letters[mod7(d)].split(' ')[1];
+    return (C.sharp7 && mod7(d) === 6) ? l + '♯' : l;
+  });
+}
+
+/* ══════════════════════════════════════════════════
+   판정 — 이 앱의 핵심
+   ══════════════════════════════════════════════════ */
+function prevNoteIdx(i){ for(let k = i - 1; k >= 0; k--) if(S.notes[k] !== null) return k; return -1; }
+function nextNoteIdx(i){ for(let k = i + 1; k < STEPS; k++) if(S.notes[k] !== null) return k; return -1; }
+
+/* 각 칸의 판정: null(빈칸) | 'ok' | 'pass' | 'bad' */
+function judgeAll(){
+  const r = new Array(STEPS).fill(null);
+  for(let i = 0; i < STEPS; i++){
+    const d = S.notes[i];
+    if(d === null) continue;
+    const pc  = ((midiOf(d) % 12) + 12) % 12;
+    const set = chordPCs(S.chords[Math.floor(i / 4)]);
+    if(set.indexOf(pc) >= 0){ r[i] = 'ok'; continue; }
+    /* 화음에 없는 음 — 지나가는 음이면 봐준다 */
+    const strong = (i % 4 === 0 || i % 4 === 2);      /* 센박: 1박·3박 */
+    const pi = prevNoteIdx(i), ni = nextNoteIdx(i);
+    const stepIn  = pi >= 0 && Math.abs(d - S.notes[pi]) === 1;
+    const stepOut = ni <  0 || Math.abs(S.notes[ni] - d) === 1;
+    r[i] = (!strong && stepIn && stepOut) ? 'pass' : 'bad';
+  }
+  return r;
+}
+/* 부딪히는 음을 어느 음으로 바꾸면 되는지 */
+function nearestChordDeg(d, code){
+  const set = chordPCs(code);
+  let best = null, bd = 99;
+  for(let k = LO; k <= HI; k++){
+    const pc = ((midiOf(k) % 12) + 12) % 12;
+    if(set.indexOf(pc) < 0) continue;
+    const dist = Math.abs(k - d);
+    if(dist < bd){ bd = dist; best = k; }
+  }
+  return best;
+}
+
+/* ══════════════════════════════════════════════════
+   소리
+   ══════════════════════════════════════════════════ */
+let ac = null, timers = [], playing = false;
+function audio(){
+  if(!ac) ac = new (window.AudioContext || window.webkitAudioContext)();
+  if(ac.state === 'suspended') ac.resume();
+  return ac;
+}
+function tone(a, t, f, d, vol, type){
+  const o = a.createOscillator(), g = a.createGain();
+  o.type = type || 'triangle'; o.frequency.value = f;
+  const v = vol === undefined ? .20 : vol;
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(v, t + .014);
+  g.gain.setValueAtTime(v, t + d * .70);
+  g.gain.exponentialRampToValueAtTime(.0008, t + d * .99);
+  o.connect(g); g.connect(a.destination);
+  o.start(t); o.stop(t + d + .03);
+}
+function stopAll(){
+  timers.forEach(clearTimeout); timers = []; playing = false;
+  document.querySelectorAll('.cell.now').forEach(e => e.classList.remove('now'));
+  document.querySelectorAll('.cslot.playing').forEach(e => e.classList.remove('playing'));
+}
+function beatSec(){ return S.slow ? .82 : .55; }
+
+/* mel: 가락 재생 / cho: 반주 재생 */
+function play(mel, cho){
+  stopAll();
+  const a = audio(), t0 = a.currentTime + .12, B = beatSec();
+  playing = true;
+
+  if(cho){
+    for(let m = 0; m < 4; m++){
+      const ms = chordVoice(S.chords[m]);
+      const root = ms[0] - 12;
+      const t = t0 + m * 4 * B;
+      tone(a, t, freq(root), B * 1.7, .17, 'sine');            /* 쿵 */
+      for(let b = 0; b < 4; b++){                              /* 짝 짝 짝 */
+        if(b === 0) continue;
+        ms.forEach(x => tone(a, t + b * B, freq(x), B * .5, .075, 'triangle'));
+      }
+      ms.forEach(x => tone(a, t, freq(x), B * .5, .075, 'triangle'));
+    }
+  }
+  if(mel){
+    for(let i = 0; i < STEPS; i++){
+      const d = S.notes[i];
+      if(d === null) continue;
+      let len = 1;
+      for(let k = i + 1; k < STEPS && S.notes[k] === null; k++) len++;
+      tone(a, t0 + i * B, freq(midiOf(d)), B * len * .95, .22);
+    }
+  }
+  /* 진행 표시 */
+  for(let i = 0; i < STEPS; i++){
+    timers.push(setTimeout(() => {
+      document.querySelectorAll('.cell.now').forEach(e => e.classList.remove('now'));
+      document.querySelectorAll('.cslot.playing').forEach(e => e.classList.remove('playing'));
+      const d = S.notes[i];
+      if(d !== null){
+        const c = document.querySelector('.cell[data-i="' + i + '"][data-d="' + d + '"]');
+        if(c) c.classList.add('now');
+      }
+      const sl = document.querySelector('.cslot[data-m="' + Math.floor(i / 4) + '"]');
+      if(sl) sl.classList.add('playing');
+    }, 120 + i * beatSec() * 1000));
+  }
+  timers.push(setTimeout(stopAll, 120 + STEPS * beatSec() * 1000 + 700));
+}
+
+/* 한 음 미리 듣기 */
+function blip(d){ const a = audio(); tone(a, a.currentTime + .01, freq(midiOf(d)), .34, .22); }
+/* 화음 한 번 듣기 */
+function chordBlip(code){
+  const a = audio(), t = a.currentTime + .02;
+  chordVoice(code).forEach((m, k) => tone(a, t + k * .05, freq(m), .8, .16, 'triangle'));
+}
+/* 음계 훑기 */
+function playScale(k){
+  stopAll();
+  const a = audio(), t0 = a.currentTime + .1;
+  const K = KEYS[k], st = K.kind === 'minor' ? MINOR_STEPS : MAJOR_STEPS;
+  for(let i = 0; i <= 7; i++){
+    const m = K.tonic + (i === 7 ? 12 : st[i]);
+    tone(a, t0 + i * .30, freq(m), .30, .21);
+  }
+}
+/* 1단계 — 같은 가락을 장·단으로 */
+function playFeel(kind){
+  stopAll();
+  const a = audio(), t0 = a.currentTime + .1;
+  const st = kind === 'minor' ? MINOR_STEPS : MAJOR_STEPS;
+  const tonic = 72;
+  const mel = [[0,1],[2,1],[4,1],[2,1],[3,1],[2,1],[0,2]];
+  const ch  = [[0,2,4],[3,5,7],[4,6,8],[0,2,4]];
+  const B = .40;
+  let t = t0;
+  mel.forEach(([d, len]) => {
+    const m = tonic + (d >= 7 ? st[d - 7] + 12 : st[d]);
+    tone(a, t, freq(m), B * len * .95, .22);
+    t += B * len;
+  });
+  ch.forEach((c, k) => {
+    const tt = t0 + k * B * 2;
+    c.forEach(d => {
+      let m = tonic + (d >= 7 ? st[d - 7] + 12 : st[d]) - 12;
+      if(kind === 'minor' && k === 2 && d === 6) m += 1;
+      tone(a, tt, freq(m), B * 1.8, .10, 'sine');
+    });
+  });
+}
+
+/* ══════════════════════════════════════════════════
+   화면 1 · 2
+   ══════════════════════════════════════════════════ */
+function goto(n){
+  if(n >= 2 && !S.kind) return;
+  if(n >= 3 && !S.key)  return;
+  stopAll();
+  document.querySelectorAll('.pane').forEach(p => p.classList.remove('on'));
+  document.getElementById('p' + n).classList.add('on');
+  document.querySelectorAll('.stp').forEach(b => {
+    const i = +b.dataset.go;
+    b.classList.toggle('on', i === n);
+    b.classList.toggle('done', i < n);
+  });
+  if(n === 2) renderKeys();
+  if(n === 3){ renderChordRow(); renderGrid(); renderCheck(); renderCoach(); }
+  if(n === 4) renderFinal();
+  window.scrollTo(0, 0);
+}
+document.querySelectorAll('.stp').forEach(b => b.onclick = () => goto(+b.dataset.go));
+
+document.querySelectorAll('[data-kind]').forEach(el => {
+  el.onclick = e => {
+    if(e.target.dataset.demo) return;
+    S.kind = el.dataset.kind; S.key = null;
+    save(); goto(2);
+  };
+});
+document.querySelectorAll('[data-demo]').forEach(b => {
+  b.onclick = e => { e.stopPropagation(); playFeel(b.dataset.demo); };
+});
+
+function renderKeys(){
+  const box = document.getElementById('keylist');
+  const list = Object.keys(KEYS).filter(k => KEYS[k].kind === S.kind);
+  box.innerHTML = list.map(k => {
+    const K = KEYS[k], sy = K.kind === 'minor' ? SYL_MIN : SYL_MAJ;
+    const line = K.letters.map((L, i) =>
+      '<i>' + sy[i] + '</i>' + L.split(' ')[1]).join(' ');
+    return '<div class="key' + (S.key === k ? ' pick' : '') + '" data-k="' + k + '">' +
+      '<h3>' + K.name + ' <span style="font-size:17px;color:var(--muted)">' + K.abc + '</span></h3>' +
+      '<div class="sig">' + K.sig + '</div>' +
+      '<div class="scaleline">' + line + '</div>' +
+      '<dl><dt>으뜸음</dt> <dd>' + K.letters[0] + '</dd>' +
+      '<dt>나란한조</dt> <dd>' + K.rel + ' — 쓰는 음이 똑같다</dd></dl>' +
+      '<p style="font-size:16px;line-height:1.55;margin-bottom:11px;color:#4a4a46">' + K.note + '</p>' +
+      '<div class="row"><button class="btn gold sm" data-hear="' + k + '">🔊 음계 듣기</button>' +
+      '<button class="btn red sm" data-pick="' + k + '">이 조로 짓기 →</button></div>' +
+      '</div>';
+  }).join('');
+  box.querySelectorAll('[data-hear]').forEach(b => b.onclick = () => playScale(b.dataset.hear));
+  box.querySelectorAll('[data-pick]').forEach(b => b.onclick = () => {
+    S.key = b.dataset.pick;
+    S.chords = ['I','IV','V','I'];
+    S.notes = new Array(STEPS).fill(null);
+    hist = []; save(); showKeyBadge(); goto(3);
+  });
+  document.getElementById('relnote').innerHTML = S.kind === 'minor'
+    ? '<b>나란한조</b>란 <b>쓰는 음이 완전히 같은</b> 장조와 단조를 말한다. 가단조와 다장조는 둘 다 흰건반만 쓴다 — ' +
+      '<b>다른 건 어느 음을 집으로 삼느냐</b>뿐이다. 도에서 시작해 도로 끝나면 장조, 라에서 시작해 라로 끝나면 단조.'
+    : '조표는 장식이 아니라 <b>온음·반음 자리를 지키려는 표시</b>다. 시작 음을 옮기면 흰건반만으로는 그 간격이 안 맞아서 ' +
+      '어느 한 음을 반음 올리거나 내려야 한다. 그 결과가 ♯ 하나(사장조) · ♭ 하나(바장조)다.';
+}
+function showKeyBadge(){
+  const n = document.getElementById('nowkey');
+  if(!S.key){ n.classList.remove('show'); return; }
+  n.textContent = KEYS[S.key].name + ' · ' + KEYS[S.key].sig.split(' ')[0] + ' · 4/4박자';
+  n.classList.add('show');
+}
+
+/* ══════════════════════════════════════════════════
+   화면 3 · 작곡실
+   ══════════════════════════════════════════════════ */
+function renderChordRow(){
+  const row = document.getElementById('chordrow');
+  const CH = CHORDS[S.kind];
+  let h = '<div class="sp">화음<br>(왼손)</div>';
+  for(let m = 0; m < 4; m++){
+    h += '<div class="cslot" data-m="' + m + '"><div class="mn">' + (m + 1) + '마디</div><div class="cbtns">';
+    ['I','IV','V'].forEach(c => {
+      h += '<button class="cb' + (S.chords[m] === c ? ' on' : '') + '" data-m="' + m +
+           '" data-c="' + c + '">' + CH[c].label + '</button>';
+    });
+    h += '</div><div class="cname">' + chordSyls(S.chords[m]).join('·') + '</div></div>';
+  }
+  row.innerHTML = h;
+  row.querySelectorAll('.cb').forEach(b => b.onclick = () => {
+    pushHist();
+    S.chords[+b.dataset.m] = b.dataset.c;
+    chordBlip(b.dataset.c);
+    renderChordRow(); renderGrid(); renderCheck(); renderCoach(); save();
+  });
+}
+
+function renderGrid(){
+  const j = judgeAll();
+  let h = '<table class="grid"><tbody>';
+  for(let d = HI; d >= LO; d--){
+    const isT = mod7(d) === 0;
+    h += '<tr><td class="rl' + (isT ? ' tonic' : '') + (octOf(d) !== 0 ? ' oct' : '') + '">' +
+         '<span class="sy">' + sylOfDeg(d) + '</span><span class="al">' + letterOf(d) + '</span></td>';
+    for(let i = 0; i < STEPS; i++){
+      const on = S.notes[i] === d;
+      /* 이어짐 표시: 이 음이 울리는 중인가 */
+      let hold = false;
+      if(!on){
+        for(let k = i - 1; k >= 0; k--){
+          if(S.notes[k] === null) continue;
+          if(S.notes[k] === d) hold = true;
+          break;
+        }
+        if(hold && S.notes[i] !== null) hold = false;
+      }
+      let cls = 'cell';
+      if(i % 4 === 0) cls += ' bar1';
+      else if(i % 4 === 2) cls += ' strong';
+      if(on)   cls += ' on '   + (j[i] === 'ok' ? '' : j[i]);
+      if(hold) cls += ' hold ' + (j[lastIdx(i)] === 'ok' ? '' : j[lastIdx(i)]);
+      h += '<td><button class="' + cls + '" data-i="' + i + '" data-d="' + d + '"></button></td>';
+    }
+    h += '</tr>';
+  }
+  h += '<tr class="beatlbl"><td></td>';
+  for(let i = 0; i < STEPS; i++){
+    const b = i % 4 + 1;
+    h += '<td class="' + (b === 1 ? 's' : '') + '">' + (b === 1 ? (Math.floor(i / 4) + 1) + '마디' : b) + '</td>';
+  }
+  h += '</tr></tbody></table>';
+  document.getElementById('grid').innerHTML = h;
+  document.querySelectorAll('.cell').forEach(c => c.onclick = () => {
+    const i = +c.dataset.i, d = +c.dataset.d;
+    pushHist();
+    S.notes[i] = (S.notes[i] === d) ? null : d;
+    if(S.notes[i] !== null) blip(d);
+    S.bar = Math.floor(i / 4);
+    renderGrid(); renderCheck(); renderCoach(); renderPlan(); save();
+  });
+}
+function lastIdx(i){ for(let k = i - 1; k >= 0; k--) if(S.notes[k] !== null) return k; return i; }
+
+/* 마디 안내 */
+const PLANTXT = [
+  {t:'씨앗 심기', h:'노래의 첫 인상이다. <b>으뜸음이나 화음 음</b>으로 시작하면 든든하게 들린다. ' +
+     '음을 <b>서너 개만</b> 놓자 — 많이 넣을수록 기억하기 어려워진다.'},
+  {t:'거의 그대로', h:'1마디를 <b>거의 똑같이</b> 옮겨 쓴다. 사람 귀는 두 번 들어야 가락을 기억한다. ' +
+     '다만 <b>끝음 하나만 바꿔</b> 살짝 열어 두면 「그래서?」 하고 되묻는 느낌이 난다.'},
+  {t:'달라지기', h:'여기서 안 달라지면 지루하다. 손잡이는 셋 — <b>더 높이 올라가기 · 리듬 바꾸기 · 방향 뒤집기</b>. ' +
+     '셋 중 <b>하나만</b> 골라 쓰자. 다 바꾸면 다른 곡이 된다.'},
+  {t:'문 닫기', h:'마지막 음을 <b>으뜸음</b>으로 내려놓고 <b>길게</b> 끌면 문이 닫힌다. ' +
+     '화음도 <b>Ⅴ 다음 Ⅰ</b>로 오면 「끝!」 하는 소리가 난다. 여기서 다른 음으로 끝나면 곡이 안 끝난 것처럼 들린다.'}
+];
+function renderPlan(){
+  const p = document.getElementById('plan');
+  p.innerHTML = [0,1,2,3].map(m => {
+    const cnt = S.notes.slice(m * 4, m * 4 + 4).filter(x => x !== null).length;
+    return '<div class="' + (S.bar === m ? 'on' : '') + '" data-m="' + m + '">' +
+      '<div class="rn">' + (m + 1) + '마디 ' + (cnt ? '● ' + cnt : '○') + '</div>' +
+      '<div class="rt">' + PLANTXT[m].t + '</div></div>';
+  }).join('');
+  p.querySelectorAll('div[data-m]').forEach(d => d.onclick = () => {
+    S.bar = +d.dataset.m; renderPlan(); renderCoach();
+  });
+}
+function renderCoach(){
+  renderPlan();
+  const m = S.bar, code = S.chords[m], C = CHORDS[S.kind][code];
+  const sev = C.sharp7
+    ? '<p style="margin-top:7px">단조는 <b>끝맺을 때만</b> 일곱째 음 ' + sylOf()[6] + ' 를 반음 올려 <b>' +
+      sylOf()[6] + '♯</b> 로 쓴다. 그래야 으뜸음으로 <b>끌려 올라가는 힘</b>이 생겨 곡이 닫힌다. ' +
+      '그래서 이 마디에서 그냥 <b>' + sylOf()[6] + '</b> 를 놓으면 반주와 반음 차이로 부딪힌다 — ' +
+      '가락에서는 <b>' + chordSyls(code)[0] + '</b> 나 <b>' + chordSyls(code)[2].replace('♯','') +
+      '</b> 로 피해 가면 된다.</p>'
+    : '';
+  document.getElementById('coach').innerHTML =
+    '<span class="tag">' + (m + 1) + '마디 — ' + PLANTXT[m].t + '</span>' +
+    '<h4>지금 화음은 ' + C.label + ' (' + C.kname + ')</h4>' +
+    '<p>이 마디에서 <b>' + chordSyls(code).join(' · ') + '</b> 는 언제 놓아도 어울린다. ' +
+    '(피아노 ' + chordLetters(code).join('-') + ')</p>' + sev +
+    '<p style="margin-top:7px">' + PLANTXT[m].h + '</p>' +
+    '<div class="mini"><button class="btn gold sm" id="hearBar">🔊 이 마디만</button>' +
+    '<button class="btn ghost sm" id="hearChord">🎹 화음 소리</button></div>';
+  document.getElementById('hearBar').onclick  = () => playBar(m);
+  document.getElementById('hearChord').onclick = () => chordBlip(code);
+}
+function playBar(m){
+  stopAll();
+  const a = audio(), t0 = a.currentTime + .1, B = beatSec();
+  const ms = chordVoice(S.chords[m]);
+  tone(a, t0, freq(ms[0] - 12), B * 1.7, .17, 'sine');
+  for(let b = 0; b < 4; b++) ms.forEach(x => tone(a, t0 + b * B, freq(x), B * .5, .075, 'triangle'));
+  for(let b = 0; b < 4; b++){
+    const i = m * 4 + b, d = S.notes[i];
+    if(d === null) continue;
+    let len = 1;
+    for(let k = i + 1; k < m * 4 + 4 && S.notes[k] === null; k++) len++;
+    tone(a, t0 + b * B, freq(midiOf(d)), B * len * .95, .22);
+  }
+}
+
+/* 점검표 */
+function renderCheck(){
+  const j = judgeAll(), box = document.getElementById('isslist');
+  const bad = [], tips = [];
+  for(let i = 0; i < STEPS; i++){
+    if(j[i] !== 'bad') continue;
+    const m = Math.floor(i / 4), b = i % 4 + 1, d = S.notes[i], code = S.chords[m];
+    const fix = nearestChordDeg(d, code);
+    bad.push('<div class="iss" data-i="' + i + '"><b>' + (m + 1) + '마디 ' + b + '박 · ' +
+      sylOfDeg(d) + '</b> 이 마디 화음 ' + CHORDS[S.kind][code].label + '(' + chordSyls(code).join('·') +
+      ')에 없는 음이야. <span class="fix">→ ' + sylOfDeg(fix) + ' 로 옮기면 딱 맞아</span></div>');
+  }
+  /* 끝맺음 검사 */
+  const li = prevNoteIdx(STEPS);
+  const anyNote = S.notes.some(x => x !== null);
+  if(anyNote){
+    if(li >= 0 && mod7(S.notes[li]) !== 0)
+      tips.push('<div class="iss tip">마지막 음이 <b>' + sylOfDeg(S.notes[li]) + '</b> 이야. ' +
+        '<span class="fix">→ ' + sylOf()[0] + ' 로 끝내면</span> 문이 닫히는 느낌이 난다.</div>');
+    if(S.chords[3] !== 'I')
+      tips.push('<div class="iss tip">마지막 마디 화음이 <b>' + CHORDS[S.kind][S.chords[3]].label +
+        '</b> 야. <span class="fix">→ ' + CHORDS[S.kind].I.label + ' 로 바꾸면</span> 확실히 끝난 소리가 난다.</div>');
+    if(li >= 0 && li < 12)
+      tips.push('<div class="iss tip">4마디가 비어 있어. <b>끝을 안 만들면 노래가 안 끝난다.</b></div>');
+    const b1 = S.notes.slice(0, 4).join(','), b2 = S.notes.slice(4, 8).join(',');
+    if(b1 !== ',,,' && b1 === b2)
+      tips.push('<div class="iss tip">1마디와 2마디가 <b>완전히 똑같아</b>. ' +
+        '<span class="fix">→ 2마디 끝음 하나만 바꿔 보자</span> — 되묻는 느낌이 생긴다.</div>');
+  }
+  const cnt = document.getElementById('cnt');
+  cnt.textContent = bad.length ? bad.length + '군데' : (anyNote ? '다 맞아' : '–');
+  cnt.className = 'cnt ' + (bad.length ? 'warn' : 'good');
+  box.innerHTML = anyNote
+    ? (bad.join('') + tips.join('') ||
+       '<div class="iss good">전부 화음에 어울리고 끝맺음도 좋아. <b>이대로 완성해도 된다.</b></div>')
+    : '<div class="iss good">칸을 눌러 음을 놓아 보자. <b>빈 칸은 앞 음이 이어진다</b> — 그게 긴 음이다.</div>';
+  box.querySelectorAll('.iss[data-i]').forEach(e => e.onclick = () => {
+    S.bar = Math.floor(+e.dataset.i / 4); renderCoach(); playBar(S.bar);
+  });
+}
+
+/* ══════════════════════════════════════════════════
+   단추들
+   ══════════════════════════════════════════════════ */
+document.getElementById('playAll').onclick  = () => play(true, S.acc);
+document.getElementById('playMel').onclick  = () => play(true, false);
+document.getElementById('playCho').onclick  = () => play(false, true);
+document.getElementById('stop').onclick     = stopAll;
+document.getElementById('tAcc').onclick = e => {
+  S.acc = !S.acc;
+  e.currentTarget.classList.toggle('on', S.acc);
+  e.currentTarget.textContent = S.acc ? '🎹 반주 켬' : '🎹 반주 끔';
+};
+document.getElementById('tSlow').onclick = e => {
+  S.slow = !S.slow;
+  e.currentTarget.classList.toggle('on', S.slow);
+  e.currentTarget.textContent = S.slow ? '🐢 느리게' : '🐇 제빠르기';
+};
+document.getElementById('copy12').onclick = () => {
+  pushHist();
+  for(let i = 0; i < 4; i++) S.notes[4 + i] = S.notes[i];
+  S.bar = 1; renderGrid(); renderCheck(); renderCoach(); save(); playBar(1);
+};
+document.getElementById('tail2').onclick = () => {
+  const i = prevNoteIdx(8);
+  if(i < 4){ return; }
+  pushHist();
+  const d = S.notes[i], code = S.chords[1];
+  let cand = nearestChordDeg(d + 1, code);
+  if(cand === d) cand = nearestChordDeg(d + 2, code);
+  S.notes[i] = cand;
+  S.bar = 1; renderGrid(); renderCheck(); renderCoach(); save(); playBar(1);
+};
+document.getElementById('flip3').onclick = () => {
+  pushHist();
+  const base = S.notes[8] !== null ? S.notes[8] : 0;
+  for(let i = 8; i < 12; i++){
+    if(S.notes[i] === null) continue;
+    let v = base - (S.notes[i] - base);
+    S.notes[i] = Math.max(LO, Math.min(HI, v));
+  }
+  S.bar = 2; renderGrid(); renderCheck(); renderCoach(); save(); playBar(2);
+};
+document.getElementById('demo').onclick = () => {
+  pushHist();
+  S.chords = ['I','IV','V','I'];
+  /* a - a'(3도 위로 통째로 옮김) - b - a'(뒤집어 내려오며 으뜸음으로 닫는다) */
+  S.notes = (S.kind === 'minor')
+    ? [0,null,2,4, 3,null,5,7, 4,3,4,1, 4,null,2,0]
+    : [0,null,2,4, 3,null,5,7, 6,5,4,1, 4,null,2,0];
+  S.bar = 0;
+  renderChordRow(); renderGrid(); renderCheck(); renderCoach(); save();
+  play(true, S.acc);
+};
+document.getElementById('clear').onclick = () => {
+  pushHist();
+  S.notes = new Array(STEPS).fill(null);
+  renderGrid(); renderCheck(); renderCoach(); save();
+};
+document.getElementById('undo').onclick = popHist;
+document.getElementById('toEnd').onclick = () => goto(4);
+document.getElementById('back3').onclick = () => goto(3);
+document.getElementById('playAll2').onclick = () => play(true, true);
+document.getElementById('stop2').onclick = stopAll;
+document.getElementById('print').onclick = () => window.print();
+
+/* ══════════════════════════════════════════════════
+   화면 4 · 완성곡
+   ══════════════════════════════════════════════════ */
+function renderFinal(){
+  const K = KEYS[S.key];
+  document.getElementById('titlekey').textContent = K.name + ' · 4/4박자 · 네 마디';
+  let h = '';
+  for(let m = 0; m < 4; m++){
+    const code = S.chords[m];
+    let line = '<span class="ln"><span class="ch">' + CHORDS[S.kind][code].label + '</span>';
+    const cells = [];
+    for(let b = 0; b < 4; b++){
+      const i = m * 4 + b, d = S.notes[i];
+      if(d !== null) cells.push(sylOfDeg(d));
+      else cells.push(hasSounding(i) ? '–' : '<span class="rest">·</span>');
+    }
+    line += cells.join(' ') + '<span class="bar"> |</span></span>';
+    h += line;
+  }
+  document.getElementById('score').innerHTML = h ||
+    '<span class="rest">아직 음을 놓지 않았어요.</span>';
+
+  document.getElementById('melline').innerHTML = melodySVG();
+  renderForm();
+
+  const li = prevNoteIdx(STEPS);
+  document.getElementById('endtip').innerHTML =
+    '<b>–</b> 는 앞 음이 이어지는 것, <b>·</b> 는 쉼표. ' +
+    (li >= 0 && mod7(S.notes[li]) === 0 && S.chords[3] === 'I'
+      ? '끝음이 <b>' + sylOf()[0] + '</b>, 마지막 화음이 <b>' + CHORDS[S.kind].I.label +
+        '</b> — 제대로 닫힌 노래다.'
+      : '끝맺음을 손보면 더 곡다워진다. 3단계로 돌아가 확인해 보자.');
+
+  const first = KEYS[S.key].letters[0].split(' ')[1];
+  document.getElementById('pianotip').innerHTML =
+    '이 곡의 <b>' + sylOf()[0] + '</b> 는 피아노 <b>' + first + '</b> 건반이다. ' +
+    (K.sig.indexOf('없음') >= 0
+      ? '흰건반만 쓰면 된다 — 검은건반은 하나도 안 나온다.'
+      : '<b>' + K.sig + '</b> 니까 그 음 하나는 검은건반을 쳐야 한다.') +
+    ' 계이름 대신 <b>' + K.letters.map(x => x.split(' ')[1]).join(' ') + '</b> 순서로 올라간다.';
+
+  document.getElementById('lefthand').innerHTML = [0,1,2,3].map(m =>
+    (m + 1) + '마디 &nbsp;<b>' + CHORDS[S.kind][S.chords[m]].label + '</b> &nbsp;' +
+    chordLetters(S.chords[m]).join(' + ')).join('<br>');
+}
+function hasSounding(i){
+  for(let k = i - 1; k >= 0; k--) if(S.notes[k] !== null) return true;
+  return false;
+}
+
+/* 가락선 — 높낮이를 옆에서 본 그림 */
+function melodySVG(){
+  const CW = 42, W = CW * STEPS + 12, H = 138, pad = 20, span = HI - LO;
+  const y = d => pad + (HI - d) / span * (H - 2 * pad);
+  const j = judgeAll();
+  let g = '';
+  for(let m = 0; m < 4; m++)
+    if(m % 2 === 1)
+      g += '<rect x="' + (6 + m * 4 * CW) + '" y="0" width="' + (4 * CW) +
+           '" height="' + H + '" fill="#f7f3e9"/>';
+  [0, 7].forEach(d => {
+    g += '<line x1="6" y1="' + y(d) + '" x2="' + (6 + STEPS * CW) + '" y2="' + y(d) +
+         '" stroke="#ddd2b8" stroke-width="1.5" stroke-dasharray="5 5"/>';
+  });
+  for(let m = 0; m <= 4; m++)
+    g += '<line x1="' + (6 + m * 4 * CW) + '" y1="3" x2="' + (6 + m * 4 * CW) +
+         '" y2="' + (H - 3) + '" stroke="#cfc4a9" stroke-width="' + (m === 0 || m === 4 ? 2 : 1.2) + '"/>';
+  const COL = {ok:'#2e7d5b', pass:'#c8963e', bad:'#c0392b'};
+  let px = null, py = null;
+  for(let i = 0; i < STEPS; i++){
+    const d = S.notes[i];
+    if(d === null) continue;
+    let len = 1;
+    for(let k = i + 1; k < STEPS && S.notes[k] === null; k++) len++;
+    const x1 = 6 + i * CW + 3, x2 = 6 + (i + len) * CW - 3, yy = y(d);
+    if(px !== null)
+      g += '<line x1="' + px + '" y1="' + py + '" x2="' + x1 + '" y2="' + yy +
+           '" stroke="#bcb098" stroke-width="1.5"/>';
+    g += '<rect x="' + x1 + '" y="' + (yy - 4) + '" width="' + (x2 - x1) +
+         '" height="8" rx="4" fill="' + COL[j[i]] + '"/>';
+    g += '<text x="' + ((x1 + x2) / 2) + '" y="' + (yy - 10) +
+         '" text-anchor="middle" font-size="13" font-weight="700" fill="#5f5d58">' +
+         sylOfDeg(d) + '</text>';
+    px = x2; py = yy;
+  }
+  return '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" ' +
+         'style="max-width:' + W + 'px;height:auto;display:block">' + g + '</svg>';
+}
+
+/* 마디끼리 얼마나 닮았나 → a · a' · b 자동 판독
+   ※ 음이 하나도 안 같아도 닮게 들리는 경우가 있다 —
+     같은 가락을 통째로 옮겨 놓은 것(반복진행). 그걸 잡으려고 간격까지 본다. */
+function barSim(a, b){
+  let same = 0, tot = 0;
+  for(let i = 0; i < 4; i++){
+    if(a[i] === null && b[i] === null) continue;
+    tot++;
+    if(a[i] === b[i]) same++;
+  }
+  return tot ? same / tot : 1;
+}
+function shapeOf(b){
+  const at = [];
+  for(let i = 0; i < 4; i++) if(b[i] !== null) at.push(i);
+  if(!at.length) return null;
+  const iv = [];
+  for(let k = 1; k < at.length; k++) iv.push(b[at[k]] - b[at[k - 1]]);
+  return {rhythm: at.join(','), iv: iv.join(',')};
+}
+function akin(a, b){
+  if(a.join(',') === b.join(',')) return 'same';
+  const sa = shapeOf(a), sb = shapeOf(b);
+  if(sa && sb){
+    if(sa.rhythm === sb.rhythm && sa.iv === sb.iv) return 'near';   /* 통째로 옮긴 것 */
+    if(sa.rhythm === sb.rhythm) return 'near';                      /* 리듬이 같다 */
+  }
+  return barSim(a, b) >= .5 ? 'near' : 'no';
+}
+function formOf(){
+  const bars = [0,1,2,3].map(m => S.notes.slice(m * 4, m * 4 + 4));
+  const seen = [], out = [];
+  bars.forEach(b => {
+    if(b.every(x => x === null)){ out.push('–'); return; }
+    let f = null;
+    for(const s of seen){
+      const r = akin(b, s.n);
+      if(r === 'same'){ f = s.name; break; }
+      if(r === 'near'){ f = s.name + "'"; break; }
+    }
+    if(!f){ f = String.fromCharCode(97 + seen.length); seen.push({n:b, name:f}); }
+    out.push(f);
+  });
+  return out;
+}
+function renderForm(){
+  const F = formOf();
+  document.getElementById('formrow').innerHTML = F.map((f, m) => {
+    const kind = f === '–' ? '' : (f.indexOf("'") >= 0 ? 'diff' : (f === 'a' && m > 0 ? 'same' : ''));
+    const backHome = (f === F[0] || f === F[0] + "'");
+    const desc = f === '–' ? '비어 있음'
+      : (m === 0 ? '씨앗'
+      : (m === 3 && backHome ? '돌아와 맺음'
+      : (f === F[0] ? '그대로 반복'
+      : (f === F[0] + "'" ? '조금 바꿔 반복' : '새로 나온 가락'))));
+    return '<div class="' + kind + '"><div class="fl">' + f + '</div><div class="fd">' + desc + '</div></div>';
+  }).join('');
+
+  const s = F.join('-');
+  let msg;
+  if(F.indexOf('–') >= 0)
+    msg = '아직 빈 마디가 있어서 형식이 안 잡혔다. 네 마디를 다 채우면 여기에 <b>내 곡의 형식</b>이 뜬다.';
+  else if(s === "a-a'-b-a" || s === 'a-a-b-a')
+    msg = '<b>' + s + '</b> — 동요와 대중가요가 가장 많이 쓰는 형식이다. ' +
+          '두 번 들려주고, 딴 데 갔다가, 제자리로 돌아온다. 아주 잘 짰다.';
+  else if(F[3] === F[0] || F[3] === F[0] + "'")
+    msg = '<b>' + s + '</b> — 끝이 처음으로 <b>돌아왔다</b>. 돌아오는 형식은 듣는 사람이 편안해한다.';
+  else if(F[0] !== F[1] && F[1] !== F[2] && F[2] !== F[3])
+    msg = '<b>' + s + '</b> — 네 마디가 전부 다르다. 새롭긴 한데 <b>기억에는 잘 안 남는다.</b> ' +
+          '2마디를 1마디와 비슷하게 고쳐 보면 확 달라진다(「1마디 → 2마디 복사」 단추).';
+  else
+    msg = '<b>' + s + '</b> — 같은 글자끼리는 닮은 마디다. ' +
+          '<b>반복이 있어야 기억에 남고, 변화가 있어야 지루하지 않다.</b> 둘 다 있는지 보자.';
+  const ft = document.getElementById('formtxt');
+  ft.className = 'formtxt';
+  ft.innerHTML = msg;
+}
+
+/* ══════════════════════════════════════════════════
+   저장
+   ══════════════════════════════════════════════════ */
+const LS = 'composer-studio-v1';
+function save(){
+  try{ localStorage.setItem(LS, JSON.stringify({
+    kind:S.kind, key:S.key, chords:S.chords, notes:S.notes })); }catch(e){}
+}
+function load(){
+  try{
+    const o = JSON.parse(localStorage.getItem(LS) || 'null');
+    if(!o || !o.key || !KEYS[o.key]) return false;
+    S.kind = o.kind; S.key = o.key;
+    S.chords = o.chords || ['I','IV','V','I'];
+    S.notes  = (o.notes && o.notes.length === STEPS) ? o.notes : new Array(STEPS).fill(null);
+    return true;
+  }catch(e){ return false; }
+}
+
+/* 시작 */
+if(load()){ showKeyBadge(); goto(3); }
+else{ renderPlan(); }
+</script>
+</body>
+</html>

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>내 조각 설계 — 실과 7단원 평가 설계지</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+/* ─────────────────────────────────────────────────────────────
+   실과 5-2 · 7단원 「컴퓨터와 프로그래밍」 ⑤차시 평가 설계지
+   설계 문서: PLAN.md 7장 · 짝이 되는 앱: order-lab.html (①목표 선언)
+   ★ 2쪽의 여섯 칸 이름은 앱 ①화면과 **같아야 한다.** 한쪽만 고치지 말 것 —
+     ⑥차시 첫 5분에 아이가 이 종이를 보고 그대로 옮겨 적는다.
+   ★ 칸 격자는 전부 SVG 선이다. CSS 테두리로 바꾸지 말 것 —
+     인쇄하면 빈 칸의 세로선이 사라진다(2026-08-28 필사 학습지 사고).
+   ───────────────────────────────────────────────────────────── */
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1c2430; --navy:#123a63; --navy2:#1d5b95; --red:#c0392b;
+  --gold:#a87c2e; --green:#2e7d5b; --line:#c9c2b4; --muted:#5f5d58; --soft:#f4f1e9;
+}
+@page{ size:A4; margin:0 }
+html,body{background:#4a5568;font-family:'Noto Sans KR',sans-serif;color:var(--ink)}
+
+.no-print{background:#1d3350;color:#e8eef7;padding:12px 18px;display:flex;
+  align-items:center;gap:14px;font-size:14px;flex-wrap:wrap;line-height:1.5}
+.no-print button{background:#c8963e;color:#231a08;border:0;border-radius:7px;
+  padding:9px 18px;font-size:14px;font-weight:900;cursor:pointer;font-family:inherit}
+.no-print .chk{font-weight:900}
+
+.page{width:210mm;height:297mm;background:#fff;margin:0 auto 8mm;padding:11mm 14mm 9mm;
+  overflow:hidden;display:flex;flex-direction:column;
+  print-color-adjust:exact;-webkit-print-color-adjust:exact}
+
+.head{border-bottom:2.5px solid var(--navy);padding-bottom:3px;margin-bottom:6px}
+.head h1{font-size:15pt;font-weight:900;color:var(--navy);letter-spacing:-.02em}
+.head .sub{font-size:9.2pt;color:var(--muted);font-weight:700;margin-top:2px}
+.head .tag{display:inline-block;background:var(--navy);color:#fff;font-size:8.6pt;
+  font-weight:900;padding:3px 11px;border-radius:99px;margin-bottom:5px}
+.head .pn{float:right;font-size:9pt;color:var(--muted);font-weight:900;margin-top:4px}
+
+h2.sec{font-size:11.4pt;font-weight:900;color:var(--navy2);margin:6px 0 3px;
+  display:flex;align-items:center;gap:8px}
+h2.sec .n{background:var(--navy2);color:#fff;width:21px;height:21px;border-radius:50%;
+  font-size:10pt;display:flex;align-items:center;justify-content:center;flex:none}
+h2.sec .hint{font-size:8.8pt;font-weight:700;color:var(--muted);margin-left:auto}
+
+p.t{font-size:9.8pt;line-height:1.5;font-weight:500}
+p.s{font-size:8.8pt;line-height:1.45;font-weight:700;color:var(--muted)}
+b.hl{font-weight:900;color:var(--red)}
+b.hn{font-weight:900;color:var(--navy2)}
+b.hg{font-weight:900;color:var(--green)}
+
+.who{display:flex;gap:5mm;align-items:flex-end;font-size:10pt;font-weight:700;margin-bottom:2px}
+.who .f{flex:1;border-bottom:1.6px solid var(--ink);height:7mm}
+.who .f.sm{flex:0 0 26mm}
+.who .lb{font-weight:900;color:var(--navy);flex:none;padding-bottom:1.5mm}
+
+.pick{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:9.8pt;font-weight:700;margin:3px 0 4px}
+.pick span{display:flex;align-items:center;gap:5px}
+.pick i{display:inline-block;width:4.2mm;height:4.2mm;border:1.8px solid var(--muted);
+  border-radius:2px;flex:none}
+.pick .etc{flex:1;min-width:52mm;display:flex;align-items:flex-end;gap:5px}
+.pick .etc .f{flex:1;border-bottom:1.4px solid var(--muted);height:5.5mm}
+
+.rule svg,.grid svg{width:100%;display:block}
+.ex{font-size:8.6pt;line-height:1.4;font-weight:700;color:#8d8778;
+  background:var(--soft);border-radius:6px;padding:5px 8px;margin-top:3px}
+.ex b{color:var(--gold);font-weight:900}
+
+.tip{border:1.8px solid var(--gold);border-radius:8px;padding:6px 10px;background:#fdfaf2;
+  font-size:8.8pt;line-height:1.45;font-weight:700}
+.tip b{color:var(--gold);font-weight:900}
+.warn{border:1.8px solid var(--red);border-radius:8px;padding:6px 10px;background:#fdf3f1;
+  font-size:8.8pt;line-height:1.45;font-weight:700}
+.warn b{color:var(--red);font-weight:900}
+.dark{background:#22303f;color:#eef3f8;border-radius:8px;padding:7px 11px;
+  font-size:9pt;line-height:1.6;font-weight:700}
+.dark b{color:#ffc400;font-weight:900}
+
+.two{display:flex;gap:5mm}
+.two>div{flex:1;min-width:0}
+
+.foot{margin-top:auto;border-top:2px solid var(--line);padding-top:5px;
+  font-size:8.4pt;color:var(--muted);font-weight:700;line-height:1.45}
+.foot b{color:var(--navy2)}
+
+@media print{ body{background:#fff} .no-print{display:none} .page{margin:0} }
+</style>
+</head>
+<body>
+
+<div class="no-print">
+  <button onclick="window.print()">인쇄</button>
+  <span><b>1쪽은 모둠에 1장, 2쪽은 1인 1장</b>입니다 — 인쇄 매수를 따로 잡으세요.
+    (모둠 6개면 1쪽 6장 · 2쪽은 학급 인원수)</span>
+  <span class="chk" id="chk">넘침 검사 중…</span>
+</div>
+
+<!-- ══════════════ 1쪽 — 모둠 공동 (모둠에 1장) ══════════════ -->
+<div class="page">
+  <div class="head">
+    <span class="pn">1 / 2 · 모둠에 1장</span>
+    <span class="tag">실과 5-2 · 7단원 · ⑤차시</span>
+    <h1>우리 모둠이 만들 프로그램</h1>
+    <div class="sub">교과서 122~123쪽 · 넷이 함께 씁니다 — <b>다음 시간에 각자 태블릿으로 만듭니다</b></div>
+  </div>
+
+  <div class="who">
+    <span class="lb">모둠</span><span class="f sm"></span>
+    <span class="lb">함께한 사람</span><span class="f"></span>
+  </div>
+
+  <h2 class="sec"><span class="n">1</span>무엇을 만들까<span class="hint">5분</span></h2>
+  <div class="pick">
+    <span><i></i> 재활용품 분리배출 <b class="hn">(교과서 122쪽)</b></span>
+    <span class="etc"><i></i> 우리가 정한 것 : <span class="f"></span></span>
+  </div>
+  <div class="tip"><b>다른 주제를 골라도 됩니다.</b> 다만 모양은 같아야 해요 —
+    <b class="hn">묻는다 → 맞는지 살펴본다 → 맞으면 이 말, 아니면 저 말</b>. (급식·등굣길·도서 분류…)</div>
+
+  <h2 class="sec"><span class="n">2</span>지금은 어떤가 · 어떻게 되면 좋은가<span class="hint">10분 · 교과서 122쪽</span></h2>
+  <p class="t" style="font-weight:900;color:var(--navy);margin-top:2px">현재 상태</p>
+  <div class="rule"><svg viewBox="0 0 182 13.5"><g stroke="#c9c2b4" stroke-width=".35">
+    <line x1="0" y1="6" x2="182" y2="6"/><line x1="0" y1="12.5" x2="182" y2="12.5"/></g></svg></div>
+  <p class="t" style="font-weight:900;color:var(--navy);margin-top:3px">목표 상태</p>
+  <div class="rule"><svg viewBox="0 0 182 13.5"><g stroke="#c9c2b4" stroke-width=".35">
+    <line x1="0" y1="6" x2="182" y2="6"/><line x1="0" y1="12.5" x2="182" y2="12.5"/></g></svg></div>
+  <p class="t" style="font-weight:900;color:var(--red);margin-top:3px">해결할 문제</p>
+  <div class="rule"><svg viewBox="0 0 182 9"><g stroke="#c0392b" stroke-width=".45">
+    <line x1="0" y1="7.5" x2="182" y2="7.5"/></g></svg></div>
+  <div class="ex"><b>교과서 보기</b> · 현재 — 쓰레기를 함부로 버려 환경 오염이 심각합니다 /
+    목표 — 재활용할 것을 종류별로 바르게 버려 환경을 보호합니다 / 해결할 문제 — 분리배출을 연습하는 프로그램 만들기</div>
+
+  <h2 class="sec"><span class="n">3</span>알아야 할 것<span class="hint">문제 해결에 필요한 정보</span></h2>
+  <div class="rule"><svg viewBox="0 0 182 11.5"><g stroke="#c9c2b4" stroke-width=".35">
+    <line x1="0" y1="5" x2="182" y2="5"/><line x1="0" y1="10.5" x2="182" y2="10.5"/></g></svg></div>
+  <div class="ex"><b>보기</b> · 무엇을 어디에 버려야 하는가 — 유리 · 종이 · 캔 · 플라스틱</div>
+
+  <h2 class="sec"><span class="n">4</span>조각 나누기 — 넷이 하나씩 맡습니다<span class="hint">10분</span></h2>
+  <div class="grid"><svg viewBox="0 0 182 45">
+    <rect x="0" y="0" width="182" height="45" fill="none" stroke="#123a63" stroke-width=".6"/>
+    <rect x="0" y="0" width="182" height="11" fill="#eef2f7"/>
+    <g stroke="#c9c2b4" stroke-width=".35">
+      <line x1="0" y1="19.5" x2="182" y2="19.5"/><line x1="0" y1="28" x2="182" y2="28"/>
+      <line x1="0" y1="36.5" x2="182" y2="36.5"/>
+      <line x1="46" y1="0" x2="46" y2="45"/><line x1="104" y1="0" x2="104" y2="45"/></g>
+    <g stroke="#123a63" stroke-width=".6"><line x1="0" y1="11" x2="182" y2="11"/></g>
+    <g font-family="'Noto Sans KR',sans-serif" font-size="3.4" font-weight="900" fill="#123a63" text-anchor="middle">
+      <text x="23" y="5">번호 · 이름</text>
+      <text x="75" y="5">내가 맡을 조각</text>
+      <text x="143" y="5">그때 정답이 될 말</text></g>
+    <g font-family="'Noto Sans KR',sans-serif" font-size="2.8" font-weight="700" fill="#8d8778" text-anchor="middle">
+      <text x="75" y="9.4">보기 · 빈 유리병</text>
+      <text x="143" y="9.4">보기 · 유리</text></g>
+  </svg></div>
+  <div class="warn"><b>조각의 어려운 정도가 같아야 합니다.</b> 답만 다르고 <b>뼈대는 똑같이</b> 나누세요 —
+    한 사람만 어려운 것을 맡으면 다음 시간 개인 평가가 불공평해집니다.</div>
+
+  <h2 class="sec"><span class="n">5</span>모둠 공통 — 우리 프로그램이 하는 일 한 줄</h2>
+  <div class="rule"><svg viewBox="0 0 182 11"><g stroke="#c9c2b4" stroke-width=".35">
+    <line x1="0" y1="9" x2="182" y2="9"/></g></svg></div>
+  <div class="ex"><b>교과서 보기</b> · 쓰레기를 클릭하고 분리수거함의 이름을 입력하면 해당 분리수거함으로 이동하기</div>
+
+  <div class="foot">
+    이 1쪽은 <b>모둠에서 한 장만</b> 냅니다. 각자 쓰는 것은 <b>2쪽</b>이에요.<br>
+    다음 시간에는 2쪽에 적은 것을 보고 태블릿의 <b>「순서 설계실」</b>에 그대로 옮겨 적습니다.
+  </div>
+</div>
+
+<!-- ══════════════ 2쪽 — 개인 (1인 1장) ══════════════
+     ★ 아래 여섯 칸의 이름은 order-lab.html 의 ①목표 선언과 **같다.**
+       한쪽만 고치지 말 것 — 아이가 이 종이를 보고 그대로 옮겨 적는다. -->
+<div class="page">
+  <div class="head">
+    <span class="pn">2 / 2 · 1인 1장</span>
+    <span class="tag">실과 5-2 · 7단원 · ⑤차시 · 개인</span>
+    <h1>내 조각 설계</h1>
+    <div class="sub">다음 시간에 <b>이 종이를 보고 태블릿에 그대로 옮겨 적습니다</b> — 잘 챙겨 두세요</div>
+  </div>
+
+  <div class="who">
+    <span class="lb">모둠</span><span class="f sm"></span>
+    <span class="lb">번호</span><span class="f sm"></span>
+    <span class="lb">이름</span><span class="f"></span>
+  </div>
+
+  <h2 class="sec"><span class="n">1</span>태블릿에 그대로 옮겨 적을 여섯 칸<span class="hint">앱 ①화면과 이름이 같습니다</span></h2>
+  <div class="grid"><svg viewBox="0 0 182 63">
+    <rect x="0" y="0" width="182" height="63" fill="none" stroke="#123a63" stroke-width=".6"/>
+    <rect x="0" y="0" width="52" height="63" fill="#eef2f7"/>
+    <g stroke="#c9c2b4" stroke-width=".35">
+      <line x1="0" y1="10.5" x2="182" y2="10.5"/><line x1="0" y1="21" x2="182" y2="21"/>
+      <line x1="0" y1="31.5" x2="182" y2="31.5"/><line x1="0" y1="42" x2="182" y2="42"/>
+      <line x1="0" y1="52.5" x2="182" y2="52.5"/></g>
+    <g stroke="#123a63" stroke-width=".6"><line x1="52" y1="0" x2="52" y2="63"/></g>
+    <g font-family="'Noto Sans KR',sans-serif" font-size="3.4" font-weight="900" fill="#123a63">
+      <text x="4" y="6.9">문제 상황</text>
+      <text x="4" y="17.4">내가 맡은 조각</text>
+      <text x="4" y="27.9">물어볼 말</text>
+      <text x="4" y="38.4">정답</text>
+      <text x="4" y="48.9">맞았을 때 할 말</text>
+      <text x="4" y="59.4">틀렸을 때 할 말</text></g>
+    <g font-family="'Noto Sans KR',sans-serif" font-size="2.8" font-weight="700" fill="#a9a396">
+      <text x="56" y="4.2">보기 · 재활용품 분리배출</text>
+      <text x="56" y="14.7">보기 · 빈 유리병</text>
+      <text x="56" y="25.2">보기 · 이 유리병은 어디에 버릴까요?</text>
+      <text x="56" y="35.7">보기 · 유리</text>
+      <text x="56" y="46.2">보기 · 예, 유리입니다!</text>
+      <text x="56" y="56.7">보기 · 다시 생각해 보세요.</text></g>
+  </svg></div>
+  <div class="dark" style="margin-top:4px">앱이 <b>이 여섯 칸 그대로</b> 시험합니다 —
+    ① <b>정답</b>을 넣어 「맞았을 때 할 말」이 나오는지 ② <b>다른 답</b>을 넣어 「틀렸을 때 할 말」이 나오는지</div>
+  <div class="warn" style="margin-top:4px"><b>두 말이 같거나, 한쪽이 다른 쪽 안에 들어 있으면 안 됩니다.</b>
+    앱이 구분하지 못해 다음으로 못 넘어가요. (✕ 「맞아요」와 「맞아요 정말」 &nbsp; ○ 「예, 유리입니다!」와 「다시 생각해 보세요.」)</div>
+
+  <h2 class="sec"><span class="n">2</span>순서 설계 — 내 조각을 단계로 쪼개기<span class="hint">15분</span></h2>
+  <div class="grid"><svg viewBox="0 0 182 57">
+    <g stroke="#c9c2b4" stroke-width=".35">
+      <line x1="11" y1="9.6" x2="182" y2="9.6"/><line x1="11" y1="21.1" x2="182" y2="21.1"/>
+      <line x1="11" y1="32.6" x2="182" y2="32.6"/><line x1="11" y1="44.1" x2="182" y2="44.1"/>
+      <line x1="11" y1="55.6" x2="182" y2="55.6"/></g>
+    <g fill="#1d5b95"><circle cx="4.6" cy="5.5" r="3.3"/><circle cx="4.6" cy="17" r="3.3"/>
+      <circle cx="4.6" cy="28.5" r="3.3"/><circle cx="4.6" cy="40" r="3.3"/>
+      <circle cx="4.6" cy="51.5" r="3.3"/></g>
+    <g font-family="'Noto Sans KR',sans-serif" font-size="3.5" font-weight="900" fill="#fff" text-anchor="middle">
+      <text x="4.6" y="6.8">1</text><text x="4.6" y="18.3">2</text><text x="4.6" y="29.8">3</text>
+      <text x="4.6" y="41.3">4</text><text x="4.6" y="52.8">5</text></g>
+  </svg></div>
+  <div class="ex"><b>교과서 122쪽 보기 (빈 유리병)</b> ·
+    1 유리병 고르기 → 2 어디에 버릴지 묻고 대답 기다리기 → 3 대답이 ‘유리’와 같은지 살펴보기 →
+    4 같으면 “예, 유리입니다.” 말하고 유리함으로 보내기 → 5 아니면 “다시 생각해 보세요.” 말하기</div>
+
+  <h2 class="sec"><span class="n">3</span>모둠 검토 — 옆 친구가 읽고 답해 줍니다</h2>
+  <div class="pick">
+    <span style="font-weight:900;color:var(--navy)">빠진 단계가 있나요?</span>
+    <span><i></i> 없다</span>
+    <span class="etc"><i></i> 있다 → 어느 것 : <span class="f"></span></span>
+  </div>
+  <div class="pick">
+    <span style="font-weight:900;color:var(--navy)">이대로 하면 목표에 닿나요?</span>
+    <span><i></i> 닿는다</span>
+    <span class="etc"><i></i> 아니다 → 왜 : <span class="f"></span></span>
+  </div>
+  <div class="who" style="margin-top:2px">
+    <span class="lb">검토한 사람</span><span class="f sm"></span>
+    <span class="lb">고친 곳</span><span class="f"></span>
+  </div>
+
+  <div class="tip" style="margin-top:6px"><b>다음 시간에 할 일</b> —
+    ① 태블릿 「순서 설계실」에서 <b>평가 시작하기</b>
+    ② 위 <b>여섯 칸</b>을 그대로 옮겨 적기
+    ③ <b>2번 설계</b>를 옮겨 적고 블록으로 짜서 돌려 보기 → 제출</div>
+
+  <div class="foot">
+    <b>설계가 틀려도 앱은 막지 않습니다.</b> 돌려 보고 어긋나면 이 종이로 돌아와 고치면 돼요 —
+    <b>스스로 알아채고 고친 것도 그대로 남습니다.</b><br>
+    막히면 태블릿의 <b>힌트</b>를 눌러도 됩니다. 눌렀다고 깎이지 않아요.
+  </div>
+</div>
+
+<script>
+/* 넘침 검사 — 브라우저에서 열면 위 파란 띠에 결과가 뜬다.
+   ★ 인쇄 전에 이 줄이 「1쪽 OK · 2쪽 OK」인지 반드시 볼 것. */
+window.addEventListener('load',()=>{
+  const out=[];
+  document.querySelectorAll('.page').forEach((p,i)=>{
+    const over=p.scrollHeight-p.clientHeight;
+    out.push((i+1)+'쪽 '+(over<=1?'OK':'넘침 '+Math.round(over)+'px'));
+  });
+  document.getElementById('chk').textContent=out.join(' · ');
+});
+</script>
+</body>
+</html>

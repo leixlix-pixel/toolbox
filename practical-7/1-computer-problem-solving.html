@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>컴퓨터로 문제를 푼다는 것</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --ink:#1c2430; --navy:#123a63; --navy2:#1d5b95;
+  --red:#c0392b; --gold:#c8963e; --green:#2e7d5b; --plum:#7d4a86;
+  --paper:#f6f2e9; --line:#d9d2c4; --muted:#6d6b66;
+}
+
+html,body{height:100%;background:#0d1520;font-family:'Noto Sans KR',sans-serif;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;overflow:hidden}
+
+#stage{position:absolute;left:50%;top:calc(50% - 23px);width:1280px;height:720px;
+  transform-origin:center center;background:var(--paper);overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,.6)}
+
+.slide{position:absolute;inset:0;padding:34px 50px 30px;display:none;
+  flex-direction:column;background:var(--paper);--acc:var(--navy2)}
+.slide.on{display:flex}
+.slide::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(circle at 12% 8%,rgba(29,91,149,.10),transparent 45%),
+             radial-gradient(circle at 92% 95%,rgba(200,150,62,.10),transparent 45%)}
+.slide>*{position:relative;z-index:1}
+
+.eyebrow{display:inline-block;font-size:19px;font-weight:700;color:#fff;
+  background:var(--acc);padding:5px 17px;border-radius:999px;margin-bottom:9px;align-self:flex-start}
+h2.stitle{font-size:38px;font-weight:900;color:var(--acc);line-height:1.2;letter-spacing:-.02em}
+h2.stitle.sm{font-size:32px}
+.rule{width:90px;height:7px;border-radius:4px;
+  background:linear-gradient(90deg,var(--navy2),var(--gold));margin:9px 0 16px}
+p.body{font-size:25px;line-height:1.5;color:var(--ink);font-weight:500}
+p.body+p.body{margin-top:11px}
+.small{font-size:21px;line-height:1.5}
+.tiny{font-size:18px;line-height:1.5}
+.mt{margin-top:14px}
+
+b.hl{font-weight:900;color:var(--red);background:linear-gradient(transparent 62%,rgba(192,57,43,.20) 62%);padding:0 2px}
+b.hn{font-weight:900;color:var(--navy2);background:linear-gradient(transparent 62%,rgba(29,91,149,.18) 62%);padding:0 2px}
+b.hg{font-weight:900;color:var(--green);background:linear-gradient(transparent 62%,rgba(46,125,91,.18) 62%);padding:0 2px}
+
+.cols{display:flex;gap:26px;flex:1;min-height:0;align-items:center}
+.col{flex:1;min-width:0}
+
+.term{background:#fff;border-left:9px solid var(--gold);border-radius:8px;padding:12px 16px;
+  box-shadow:0 6px 16px rgba(30,25,15,.10)}
+.term+.term{margin-top:11px}
+.term .t{font-size:22px;font-weight:900;color:var(--gold);margin-bottom:3px}
+.term .d{font-size:20px;font-weight:500;color:var(--ink);line-height:1.45}
+
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;
+  box-shadow:0 6px 16px rgba(30,25,15,.09)}
+.card h3{font-size:21px;font-weight:900;color:var(--acc);margin-bottom:6px}
+.card p{font-size:19px;line-height:1.42;font-weight:500;color:var(--ink)}
+.cardrow{display:flex;gap:14px}
+.cardrow>.card{flex:1}
+.cardgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+.act{background:#fff;border:3px dashed var(--red);border-radius:18px;padding:16px 20px}
+.act-h{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.act-badge{background:var(--red);color:#fff;font-weight:900;font-size:18px;
+  padding:5px 14px;border-radius:999px;white-space:nowrap}
+.act-t{font-size:24px;font-weight:900;color:var(--navy)}
+
+.chip{display:inline-block;background:#fff;border:2px solid var(--acc);color:var(--acc);
+  font-weight:900;font-size:21px;border-radius:999px;padding:9px 20px;margin:8px 9px 0 0}
+.chipwrap{display:flex;flex-wrap:wrap}
+
+.fig{display:flex;justify-content:center;align-items:center;flex:1;min-height:0}
+.fig svg{max-width:100%;max-height:100%}
+.figcap{font-size:18px;color:var(--muted);text-align:center;font-weight:600;margin-top:6px}
+
+.ph{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px;
+  box-shadow:0 6px 16px rgba(30,25,15,.09);text-align:center}
+.ph img{width:100%;display:block;border-radius:7px}
+.ph .cap{font-size:17px;color:var(--muted);font-weight:700;margin-top:6px;line-height:1.35}
+.phrow{display:flex;gap:16px;align-items:flex-start}
+.phrow>.ph{flex:1;min-width:0}
+.phrow.narrow{max-width:900px;margin:0 auto;align-self:center}
+
+.check{display:flex;flex-direction:column;gap:9px}
+.check .ci{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid var(--line);
+  border-radius:12px;padding:11px 17px;box-shadow:0 4px 12px rgba(30,25,15,.07)}
+.check .cn{background:var(--navy2);color:#fff;font-weight:900;font-size:19px;width:34px;height:34px;
+  border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none}
+.check .ct{font-size:22px;font-weight:700;color:var(--ink)}
+
+.vs{display:flex;flex:1;min-height:0;align-items:stretch;
+  background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;
+  box-shadow:0 6px 16px rgba(30,25,15,.09)}
+.vs .vcol{flex:1;padding:15px 18px}
+.vs .vcol+.vcol{border-left:2px solid var(--line)}
+.vs .vh{font-size:23px;font-weight:900;margin-bottom:9px}
+.vs .vi{font-size:20px;line-height:1.45;font-weight:500;color:var(--ink);
+  padding:7px 0;border-bottom:1px dashed var(--line)}
+.vs .vi:last-child{border-bottom:0}
+
+.cover2{justify-content:center;align-items:center;text-align:center;background:linear-gradient(160deg,#1c5a45,#123a63 70%)}
+.cover2 .kicker{color:#ffe9b0;font-size:22px;font-weight:700;margin-bottom:14px}
+.cover2 h1{color:#fff;font-size:52px;font-weight:900;line-height:1.26}
+.cover2 .sub{color:#d6e4f2;font-size:22px;font-weight:500;margin-top:20px;max-width:940px}
+
+.divider{justify-content:center;align-items:center;text-align:center;background:linear-gradient(160deg,#123a63,#1d5b95 70%)}
+.divider .num{color:#ffe9b0;font-size:24px;font-weight:900;margin-bottom:9px}
+.divider h1{color:#fff;font-size:44px;font-weight:900;line-height:1.25}
+.divider .sub{color:#cfe3d9;font-size:21px;font-weight:500;margin-top:15px;max-width:900px}
+
+.bar{position:fixed;left:0;right:0;bottom:0;height:46px;background:#0f1a29;color:#cfd8e6;
+  display:flex;align-items:center;gap:10px;padding:0 14px;font-size:15px;z-index:50}
+.bar button{background:#1d3350;color:#e8eef7;border:0;border-radius:7px;padding:7px 13px;
+  font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+#prog{position:fixed;left:0;top:0;height:4px;background:var(--navy2);z-index:60;transition:width .18s}
+.zone{position:fixed;top:0;bottom:46px;width:12%;z-index:40;cursor:pointer}
+#zl{left:0}#zr{right:0}
+</style>
+</head>
+<body>
+
+<div id="prog"></div>
+<div id="stage"></div>
+<div class="zone" id="zl"></div>
+<div class="zone" id="zr"></div>
+<div class="bar">
+  <button onclick="go(-1)">◀ 이전</button>
+  <button onclick="go(1)">다음 ▶</button>
+  <span id="counter">1 / 1</span>
+  <span style="margin-left:18px;opacity:.7">← → 이동 · F 전체화면</span>
+  <button style="margin-left:auto" onclick="fs()">⛶ 전체화면</button>
+</div>
+
+<script>
+/* ─────────────────────────────────────────────────────────────
+   실과 5-2 · 7단원 ①차시 — 컴퓨터로 문제를 푼다는 것 (교과서 108~113쪽)
+   설계 문서: ../PLAN.md 10장 · 규칙: ../../../NOTES-lessons.md
+   ★ 교과서 삽화를 옮기지 않았다. 108~113쪽은 사진이 아니라 개념을 그린 만화이고,
+     아이들 책상에 그 책이 펼쳐져 있다. 슬라이드의 몫은 **교과서 밖**이다 —
+     computer 가 직업 이름이던 시절 · 컴퓨터가 못 하는 일 · 흐린 목표 · 왜 쪼개나.
+   ★ 도해는 전부 파일 안에서 직접 그린 SVG 다(교과서 그림의 대체가 아니라 새 그림).
+   ───────────────────────────────────────────────────────────── */
+const IMG = {};
+
+const NS = 'font-family="Noto Sans KR" font-weight="900"';
+
+/* 입력 → 처리 → 출력 : 교실에서 하루에도 몇 번씩 도는 것 */
+const ioFig = '<svg viewBox="0 0 1160 330">'
+  + '<rect x="30" y="60" width="290" height="150" rx="16" fill="#fff" stroke="#1d5b95" stroke-width="4"/>'
+  + '<text x="175" y="112" font-size="30" fill="#1d5b95" text-anchor="middle" '+NS+'>입력</text>'
+  + '<text x="175" y="156" font-size="24" fill="#1c2430" text-anchor="middle" '+NS+'>교통카드를 댄다</text>'
+  + '<text x="175" y="188" font-size="24" fill="#1c2430" text-anchor="middle" '+NS+'>번호를 누른다</text>'
+  + '<rect x="435" y="60" width="290" height="150" rx="16" fill="#1d5b95"/>'
+  + '<text x="580" y="112" font-size="30" fill="#fff" text-anchor="middle" '+NS+'>처리</text>'
+  + '<text x="580" y="156" font-size="24" fill="#dbe8f6" text-anchor="middle" '+NS+'>정해진 순서대로</text>'
+  + '<text x="580" y="188" font-size="24" fill="#dbe8f6" text-anchor="middle" '+NS+'>따진다</text>'
+  + '<rect x="840" y="60" width="290" height="150" rx="16" fill="#fff" stroke="#2e7d5b" stroke-width="4"/>'
+  + '<text x="985" y="112" font-size="30" fill="#2e7d5b" text-anchor="middle" '+NS+'>출력</text>'
+  + '<text x="985" y="156" font-size="24" fill="#1c2430" text-anchor="middle" '+NS+'>문이 열린다</text>'
+  + '<text x="985" y="188" font-size="24" fill="#1c2430" text-anchor="middle" '+NS+'>화면에 뜬다</text>'
+  + '<path d="M330 135 L425 135" stroke="#6d6b66" stroke-width="8"/>'
+  + '<path d="M415 121 L440 135 L415 149 Z" fill="#6d6b66"/>'
+  + '<path d="M735 135 L830 135" stroke="#6d6b66" stroke-width="8"/>'
+  + '<path d="M820 121 L845 135 L820 149 Z" fill="#6d6b66"/>'
+  + '<text x="580" y="278" font-size="26" fill="#c0392b" text-anchor="middle" '+NS+'>'
+  + '이 가운데 「처리」의 순서를 정해 주는 것이 사람이다</text>'
+  + '</svg>';
+
+/* 현재 상태 → 목표 상태 : 교과서 서빙 로봇 말고 다른 셋 */
+function gap(x,now,goal,col){
+  return '<rect x="'+x+'" y="40" width="330" height="118" rx="14" fill="#fff" stroke="#c9c2b4" stroke-width="3"/>'
+   + '<text x="'+(x+18)+'" y="76" font-size="21" fill="#6d6b66" '+NS+'>지금</text>'
+   + '<text x="'+(x+18)+'" y="116" font-size="23" fill="#1c2430" '+NS+'>'+now+'</text>'
+   + '<path d="M'+(x+165)+' 166 L'+(x+165)+' 196" stroke="'+col+'" stroke-width="8"/>'
+   + '<path d="M'+(x+150)+' 188 L'+(x+165)+' 212 L'+(x+180)+' 188 Z" fill="'+col+'"/>'
+   + '<rect x="'+x+'" y="220" width="330" height="118" rx="14" fill="'+col+'"/>'
+   + '<text x="'+(x+18)+'" y="256" font-size="21" fill="#ffffff" opacity=".8" '+NS+'>이렇게 되면 좋겠다</text>'
+   + '<text x="'+(x+18)+'" y="296" font-size="23" fill="#fff" '+NS+'>'+goal+'</text>';
+}
+const gapFig = '<svg viewBox="0 0 1120 350">'
+  + gap(10,'책을 늦게 돌려준다','반납일 전에 알려 준다','#1d5b95')
+  + gap(390,'우산을 두고 나간다','비 오는 날 알려 준다','#2e7d5b')
+  + gap(770,'급식이 남아 버려진다','먹을 만큼만 담게 한다','#c8963e')
+  + '</svg>';
+
+/* 라면 끓이기 — 어디까지 쪼개야 하나 */
+const splitFig = '<svg viewBox="0 0 1160 340">'
+  + '<rect x="420" y="10" width="320" height="62" rx="14" fill="#c0392b"/>'
+  + '<text x="580" y="52" font-size="28" fill="#fff" text-anchor="middle" '+NS+'>라면 끓이기</text>'
+  + '<path d="M580 76 L580 100" stroke="#6d6b66" stroke-width="6"/>'
+  + '<path d="M180 100 L980 100" stroke="#6d6b66" stroke-width="6"/>'
+  + '<path d="M180 100 L180 124" stroke="#6d6b66" stroke-width="6"/>'
+  + '<path d="M580 100 L580 124" stroke="#6d6b66" stroke-width="6"/>'
+  + '<path d="M980 100 L980 124" stroke="#6d6b66" stroke-width="6"/>'
+  + '<rect x="40" y="126" width="280" height="58" rx="12" fill="#fff" stroke="#1d5b95" stroke-width="4"/>'
+  + '<text x="180" y="164" font-size="25" fill="#1d5b95" text-anchor="middle" '+NS+'>물 끓이기</text>'
+  + '<rect x="440" y="126" width="280" height="58" rx="12" fill="#fff" stroke="#1d5b95" stroke-width="4"/>'
+  + '<text x="580" y="164" font-size="25" fill="#1d5b95" text-anchor="middle" '+NS+'>면과 스프 넣기</text>'
+  + '<rect x="840" y="126" width="280" height="58" rx="12" fill="#fff" stroke="#1d5b95" stroke-width="4"/>'
+  + '<text x="980" y="164" font-size="25" fill="#1d5b95" text-anchor="middle" '+NS+'>4분 기다리기</text>'
+  + '<path d="M180 188 L180 210" stroke="#c9c2b4" stroke-width="5"/>'
+  + '<path d="M70 210 L290 210" stroke="#c9c2b4" stroke-width="5"/>'
+  + '<path d="M70 210 L70 230" stroke="#c9c2b4" stroke-width="5"/>'
+  + '<path d="M290 210 L290 230" stroke="#c9c2b4" stroke-width="5"/>'
+  + '<rect x="10" y="232" width="120" height="50" rx="10" fill="#f0ece2" stroke="#c9c2b4" stroke-width="3"/>'
+  + '<text x="70" y="264" font-size="21" fill="#1c2430" text-anchor="middle" '+NS+'>물 재기</text>'
+  + '<rect x="230" y="232" width="120" height="50" rx="10" fill="#f0ece2" stroke="#c9c2b4" stroke-width="3"/>'
+  + '<text x="290" y="264" font-size="21" fill="#1c2430" text-anchor="middle" '+NS+'>불 켜기</text>'
+  + '<text x="580" y="320" font-size="26" fill="#c0392b" text-anchor="middle" '+NS+'>'
+  + '어디까지? — 「이제 더 쪼갤 필요가 없다」 싶을 때까지</text>'
+  + '</svg>';
+
+const SLIDES = [
+
+/* 1 표지 */
+`<section class="slide cover2">
+  <div class="kicker">실과 5학년 · 7단원 컴퓨터와 프로그래밍 · 1차시</div>
+  <h1>컴퓨터로 문제를 푼다는 것</h1>
+  <div class="sub">교과서 108~113쪽<br><br>오늘은 <b style="color:#ffe9b0">코딩을 하지 않는다.</b>
+    코딩보다 앞에 있는 것 — <b style="color:#ffe9b0">무엇을 어떤 순서로 시킬지 정하는 일</b>을 본다.</div>
+</section>`,
+
+/* 2 오늘 아침 */
+`<section class="slide">
+  <span class="eyebrow">들어가며</span>
+  <h2 class="stitle">오늘 아침, 컴퓨터를 몇 번 썼을까?</h2>
+  <div class="rule"></div>
+  <p class="body">「컴퓨터」라고 하면 책상 위 그것만 떠오른다. 그런데—</p>
+  <div class="chipwrap mt">
+    <span class="chip">알람이 울렸다</span>
+    <span class="chip">버스 도착 시간을 봤다</span>
+    <span class="chip">교통카드를 찍었다</span>
+    <span class="chip">교실 문이 자동으로 열렸다</span>
+    <span class="chip">급식 카드를 댔다</span>
+    <span class="chip">전자칠판이 켜졌다</span>
+  </div>
+  <p class="body mt"><b class="hl">전부 컴퓨터다.</b> 우리가 컴퓨터라고 부르지 않을 뿐이다.</p>
+  <p class="body small mt"><b class="hn">물어보기</b> — 오늘 학교에 오기까지, 컴퓨터가 <b>없었다면</b> 못 했을 일 하나만 말해 보자.</p>
+</section>`,
+
+/* 3 컴퓨터는 직업 이름이었다 (교과서 밖) */
+`<section class="slide" style="--acc:var(--plum)">
+  <span class="eyebrow">교과서 밖 이야기</span>
+  <h2 class="stitle">「컴퓨터」는 원래 <b style="color:var(--red)">사람</b>을 부르는 말이었다</h2>
+  <div class="rule"></div>
+  <p class="body">compute 는 <b class="hn">「계산하다」</b>. 그래서 computer 는 <b class="hl">「계산하는 사람」</b>이었다.
+    수백 년 동안 그건 <b>직업 이름</b>이었다.</p>
+  <div class="cardrow mt">
+    <div class="card"><h3>1600년대~</h3>
+      <p>별의 자리, 밀물과 썰물의 때를 <b>손으로</b> 계산해 표를 만드는 사람들이 있었다.</p></div>
+    <div class="card"><h3>1960년대 · 미국 항공우주국</h3>
+      <p>우주선이 어디로 떨어질지 <b>연필과 종이로</b> 계산하는 사람들이 있었다. 그들의 직함이 바로 <b>computer</b> 였다.</p></div>
+    <div class="card"><h3>그리고 지금</h3>
+      <p>그 <b>계산하는 일</b>을 기계가 넘겨받았다. 이름만 그대로 남았다.</p></div>
+  </div>
+  <p class="body mt"><b class="hl">기계가 넘겨받은 것은 「계산」이지 「무엇을 계산할지」가 아니다.</b>
+    그건 그때도 지금도 사람 몫이다.</p>
+</section>`,
+
+/* 4 컴퓨터가 잘하는 것 */
+`<section class="slide">
+  <span class="eyebrow">교과서 110쪽</span>
+  <h2 class="stitle">컴퓨터가 우리보다 나은 것 — 딱 세 가지</h2>
+  <div class="rule"></div>
+  <div class="cardrow">
+    <div class="card"><h3>① 빠르고 틀리지 않는다</h3>
+      <p>25명 급식비를 더하는 데 <b>눈 깜짝할 사이</b>. 백 번을 다시 해도 <b>같은 답</b>이 나온다.</p></div>
+    <div class="card"><h3>② 지루해하지 않는다</h3>
+      <p>같은 일을 <b>만 번</b> 시켜도 똑같이 한다. 사람은 열 번째쯤에서 실수하기 시작한다.</p></div>
+    <div class="card"><h3>③ 많이 기억하고 나눈다</h3>
+      <p>학교 도서관 책 전부를 기억하고, <b>같은 순간에</b> 여러 사람에게 보여 준다.</p></div>
+  </div>
+  <p class="body mt">그래서 우리는 <b class="hn">복잡한 계산 · 되풀이되는 일 · 많은 자료</b>를 컴퓨터에 맡긴다.</p>
+</section>`,
+
+/* 5 못 하는 것 — 이 단원의 핵심 */
+`<section class="slide" style="--acc:var(--red)">
+  <span class="eyebrow">그런데</span>
+  <h2 class="stitle">컴퓨터가 <b style="color:var(--red)">절대</b> 못 하는 것</h2>
+  <div class="rule"></div>
+  <p class="body"><b class="hl">무엇을, 어떤 순서로 할지 스스로 정하지 못한다.</b></p>
+  <div class="act mt">
+    <div class="act-h"><span class="act-badge">생각해 보기</span>
+      <span class="act-t">「교실을 깨끗하게 해」라고 로봇에게 말하면?</span></div>
+    <p class="body small">로봇은 <b>움직이지 않는다.</b> 「깨끗하게」가 무슨 뜻인지 모르기 때문이다.<br>
+      바닥의 물건을 치우라는 건지, 책상 줄을 맞추라는 건지, 창문을 닦으라는 건지 —
+      <b class="hl">사람은 알아듣고 컴퓨터는 못 알아듣는다.</b></p>
+  </div>
+  <p class="body mt">그래서 사람이 <b class="hn">순서를 정해 주어야</b> 한다.
+    이 단원에서 우리가 배울 것이 정확히 그 일이다.</p>
+</section>`,
+
+/* 6 입력-처리-출력 */
+`<section class="slide">
+  <span class="eyebrow">교과서 110쪽</span>
+  <h2 class="stitle sm">컴퓨터는 언제나 이 셋을 돈다</h2>
+  <div class="rule"></div>
+  <div class="fig">${ioFig}</div>
+  <p class="body small mt"><b class="hn">물어보기</b> — 교실 자동문에서 <b>입력</b>은 무엇이고 <b>출력</b>은 무엇일까?
+    그 사이의 <b>처리</b>는 누가 정해 두었을까?</p>
+</section>`
+,
+
+/* 7 하드웨어와 소프트웨어 */
+`<section class="slide" style="--acc:var(--gold)">
+  <span class="eyebrow">교과서 110쪽</span>
+  <h2 class="stitle sm">하드웨어는 몸, 소프트웨어는 <b style="color:var(--red)">시키는 법</b></h2>
+  <div class="rule"></div>
+  <div class="cols">
+    <div class="col">
+      <div class="term"><div class="t">하드웨어</div>
+        <div class="d">손으로 만질 수 있는 기계 장치. 화면 · 자판 · 안의 부품.</div></div>
+      <div class="term"><div class="t">소프트웨어(프로그램)</div>
+        <div class="d">그 기계를 <b>어떻게 움직일지</b> 적어 둔 명령어의 모음.</div></div>
+    </div>
+    <div class="col">
+      <div class="act">
+        <div class="act-h"><span class="act-badge">눈여겨볼 것</span>
+          <span class="act-t">같은 기계가 다른 일을 한다</span></div>
+        <p class="body small">교실 전자칠판은 <b>기계는 그대로</b>인데
+          어제는 국어 자료를, 오늘은 이 화면을 띄운다.<br>
+          <b class="hl">바뀐 것은 몸이 아니라 시키는 법이다.</b></p>
+      </div>
+      <p class="body small mt">스마트폰이 새 앱을 깔면 새 일을 하게 되는 것도 같은 까닭이다.</p>
+    </div>
+  </div>
+</section>`,
+
+/* 8 divider */
+`<section class="slide divider">
+  <div class="num">여기서부터</div>
+  <h1>컴퓨터로 문제를 해결하는 과정</h1>
+  <div class="sub">교과서 112~113쪽 · 네 걸음 가운데 <b style="color:#ffe9b0">앞의 두 걸음</b>을 오늘 한다</div>
+</section>`,
+
+/* 9 현재 상태 → 목표 상태 */
+`<section class="slide">
+  <span class="eyebrow">① 문제 이해하기</span>
+  <h2 class="stitle sm">문제는 <b style="color:var(--red)">「지금」과 「이렇게 되면 좋겠다」</b> 사이에 있다</h2>
+  <div class="rule"></div>
+  <div class="fig">${gapFig}</div>
+  <p class="body small mt">둘을 나란히 적어 보면 <b class="hn">무엇을 해결해야 하는지</b>가 저절로 드러난다.
+    교과서는 <b>식당 서빙 로봇</b>으로 이걸 보여 준다(112쪽).</p>
+</section>`,
+
+/* 10 흐린 목표 */
+`<section class="slide" style="--acc:var(--red)">
+  <span class="eyebrow">함정</span>
+  <h2 class="stitle sm">목표를 <b style="color:var(--red)">흐리게</b> 적으면 아무 일도 안 일어난다</h2>
+  <div class="rule"></div>
+  <div class="vs">
+    <div class="vcol">
+      <div class="vh" style="color:var(--red)">흐린 목표</div>
+      <div class="vi">교실을 깨끗하게 한다</div>
+      <div class="vi">급식을 잘 먹는다</div>
+      <div class="vi">책을 잘 관리한다</div>
+      <div class="vi">친구들과 사이좋게 지낸다</div>
+      <div class="vi">우유를 잘 챙겨 먹는다</div>
+      <div class="vi" style="color:var(--red);font-weight:900">→ 다 됐는지 <b>아무도 판단할 수 없다</b></div>
+    </div>
+    <div class="vcol">
+      <div class="vh" style="color:var(--green)">또렷한 목표</div>
+      <div class="vi">바닥에 놓인 물건이 <b>하나도 없다</b></div>
+      <div class="vi">남은 급식이 <b>한 통 아래</b>다</div>
+      <div class="vi">반납일이 지난 책이 <b>0권</b>이다</div>
+      <div class="vi">점심시간에 <b>혼자 있는 친구가 없다</b></div>
+      <div class="vi">남은 우유가 <b>0개</b>다</div>
+      <div class="vi" style="color:var(--green);font-weight:900">→ <b>됐다 / 안 됐다</b>를 가릴 수 있다</div>
+    </div>
+  </div>
+  <p class="body small mt"><b class="hl">컴퓨터에게 시키려면 오른쪽처럼 적어야 한다.</b>
+    「됐는지 가릴 수 있는가」가 갈림길이다.</p>
+</section>`,
+
+/* 11 작게 나누기 */
+`<section class="slide">
+  <span class="eyebrow">② 문제 해결 방법 생각하기</span>
+  <h2 class="stitle sm">큰 문제는 통째로 풀지 않는다 — 쪼갠다</h2>
+  <div class="rule"></div>
+  <div class="fig">${splitFig}</div>
+</section>`,
+
+/* 12 왜 쪼개나 */
+`<section class="slide" style="--acc:var(--green)">
+  <span class="eyebrow">왜 쪼개는가</span>
+  <h2 class="stitle sm">쪼개 놓으면 <b style="color:var(--red)">틀린 조각만</b> 고치면 된다</h2>
+  <div class="rule"></div>
+  <div class="cardrow">
+    <div class="card"><h3>통째로 했을 때</h3>
+      <p>라면이 맛없다. <b>어디서 잘못됐지?</b> 물? 시간? 스프? — 처음부터 다시 해 봐야 안다.</p></div>
+    <div class="card"><h3>쪼개 놓았을 때</h3>
+      <p>「4분 기다리기」에서 6분을 기다렸다. <b>그 조각만</b> 고치면 된다. 나머지는 건드릴 필요가 없다.</p></div>
+  </div>
+  <div class="act mt">
+    <div class="act-h"><span class="act-badge">이 단원 내내</span>
+      <span class="act-t">여기서 배운 것이 다음 시간부터 계속 쓰인다</span></div>
+    <p class="body small">모둠이 만들 프로그램도 <b class="hn">유리 · 종이 · 캔 · 플라스틱</b>으로 쪼개서
+      한 사람이 한 조각씩 맡는다. 쪼개 놓았으니 <b class="hl">각자 자기 것만 고치면 된다.</b></p>
+  </div>
+</section>`,
+
+/* 13 활동 */
+`<section class="slide" style="--acc:var(--red)">
+  <span class="eyebrow">해 보기 · 교과서 111 · 113쪽</span>
+  <h2 class="stitle sm">우리 반 문제 하나를 골라 세 칸으로</h2>
+  <div class="rule"></div>
+  <div class="check">
+    <div class="ci"><span class="cn">1</span><span class="ct">우리 반에서 <b>불편한 것</b> 하나를 고른다</span></div>
+    <div class="ci"><span class="cn">2</span><span class="ct"><b>지금 상태</b>와 <b>이렇게 되면 좋겠다</b>를 한 줄씩 적는다 — <b style="color:#c0392b">또렷하게</b></span></div>
+    <div class="ci"><span class="cn">3</span><span class="ct">그 일을 <b>작은 일 셋</b>으로 쪼갠다</span></div>
+    <div class="ci"><span class="cn">4</span><span class="ct">모둠에서 서로 읽어 주고 — <b>「이거 컴퓨터가 알아들을까?」</b> 물어 준다</span></div>
+  </div>
+  <p class="body small mt">쪼갠 조각이 <b class="hn">「누가 봐도 같은 뜻」</b>이면 성공이다.
+    사람마다 다르게 읽히면 아직 흐린 것이다.</p>
+</section>`,
+
+/* 14 오늘 남길 한 줄 */
+`<section class="slide cover2">
+  <div class="kicker">오늘 하나만 가져간다면</div>
+  <h1>컴퓨터는 순서를 지킬 뿐,<br>순서를 정하는 건 사람이다</h1>
+  <div class="sub">그래서 이 단원은 <b style="color:#ffe9b0">코딩을 잘하는 법</b>이 아니라
+    <b style="color:#ffe9b0">순서를 잘 짜는 법</b>을 배운다.</div>
+</section>`,
+
+/* 15 예고 */
+`<section class="slide divider">
+  <div class="num">다음 시간</div>
+  <h1>알고리즘 — 순서를 남에게 전하는 법</h1>
+  <div class="sub">말로 · 코드 흉내로 · 그림으로. 세 가지로 적어 보고,<br>
+    <b style="color:#ffe9b0">직접 로봇이 되어</b> 친구가 적어 준 명령대로 움직여 본다.</div>
+</section>`
+
+];
+
+const stage = document.getElementById("stage");
+stage.innerHTML = SLIDES.join("");
+stage.querySelectorAll("img[data-img]").forEach(el => {
+  const k = el.getAttribute("data-img");
+  if (IMG[k]) el.src = IMG[k];
+});
+const slides = [...stage.querySelectorAll(".slide")];
+
+let cur = 0;
+function show(i){
+  cur = Math.max(0, Math.min(slides.length - 1, i));
+  slides.forEach((s,n) => s.classList.toggle("on", n === cur));
+  document.getElementById("counter").textContent = (cur+1) + " / " + slides.length;
+  const p = document.getElementById("prog");
+  p.style.width = ((cur+1)/slides.length*100) + "%";
+  p.style.background = getComputedStyle(slides[cur]).getPropertyValue("--acc");
+}
+function go(d){ show(cur + d); }
+function fit(){
+  const s = Math.min(window.innerWidth/1280, (window.innerHeight-46)/720);
+  stage.style.transform = "translate(-50%,-50%) scale(" + s + ")";
+}
+function fs(){
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+  else document.exitFullscreen();
+}
+document.addEventListener("keydown", e => {
+  if (["ArrowRight","PageDown"," "].includes(e.key)) { e.preventDefault(); go(1); }
+  if (["ArrowLeft","PageUp"].includes(e.key)) { e.preventDefault(); go(-1); }
+  if (e.key === "Home") show(0);
+  if (e.key === "End") show(slides.length-1);
+  if (e.key === "f" || e.key === "F") fs();
+});
+document.getElementById("zl").onclick = () => go(-1);
+document.getElementById("zr").onclick = () => go(1);
+let tx=0, ty=0;
+document.addEventListener("touchstart", e => { tx=e.touches[0].clientX; ty=e.touches[0].clientY; }, {passive:true});
+document.addEventListener("touchend", e => {
+  const dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty;
+  if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) go(dx < 0 ? 1 : -1);
+}, {passive:true});
+window.addEventListener("resize", fit);
+fit();
+show(0);
+</script>
+</body>
+</html>

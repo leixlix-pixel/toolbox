@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>알고리즘 — 순서를 남에게 전하는 법</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --ink:#1c2430; --navy:#123a63; --navy2:#1d5b95;
+  --red:#c0392b; --gold:#c8963e; --green:#2e7d5b; --plum:#7d4a86;
+  --paper:#f6f2e9; --line:#d9d2c4; --muted:#6d6b66;
+}
+
+html,body{height:100%;background:#0d1520;font-family:'Noto Sans KR',sans-serif;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;overflow:hidden}
+
+#stage{position:absolute;left:50%;top:calc(50% - 23px);width:1280px;height:720px;
+  transform-origin:center center;background:var(--paper);overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,.6)}
+
+.slide{position:absolute;inset:0;padding:34px 50px 30px;display:none;
+  flex-direction:column;background:var(--paper);--acc:var(--navy2)}
+.slide.on{display:flex}
+.slide::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(circle at 12% 8%,rgba(29,91,149,.10),transparent 45%),
+             radial-gradient(circle at 92% 95%,rgba(200,150,62,.10),transparent 45%)}
+.slide>*{position:relative;z-index:1}
+
+.eyebrow{display:inline-block;font-size:19px;font-weight:700;color:#fff;
+  background:var(--acc);padding:5px 17px;border-radius:999px;margin-bottom:9px;align-self:flex-start}
+h2.stitle{font-size:38px;font-weight:900;color:var(--acc);line-height:1.2;letter-spacing:-.02em}
+h2.stitle.sm{font-size:32px}
+.rule{width:90px;height:7px;border-radius:4px;
+  background:linear-gradient(90deg,var(--navy2),var(--gold));margin:9px 0 16px}
+p.body{font-size:25px;line-height:1.5;color:var(--ink);font-weight:500}
+p.body+p.body{margin-top:11px}
+.small{font-size:21px;line-height:1.5}
+.tiny{font-size:18px;line-height:1.5}
+.mt{margin-top:14px}
+
+b.hl{font-weight:900;color:var(--red);background:linear-gradient(transparent 62%,rgba(192,57,43,.20) 62%);padding:0 2px}
+b.hn{font-weight:900;color:var(--navy2);background:linear-gradient(transparent 62%,rgba(29,91,149,.18) 62%);padding:0 2px}
+b.hg{font-weight:900;color:var(--green);background:linear-gradient(transparent 62%,rgba(46,125,91,.18) 62%);padding:0 2px}
+
+.cols{display:flex;gap:26px;flex:1;min-height:0;align-items:center}
+.col{flex:1;min-width:0}
+
+.term{background:#fff;border-left:9px solid var(--gold);border-radius:8px;padding:12px 16px;
+  box-shadow:0 6px 16px rgba(30,25,15,.10)}
+.term+.term{margin-top:11px}
+.term .t{font-size:22px;font-weight:900;color:var(--gold);margin-bottom:3px}
+.term .d{font-size:20px;font-weight:500;color:var(--ink);line-height:1.45}
+
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;
+  box-shadow:0 6px 16px rgba(30,25,15,.09)}
+.card h3{font-size:21px;font-weight:900;color:var(--acc);margin-bottom:6px}
+.card p{font-size:19px;line-height:1.42;font-weight:500;color:var(--ink)}
+.cardrow{display:flex;gap:14px}
+.cardrow>.card{flex:1}
+.cardgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+.act{background:#fff;border:3px dashed var(--red);border-radius:18px;padding:16px 20px}
+.act-h{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.act-badge{background:var(--red);color:#fff;font-weight:900;font-size:18px;
+  padding:5px 14px;border-radius:999px;white-space:nowrap}
+.act-t{font-size:24px;font-weight:900;color:var(--navy)}
+
+.chip{display:inline-block;background:#fff;border:2px solid var(--acc);color:var(--acc);
+  font-weight:900;font-size:21px;border-radius:999px;padding:9px 20px;margin:8px 9px 0 0}
+.chipwrap{display:flex;flex-wrap:wrap}
+
+.fig{display:flex;justify-content:center;align-items:center;flex:1;min-height:0}
+.fig svg{max-width:100%;max-height:100%}
+.figcap{font-size:18px;color:var(--muted);text-align:center;font-weight:600;margin-top:6px}
+
+.ph{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px;
+  box-shadow:0 6px 16px rgba(30,25,15,.09);text-align:center}
+.ph img{width:100%;display:block;border-radius:7px}
+.ph .cap{font-size:17px;color:var(--muted);font-weight:700;margin-top:6px;line-height:1.35}
+.phrow{display:flex;gap:16px;align-items:flex-start}
+.phrow>.ph{flex:1;min-width:0}
+.phrow.narrow{max-width:900px;margin:0 auto;align-self:center}
+
+.check{display:flex;flex-direction:column;gap:9px}
+.check .ci{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid var(--line);
+  border-radius:12px;padding:11px 17px;box-shadow:0 4px 12px rgba(30,25,15,.07)}
+.check .cn{background:var(--navy2);color:#fff;font-weight:900;font-size:19px;width:34px;height:34px;
+  border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none}
+.check .ct{font-size:22px;font-weight:700;color:var(--ink)}
+
+.vs{display:flex;flex:1;min-height:0;align-items:stretch;
+  background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;
+  box-shadow:0 6px 16px rgba(30,25,15,.09)}
+.vs .vcol{flex:1;padding:15px 18px}
+.vs .vcol+.vcol{border-left:2px solid var(--line)}
+.vs .vh{font-size:23px;font-weight:900;margin-bottom:9px}
+.vs .vi{font-size:20px;line-height:1.45;font-weight:500;color:var(--ink);
+  padding:7px 0;border-bottom:1px dashed var(--line)}
+.vs .vi:last-child{border-bottom:0}
+
+.cover2{justify-content:center;align-items:center;text-align:center;background:linear-gradient(160deg,#1c5a45,#123a63 70%)}
+.cover2 .kicker{color:#ffe9b0;font-size:22px;font-weight:700;margin-bottom:14px}
+.cover2 h1{color:#fff;font-size:52px;font-weight:900;line-height:1.26}
+.cover2 .sub{color:#d6e4f2;font-size:22px;font-weight:500;margin-top:20px;max-width:940px}
+
+.divider{justify-content:center;align-items:center;text-align:center;background:linear-gradient(160deg,#123a63,#1d5b95 70%)}
+.divider .num{color:#ffe9b0;font-size:24px;font-weight:900;margin-bottom:9px}
+.divider h1{color:#fff;font-size:44px;font-weight:900;line-height:1.25}
+.divider .sub{color:#cfe3d9;font-size:21px;font-weight:500;margin-top:15px;max-width:900px}
+
+.bar{position:fixed;left:0;right:0;bottom:0;height:46px;background:#0f1a29;color:#cfd8e6;
+  display:flex;align-items:center;gap:10px;padding:0 14px;font-size:15px;z-index:50}
+.bar button{background:#1d3350;color:#e8eef7;border:0;border-radius:7px;padding:7px 13px;
+  font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+#prog{position:fixed;left:0;top:0;height:4px;background:var(--navy2);z-index:60;transition:width .18s}
+.zone{position:fixed;top:0;bottom:46px;width:12%;z-index:40;cursor:pointer}
+#zl{left:0}#zr{right:0}
+</style>
+</head>
+<body>
+
+<div id="prog"></div>
+<div id="stage"></div>
+<div class="zone" id="zl"></div>
+<div class="zone" id="zr"></div>
+<div class="bar">
+  <button onclick="go(-1)">◀ 이전</button>
+  <button onclick="go(1)">다음 ▶</button>
+  <span id="counter">1 / 1</span>
+  <span style="margin-left:18px;opacity:.7">← → 이동 · F 전체화면</span>
+  <button style="margin-left:auto" onclick="fs()">⛶ 전체화면</button>
+</div>
+
+<script>
+/* ─────────────────────────────────────────────────────────────
+   실과 5-2 · 7단원 ②차시 — 알고리즘을 세 가지로 적어 본다 (교과서 114~115쪽)
+   짝: 15-1 robot-command-cards.html (로봇 놀이 A4)
+   ★ 교과서에 있는 자연어/의사코드/순서도 「예시 자체」를 옮기지 않았다.
+     슬라이드의 몫은 **왜 셋이나 있나 · 모호한 말이 무엇을 망가뜨리나**다.
+   ★ ②차시의 로봇 놀이는 **화면 없이 종이로** 한다(PLAN.md 10장). 앱은 다음 시간부터.
+   ───────────────────────────────────────────────────────────── */
+const IMG = {};
+const NS = 'font-family="Noto Sans KR" font-weight="900"';
+
+/* 서빙 로봇 무대 — 다음 시간 앱의 격자 무대와 같은 그림이다 */
+const stageFig = '<svg viewBox="0 0 1000 420">'
+  + '<rect x="20" y="20" width="960" height="380" rx="14" fill="#fff" stroke="#c9c2b4" stroke-width="4"/>'
+  + '<rect x="40" y="40" width="150" height="340" rx="10" fill="#e8eef7"/>'
+  + '<text x="115" y="220" font-size="27" fill="#1d5b95" text-anchor="middle" '+NS+'>주방</text>'
+  + '<circle cx="240" cy="210" r="30" fill="#3b7dd8"/>'
+  + '<polygon points="256,198 282,210 256,222" fill="#3b7dd8"/>'
+  + '<text x="240" y="272" font-size="20" fill="#1c2430" text-anchor="middle" '+NS+'>로봇</text>'
+  + '<rect x="360" y="70" width="150" height="110" rx="10" fill="#fff3df" stroke="#c8963e" stroke-width="4"/>'
+  + '<text x="435" y="135" font-size="24" fill="#8a5a12" text-anchor="middle" '+NS+'>테이블 1</text>'
+  + '<rect x="560" y="70" width="150" height="110" rx="10" fill="#fff3df" stroke="#c8963e" stroke-width="4"/>'
+  + '<text x="635" y="135" font-size="24" fill="#8a5a12" text-anchor="middle" '+NS+'>테이블 2</text>'
+  + '<rect x="360" y="240" width="150" height="110" rx="10" fill="#fff3df" stroke="#c8963e" stroke-width="4"/>'
+  + '<text x="435" y="305" font-size="24" fill="#8a5a12" text-anchor="middle" '+NS+'>테이블 3</text>'
+  + '<rect x="560" y="240" width="150" height="110" rx="10" fill="#ffe0d8" stroke="#c0392b" stroke-width="5"/>'
+  + '<text x="635" y="298" font-size="24" fill="#c0392b" text-anchor="middle" '+NS+'>테이블 4</text>'
+  + '<text x="635" y="330" font-size="20" fill="#c0392b" text-anchor="middle" '+NS+'>(주문)</text>'
+  + '<rect x="770" y="120" width="190" height="180" rx="10" fill="#f0ece2" stroke="#c9c2b4" stroke-width="3"/>'
+  + '<text x="865" y="200" font-size="21" fill="#6d6b66" text-anchor="middle" '+NS+'>여기까지</text>'
+  + '<text x="865" y="232" font-size="21" fill="#6d6b66" text-anchor="middle" '+NS+'>가야 한다</text>'
+  + '</svg>';
+
+/* 같은 일을 세 가지로 적으면 */
+const threeFig = '<svg viewBox="0 0 1180 330">'
+  + '<rect x="10" y="10" width="370" height="310" rx="16" fill="#fff" stroke="#c8963e" stroke-width="4"/>'
+  + '<text x="195" y="52" font-size="27" fill="#c8963e" text-anchor="middle" '+NS+'>자연어</text>'
+  + '<text x="34" y="104" font-size="21" fill="#1c2430" '+NS+'>테이블 4까지 가서</text>'
+  + '<text x="34" y="140" font-size="21" fill="#1c2430" '+NS+'>음식이 도착했다고</text>'
+  + '<text x="34" y="176" font-size="21" fill="#1c2430" '+NS+'>말한다.</text>'
+  + '<text x="195" y="248" font-size="20" fill="#c0392b" text-anchor="middle" '+NS+'>쉽다</text>'
+  + '<text x="195" y="284" font-size="20" fill="#6d6b66" text-anchor="middle" '+NS+'>사람마다 다르게 읽는다</text>'
+  + '<rect x="400" y="10" width="370" height="310" rx="16" fill="#fff" stroke="#1d5b95" stroke-width="4"/>'
+  + '<text x="585" y="52" font-size="27" fill="#1d5b95" text-anchor="middle" '+NS+'>의사 코드</text>'
+  + '<text x="424" y="100" font-size="20" fill="#1c2430" '+NS+'>반복하기</text>'
+  + '<text x="448" y="132" font-size="20" fill="#1c2430" '+NS+'>앞으로 가기</text>'
+  + '<text x="448" y="164" font-size="20" fill="#1c2430" '+NS+'>만약 도착했다면</text>'
+  + '<text x="472" y="196" font-size="20" fill="#1c2430" '+NS+'>반복 끝내기</text>'
+  + '<text x="424" y="228" font-size="20" fill="#1c2430" '+NS+'>“도착!” 말하기</text>'
+  + '<text x="585" y="284" font-size="20" fill="#6d6b66" text-anchor="middle" '+NS+'>코드와 가장 닮았다</text>'
+  + '<rect x="790" y="10" width="370" height="310" rx="16" fill="#fff" stroke="#2e7d5b" stroke-width="4"/>'
+  + '<text x="975" y="52" font-size="27" fill="#2e7d5b" text-anchor="middle" '+NS+'>순서도</text>'
+  + '<rect x="900" y="72" width="150" height="42" rx="21" fill="#e6f2ec" stroke="#2e7d5b" stroke-width="3"/>'
+  + '<text x="975" y="100" font-size="19" fill="#2e7d5b" text-anchor="middle" '+NS+'>앞으로 가기</text>'
+  + '<path d="M975 114 L975 138" stroke="#2e7d5b" stroke-width="4"/>'
+  + '<polygon points="975,138 1045,172 975,206 905,172" fill="#fff" stroke="#2e7d5b" stroke-width="3"/>'
+  + '<text x="975" y="180" font-size="18" fill="#2e7d5b" text-anchor="middle" '+NS+'>도착?</text>'
+  + '<path d="M975 206 L975 232" stroke="#2e7d5b" stroke-width="4"/>'
+  + '<text x="995" y="226" font-size="17" fill="#2e7d5b" '+NS+'>예</text>'
+  + '<path d="M905 172 L860 172 L860 93 L900 93" stroke="#2e7d5b" stroke-width="4" fill="none"/>'
+  + '<text x="836" y="140" font-size="17" fill="#2e7d5b" '+NS+'>아니요</text>'
+  + '<rect x="900" y="232" width="150" height="42" rx="6" fill="#e6f2ec" stroke="#2e7d5b" stroke-width="3"/>'
+  + '<text x="975" y="260" font-size="19" fill="#2e7d5b" text-anchor="middle" '+NS+'>“도착!” 말하기</text>'
+  + '<text x="975" y="306" font-size="20" fill="#6d6b66" text-anchor="middle" '+NS+'>갈림길이 눈에 보인다</text>'
+  + '</svg>';
+
+const SLIDES = [
+
+/* 1 표지 */
+`<section class="slide cover2">
+  <div class="kicker">실과 5학년 · 7단원 · 2차시</div>
+  <h1>알고리즘 — 순서를 남에게 전하는 법</h1>
+  <div class="sub">교과서 114~115쪽<br><br>오늘은 <b style="color:#ffe9b0">한 사람이 로봇이 된다.</b>
+    친구들이 적어 준 명령대로만 움직인다. 적힌 대로만.</div>
+</section>`,
+
+/* 2 되돌아보기 */
+`<section class="slide">
+  <span class="eyebrow">지난 시간</span>
+  <h2 class="stitle sm">컴퓨터는 순서를 지킬 뿐, 정하는 건 사람</h2>
+  <div class="rule"></div>
+  <p class="body">지난 시간에 <b class="hn">지금 상태</b>와 <b class="hn">이렇게 되면 좋겠다</b>를 적고,
+    그 사이의 일을 <b class="hn">작게 쪼갰다</b>.</p>
+  <p class="body mt">쪼갠 조각들을 <b class="hl">순서대로 늘어놓은 것</b> — 그것을 <b class="hl">알고리즘</b>이라고 부른다.</p>
+  <div class="act mt">
+    <div class="act-h"><span class="act-badge">오늘의 물음</span>
+      <span class="act-t">내 머릿속의 순서를, 어떻게 남에게 전할까?</span></div>
+    <p class="body small">말로 하면 잊어버린다. 글로 적으면 사람마다 다르게 읽는다.
+      그래서 <b class="hl">적는 방법이 여러 가지</b>로 발전했다.</p>
+  </div>
+</section>`,
+
+/* 3 알콰리즈미 (교과서 밖) */
+`<section class="slide" style="--acc:var(--plum)">
+  <span class="eyebrow">교과서 밖 이야기</span>
+  <h2 class="stitle sm">「알고리즘」은 <b style="color:var(--red)">1200년 전 사람의 이름</b>이다</h2>
+  <div class="rule"></div>
+  <p class="body"><b class="hn">알콰리즈미</b> — 9세기 바그다드에서 수학책을 쓴 사람이다.
+    그의 책에는 <b>「이런 문제는 이런 차례로 풀어라」</b>가 또박또박 적혀 있었다.</p>
+  <div class="cardrow mt">
+    <div class="card"><h3>이름이 말이 되었다</h3>
+      <p>그의 이름이 유럽으로 건너가며 <b>Algoritmi</b> 로 적혔고, 여기서 <b>algorithm</b> 이 나왔다.</p></div>
+    <div class="card"><h3>덤으로 하나 더</h3>
+      <p>그가 쓴 책 제목의 한 낱말 <b>al-jabr</b> 에서 <b>algebra(대수)</b> 가 나왔다. 수학 시간의 그 말이다.</p></div>
+    <div class="card"><h3>무엇이 남았나</h3>
+      <p>컴퓨터가 생기기 <b>1100년 전</b>부터 사람들은 <b>「푸는 차례를 또렷이 적는 일」</b>을 해 왔다.</p></div>
+  </div>
+  <p class="body small mt">알고리즘은 컴퓨터의 말이 아니다. <b class="hl">사람이 사람에게 순서를 전하려고 만든 것</b>이고,
+    컴퓨터는 나중에 그 덕을 본 것이다.</p>
+</section>`,
+
+/* 4 왜 셋이나 */
+`<section class="slide">
+  <span class="eyebrow">교과서 114~115쪽</span>
+  <h2 class="stitle sm">적는 방법이 셋인 까닭 — <b style="color:var(--red)">읽는 사람이 다르다</b></h2>
+  <div class="rule"></div>
+  <div class="check">
+    <div class="ci"><span class="cn">1</span><span class="ct"><b>자연어</b> — 옆 사람에게 말하듯. 받는 사람이 <b>사람</b>일 때</span></div>
+    <div class="ci"><span class="cn">2</span><span class="ct"><b>의사 코드</b> — 코드 흉내를 내서. 곧 <b>프로그램으로 옮길</b> 때</span></div>
+    <div class="ci"><span class="cn">3</span><span class="ct"><b>순서도</b> — 기호와 화살표로. <b>갈림길을 한눈에</b> 보고 싶을 때</span></div>
+  </div>
+  <p class="body mt">셋 다 <b class="hn">같은 알고리즘</b>을 적은 것이다. <b class="hl">무엇이 옳으냐가 아니라, 지금 누구에게 보이느냐</b>의 문제다.</p>
+</section>`,
+
+/* 5 서빙 로봇 무대 */
+`<section class="slide" style="--acc:var(--gold)">
+  <span class="eyebrow">교과서 114쪽 · 같은 무대를 셋으로 적어 본다</span>
+  <h2 class="stitle sm">서빙 로봇을 테이블 4까지 보내기</h2>
+  <div class="rule"></div>
+  <div class="fig">${stageFig}</div>
+  <p class="body small mt"><b class="hn">눈여겨볼 것</b> — 이 무대는 <b>다음 시간 태블릿에서 그대로 다시 만난다.</b>
+    오늘 종이로 해 본 것이 그때 화면이 된다.</p>
+</section>`,
+
+/* 6 세 가지 나란히 */
+`<section class="slide">
+  <span class="eyebrow">비교</span>
+  <h2 class="stitle sm">같은 일을 세 가지로 적으면</h2>
+  <div class="rule"></div>
+  <div class="fig">${threeFig}</div>
+</section>`,
+
+/* 7 모호한 명령 사고 */
+`<section class="slide" style="--acc:var(--red)">
+  <span class="eyebrow">오늘 반드시 겪을 일</span>
+  <h2 class="stitle sm">「오른쪽으로 돌아」 — <b style="color:var(--red)">누구의 오른쪽?</b></h2>
+  <div class="rule"></div>
+  <div class="cardrow">
+    <div class="card"><h3>적은 사람 생각</h3>
+      <p>내가 <b>보고 있는 쪽</b>에서 오른쪽. 그러니까 칠판 쪽.</p></div>
+    <div class="card"><h3>로봇 생각</h3>
+      <p><b>내가 보고 있는 쪽</b>에서 오른쪽. 그런데 나는 반대로 서 있었다.</p></div>
+    <div class="card"><h3>결과</h3>
+      <p>로봇이 <b class="hl">엉뚱한 데로 간다.</b> 둘 다 틀린 말을 하지 않았는데도.</p></div>
+  </div>
+  <p class="body mt">사람끼리는 <b class="hn">눈치로 메운다.</b> 컴퓨터는 못 메운다 — 그래서 명령은
+    <b class="hl">한 가지로만 읽히게</b> 적어야 한다.</p>
+  <p class="body small mt">고치는 법 — 「로봇이 <b>보는 쪽</b> 기준으로 오른쪽」 처럼 <b>기준을 같이 적는다.</b></p>
+</section>`,
+
+/* 8 divider */
+`<section class="slide divider">
+  <div class="num">이제 해 보기</div>
+  <h1>로봇과 프로그래머 놀이</h1>
+  <div class="sub">교과서 114쪽 · <b style="color:#ffe9b0">화면은 쓰지 않는다.</b> 종이와 몸으로 한다.</div>
+</section>`,
+
+/* 9 놀이 방법 */
+`<section class="slide">
+  <span class="eyebrow">교과서 114쪽 · 모둠</span>
+  <h2 class="stitle sm">게임 방법</h2>
+  <div class="rule"></div>
+  <div class="cols">
+    <div class="col">
+      <div class="check">
+        <div class="ci"><span class="cn">1</span><span class="ct">한 명은 <b>로봇</b>, 나머지는 <b>프로그래머</b></span></div>
+        <div class="ci"><span class="cn">2</span><span class="ct"><b>목표 지점</b>을 정한다</span></div>
+        <div class="ci"><span class="cn">3</span><span class="ct">프로그래머가 <b>종이에</b> 명령어를 적는다</span></div>
+        <div class="ci"><span class="cn">4</span><span class="ct">로봇은 <b>적힌 대로만</b> 움직인다</span></div>
+        <div class="ci"><span class="cn">5</span><span class="ct">어긋나면 <b>명령어를 고친다</b></span></div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="act">
+        <div class="act-h"><span class="act-badge">작성 규칙</span><span class="act-t">두 가지</span></div>
+        <p class="body small">① 로봇이 알아들을 수 있게 <b>명확하고 쉽게</b> 적는다.<br>
+          ② <b>우리가 쓰는 말과 숫자만</b> 쓴다. <b class="hl">그림을 그리면 안 된다.</b></p>
+      </div>
+      <div class="act mt" style="border-color:var(--navy2)">
+        <div class="act-h"><span class="act-badge" style="background:var(--navy2)">로봇에게</span>
+          <span class="act-t">착하게 굴지 말 것</span></div>
+        <p class="body small"><b class="hl">「무슨 말인지 알겠으니 알아서 해 주는 것」이 이 놀이를 망친다.</b><br>
+          적힌 대로만 움직여야 프로그래머가 <b>무엇이 빠졌는지</b> 안다.</p>
+      </div>
+    </div>
+  </div>
+</section>`,
+
+/* 10 실패가 수업이다 */
+`<section class="slide" style="--acc:var(--green)">
+  <span class="eyebrow">어긋났을 때</span>
+  <h2 class="stitle sm">로봇이 엉뚱한 데 서 있으면 — <b style="color:var(--red)">거기가 오늘의 알맹이</b></h2>
+  <div class="rule"></div>
+  <p class="body">틀린 것이 아니다. <b class="hn">어디서 갈렸는지 찾을 기회</b>다. 셋 중 하나다.</p>
+  <div class="cardrow mt">
+    <div class="card"><h3>① 빠졌다</h3><p>해야 할 일을 <b>안 적었다.</b> 돌기 전에 멈추라는 말이 없었다.</p></div>
+    <div class="card"><h3>② 흐리다</h3><p>적긴 적었는데 <b>두 가지로 읽힌다.</b> 「조금 앞으로」가 몇 걸음인가.</p></div>
+    <div class="card"><h3>③ 순서가 바뀌었다</h3><p>다 적었는데 <b>차례가 틀렸다.</b> 돌고 나서 가야 하는데 가고 나서 돌았다.</p></div>
+  </div>
+  <p class="body mt">종이에 <b class="hl">「몇 번째 명령에서 어긋났는지」</b>를 적어 두자. 그게 고치는 시작이다.</p>
+</section>`,
+
+/* 11 남길 한 줄 */
+`<section class="slide cover2">
+  <div class="kicker">오늘 하나만 가져간다면</div>
+  <h1>사람은 눈치로 메우고,<br>컴퓨터는 메우지 않는다</h1>
+  <div class="sub">그래서 명령은 <b style="color:#ffe9b0">한 가지로만 읽히게</b> 적어야 한다.<br><br>
+    오늘 로봇이 엉뚱한 데로 갔다면, 그건 <b style="color:#ffe9b0">우리 말이 흐렸다는 뜻</b>이다.</div>
+</section>`,
+
+/* 12 예고 */
+`<section class="slide divider">
+  <div class="num">다음 시간부터</div>
+  <h1>태블릿 「순서 설계실」</h1>
+  <div class="sub">오늘 종이로 한 것을 화면에서 한다 —
+    <b style="color:#ffe9b0">문제 이해 → 설계 → 블록으로 옮기기 → 돌려 보기.</b><br><br>
+    설계가 틀려도 앱은 막지 않는다. <b style="color:#ffe9b0">돌려 보고 어긋나면 설계로 돌아온다.</b></div>
+</section>`
+
+];
+
+const stage = document.getElementById("stage");
+stage.innerHTML = SLIDES.join("");
+stage.querySelectorAll("img[data-img]").forEach(el => {
+  const k = el.getAttribute("data-img");
+  if (IMG[k]) el.src = IMG[k];
+});
+const slides = [...stage.querySelectorAll(".slide")];
+
+let cur = 0;
+function show(i){
+  cur = Math.max(0, Math.min(slides.length - 1, i));
+  slides.forEach((s,n) => s.classList.toggle("on", n === cur));
+  document.getElementById("counter").textContent = (cur+1) + " / " + slides.length;
+  const p = document.getElementById("prog");
+  p.style.width = ((cur+1)/slides.length*100) + "%";
+  p.style.background = getComputedStyle(slides[cur]).getPropertyValue("--acc");
+}
+function go(d){ show(cur + d); }
+function fit(){
+  const s = Math.min(window.innerWidth/1280, (window.innerHeight-46)/720);
+  stage.style.transform = "translate(-50%,-50%) scale(" + s + ")";
+}
+function fs(){
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+  else document.exitFullscreen();
+}
+document.addEventListener("keydown", e => {
+  if (["ArrowRight","PageDown"," "].includes(e.key)) { e.preventDefault(); go(1); }
+  if (["ArrowLeft","PageUp"].includes(e.key)) { e.preventDefault(); go(-1); }
+  if (e.key === "Home") show(0);
+  if (e.key === "End") show(slides.length-1);
+  if (e.key === "f" || e.key === "F") fs();
+});
+document.getElementById("zl").onclick = () => go(-1);
+document.getElementById("zr").onclick = () => go(1);
+let tx=0, ty=0;
+document.addEventListener("touchstart", e => { tx=e.touches[0].clientX; ty=e.touches[0].clientY; }, {passive:true});
+document.addEventListener("touchend", e => {
+  const dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty;
+  if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) go(dx < 0 ? 1 : -1);
+}, {passive:true});
+window.addEventListener("resize", fit);
+fit();
+show(0);
+</script>
+</body>
+</html>

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>실과 5학년 7단원 — 컴퓨터와 프로그래밍</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1c2430; --plum:#1d5b95; --plum2:#123a63;
+  --navy:#1d5b95; --green:#2e7d5b; --gold:#c8963e; --red:#c0392b;
+  --paper:#f6f2e9; --line:#ddd6ca; --muted:#6d6b66;
+}
+body{font-family:'Noto Sans KR',sans-serif;color:var(--ink);
+  background:linear-gradient(170deg,#123a63,#0f2237 60%);
+  -webkit-tap-highlight-color:transparent;padding:20px 14px 50px}
+.wrap{max-width:880px;margin:0 auto}
+
+header{color:#fff;padding:14px 4px 22px}
+header .kick{font-size:15px;font-weight:700;color:#ffd98a;margin-bottom:9px}
+header h1{font-size:31px;font-weight:900;line-height:1.28;letter-spacing:-.02em}
+header .sub{font-size:16px;font-weight:500;color:#d6e4f2;line-height:1.65;margin-top:11px}
+
+.panel{background:var(--paper);border-radius:18px;padding:20px 22px;margin-bottom:14px;
+  box-shadow:0 10px 30px rgba(0,0,0,.28)}
+.panel h2{font-size:20px;font-weight:900;color:var(--plum2);margin-bottom:10px;
+  display:flex;align-items:center;gap:9px}
+.panel h2 .b{background:var(--plum);color:#fff;font-size:13px;border-radius:99px;
+  padding:3px 11px;font-weight:900}
+.panel p{font-size:15.5px;font-weight:500;line-height:1.72}
+.panel p+p{margin-top:9px}
+.panel b{font-weight:900;color:var(--plum2)}
+
+.flow{display:flex;gap:9px;margin:14px 0 4px;flex-wrap:wrap}
+.fstep{flex:1 1 130px;background:#fff;border-radius:12px;padding:12px 11px;text-align:center;
+  border-top:6px solid var(--line)}
+.fstep.n1{border-top-color:var(--plum)}
+.fstep.n2{border-top-color:var(--navy)}
+.fstep.n3{border-top-color:var(--green)}
+.fstep.n4{border-top-color:var(--gold)}
+.fstep .fn{font-size:13px;font-weight:900;color:var(--muted)}
+.fstep .ft{font-size:15px;font-weight:900;line-height:1.34;margin-top:4px}
+
+.warn{background:#fff;border:3px dashed var(--red);border-radius:14px;padding:15px 17px;
+  margin-top:14px;font-size:15.5px;font-weight:600;line-height:1.7}
+.warn b{color:var(--red);font-weight:900}
+
+/* 자료 카드 */
+.card{display:block;background:var(--paper);border-radius:18px;padding:18px 20px;
+  margin-bottom:12px;text-decoration:none;color:inherit;
+  box-shadow:0 10px 26px rgba(0,0,0,.26);border-left:10px solid var(--plum);
+  transition:transform .12s}
+.card:active{transform:scale(.99)}
+.card.c1{border-left-color:var(--plum)}
+.card.c2{border-left-color:var(--navy)}
+.card.c3{border-left-color:var(--green)}
+.card.c4{border-left-color:var(--gold)}
+.chead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:7px}
+.chead .num{font-size:13px;font-weight:900;color:#fff;background:var(--plum);
+  border-radius:99px;padding:3px 12px;white-space:nowrap}
+.card.c2 .num{background:var(--navy)}
+.card.c3 .num{background:var(--green)}
+.card.c4 .num{background:var(--gold)}
+.chead .ct{font-size:20px;font-weight:900;color:var(--plum2);line-height:1.3}
+.card.c2 .ct{color:var(--navy)} .card.c3 .ct{color:var(--green)} .card.c4 .ct{color:#9a6f1e}
+.chead .kind{font-size:12.5px;font-weight:900;color:var(--muted);border:2px solid var(--line);
+  border-radius:99px;padding:2px 10px;margin-left:auto;white-space:nowrap}
+.cbody{font-size:15px;font-weight:500;line-height:1.68}
+.cbody b{font-weight:900;color:var(--plum2)}
+.cmeta{font-size:13.5px;font-weight:700;color:var(--muted);margin-top:9px;
+  border-top:1px solid var(--line);padding-top:8px}
+
+.sub-card{margin-left:26px;border-left-width:6px}
+
+.teach{background:#101d2e;border-radius:16px;padding:16px 18px;margin-top:6px}
+.teach a{color:#ffd98a;font-size:14.5px;font-weight:700;text-decoration:none;
+  word-break:break-all;line-height:1.6}
+.teach a b{color:#fff;font-weight:900}
+.teach .tl{color:#bcd0e6;font-size:13.5px;font-weight:700;margin-bottom:6px}
+
+ul.plain{margin-left:19px}
+ul.plain li{font-size:15.5px;font-weight:500;line-height:1.72;margin-bottom:4px}
+ul.plain li b{font-weight:900;color:var(--plum2)}
+
+footer{color:#a9c0d8;font-size:13px;line-height:1.75;text-align:center;
+  padding:22px 10px 0}
+footer b{color:#ffd98a}
+</style>
+</head><body>
+<div class="wrap">
+
+<header>
+  <div class="kick">초등 실과 5학년 · 2학기</div>
+  <h1>7단원 컴퓨터와 프로그래밍<br>6차시 수업자료</h1>
+  <div class="sub">
+    교과서 108~125쪽 · 성취기준 <b>[6실05-02]</b><br>
+    슬라이드는 교실 TV에서 바로 열리고, 학습지는 A4로 인쇄되고,
+    <b>앱은 태블릿 브라우저에서 그대로 돕니다.</b> 설치할 것 없습니다.
+  </div>
+</header>
+
+<div class="panel">
+  <h2><span class="b">먼저 읽어 주세요</span> 이 단원은 코딩을 가르치지 않습니다</h2>
+  <p>블록을 조립하는 기능은 <b>외부 강사 코딩 수업</b>이 맡습니다. 교실에서 남길 것은
+  <b>「과정을 잘 짜야 결과가 나온다」</b> 하나입니다.</p>
+  <p>그래서 앱이 교과서 116쪽의 <b>문제 이해 → 설계 → 프로그래밍 → 실행·점검</b>
+  네 화면으로 되어 있습니다. <b>설계를 건너뛰면 조립소가 열리지 않고</b>,
+  <b>틀린 설계는 그대로 통과시켜</b> 실행에서 실패하게 둡니다.</p>
+
+  <div class="flow">
+    <div class="fstep n1"><div class="fn">1차시</div><div class="ft">지금 상태와<br>목표 상태</div></div>
+    <div class="fstep n2"><div class="fn">2차시</div><div class="ft">알고리즘<br>세 가지 표현</div></div>
+    <div class="fstep n3"><div class="fn">3·4차시</div><div class="ft">앱으로<br>미션 8개</div></div>
+    <div class="fstep n4"><div class="fn">5·6차시</div><div class="ft">모둠 설계 →<br>개인 평가</div></div>
+  </div>
+
+  <div class="warn">
+    ⚠ <b>②설계 화면에서 정답 판정을 하지 않습니다.</b> 카드를 잘못 늘어놓아도 앱은 막지 않고
+    그대로 ③으로 보냅니다. 그리고 ④에서 실패합니다 — <b>그때 아이가 설계로 돌아가는 것</b>이
+    이 단원에서 가르치려는 단 하나입니다.
+    친절하게 잡아 주면 이 앱은 <b>카드 맞추기 퀴즈</b>가 되고 그 경험이 사라집니다.
+  </div>
+</div>
+
+<!-- 1차시 -->
+<a class="card c1" href="1-computer-problem-solving.html">
+  <div class="chead"><span class="num">1차시</span>
+    <span class="ct">컴퓨터로 문제를 푼다는 것</span>
+    <span class="kind">슬라이드 15장</span></div>
+  <div class="cbody">
+    교과서 108~113쪽. <b>교과서 밖 이야기가 절반을 넘습니다</b> —
+    computer 가 원래 <b>사람의 직업 이름</b>이던 시절(연필로 계산하던 NASA 의 computer 들),
+    컴퓨터가 <b>절대 못 하는 것</b>(무엇을 어떤 순서로 할지 정하기),
+    <b>흐린 목표와 또렷한 목표</b>(「교실을 깨끗하게」는 로봇이 못 알아듣습니다),
+    라면 끓이기로 보는 <b>어디까지 쪼개나</b>.
+  </div>
+  <div class="cmeta">도해는 전부 파일 안에서 직접 그린 SVG · 사진 파일 0개</div>
+</a>
+
+<!-- 2차시 -->
+<a class="card c2" href="2-algorithm-three-ways.html">
+  <div class="chead"><span class="num">2차시</span>
+    <span class="ct">알고리즘 — 순서를 남에게 전하는 법</span>
+    <span class="kind">슬라이드 12장</span></div>
+  <div class="cbody">
+    교과서 114~115쪽. <b>「알고리즘」은 1200년 전 사람의 이름</b>입니다(알콰리즈미 → algorithm,
+    그의 책 제목에서 algebra). 자연어·의사 코드·순서도를 나란히 놓고
+    <b>왜 표현법이 셋이나 있는지</b>(읽는 사람이 다르다) 봅니다.
+    그리고 오늘 반드시 겪을 일 — <b>「오른쪽으로 돌아」가 누구 기준인가.</b>
+  </div>
+  <div class="cmeta">로봇 놀이는 <b>화면 없이 종이로</b> 합니다 — 아래 학습지와 짝</div>
+</a>
+
+<a class="card c2 sub-card" href="2-1-robot-command-cards.html">
+  <div class="chead"><span class="num">2차시 학습지</span>
+    <span class="ct">로봇과 프로그래머 놀이 — 명령어 적기</span>
+    <span class="kind">A4 1장 · 모둠에 1장</span></div>
+  <div class="cbody">
+    시작 전에 <b>셋을 못 박게</b> 해 두었습니다 — 한 걸음은 몇 발짝인가,
+    「오른쪽」은 누구 기준인가, 「돈다」는 몇 도인가. 안 정하고 시작하면 거의 반드시
+    엉뚱한 데로 가는데, <b>그게 그 시간의 알맹이</b>입니다.
+    명령 12칸과 <b>「몇 번째에서 어긋났나 · 왜(빠짐/흐림/순서)」</b> 기록칸.
+  </div>
+  <div class="cmeta">칸 격자는 전부 SVG 선 — 인쇄해도 세로선이 사라지지 않습니다</div>
+</a>
+
+<!-- 앱 -->
+<a class="card c3" href="order-lab.html">
+  <div class="chead"><span class="num">3·4·6차시</span>
+    <span class="ct">순서 설계실 <span style="font-size:14px">(앱)</span></span>
+    <span class="kind">태블릿 · 학생용</span></div>
+  <div class="cbody">
+    이 단원의 본체입니다. <b>문제 이해 → 설계 → 프로그래밍 → 실행·점검</b> 네 화면.<br>
+    <b>격자 무대</b>(배달 로봇) 미션 1~5 — 순차·반복·선택.
+    <b>문답 무대</b>(문구점 거스름돈) 미션 6~8 — 묻고 기다리기·변수·조건.
+    그리고 <b>평가 모드</b>.<br>
+    블록 이름은 <b>엔트리 문구 그대로</b>이고, 조작은 드래그가 아니라 <b>탭</b>이 본체입니다.
+    인터넷이 끊겨도 끝까지 됩니다(제출만 밀립니다).
+  </div>
+  <div class="cmeta">미션마다 <b>빼먹으면 실패하는 단계</b>가 하나씩 심어져 있습니다 ·
+    통과해도 앱이 <b>다른 답으로 몰래 두 번 더</b> 돌려 봅니다</div>
+</a>
+
+<!-- 5차시 -->
+<a class="card c4" href="5-exam-design-sheet.html">
+  <div class="chead"><span class="num">5차시</span>
+    <span class="ct">평가 ① 모둠 설계 (종이)</span>
+    <span class="kind">A4 2장</span></div>
+  <div class="cbody">
+    교과서 122~123쪽 재활용품 분리배출. <b>1쪽은 모둠에 1장</b>(문제 상황·현재/목표 상태·
+    조각 나누기), <b>2쪽은 1인 1장</b>(내 조각 설계).<br>
+    2쪽의 <b>여섯 칸은 앱 ①화면과 이름이 같습니다</b> — 다음 시간에 이 종이를 보고
+    태블릿에 그대로 옮겨 적습니다.
+  </div>
+  <div class="cmeta">⚠ <b>모둠 설계를 태블릿으로 하지 마세요</b> — 넷이 하나를 서로 뺏습니다.
+    종이라야 동시에 봅니다</div>
+</a>
+
+<!-- 6차시 마무리 -->
+<a class="card c1" href="6-unit-wrapup-ambient.html">
+  <div class="chead"><span class="num">6차시 마무리</span>
+    <span class="ct">단원 마무리 — 앰비언트 컴퓨팅</span>
+    <span class="kind">슬라이드 9장 · 짧습니다</span></div>
+  <div class="cbody">
+    교과서 124~125쪽. <b>마지막 10분용</b>입니다. 여섯 시간을 한 줄로 묶고,
+    <b>이 생각이 1991년에 나왔다</b>는 것(마크 와이저)을 본 뒤,
+    되물음 하나로 끝냅니다 — <b>알아서 해 주는 것은 늘 좋은가?</b>
+  </div>
+  <div class="cmeta">넘치면 다음 시간 자투리로 미뤄도 됩니다</div>
+</a>
+
+<!-- 교사 화면 -->
+<div class="panel">
+  <h2><span class="b">선생님용</span> 교사 화면은 주소 뒤에 #teacher</h2>
+  <p>진도판(지금 몇 단계인지 · <b>한 자리에서 5분 넘게 못 나간 아이가 빨갛게</b>),
+  아이별 <b>선언한 목표 · 설계 · 코드 전문</b>, 등급 <b>제안</b>과 확정, 성적표 CSV 내보내기.</p>
+  <div class="teach">
+    <div class="tl">교사 화면 (Firebase 로그인 필요)</div>
+    <a href="order-lab.html#teacher">order-lab.html<b>#teacher</b> ← 주소 뒤에 #teacher</a>
+  </div>
+  <p style="margin-top:12px">앱이 남기는 것 가운데 가장 쓸모 있는 것은 채점이 아니라
+  <b>「실행이 실패한 뒤 ②설계로 돌아갔나, ③블록만 만졌나」</b>입니다.
+  통과 여부만으로는 절대 안 보이는 값이고, <b>원리를 아는 아이와 찍고 있는 아이</b>가 여기서 갈립니다.</p>
+  <div class="warn">
+    ⚠ <b>자동 등급은 「제안」입니다.</b> 화면에도 그렇게 쓰여 있고, 선생님이 눌러야 확정됩니다.
+    짝을 도와주느라 늦은 아이, 조작이 서툰데 설계는 정확한 아이 — 숫자가 다 놓칩니다.
+  </div>
+</div>
+
+<div class="panel">
+  <h2><span class="b">다른 선생님께</span> 앱을 쓰시려면 한 가지</h2>
+  <p>미션 1~8(3·4차시)은 <b>그냥 열면 바로 됩니다.</b> 아무 설정도 필요 없습니다.</p>
+  <p>다만 <b>평가 모드의 제출과 교사 화면</b>은 저희 반 Firebase 에 붙어 있어서
+  다른 학급에서는 <b>제출이 나가지 않습니다</b>(수업과 평가 자체는 그대로 됩니다 —
+  태블릿 안에 저장되고 「파일로 내보내기」로 걷을 수 있습니다).
+  쓰고 싶으시면 연락 주세요.</p>
+</div>
+
+<footer>
+  실과 5학년 2학기 7단원 · 교과서 108~125쪽<br>
+  만든 이 <b>엘리</b> · 이 폴더의 모든 자료는 <b>단일 HTML 한 장</b>이라 설치·계정 없이 열립니다
+</footer>
+
+</div>
+</body>
+</html>

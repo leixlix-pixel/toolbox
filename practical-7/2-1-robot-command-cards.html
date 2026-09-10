@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>로봇과 프로그래머 놀이 — 명령어 적기</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+/* ─────────────────────────────────────────────────────────────
+   실과 5-2 · 7단원 「컴퓨터와 프로그래밍」 ⑤차시 평가 설계지
+   설계 문서: PLAN.md 7장 · 짝이 되는 앱: order-lab.html (①목표 선언)
+   ★ 2쪽의 여섯 칸 이름은 앱 ①화면과 **같아야 한다.** 한쪽만 고치지 말 것 —
+     ⑥차시 첫 5분에 아이가 이 종이를 보고 그대로 옮겨 적는다.
+   ★ 칸 격자는 전부 SVG 선이다. CSS 테두리로 바꾸지 말 것 —
+     인쇄하면 빈 칸의 세로선이 사라진다(2026-08-28 필사 학습지 사고).
+   ───────────────────────────────────────────────────────────── */
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1c2430; --navy:#123a63; --navy2:#1d5b95; --red:#c0392b;
+  --gold:#a87c2e; --green:#2e7d5b; --line:#c9c2b4; --muted:#5f5d58; --soft:#f4f1e9;
+}
+@page{ size:A4; margin:0 }
+html,body{background:#4a5568;font-family:'Noto Sans KR',sans-serif;color:var(--ink)}
+
+.no-print{background:#1d3350;color:#e8eef7;padding:12px 18px;display:flex;
+  align-items:center;gap:14px;font-size:14px;flex-wrap:wrap;line-height:1.5}
+.no-print button{background:#c8963e;color:#231a08;border:0;border-radius:7px;
+  padding:9px 18px;font-size:14px;font-weight:900;cursor:pointer;font-family:inherit}
+.no-print .chk{font-weight:900}
+
+.page{width:210mm;height:297mm;background:#fff;margin:0 auto 8mm;padding:11mm 14mm 9mm;
+  overflow:hidden;display:flex;flex-direction:column;
+  print-color-adjust:exact;-webkit-print-color-adjust:exact}
+
+.head{border-bottom:2.5px solid var(--navy);padding-bottom:3px;margin-bottom:6px}
+.head h1{font-size:15pt;font-weight:900;color:var(--navy);letter-spacing:-.02em}
+.head .sub{font-size:9.2pt;color:var(--muted);font-weight:700;margin-top:2px}
+.head .tag{display:inline-block;background:var(--navy);color:#fff;font-size:8.6pt;
+  font-weight:900;padding:3px 11px;border-radius:99px;margin-bottom:5px}
+.head .pn{float:right;font-size:9pt;color:var(--muted);font-weight:900;margin-top:4px}
+
+h2.sec{font-size:11.4pt;font-weight:900;color:var(--navy2);margin:6px 0 3px;
+  display:flex;align-items:center;gap:8px}
+h2.sec .n{background:var(--navy2);color:#fff;width:21px;height:21px;border-radius:50%;
+  font-size:10pt;display:flex;align-items:center;justify-content:center;flex:none}
+h2.sec .hint{font-size:8.8pt;font-weight:700;color:var(--muted);margin-left:auto}
+
+p.t{font-size:9.8pt;line-height:1.5;font-weight:500}
+p.s{font-size:8.8pt;line-height:1.45;font-weight:700;color:var(--muted)}
+b.hl{font-weight:900;color:var(--red)}
+b.hn{font-weight:900;color:var(--navy2)}
+b.hg{font-weight:900;color:var(--green)}
+
+.who{display:flex;gap:5mm;align-items:flex-end;font-size:10pt;font-weight:700;margin-bottom:2px}
+.who .f{flex:1;border-bottom:1.6px solid var(--ink);height:7mm}
+.who .f.sm{flex:0 0 26mm}
+.who .lb{font-weight:900;color:var(--navy);flex:none;padding-bottom:1.5mm}
+
+.pick{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:9.8pt;font-weight:700;margin:3px 0 4px}
+.pick span{display:flex;align-items:center;gap:5px}
+.pick i{display:inline-block;width:4.2mm;height:4.2mm;border:1.8px solid var(--muted);
+  border-radius:2px;flex:none}
+.pick .etc{flex:1;min-width:52mm;display:flex;align-items:flex-end;gap:5px}
+.pick .etc .f{flex:1;border-bottom:1.4px solid var(--muted);height:5.5mm}
+
+.rule svg,.grid svg{width:100%;display:block}
+.ex{font-size:8.6pt;line-height:1.4;font-weight:700;color:#8d8778;
+  background:var(--soft);border-radius:6px;padding:5px 8px;margin-top:3px}
+.ex b{color:var(--gold);font-weight:900}
+
+.tip{border:1.8px solid var(--gold);border-radius:8px;padding:6px 10px;background:#fdfaf2;
+  font-size:8.8pt;line-height:1.45;font-weight:700}
+.tip b{color:var(--gold);font-weight:900}
+.warn{border:1.8px solid var(--red);border-radius:8px;padding:6px 10px;background:#fdf3f1;
+  font-size:8.8pt;line-height:1.45;font-weight:700}
+.warn b{color:var(--red);font-weight:900}
+.dark{background:#22303f;color:#eef3f8;border-radius:8px;padding:7px 11px;
+  font-size:9pt;line-height:1.6;font-weight:700}
+.dark b{color:#ffc400;font-weight:900}
+
+.two{display:flex;gap:5mm}
+.two>div{flex:1;min-width:0}
+
+.foot{margin-top:auto;border-top:2px solid var(--line);padding-top:5px;
+  font-size:8.4pt;color:var(--muted);font-weight:700;line-height:1.45}
+.foot b{color:var(--navy2)}
+
+@media print{ body{background:#fff} .no-print{display:none} .page{margin:0} }
+</style>
+</head>
+<body>
+
+
+<div class="no-print">
+  <button onclick="window.print()">인쇄</button>
+  <span><b>모둠에 1장</b>입니다. 로봇 한 명, 나머지는 프로그래머 — 넷이 함께 씁니다.</span>
+  <span class="chk" id="chk">넘침 검사 중…</span>
+</div>
+
+<div class="page">
+  <div class="head">
+    <span class="pn">모둠에 1장</span>
+    <span class="tag">실과 5-2 · 7단원 · ②차시</span>
+    <h1>로봇과 프로그래머 놀이 — 명령어 적기</h1>
+    <div class="sub">교과서 114쪽 · <b>로봇은 적힌 대로만 움직입니다</b></div>
+  </div>
+
+  <div class="who">
+    <span class="lb">모둠</span><span class="f sm"></span>
+    <span class="lb">로봇을 맡은 사람</span><span class="f sm"></span>
+    <span class="lb">프로그래머</span><span class="f"></span>
+  </div>
+
+  <div class="warn"><b>작성 규칙 두 가지</b> —
+    ① 로봇이 알아들을 수 있게 <b>명확하고 쉽게</b> 적습니다.
+    ② <b>우리가 쓰는 말과 숫자만</b> 씁니다. <b>그림을 그리면 안 됩니다.</b>
+    &nbsp;/&nbsp; <b>로봇에게</b> — 무슨 말인지 알겠어도 <b>적힌 대로만</b> 움직이세요.</div>
+
+  <h2 class="sec"><span class="n">1</span>출발과 목표를 정합니다<span class="hint">칸에 ★ 와 ◎ 를 그려 넣으세요</span></h2>
+  <div class="two">
+    <div style="flex:0 0 86mm">
+      <div class="grid"><svg viewBox="0 0 86 44">
+        <rect x="0.5" y="0.5" width="85" height="43" fill="none" stroke="#123a63" stroke-width=".7"/>
+        <g stroke="#c9c2b4" stroke-width=".35">
+          <line x1="17.5" y1="0.5" x2="17.5" y2="43.5"/><line x1="34.5" y1="0.5" x2="34.5" y2="43.5"/>
+          <line x1="51.5" y1="0.5" x2="51.5" y2="43.5"/><line x1="68.5" y1="0.5" x2="68.5" y2="43.5"/>
+          <line x1="0.5" y1="11.25" x2="85.5" y2="11.25"/><line x1="0.5" y1="22" x2="85.5" y2="22"/>
+          <line x1="0.5" y1="32.75" x2="85.5" y2="32.75"/></g>
+      </svg></div>
+      <div class="ex" style="text-align:center">★ 출발 &nbsp;·&nbsp; ◎ 목표 &nbsp;·&nbsp; 칸 하나 = 한 걸음</div>
+    </div>
+    <div>
+      <div class="tip"><b>먼저 정하고 시작하세요.</b><br>
+        · 한 걸음은 <b>몇 발짝</b>인가요? <b>______ 발짝</b><br>
+        · 「오른쪽」은 <b>누구 기준</b>인가요?
+        <span style="display:inline-block;border:1.6px solid #a87c2e;border-radius:4px;padding:1px 7px">로봇이 보는 쪽</span>
+        <span style="display:inline-block;border:1.6px solid #a87c2e;border-radius:4px;padding:1px 7px">우리가 보는 쪽</span><br>
+        · 「돈다」는 <b>몇 도</b>인가요? <b>______ 도</b></div>
+      <div class="ex">이걸 안 정하고 시작하면 <b>거의 반드시</b> 엉뚱한 데로 갑니다 — 그것도 오늘 볼 장면이에요.</div>
+    </div>
+  </div>
+
+  <h2 class="sec"><span class="n">2</span>우리 모둠이 쓸 명령어를 먼저 정합니다<span class="hint">여기 없는 말은 쓰지 않기</span></h2>
+  <div class="grid"><svg viewBox="0 0 182 26">
+    <rect x="0.5" y="0.5" width="181" height="25" rx="2" fill="#f7f5ef" stroke="#c9c2b4" stroke-width=".5"/>
+    <g stroke="#c9c2b4" stroke-width=".35">
+      <line x1="91" y1="0.5" x2="91" y2="25.5"/>
+      <line x1="0.5" y1="9" x2="181.5" y2="9"/><line x1="0.5" y1="17.5" x2="181.5" y2="17.5"/></g>
+    <g font-family="'Noto Sans KR',sans-serif" font-size="3.1" font-weight="700" fill="#a9a396">
+      <text x="3" y="6.4">보기 · 앞으로 (   )걸음 가기</text>
+      <text x="94" y="6.4">보기 · 오른쪽으로 90도 돌기</text></g>
+  </svg></div>
+  <div class="ex"><b>이 칸에 적은 말만</b> 명령어로 씁니다. 「조금」 「적당히」 「저쪽으로」 같은 말은 넣지 마세요 —
+    <b>사람마다 다르게 읽힙니다.</b></div>
+
+  <h2 class="sec"><span class="n">3</span>명령어 적기<span class="hint">한 칸에 한 가지만 · 정한 말로만</span></h2>
+  <div class="grid"><svg viewBox="0 0 182 48">
+    <g stroke="#c9c2b4" stroke-width=".35">
+      <line x1="10" y1="7" x2="88" y2="7"/><line x1="10" y1="15" x2="88" y2="15"/>
+      <line x1="10" y1="23" x2="88" y2="23"/><line x1="10" y1="31" x2="88" y2="31"/>
+      <line x1="10" y1="39" x2="88" y2="39"/><line x1="10" y1="47" x2="88" y2="47"/>
+      <line x1="104" y1="7" x2="182" y2="7"/><line x1="104" y1="15" x2="182" y2="15"/>
+      <line x1="104" y1="23" x2="182" y2="23"/><line x1="104" y1="31" x2="182" y2="31"/>
+      <line x1="104" y1="39" x2="182" y2="39"/><line x1="104" y1="47" x2="182" y2="47"/></g>
+    <g font-family="'Noto Sans KR',sans-serif" font-size="3.2" font-weight="900" fill="#1d5b95">
+      <text x="1" y="6.4">1</text><text x="1" y="14.4">2</text><text x="1" y="22.4">3</text>
+      <text x="1" y="30.4">4</text><text x="1" y="38.4">5</text><text x="1" y="46.4">6</text>
+      <text x="93" y="6.4">7</text><text x="93" y="14.4">8</text><text x="93" y="22.4">9</text>
+      <text x="92" y="30.4">10</text><text x="92" y="38.4">11</text><text x="92" y="46.4">12</text></g>
+  </svg></div>
+
+  <h2 class="sec"><span class="n">4</span>돌려 보고 — 어디서 어긋났나<span class="hint">틀린 게 아니라 찾을 거리입니다</span></h2>
+  <div class="pick">
+    <span style="font-weight:900;color:var(--navy)">로봇이 목표에 닿았나요?</span>
+    <span><i></i> 닿았다</span>
+    <span class="etc"><i></i> 아니다 → <b>몇 번째</b> 명령에서 어긋났나요 : <span class="f"></span></span>
+  </div>
+  <div class="pick">
+    <span style="font-weight:900;color:var(--navy)">왜 그랬을까요?</span>
+    <span><i></i> <b>빠졌다</b>(안 적음)</span>
+    <span><i></i> <b>흐리다</b>(두 가지로 읽힘)</span>
+    <span><i></i> <b>순서가 바뀌었다</b></span>
+  </div>
+  <p class="t" style="font-weight:900;color:var(--red);margin-top:3px">그 명령을 이렇게 고쳤습니다</p>
+  <div class="rule"><svg viewBox="0 0 182 13.5"><g stroke="#c0392b" stroke-width=".4">
+    <line x1="0" y1="6" x2="182" y2="6"/><line x1="0" y1="12.5" x2="182" y2="12.5"/></g></svg></div>
+
+  <div class="pick" style="margin-top:5px">
+    <span style="font-weight:900;color:var(--green)">고친 뒤 다시 해 보니?</span>
+    <span><i></i> 닿았다</span>
+    <span class="etc"><i></i> 또 어긋났다 → 이번엔 <b>몇 번째</b> : <span class="f"></span></span>
+  </div>
+
+  <div class="foot">
+    <b>로봇이 엉뚱한 데 서 있으면 그게 오늘의 알맹이입니다.</b>
+    사람은 눈치로 메우고 컴퓨터는 메우지 않아요 — 그래서 명령은 <b>한 가지로만 읽히게</b> 적어야 합니다.<br>
+    다음 시간부터는 이 일을 태블릿 <b>「순서 설계실」</b>에서 합니다.
+  </div>
+</div>
+
+<script>
+window.addEventListener('load',()=>{
+  const out=[];
+  document.querySelectorAll('.page').forEach((p,i)=>{
+    const over=p.scrollHeight-p.clientHeight;
+    out.push((i+1)+'쪽 '+(over<=1?'OK':'넘침 '+Math.round(over)+'px'));
+  });
+  document.getElementById('chk').textContent=out.join(' · ');
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,1709 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>순서 설계실</title>
+<style>
+/* ─────────────────────────────────────────────────────────────
+   순서 설계실 — 실과 5학년 7단원 「컴퓨터와 프로그래밍」
+   설계 문서: PLAN.md  ← 고치기 전에 반드시 읽을 것
+   못: ②설계에서 정답 판정을 하지 않는다. 틀린 설계는 그대로 통과시킨다.
+   ───────────────────────────────────────────────────────────── */
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;
+  font-family:"Pretendard","Malgun Gothic","맑은 고딕",sans-serif;
+  background:#EEF2F7;color:#1B2733;user-select:none;-webkit-user-select:none}
+body{display:flex;flex-direction:column}
+
+/* 머리 */
+#top{flex:0 0 auto;background:#22303F;color:#fff;padding:8px 14px;
+  display:flex;align-items:center;gap:12px}
+#top .name{font-weight:800;font-size:17px;letter-spacing:-.4px}
+#top .mt{font-size:15px;opacity:.85;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#top button{background:#3C4E60;color:#fff;border:0;border-radius:8px;
+  padding:8px 12px;font-size:14px;font-weight:700;font-family:inherit}
+
+/* 4단계 표시 */
+#steps{flex:0 0 auto;display:flex;background:#fff;border-bottom:2px solid #D6DEE8}
+#steps div{flex:1;text-align:center;padding:9px 2px;font-size:14px;font-weight:700;
+  color:#9AA8B6;border-bottom:4px solid transparent;line-height:1.25}
+#steps div small{display:block;font-size:11px;font-weight:600;opacity:.75}
+#steps div.on{color:#1B6FE0;border-bottom-color:#1B6FE0;background:#F2F7FF}
+#steps div.done{color:#2E9E5B}
+
+/* 본문 */
+#main{flex:1 1 auto;overflow:auto;padding:12px;-webkit-overflow-scrolling:touch}
+#foot{flex:0 0 auto;background:#fff;border-top:2px solid #D6DEE8;padding:8px 12px;
+  display:flex;gap:8px;align-items:center}
+#msg{flex:1;font-size:14px;font-weight:700;line-height:1.35}
+.btn{border:0;border-radius:10px;padding:13px 18px;font-size:16px;font-weight:800;
+  font-family:inherit;background:#1B6FE0;color:#fff}
+.btn.ghost{background:#E2E8F0;color:#3C4E60}
+.btn:disabled{opacity:.4}
+.btn.big{padding:15px 26px;font-size:17px}
+
+h2{margin:0 0 10px;font-size:19px;letter-spacing:-.4px}
+.card{background:#fff;border-radius:12px;padding:14px;margin-bottom:12px;
+  box-shadow:0 1px 3px rgba(20,40,70,.10)}
+.hintbox{background:#FFF7E0;border:2px solid #F0C955;border-radius:10px;
+  padding:11px 13px;font-size:14px;line-height:1.5;margin-top:10px}
+
+/* ── 홈 ── */
+.mlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.mcard{background:#fff;border-radius:12px;padding:14px;border:3px solid transparent;
+  box-shadow:0 1px 3px rgba(20,40,70,.10)}
+.mcard.lock{opacity:.45}
+.mcard.clear{border-color:#2E9E5B}
+.mcard b{display:block;font-size:16px;margin-bottom:3px}
+.mcard span{font-size:13px;color:#66788A;line-height:1.4}
+.mcard .st{font-size:13px;font-weight:800;color:#2E9E5B;margin-top:6px;display:block}
+#numrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+#numrow input{width:80px;padding:10px;font-size:17px;border:2px solid #C6D2DE;
+  border-radius:8px;text-align:center;font-family:inherit}
+
+/* ── ① 문제 이해 ── */
+.states{display:flex;gap:10px;flex-wrap:wrap}
+.states>div{flex:1 1 240px;background:#fff;border-radius:12px;padding:13px;
+  box-shadow:0 1px 3px rgba(20,40,70,.10)}
+.states h3{margin:0 0 7px;font-size:14px;color:#66788A}
+.states p{margin:0;font-size:16px;line-height:1.5;font-weight:600}
+.qopt{display:block;width:100%;text-align:left;background:#fff;border:3px solid #D6DEE8;
+  border-radius:10px;padding:13px;margin-bottom:8px;font-size:16px;font-family:inherit;
+  font-weight:600;line-height:1.4;color:#1B2733}
+.qopt.sel{border-color:#1B6FE0;background:#F2F7FF}
+
+/* ── ② 설계 ── */
+.dwrap{display:flex;gap:12px;flex-wrap:wrap}
+.dcol{flex:1 1 260px;min-width:0}
+.dcol h3{margin:0 0 8px;font-size:15px;color:#3C4E60}
+.pool,.plan{background:#fff;border-radius:12px;padding:10px;min-height:90px;
+  box-shadow:0 1px 3px rgba(20,40,70,.10)}
+.plan{background:#F7FAFF;border:2px dashed #A9C4E8}
+.dcard{background:#FFF;border:3px solid #C6D2DE;border-radius:10px;padding:12px;
+  margin-bottom:8px;font-size:16px;font-weight:700;line-height:1.35;display:flex;
+  align-items:center;gap:9px}
+.pool .dcard{background:#FFFDF4;border-color:#E4D9AE}
+.plan .dcard{background:#fff;border-color:#1B6FE0}
+.dcard .no{flex:0 0 26px;height:26px;border-radius:50%;background:#1B6FE0;color:#fff;
+  font-size:14px;display:flex;align-items:center;justify-content:center;font-weight:800}
+.dcard .tx{flex:1}
+.dcard .mv{display:flex;gap:5px}
+.dcard .mv button{width:34px;height:34px;border:0;border-radius:7px;background:#E2E8F0;
+  font-size:15px;font-weight:800;color:#3C4E60;font-family:inherit}
+.dcard input{flex:1;border:2px solid #C6D2DE;border-radius:7px;padding:8px;
+  font-size:15px;font-family:inherit;min-width:0}
+.empty{color:#9AA8B6;font-size:14px;text-align:center;padding:16px 6px;line-height:1.5}
+
+/* ── ③ 프로그래밍 ── */
+.pwrap{display:flex;gap:10px;flex-wrap:wrap}
+.psteps{flex:2 1 340px;min-width:0}
+.pdraw{flex:1 1 210px;min-width:0}
+.pstep{background:#fff;border-radius:12px;margin-bottom:9px;overflow:hidden;
+  box-shadow:0 1px 3px rgba(20,40,70,.10);border:3px solid transparent}
+.pstep.on{border-color:#1B6FE0}
+.pstep.warn{border-color:#E0574B}
+.pstep>.hd{background:#EDF2F8;padding:9px 11px;font-size:15px;font-weight:800;
+  display:flex;align-items:center;gap:8px}
+.pstep>.hd .no{flex:0 0 24px;height:24px;border-radius:50%;background:#1B6FE0;color:#fff;
+  font-size:13px;display:flex;align-items:center;justify-content:center}
+.pstep>.hd .tag{margin-left:auto;font-size:12px;font-weight:800;color:#E0574B}
+.pstep>.bd{padding:8px 10px 10px;min-height:44px}
+.blk{border-radius:8px;padding:9px 11px;margin:5px 0;font-size:15px;font-weight:700;
+  color:#fff;display:flex;flex-wrap:wrap;align-items:center;gap:7px;line-height:1.3}
+.blk.sel{outline:4px solid #22303F;outline-offset:1px}
+.blk.hi{outline:4px solid #FFC400;outline-offset:1px}
+.blk .slot{background:rgba(255,255,255,.32);border-radius:6px;padding:3px 9px;
+  font-weight:800;min-width:34px;text-align:center}
+.blk .end{opacity:.55;font-size:13px}
+.c-move{background:#3B7DD8}.c-look{background:#8E5BD0}.c-flow{background:#3F9E4D}
+.c-jud{background:#2AA5B8}.c-data{background:#D98B2B}.c-calc{background:#C4544A}
+.drawer{background:#fff;border-radius:12px;padding:10px;box-shadow:0 1px 3px rgba(20,40,70,.10)}
+.drawer h4{margin:0 0 7px;font-size:13px;color:#66788A}
+.dbtn{width:100%;border:0;border-radius:8px;padding:11px;margin-bottom:6px;font-size:15px;
+  font-weight:700;color:#fff;font-family:inherit;text-align:left;line-height:1.3}
+.tools{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.tools button{flex:1 1 auto;min-width:46px;height:44px;border:0;border-radius:8px;
+  background:#E2E8F0;font-size:17px;font-weight:800;color:#3C4E60;font-family:inherit}
+.picker{position:fixed;left:0;right:0;bottom:0;background:#fff;border-radius:16px 16px 0 0;
+  box-shadow:0 -3px 18px rgba(20,40,70,.25);padding:14px;z-index:50;max-height:64%;overflow:auto}
+.picker h4{margin:0 0 10px;font-size:16px}
+.picker .opts{display:flex;flex-wrap:wrap;gap:8px}
+.picker .opts button{border:0;border-radius:9px;padding:13px 16px;font-size:16px;
+  font-weight:700;background:#E2E8F0;color:#1B2733;font-family:inherit}
+.picker .opts button.num{min-width:56px}
+
+/* ── ④ 실행 ── */
+.rwrap{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start}
+.rstage{flex:1 1 300px;min-width:0}
+.rcode{flex:1 1 250px;min-width:0}
+svg.stage{width:100%;height:auto;display:block;background:#fff;border-radius:12px;
+  box-shadow:0 1px 3px rgba(20,40,70,.10)}
+.legend{font-size:13px;color:#66788A;margin-top:6px;line-height:1.5}
+.result{border-radius:12px;padding:13px;font-size:16px;font-weight:700;line-height:1.5;margin-bottom:10px}
+.result.ok{background:#E4F6EA;border:2px solid #2E9E5B;color:#1A6B3C}
+.result.no{background:#FDECEA;border:2px solid #E0574B;color:#9B2F26}
+.result.mid{background:#FFF7E0;border:2px solid #F0C955;color:#8A6314}
+.stars{font-size:22px;letter-spacing:3px}
+
+/* ── 문답 무대 (미션 6~8) ── */
+.qapanel{background:#fff;border-radius:12px;padding:12px;min-height:160px;
+  box-shadow:0 1px 3px rgba(20,40,70,.10);display:flex;flex-direction:column;gap:7px}
+.ch{font-size:15px;font-weight:600;line-height:1.45;border-radius:12px;padding:9px 12px;max-width:88%}
+.ch.bot{background:#EDF2F8;align-self:flex-start}
+.ch.me{background:#1B6FE0;color:#fff;align-self:flex-end}
+.ch.say{background:#E4F6EA;color:#1A6B3C;align-self:flex-start;font-weight:800}
+.vars{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.vars span{background:#FFF3DF;border:2px solid #D98B2B;border-radius:9px;
+  padding:7px 11px;font-size:14px;font-weight:700;color:#8A5A12}
+.askbox{background:#FFF7E0;border:3px solid #F0C955;border-radius:12px;padding:12px;
+  margin-bottom:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;
+  font-size:16px;font-weight:800}
+.askbox input{flex:1 1 150px;min-width:0;padding:12px;font-size:17px;
+  border:2px solid #C6D2DE;border-radius:9px;font-family:inherit}
+.blk.els{font-weight:800}
+.vslot{border:0;border-radius:9px;padding:12px 15px;font-size:16px;font-weight:800;
+  background:#22303F;color:#fff;font-family:inherit;max-width:100%;
+  white-space:normal;text-align:left;line-height:1.3}
+.picker .opts button.on{background:#1B6FE0;color:#fff}
+.picker .opts input{padding:12px;font-size:17px;border:2px solid #C6D2DE;
+  border-radius:9px;font-family:inherit;flex:1 1 180px;min-width:0}
+
+/* ── 평가 모드 ── */
+.exambox{border:3px solid #2E9E5B;background:#F4FBF6}
+.sent{background:#E4F6EA;border:2px solid #2E9E5B;color:#1A6B3C;border-radius:9px;
+  padding:9px 12px;font-size:14px;font-weight:700;margin-bottom:10px}
+.dform{display:grid;gap:12px}
+.dform label{display:block;font-size:14px;font-weight:800;color:#3C4E60;margin-bottom:5px}
+.dform .fr{background:#fff;border-radius:12px;padding:12px;box-shadow:0 1px 3px rgba(20,40,70,.10)}
+.dform input{width:100%;padding:12px;font-size:16px;border:2px solid #C6D2DE;
+  border-radius:9px;font-family:inherit}
+.dform .why{font-size:13px;color:#66788A;margin-top:5px;line-height:1.5}
+.preview{background:#22303F;color:#fff;border-radius:12px;padding:13px;font-size:14px;
+  line-height:1.7;margin-top:4px}
+.preview b{color:#FFC400}
+
+/* ── 교사 화면 ── */
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
+.tc{background:#fff;border-radius:10px;padding:9px;border:3px solid #D6DEE8;text-align:center;
+  box-shadow:0 1px 3px rgba(20,40,70,.10)}
+.tc b{display:block;font-size:19px}
+.tc small{display:block;font-size:12px;color:#66788A;margin-top:2px;line-height:1.35}
+.tc.stuck{border-color:#E0574B;background:#FDECEA}
+.tc.done{border-color:#2E9E5B;background:#F1FAF4}
+.tc.off{opacity:.4}
+.trow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.tdet{background:#fff;border-radius:12px;padding:14px;margin-top:12px;
+  box-shadow:0 1px 3px rgba(20,40,70,.10)}
+.tdet h3{margin:0 0 8px;font-size:16px}
+.tdet table{width:100%;border-collapse:collapse;font-size:14px}
+.tdet td{padding:5px 6px;border-bottom:1px solid #EDF2F8}
+.tdet td:first-child{color:#66788A;width:42%}
+.gbtn{border:0;border-radius:9px;padding:11px 14px;font-size:15px;font-weight:800;
+  background:#E2E8F0;color:#3C4E60;font-family:inherit;margin:0 6px 6px 0}
+.gbtn.on{background:#1B6FE0;color:#fff}
+.codebox{background:#F7FAFF;border:2px solid #A9C4E8;border-radius:10px;padding:10px;
+  font-size:13px;line-height:1.6;white-space:pre-wrap;overflow-x:auto;max-height:340px;overflow-y:auto}
+.tlogin{max-width:340px;margin:30px auto;background:#fff;border-radius:12px;padding:18px;
+  box-shadow:0 1px 3px rgba(20,40,70,.10)}
+.tlogin input{width:100%;padding:12px;font-size:16px;border:2px solid #C6D2DE;
+  border-radius:9px;font-family:inherit;margin-bottom:9px}
+</style>
+</head>
+<body>
+
+<div id="top">
+  <span class="name">순서 설계실</span>
+  <span class="mt" id="mt"></span>
+  <button id="home">목록</button>
+</div>
+<div id="steps"></div>
+<div id="main"></div>
+<div id="foot"><span id="msg"></span><span id="acts"></span></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   1. 블록 사전 — 엔트리 문구를 그대로 쓴다 (PLAN.md 12장)
+   단원이 시작된 뒤로는 이름을 바꾸지 말 것. 아이들이 두 번 배운다.
+   ═══════════════════════════════════════════════════════════════ */
+const BLOCKS = {
+  fwd  :{cat:'move',text:'앞으로 1칸 가기'},
+  turnR:{cat:'move',text:'오른쪽으로 회전하기'},
+  turnL:{cat:'move',text:'왼쪽으로 회전하기'},
+  pick :{cat:'move',text:'집기'},
+  drop :{cat:'move',text:'놓기'},
+  say  :{cat:'look',text:'말하기',slot:'v'},
+  rep  :{cat:'flow',text:'번 반복하기',slot:'n',body:1},
+  iff  :{cat:'flow',text:'라면',slot:'c',body:1},
+  ifel :{cat:'flow',text:'라면 아니면',slot:'c',body:2},
+  ask  :{cat:'data',text:'묻고 대답 기다리기',slot:'q'},
+  setv :{cat:'data',text:'로 정하기',slot:'sv'},
+  addv :{cat:'data',text:'만큼 더하기',slot:'sv'},
+  /* 계속 반복하기·반복 그만두기 — 평가 과제가 「맞을 때까지 반복」이라 여기서 처음 나온다.
+     미션 8 서랍엔 일부러 안 넣었다(한 차시에 새것이 넷이 된다). PLAN.md 14장 */
+  loop :{cat:'flow',text:'계속 반복하기',body:1},
+  brk  :{cat:'flow',text:'반복 그만두기'},
+};
+const CATC = {move:'c-move',look:'c-look',flow:'c-flow',jud:'c-jud',data:'c-data',calc:'c-calc'};
+const CONDS = {blocked:'앞이 막혔는가?', arrived:'도착했는가?'};
+
+/* ── 값 ──────────────────────────────────────────────────────────
+   말하기 · 정하기 · 판단의 빈칸에 들어가는 것.
+   {k:'txt'|'num'|'ans'|'var'|'calc'|'cmp'}
+   ★ 계산 안에 계산을 넣지 못하게 막아 두었다(한 겹). 태블릿에서 손가락으로
+     짜야 하는데 두 겹이 되면 빈칸이 너무 작아져서 못 누른다. 풀지 말 것.
+   미션 1~5 의 말하기는 아직 그냥 문자열이다 — vval/vtext 가 둘 다 받는다.
+   ───────────────────────────────────────────────────────────── */
+const OPS={'+':'＋','-':'－','*':'×','/':'÷','&':'합치기'};
+const numOf=x=>{const n=parseFloat(x);return isFinite(n)?n:0};
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+function vtext(v){
+  if(v==null)return '?';
+  if(typeof v==='string')return v;
+  if(v.k==='txt')return '"'+v.v+'"';
+  if(v.k==='num')return String(v.v);
+  if(v.k==='ans')return '대답';
+  if(v.k==='var')return v.v;
+  if(v.k==='calc')return v.op==='&'?`(${vtext(v.a)} 와(과) ${vtext(v.b)} 를 합치기)`
+                                   :`(${vtext(v.a)} ${OPS[v.op]} ${vtext(v.b)})`;
+  if(v.k==='cmp')return v.op==='='?`${vtext(v.a)} 와(과) ${vtext(v.b)} 가 같은가?`
+                                  :`${vtext(v.a)} 이(가) ${vtext(v.b)} 보다 큰가?`;
+  return '?';
+}
+function vval(v,c){
+  if(v==null)return '';
+  if(typeof v==='string')return v;
+  if(v.k==='txt')return v.v;
+  if(v.k==='num')return v.v;
+  if(v.k==='ans')return c.ans;
+  if(v.k==='var')return (c.vars[v.v]!==undefined?c.vars[v.v]:0);
+  if(v.k==='calc'){
+    const a=vval(v.a,c),b=vval(v.b,c);
+    if(v.op==='&')return String(a)+String(b);
+    const x=numOf(a),y=numOf(b);
+    return v.op==='+'?x+y:v.op==='-'?x-y:v.op==='*'?x*y:(y===0?0:x/y);
+  }
+  return '';
+}
+function vcmp(v,c){
+  const a=vval(v.a,c),b=vval(v.b,c);
+  if(v.op==='='){
+    if(String(a).trim()===String(b).trim())return true;
+    return isFinite(parseFloat(a))&&isFinite(parseFloat(b))&&numOf(a)===numOf(b);
+  }
+  return numOf(a)>numOf(b);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   2. 미션 — 여기만 늘리면 미션이 는다. 아래 엔진은 건드리지 않는다.
+   layer 1 그림으로 / 2 말로만 / 3 조건만 / 4 자기가 정한다
+   trap : 빼먹으면 실패하는 단계. 미션마다 반드시 하나. (PLAN.md 6장)
+   ═══════════════════════════════════════════════════════════════ */
+const MISSIONS = [
+{ id:1, title:'첫 배달', layer:1, sub:'순서대로 늘어놓기',
+  intro:{now:'배달 로봇이 주방 앞에 서 있습니다.',
+         goal:'로봇이 테이블에 도착해서 "음식이 도착했습니다."라고 말합니다.',
+         q:['로봇을 테이블까지 보내고 말하게 한다','로봇을 더 빠르게 만든다','테이블을 로봇 쪽으로 옮긴다'],a:0},
+  stage:{w:7,h:7,robot:{x:0,y:3,d:0},walls:[],items:[],tables:[{x:5,y:3}]},
+  showGoal:true,
+  cards:[{id:'go',t:'테이블로 가기'},{id:'say',t:'도착했다고 말하기'},
+         {id:'x1',t:'노래 부르기'},{id:'x2',t:'제자리에서 한 바퀴 돌기'}],
+  need:['go','say'], trap:'say',
+  blocks:['fwd','turnR','turnL','say'],
+  says:['음식이 도착했습니다.','안녕하세요.','출발합니다.'],
+  check:c=>c.x===5&&c.y===3&&c.said.length>0,
+  why:c=>(c.x!==5||c.y!==3)?'테이블에 도착하지 못했어요.':'도착은 했는데 아무 말도 하지 않았어요.',
+  tip:'말하기 단계를 빼면 도착해도 끝난 게 아니에요.' },
+
+{ id:2, title:'음식을 잊지 마세요', layer:1, sub:'빼먹으면 도착해도 실패',
+  intro:{now:'주방에 음식이 놓여 있고 로봇은 빈손입니다.',
+         goal:'로봇이 음식을 테이블에 가져다 놓습니다.',
+         q:['음식을 집어서 테이블에 놓는다','테이블까지 빨리 간다','음식을 주방에 그대로 둔다'],a:0},
+  stage:{w:7,h:7,robot:{x:0,y:0,d:0},walls:[],items:[{x:2,y:0}],tables:[{x:5,y:4}]},
+  showGoal:true,
+  cards:[{id:'pick',t:'주방에서 음식 집기'},{id:'go',t:'테이블로 가기'},
+         {id:'drop',t:'음식 놓기'},{id:'say',t:'도착했다고 말하기'},
+         {id:'x1',t:'손 씻기'}],
+  need:['pick','go','drop','say'], trap:'pick',
+  blocks:['fwd','turnR','turnL','pick','drop','say'],
+  says:['음식이 도착했습니다.','맛있게 드세요.','출발합니다.'],
+  check:c=>c.placed.some(p=>p.x===5&&p.y===4)&&c.said.length>0,
+  why:c=>c.placed.length===0?(c.hold?'음식을 들고만 있어요. 테이블에서 놓아야 해요.':'음식을 집지 않았어요. 빈손으로 도착했어요.')
+        :(c.said.length===0?'음식은 놓았는데 아무 말도 하지 않았어요.':'음식을 테이블이 아닌 곳에 놓았어요.'),
+  tip:'「집기」를 빼면 로봇은 빈손으로 도착합니다.' },
+
+{ id:3, title:'먼 길', layer:2, sub:'목표를 말로만 알려 줍니다',
+  intro:{now:'로봇이 복도 끝에 있습니다.',
+         goal:'복도를 끝까지 곧장 가서 도착했다고 말합니다. (몇 칸인지는 세어 보세요)',
+         q:['같은 동작이 여러 번 되풀이된다','동작마다 전부 다르다','움직일 필요가 없다'],a:0},
+  stage:{w:7,h:7,robot:{x:0,y:3,d:0},walls:[],items:[],tables:[{x:6,y:3}]},
+  showGoal:false,
+  cards:[{id:'go',t:'복도 끝까지 가기'},{id:'say',t:'도착했다고 말하기'},
+         {id:'x1',t:'뒤로 돌아가기'}],
+  need:['go','say'], trap:'say',
+  blocks:['fwd','turnR','turnL','say','rep'],
+  says:['도착했습니다.','다 왔어요.'],
+  check:c=>c.x===6&&c.y===3&&c.said.length>0,
+  why:c=>(c.x!==6||c.y!==3)?'복도 끝에 닿지 못했어요. 몇 칸인지 다시 세어 볼까요?':'도착은 했는데 말하지 않았어요.',
+  star:{max:5,txt:'블록 5개 이하'},
+  tip:'「앞으로 1칸 가기」를 여섯 번 놓아도 됩니다. 하지만 반복 블록을 쓰면 훨씬 짧아져요.' },
+
+{ id:4, title:'네모 한 바퀴', layer:3, sub:'블록 8개 이하로',
+  intro:{now:'로봇이 네모난 방의 왼쪽 위 모서리에 있습니다.',
+         goal:'네 모서리를 모두 밟고 제자리로 돌아옵니다.',
+         q:['같은 묶음이 네 번 되풀이된다','네 번 다 다르게 움직인다','한 방향으로만 가면 된다'],a:0},
+  stage:{w:7,h:7,robot:{x:1,y:1,d:0},walls:[],items:[],
+         corners:[{x:1,y:1},{x:5,y:1},{x:5,y:5},{x:1,y:5}]},
+  showGoal:true,
+  cards:[{id:'loop',t:'「한 변을 가고 방향 바꾸기」를 네 번 되풀이하기'},
+         {id:'say',t:'한 바퀴 돌았다고 말하기'},
+         {id:'x1',t:'대각선으로 가로지르기'}],
+  need:['loop','say'], trap:'say',
+  blocks:['fwd','turnR','turnL','say','rep'],
+  says:['한 바퀴 돌았습니다.','제자리예요.'],
+  check:c=>c.corners.every(v=>v)&&c.x===1&&c.y===1&&c.said.length>0,
+  why:c=>!c.corners.every(v=>v)?'네 모서리를 다 밟지 못했어요.':
+        ((c.x!==1||c.y!==1)?'제자리로 돌아오지 못했어요.':'말하기를 빼먹었어요.'),
+  star:{max:8,txt:'블록 8개 이하'},
+  tip:'네 변이 똑같이 생겼어요. 반복 블록 안에 「가기」와 「회전하기」를 함께 넣어 보세요.' },
+
+/* 미션 5 — 조건이 없으면 반드시 실패하도록 짜여 있다.
+   (0,0)에서 동쪽을 보고 「막혔으면 오른쪽으로 돌기 · 앞으로 가기」를 열두 번 되풀이하면
+   방 끝(6,0)에서 한 번 꺾여 (6,6)에 닿는다. 조건을 빼면 일곱 번째에서 벽에 부딪힌다.
+   무대를 고칠 때 이 성질이 깨지지 않는지 반드시 손으로 세어 볼 것. */
+{ id:5, title:'막히면 돌아가기', layer:2, sub:'앞이 막혔는지 살펴보고 결정하기',
+  intro:{now:'로봇이 방의 왼쪽 위 모서리에 있습니다. 곧장 가면 방 끝에 부딪칩니다.',
+         goal:'방 끝에 닿으면 방향을 바꾸어 오른쪽 아래 모서리까지 갑니다.',
+         q:['앞이 막혔는지 살펴보고 그때 방향을 바꾼다','무조건 열두 번 앞으로만 간다','벽을 밀고 지나간다'],a:0},
+  stage:{w:7,h:7,robot:{x:0,y:0,d:0},walls:[],items:[],tables:[{x:6,y:6}]},
+  showGoal:true,
+  /* 설계 카드가 「되풀이 한 덩어리」로 되어 있다.
+     설계 칸 하나에 코드 칸 하나가 붙는 구조라, 되풀이 안에 들어갈 것을
+     따로 카드로 쪼개면 그 칸이 영영 빈 채로 남는다. 쪼개지 말 것.
+     대신 loopB(조건 없는 것)를 나란히 두어 고르게 한다 —
+     loopB 를 고르면 벽에 부딪히고, 아이가 설계로 되돌아온다. */
+  cards:[{id:'loopA',t:'「앞이 막혔으면 오른쪽으로 돌기」와 「앞으로 가기」를 열두 번 되풀이하기'},
+         {id:'loopB',t:'「앞으로 가기」를 열두 번 되풀이하기'},
+         {id:'say',t:'도착했다고 말하기'},
+         {id:'x1',t:'벽을 부수기'}],
+  need:['loopA','say'], trap:'loopA',
+  blocks:['fwd','turnR','turnL','say','rep','iff'],
+  says:['도착했습니다.','모서리에 닿았어요.'],
+  check:c=>c.x===6&&c.y===6&&c.said.length>0,
+  why:c=>(c.x!==6||c.y!==6)?'오른쪽 아래 모서리에 닿지 못했어요.':'도착은 했는데 말하지 않았어요.',
+  tip:'반복 블록 안에 「만약 앞이 막혔는가 라면 오른쪽으로 회전하기」를 먼저, 「앞으로 1칸 가기」를 그 다음에 넣고 열두 번 되풀이해 보세요.' },
+
+/* ═══ 여기부터 문답 무대 — 격자가 아니라 대화다 (PLAN.md 5장) ═══
+   stage.kind:'qa' · stage.vars 에 적은 이름이 변수가 된다.
+   trials : 통과한 뒤 앱이 몰래 다른 답으로 다시 돌려 본다.
+            정해진 값을 그대로 적어 넣은 아이는 여기서 걸린다(PLAN.md 4장).
+            ★ trials 를 빼지 말 것 — 빼면 「대답 대신 답을 베껴 적기」가 통한다. */
+
+{ id:6, title:'이름을 묻고 인사하기', layer:2, sub:'묻고 대답 기다리기',
+  intro:{now:'프로그램이 아무것도 묻지 않고 가만히 있습니다.',
+         goal:'이름을 물어보고, 그 이름을 넣어서 인사합니다.',
+         q:['묻고, 그 대답을 인사말에 넣는다','정해진 이름 하나로 인사한다','묻기만 하고 아무 말도 안 한다'],a:0},
+  stage:{kind:'qa',vars:[]},
+  cards:[{id:'ask',t:'이름을 묻고 대답 기다리기'},
+         {id:'hi',t:'대답을 넣어서 인사하기'},
+         {id:'x1',t:'이름을 대신 지어 주기'}],
+  need:['ask','hi'], trap:'ask',
+  blocks:['ask','say'],
+  asks:['이름이 무엇인가요?','너의 이름은?'],
+  says:['안녕하세요, ','반가워요, ','님, 안녕하세요!'],
+  trials:[['민서'],['하준']],
+  check:c=>{const n=String(c.inputs[0]||'').trim();
+    return n!=='' && c.said.some(s=>String(s).includes(n)&&String(s).trim()!==n);},
+  why:c=>!c.inputs.length?'아무것도 묻지 않았어요. 「묻고 대답 기다리기」가 빠졌네요.'
+        :(c.said.length?'대답한 이름이 인사말 안에 들어가지 않았어요.':'묻기만 하고 아무 말도 하지 않았어요.'),
+  tip:'말하기의 빈칸을 누르고 <b>＋ 계산 만들기</b>를 고른 뒤, 「"안녕하세요, " 와(과) <b>대답</b> 을 합치기」로 만들어 보세요.' },
+
+{ id:7, title:'거스름돈 알려 주기', layer:2, sub:'변수와 빼기 · 교과서 119쪽',
+  intro:{now:'문구점에서 물건값과 낸 돈을 종이에 적어 놓고 계산하고 있습니다.',
+         goal:'물건값과 낸 돈을 물어보고, 거스름돈이 얼마인지 알려 줍니다.',
+         q:['두 값을 받아 두었다가 빼기를 한다','거스름돈을 미리 정해 둔다','물건값만 물어보면 된다'],a:0},
+  stage:{kind:'qa',vars:['물건값','낸돈','거스름돈']},
+  cards:[{id:'a1',t:'물건값을 묻고 「물건값」에 저장하기'},
+         {id:'a2',t:'낸 돈을 묻고 「낸돈」에 저장하기'},
+         {id:'sub',t:'거스름돈을 (낸돈 − 물건값) 으로 정하기'},
+         {id:'out',t:'거스름돈을 말하기'},
+         {id:'x1',t:'물건을 봉투에 담기'}],
+  need:['a1','a2','sub','out'], trap:'sub',
+  blocks:['ask','setv','say'],
+  asks:['물건값은 얼마인가요?','낸 돈은 얼마인가요?'],
+  says:['원을 거슬러 드립니다.','거스름돈입니다.'],
+  trials:[['1200','2000'],['700','1000']],
+  check:c=>{
+    if(c.inputs.length<2)return false;
+    const a=parseFloat(c.inputs[0]),b=parseFloat(c.inputs[1]);
+    if(!isFinite(a)||!isFinite(b))return false;
+    const want=String(b-a),last=String(c.said[c.said.length-1]||'');
+    return c.said.length>0&&last.includes(want);},
+  why:c=>c.inputs.length<2?'두 가지를 다 물어보지 않았어요. 물건값과 낸 돈이 모두 있어야 해요.'
+        :(c.said.length?'말한 값이 거스름돈과 달라요. 「낸돈 － 물건값」이 맞는지 볼까요?':'계산은 했는데 알려 주지 않았어요.'),
+  tip:'묻고 난 <b>바로 다음</b>에 「( )를 (대답)으로 정하기」를 놓아야 해요. 다음 질문을 하는 순간 <b>대답이 새 것으로 바뀝니다.</b> 변수가 있는 까닭이 이거예요.' },
+
+{ id:8, title:'맞았는지 알려 주기', layer:3, sub:'조건 + 변수 — 평가와 같은 구조',
+  intro:{now:'문제를 내 놓고, 맞았는지 틀렸는지 아무 말도 해 주지 않습니다.',
+         goal:'답을 물어보고, 맞으면 「맞아요」와 점수 1점, 틀리면 「다시 생각해 보세요」라고 합니다.',
+         q:['대답이 정답과 같은지 살펴보고 두 갈래로 나뉜다','언제나 맞았다고 말한다','정답을 먼저 알려 준다'],a:0},
+  stage:{kind:'qa',vars:['점수']},
+  cards:[{id:'ask',t:'문제를 내고 대답 기다리기'},
+         {id:'ifel',t:'대답이 정답과 같은지 살펴보고 갈라지기'},
+         {id:'x1',t:'정답을 먼저 알려 주기'}],
+  need:['ask','ifel'], trap:'ifel',
+  blocks:['ask','ifel','say','addv'],
+  asks:['3 + 4 는 얼마일까요?'],
+  says:['맞아요!','다시 생각해 보세요.','정답입니다.'],
+  trials:[['7'],['5']],
+  check:c=>{
+    if(!c.inputs.length)return false;
+    const last=String(c.said[c.said.length-1]||''),right=numOf(c.inputs[0])===7;
+    return right ? ((last.includes('맞')||last.includes('정답'))&&numOf(c.vars['점수'])>=1)
+                 : (last.includes('다시')&&numOf(c.vars['점수'])===0);},
+  why:c=>!c.inputs.length?'문제를 내지 않았어요.'
+        :(numOf(c.inputs[0])===7?'맞는 답인데 「맞아요」가 나오지 않았거나 점수를 더하지 않았어요.'
+                                :'틀린 답인데 「다시 생각해 보세요」가 나오지 않았어요.'),
+  tip:'「만약 ( ) 라면 / 아니면」의 빈칸에서 <b>＝ 같은가? 만들기</b>를 골라 「대답 과(와) 7 이 같은가?」로 만드세요. <b>아니면</b> 줄을 눌러야 아래 칸에 블록이 들어갑니다.' },
+];
+
+/* ═══════════════════════════════════════════════════════════════
+   3. 상태 하나 + 다시 그리기 하나
+   ═══════════════════════════════════════════════════════════════ */
+const LS='orderlab_v1';
+let SAVE={num:'',done:{},log:{}};
+try{const r=localStorage.getItem(LS); if(r) SAVE=JSON.parse(r);}catch(e){}
+const save=()=>{try{localStorage.setItem(LS,JSON.stringify(SAVE))}catch(e){}};
+
+let S={sc:'home',mi:0,step:1,pick:null,plan:[],code:[],sel:null,selSide:0,
+        guess:null,run:null,res:null,hint:0,tries:0,fixDesign:0,fixCode:0,
+        codeTouched:false,designTouched:false,firstRun:true,askOpen:null,runId:0};
+let RUNID=0;
+const M=()=>S.exam?EXAM:MISSIONS[S.mi];
+const $=id=>document.getElementById(id);
+let uid=1;
+
+function openMission(i){
+  const m=MISSIONS[i];
+  m.cards=m.cards.filter(c=>!/^own/.test(c.id));   /* 지난번에 직접 쓴 카드를 치운다 */
+  S={sc:'m',mi:i,step:1,pick:null,plan:[],code:[],sel:null,selSide:0,
+     guess:null,run:null,res:null,hint:0,tries:0,fixDesign:0,fixCode:0,
+     codeTouched:false,designTouched:false,firstRun:true,askOpen:null,runId:++RUNID};
+  document.querySelectorAll('.picker').forEach(x=>x.remove());
+  S.pool=m.cards.map(c=>c.id);
+  draw();
+}
+
+/* ── 그리기 ── */
+function draw(){
+  if(S.sc==='teacher'){drawTeacher();return;}
+  if(S.sc==='home'){drawHome();return;}
+  const m=M(),ex=!!S.exam;
+  $('mt').textContent=ex?'평가 — 내 조각 프로그램':(m.id+'. '+m.title);
+  $('steps').style.display='';
+  const NAMES=ex?['목표 선언','설계','프로그래밍','실행·점검']:['문제 이해','설계','프로그래밍','실행·점검'];
+  const SUBS =ex?['무엇을 만들까','종이 설계 옮기기','블록 넣기','돌려 보기']
+                :['현재와 목표','순서 짜기','블록 넣기','돌려 보기'];
+  $('steps').innerHTML=NAMES
+    .map((t,i)=>{const n=i+1;
+      return `<div class="${S.step===n?'on':(S.step>n?'done':'')}">${'①②③④'[i]} ${t}
+        <small>${SUBS[i]}</small></div>`}).join('');
+  if(S.step===1){if(ex)drawDeclare();else drawIntro();}
+  else if(S.step===2)drawDesign();
+  else if(S.step===3)drawCode();
+  else drawRun();
+}
+
+function drawHome(){
+  $('mt').textContent='';
+  $('steps').style.display='none';
+  const done=SAVE.done||{};
+  let h=`<div class="card"><div id="numrow">
+      <b style="font-size:16px">내 번호</b>
+      <input id="num" type="number" min="1" max="40" value="${SAVE.num||''}" placeholder="번호">
+      <span style="font-size:13px;color:#66788A">이름은 적지 않아요. 번호만 씁니다.</span>
+    </div>
+    <div style="font-size:14px;line-height:1.6;color:#3C4E60">
+      여기는 <b>코딩을 배우는 곳이 아니라 순서를 짜는 곳</b>입니다.<br>
+      미션마다 <b>① 문제를 이해하고 → ② 순서를 설계하고 → ③ 블록으로 옮기고 → ④ 돌려 봅니다.</b><br>
+      <b>설계가 틀려도 앱은 막지 않아요.</b> 돌려 보고 어긋나면 설계로 돌아가면 됩니다.
+    </div></div><div class="mlist">`;
+  MISSIONS.forEach((m,i)=>{
+    const d=done[m.id], lock=i>0&&!done[MISSIONS[i-1].id];
+    h+=`<div class="mcard ${d?'clear':''} ${lock?'lock':''}" data-i="${i}">
+      <b>${m.id}. ${m.title}</b><span>${m.sub}</span>
+      ${d?`<span class="st">${'★'.repeat(d.star)}${'☆'.repeat(3-d.star)} 통과</span>`
+         :(lock?'<span class="st" style="color:#9AA8B6">앞 미션을 먼저</span>':'')}
+    </div>`;
+  });
+  h+='</div>';
+  const ex=SAVE.exam||{},q=qcount();
+  h+=`<div class="card exambox">
+    <b style="font-size:17px">📋 평가 — 내 조각 프로그램</b>
+    <div style="font-size:14px;color:#3C4E60;line-height:1.6;margin:7px 0 11px">
+      모둠이 종이에 나눈 <b>내 조각</b>을 프로그램으로 만듭니다.
+      먼저 <b>무엇을 만들지 선언</b>하고, 종이에 적은 설계를 옮겨 적은 뒤 블록으로 짭니다.<br>
+      <b>힌트는 평가 중에도 열립니다.</b> 막히면 눌러도 괜찮아요.</div>
+    ${ex.sent?`<div class="sent">✓ ${ex.sentAt||''} 제출됨 — 다시 들어가 고치고 또 낼 수 있어요</div>`
+             :(ex.decl?'<div class="sent" style="background:#FFF7E0;border-color:#F0C955;color:#8A6314">이 태블릿에 적어 둔 것이 있어요 — 이어서 합니다</div>':'')}
+    <button class="btn big" id="goexam">평가 ${ex.decl?'이어서 하기':'시작하기'}</button>
+    ${q?`<button class="btn ghost" id="flush" style="margin-left:8px">못 보낸 것 ${q}개 지금 보내기</button>`:''}
+  </div>`;
+  $('main').innerHTML=h;
+  $('num').onchange=e=>{SAVE.num=e.target.value;save();};
+  $('goexam').onclick=()=>{
+    if(!String(SAVE.num||'').trim()){$('msg').innerHTML='<b>내 번호</b>를 먼저 적어 주세요.';return;}
+    openExam();};
+  if($('flush'))$('flush').onclick=async()=>{
+    $('msg').textContent='보내는 중…';
+    const r=await flushQueue();
+    $('msg').innerHTML=r.left?`${r.sent}개 보냄 · <b>${r.left}개 남음</b>(인터넷이 안 되면 나중에 다시)`
+                             :`${r.sent}개 다 보냈어요 ✓`;
+    drawHome();};
+  $('main').querySelectorAll('.mcard').forEach(el=>{
+    if(el.classList.contains('lock'))return;
+    el.onclick=()=>openMission(+el.dataset.i);
+  });
+  $('msg').textContent='미션을 골라 시작하세요.';
+  $('acts').innerHTML='';
+}
+
+/* ── ① 문제 이해 ── */
+function drawIntro(){
+  const m=M(), it=m.intro;
+  $('main').innerHTML=`<h2>① 문제를 이해해요</h2>
+    <div class="states">
+      <div><h3>지금 상태</h3><p>${it.now}</p></div>
+      <div><h3>바라는 상태 (목표)</h3><p>${it.goal}</p></div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <h3 style="margin:0 0 9px;font-size:15px">무엇을 해결해야 하나요?</h3>
+      ${it.q.map((q,i)=>`<button class="qopt ${S.pick===i?'sel':''}" data-i="${i}">${q}</button>`).join('')}
+    </div>`;
+  $('main').querySelectorAll('.qopt').forEach(b=>b.onclick=()=>{S.pick=+b.dataset.i;draw();});
+  $('msg').textContent=S.pick===null?'하나를 고르세요.':(S.pick===it.a?'맞아요. 설계로 갑니다.':'다시 한 번 볼까요?');
+  $('acts').innerHTML=`<button class="btn" id="nx" ${S.pick===it.a?'':'disabled'}>다음 →</button>`;
+  if(S.pick===it.a)$('nx').onclick=()=>{S.step=2;draw();};
+}
+
+/* ── ② 설계 — 정답 판정을 하지 않는다 (PLAN.md 2장) ── */
+function drawDesign(){
+  const m=M(), byId=id=>m.cards.find(c=>c.id===id);
+  const pool=S.pool.map(id=>{const c=byId(id);
+    return `<div class="dcard" data-id="${id}"><span class="tx">${c.t}</span>
+      <span class="mv"><button data-add="${id}">+</button></span></div>`;}).join('')
+    ||(S.exam?'<div class="empty">평가에서는 <b>빈 카드만</b> 나옵니다.<br>종이에 적은 내 설계를 아래 칸에 직접 옮겨 적으세요.</div>'
+             :'<div class="empty">카드를 다 옮겼어요</div>');
+  const plan=S.plan.map((id,i)=>{const c=byId(id);
+    return `<div class="dcard"><span class="no">${i+1}</span><span class="tx">${c.t}</span>
+      <span class="mv"><button data-up="${i}">▲</button><button data-dn="${i}">▼</button>
+      <button data-rm="${i}">✕</button></span></div>`;}).join('')
+    ||'<div class="empty">아직 비어 있어요.<br>왼쪽 카드의 <b>+</b>를 눌러 순서대로 놓으세요.</div>';
+  $('main').innerHTML=`<h2>② 순서를 설계해요</h2>
+    <div style="font-size:14px;color:#66788A;margin:-4px 0 10px;line-height:1.5">
+      ${S.exam?'⑤차시에 <b>종이</b>에 적은 내 조각 설계를 그대로 옮겨 적습니다. 앱은 <b>맞는지 봐 주지 않아요</b> — 돌려 보고 어긋나면 여기로 돌아오면 됩니다.'
+              :'필요 없는 카드가 섞여 있어요. <b>필요한 것만 골라 순서대로</b> 놓으세요.'}
+      ${m.layer>=2?'<br><b>빈 카드</b>에 직접 써도 됩니다.':''}
+    </div>
+    <div class="dwrap">
+      <div class="dcol"><h3>단계 카드</h3><div class="pool">${pool}
+        ${m.layer>=2?`<div class="dcard"><input id="own" placeholder="직접 쓰기">
+          <span class="mv"><button id="ownadd">+</button></span></div>`:''}</div></div>
+      <div class="dcol"><h3>내 설계</h3><div class="plan">${plan}</div></div>
+    </div>
+    ${S.hint>=1?`<div class="hintbox">💡 ${m.tip}</div>`:''}`;
+  const mk=()=>{S.designTouched=true;if(S.step>2)S.fixDesign++;};
+  $('main').querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>{
+    const id=b.dataset.add;S.plan.push(id);S.pool=S.pool.filter(x=>x!==id);syncCode();mk();draw();});
+  $('main').querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>{
+    const i=+b.dataset.up;if(i>0){[S.plan[i-1],S.plan[i]]=[S.plan[i],S.plan[i-1]];
+    [S.code[i-1],S.code[i]]=[S.code[i],S.code[i-1]];mk();draw();}});
+  $('main').querySelectorAll('[data-dn]').forEach(b=>b.onclick=()=>{
+    const i=+b.dataset.dn;if(i<S.plan.length-1){[S.plan[i+1],S.plan[i]]=[S.plan[i],S.plan[i+1]];
+    [S.code[i+1],S.code[i]]=[S.code[i],S.code[i+1]];mk();draw();}});
+  $('main').querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{
+    const i=+b.dataset.rm,id=S.plan[i];S.plan.splice(i,1);S.code.splice(i,1);
+    if(m.cards.some(c=>c.id===id))S.pool.push(id);mk();draw();});
+  const oa=$('ownadd');
+  if(oa)oa.onclick=()=>{const v=$('own').value.trim();if(!v)return;
+    /* 새로고침 뒤 되살린 카드와 번호가 겹치지 않게 시각을 섞는다 */
+    const id='own'+Date.now().toString(36)+(uid++);
+    m.cards.push({id,t:v});S.plan.push(id);syncCode();mk();draw();};
+  $('msg').textContent=S.plan.length?'설계한 대로 블록을 넣게 됩니다.':'카드를 순서대로 놓으세요.';
+  $('acts').innerHTML=`${S.exam&&!S.skeleton?`<button class="btn ghost" id="sk">도움 받기 — 뼈대</button>`:''}
+    <button class="btn ghost" id="bk">← ${S.exam?'목표':'문제'}</button>
+    <button class="btn" id="nx" ${S.plan.length?'':'disabled'}>설계 완료 →</button>`;
+  if($('sk'))$('sk').onclick=giveSkeleton;
+  $('bk').onclick=()=>{if(S.exam)keepExam();S.step=1;draw();};
+  if(S.plan.length)$('nx').onclick=()=>{syncCode();
+    if(S.exam){if(!S.plan0)S.plan0=S.plan.map(cardText);keepExam();}   /* 처음 설계를 남긴다 */
+    S.step=3;draw();};
+}
+function syncCode(){while(S.code.length<S.plan.length)S.code.push([]);S.code.length=S.plan.length;}
+
+/* ── ③ 프로그래밍 — 설계가 옆에 붙어 있다 ── */
+let openStep=0;
+function condText(k){return (k&&typeof k==='object')?esc(vtext(k)):(CONDS[k]||'?')}
+function blkHTML(b,depth){
+  const d=BLOCKS[b.t];let inner='';
+  if(b.t==='rep')inner=`<span class="slot">${b.n}</span>번 반복하기`;
+  else if(b.t==='iff'||b.t==='ifel')inner=`만약 <span class="slot">${condText(b.c)}</span> 라면`;
+  else if(b.t==='say')inner=`<span class="slot">${esc(vtext(b.v))}</span> 말하기`;
+  else if(b.t==='ask')inner=`<span class="slot">${esc(vtext(b.q))}</span> 묻고 대답 기다리기`;
+  else if(b.t==='setv')inner=`<span class="slot">${esc(b.name||'?')}</span> 를 <span class="slot">${esc(vtext(b.val))}</span> 로 정하기`;
+  else if(b.t==='addv')inner=`<span class="slot">${esc(b.name||'?')}</span> 에 <span class="slot">${esc(vtext(b.val))}</span> 만큼 더하기`;
+  else inner=d.text;
+  const selHead=(S.sel===b.u&&S.selSide!==1)?'sel':'';
+  let h=`<div class="blk ${CATC[d.cat]} ${selHead} ${S.hi===b.u?'hi':''}"
+     style="margin-left:${depth*16}px" data-u="${b.u}" data-side="0">${inner}</div>`;
+  if(d.body){
+    h+=(b.body||[]).map(c=>blkHTML(c,depth+1)).join('');
+    if(d.body===2){
+      /* 「아니면」 줄 자체가 누를 수 있는 자리다 — 여기를 누르고 블록을 넣으면
+         아래 칸으로 들어간다. ▶(들여쓰기)로는 아래 칸에 못 넣는다. */
+      h+=`<div class="blk ${CATC[d.cat]} els ${(S.sel===b.u&&S.selSide===1)?'sel':''}"
+        style="margin-left:${depth*16}px" data-u="${b.u}" data-side="1">아니면</div>`;
+      h+=(b.body2||[]).map(c=>blkHTML(c,depth+1)).join('');
+    }
+    h+=`<div class="blk ${CATC[d.cat]} end" style="margin-left:${depth*16}px;opacity:.5;padding:5px 11px">▁ 여기까지</div>`;
+  }
+  return h;
+}
+function drawCode(){
+  const m=M();
+  const steps=S.plan.map((id,i)=>{
+    const c=m.cards.find(x=>x.id===id), list=S.code[i]||[];
+    return `<div class="pstep ${openStep===i?'on':''} ${list.length?'':'warn'}" data-s="${i}">
+      <div class="hd"><span class="no">${i+1}</span>${c.t}
+        ${list.length?'':'<span class="tag">비어 있음</span>'}</div>
+      <div class="bd">${list.map(b=>blkHTML(b,0)).join('')||
+        '<div class="empty" style="padding:8px">이 단계를 눌러 블록을 넣으세요</div>'}</div></div>`;
+  }).join('');
+  const LAB={rep:'( )번 반복하기',iff:'만약 ( ) 라면',ifel:'만약 ( ) 라면 / 아니면',
+             say:'( ) 말하기',ask:'( ) 묻고 대답 기다리기',
+             setv:'( )를 ( )로 정하기',addv:'( )에 ( )만큼 더하기'};
+  const dr=m.blocks.map(t=>{const d=BLOCKS[t];
+    return `<button class="dbtn ${CATC[d.cat]}" data-b="${t}">${LAB[t]||d.text}</button>`}).join('');
+  $('main').innerHTML=`<h2>③ 블록으로 옮겨요</h2>
+    <div style="font-size:14px;color:#66788A;margin:-4px 0 10px;line-height:1.5">
+      <b>왼쪽이 내가 짠 설계</b>입니다. 단계를 누르고 오른쪽 블록을 눌러 넣으세요.</div>
+    <div class="pwrap"><div class="psteps">${steps}</div>
+      <div class="pdraw"><div class="drawer"><h4>블록</h4>${dr}
+        <div class="tools">
+          <button id="up">▲</button><button id="dn">▼</button>
+          <button id="rin">▶</button><button id="rout">◀</button><button id="del">🗑</button>
+        </div>
+        <div style="font-size:12px;color:#9AA8B6;margin-top:7px;line-height:1.5">
+          블록을 눌러 고른 뒤 ▲▼로 옮기고<br>▶로 반복·조건 <b>안에</b> 넣습니다.
+          ${m.blocks.includes('ifel')?'<br><b>아니면</b> 줄을 누르고 블록을 넣으면 아래 칸으로 들어갑니다.':''}</div>
+      </div></div></div>
+    ${S.hint>=1?`<div class="hintbox">💡 ${m.tip}</div>`:''}
+    ${S.hint>=2?`<div class="hintbox">💡 빠진 곳: ${missingMsg()}</div>`:''}`;
+  $('main').querySelectorAll('.pstep').forEach(el=>el.onclick=e=>{
+    if(e.target.closest('.blk'))return;openStep=+el.dataset.s;draw();});
+  $('main').querySelectorAll('.blk[data-u]').forEach(el=>el.onclick=e=>{
+    e.stopPropagation();
+    const side=+(el.dataset.side||0);
+    S.sel=+el.dataset.u;S.selSide=side;
+    const b=findB(S.sel);
+    if(b&&BLOCKS[b.t].slot&&side===0)openPicker(b);else draw();});
+  $('main').querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>addBlock(b.dataset.b));
+  $('up').onclick=()=>move(-1);$('dn').onclick=()=>move(1);
+  $('rin').onclick=indent;$('rout').onclick=outdent;$('del').onclick=delBlk;
+  const n=S.code.reduce((a,l)=>a+count(l),0);
+  $('msg').innerHTML=`블록 <b>${n}</b>개`+(M().star?` · 목표 ${M().star.txt}`:'');
+  $('acts').innerHTML=`<button class="btn ghost" id="bk">← 설계</button>
+    <button class="btn" id="nx" ${n?'':'disabled'}>실행해 보기 →</button>`;
+  $('bk').onclick=()=>{S.step=2;draw();};
+  if(n)$('nx').onclick=()=>{S.step=4;S.res=null;draw();};
+}
+function count(l){return l.reduce((a,b)=>a+1+(b.body?count(b.body):0)+(b.body2?count(b.body2):0),0)}
+function missingMsg(){
+  const m=M();const have=S.plan.filter(id=>m.need.includes(id));
+  const miss=m.need.filter(id=>!S.plan.includes(id));
+  if(miss.length){const c=m.cards.find(x=>x.id===miss[0]);return `설계에 「${c.t}」가 없어요.`}
+  const e=S.code.findIndex(l=>!l.length);
+  if(e>=0){const c=m.cards.find(x=>x.id===S.plan[e]);return `설계 ${e+1}번 「${c.t}」에 블록이 없어요.`}
+  return '설계는 다 있어요. 블록의 순서와 개수를 살펴보세요.';
+}
+/* 블록 조작 */
+function curList(){return S.code[openStep]||(S.code[openStep]=[])}
+function walk(l,f,par){for(let i=0;i<l.length;i++){const b=l[i];if(f(b,l,i,par)===true)return true;
+  if(b.body&&walk(b.body,f,b))return true;
+  if(b.body2&&walk(b.body2,f,b))return true;}return false}
+function findB(u){let r=null;walk(curList(),b=>{if(b.u===u){r=b;return true}});return r}
+function findCtx(u){let r=null;walk(curList(),(b,l,i,p)=>{if(b.u===u){r={b,l,i,p};return true}});return r}
+function addBlock(t){
+  const m=M(),qa=m.stage.kind==='qa',d=BLOCKS[t],b={u:uid++,t};
+  if(t==='rep')b.n=4;
+  if(t==='iff'||t==='ifel')b.c=qa?{k:'cmp',op:'=',a:{k:'ans'},b:{k:'num',v:0}}:'blocked';
+  if(t==='say')b.v=qa?{k:'txt',v:(m.says||[''])[0]}:(m.says||[''])[0];
+  if(t==='ask')b.q={k:'txt',v:(m.asks||[''])[0]};
+  if(t==='setv'||t==='addv'){b.name=(m.stage.vars||[])[0]||'';
+    b.val=(t==='addv')?{k:'num',v:1}:{k:'ans'};}
+  if(d.body)b.body=[];
+  if(d.body===2)b.body2=[];
+  const c=S.sel?findCtx(S.sel):null;
+  if(c){
+    if(BLOCKS[c.b.t].body){
+      /* 반복·조건을 고른 채로 블록을 누르면 저절로 그 안에 들어간다.
+         「아니면」 줄을 골랐으면 아래 칸으로 간다. */
+      const arr=(S.selSide===1)?(c.b.body2||(c.b.body2=[])):(c.b.body||(c.b.body=[]));
+      arr.push(b);
+    } else c.l.splice(c.i+1,0,b);
+  } else curList().push(b);
+  S.sel=b.u;S.selSide=0;S.codeTouched=true;if(S.tries>0)S.fixCode++;
+  if(S.exam)keepExam();
+  if(BLOCKS[t].slot&&t!=='say'&&t!=='ask')openPicker(b);else draw();
+}
+function move(dir){const c=findCtx(S.sel);if(!c)return;
+  const j=c.i+dir;if(j<0||j>=c.l.length)return;
+  [c.l[c.i],c.l[j]]=[c.l[j],c.l[c.i]];if(S.tries>0)S.fixCode++;draw();}
+function indent(){const c=findCtx(S.sel);if(!c||c.i===0)return;
+  const prev=c.l[c.i-1];if(!BLOCKS[prev.t].body)return;
+  c.l.splice(c.i,1);prev.body.push(c.b);if(S.tries>0)S.fixCode++;draw();}
+function outdent(){const c=findCtx(S.sel);if(!c||!c.p)return;
+  const pc=findCtx(c.p.u);if(!pc)return;
+  c.l.splice(c.i,1);pc.l.splice(pc.i+1,0,c.b);if(S.tries>0)S.fixCode++;draw();}
+function delBlk(){const c=findCtx(S.sel);if(!c)return;
+  c.l.splice(c.i,1);S.sel=null;if(S.tries>0)S.fixCode++;draw();}
+/* ── 빈칸 채우기 ─────────────────────────────────────────────────
+   아래에서 올라오는 판을 겹쳐 쌓는다. 「계산 만들기」 안에서 값을 또 고르면
+   판이 하나 더 올라오고, 고르면 그 판만 사라진다.
+   ★ 계산 안에서는 다시 계산을 못 고르게 막아 두었다(sub 에 calc:false).
+     두 겹이 되면 빈칸이 손가락보다 작아진다. 풀지 말 것. */
+function panel(title){
+  const p=document.createElement('div');p.className='picker';
+  p.innerHTML=`<h4>${esc(title)}</h4><div class="opts"></div>
+    <div style="margin-top:12px"><button class="btn ghost pcls">닫기</button></div>`;
+  document.body.appendChild(p);
+  p.querySelector('.pcls').onclick=()=>{p.remove();draw();};
+  return p;
+}
+function btns(host,items,cb){
+  host.innerHTML=items.map((it,i)=>`<button class="${it.cls||''}" data-i="${i}">${esc(it.lab)}</button>`).join('');
+  host.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>cb(items[+b.dataset.i].v));
+}
+function pickValue(title,cur,o,cb){
+  const p=panel(title),host=p.querySelector('.opts'),items=[];
+  (o.texts||[]).forEach(t=>items.push({lab:'"'+t+'"',v:{k:'txt',v:t}}));
+  if(o.nums)[0,1,2,3,4,5,6,7,8,9,10].forEach(n=>items.push({lab:String(n),cls:'num',v:{k:'num',v:n}}));
+  if(o.ans)items.push({lab:'대답',v:{k:'ans'}});
+  (o.vars||[]).forEach(n=>items.push({lab:n,v:{k:'var',v:n}}));
+  if(o.calc)items.push({lab:'＋ 계산 만들기…',v:'__calc'});
+  if(o.free)items.push({lab:'✎ 직접 쓰기…',v:'__free'});
+  btns(host,items,v=>{
+    if(v==='__calc'){p.remove();calcPanel(cur,o,cb);return;}
+    if(v==='__free'){p.remove();freePanel(cur,cb);return;}
+    p.remove();cb(v);
+  });
+}
+function freePanel(cur,cb){
+  const p=panel('직접 쓰기'),host=p.querySelector('.opts');
+  host.innerHTML=`<input class="fv" value="${cur&&cur.k==='txt'?esc(cur.v):''}">
+    <button class="num fok">확인</button>`;
+  const inp=host.querySelector('.fv');
+  host.querySelector('.fok').onclick=()=>{const s=inp.value;p.remove();cb({k:'txt',v:s});};
+  setTimeout(()=>inp.focus(),30);
+}
+function calcPanel(cur,o,cb){
+  const d=(cur&&cur.k==='calc')?JSON.parse(JSON.stringify(cur))
+        :{k:'calc',op:'-',a:{k:'ans'},b:{k:'num',v:0}};
+  const p=panel('계산 만들기'),host=p.querySelector('.opts');
+  const sub={texts:o.texts,nums:true,ans:o.ans,vars:o.vars,calc:false,free:o.free};
+  const re=()=>{
+    host.innerHTML=`<div style="width:100%">
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
+        <button class="vslot va">${esc(vtext(d.a))}</button>
+        <b style="font-size:17px">${d.op==='&'?'와(과) 합치기':OPS[d.op]}</b>
+        <button class="vslot vb">${esc(vtext(d.b))}</button>
+      </div>
+      <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px">
+        ${Object.keys(OPS).map(k=>`<button class="num ${d.op===k?'on':''}" data-op="${k}">${OPS[k]}</button>`).join('')}
+      </div>
+      <button class="btn cok">이 계산을 쓰기</button></div>`;
+    host.querySelector('.va').onclick=()=>pickValue('앞의 값',d.a,sub,v=>{d.a=v;re();});
+    host.querySelector('.vb').onclick=()=>pickValue('뒤의 값',d.b,sub,v=>{d.b=v;re();});
+    host.querySelectorAll('[data-op]').forEach(b=>b.onclick=()=>{d.op=b.dataset.op;re();});
+    host.querySelector('.cok').onclick=()=>{p.remove();cb(d);};
+  };
+  re();
+}
+function cmpPanel(b,op){
+  const m=M(),cur=(b.c&&typeof b.c==='object')?b.c:null;
+  const d={k:'cmp',op:op,a:cur?cur.a:{k:'ans'},b:cur?cur.b:{k:'num',v:0}};
+  const p=panel('비교 만들기'),host=p.querySelector('.opts');
+  const sub={texts:m.says||[],nums:true,ans:true,vars:m.stage.vars||[],calc:false,free:true};
+  const re=()=>{
+    host.innerHTML=`<div style="width:100%">
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
+        <button class="vslot va">${esc(vtext(d.a))}</button>
+        <b style="font-size:17px">${op==='='?'와(과) 같은가?':'보다 큰가?'}</b>
+        <button class="vslot vb">${esc(vtext(d.b))}</button>
+      </div>
+      <button class="btn cok">이 조건을 쓰기</button></div>`;
+    host.querySelector('.va').onclick=()=>pickValue('앞의 값',d.a,sub,v=>{d.a=v;re();});
+    host.querySelector('.vb').onclick=()=>pickValue('뒤의 값',d.b,sub,v=>{d.b=v;re();});
+    host.querySelector('.cok').onclick=()=>{p.remove();b.c=d;if(S.tries>0)S.fixCode++;draw();};
+  };
+  re();
+}
+function pickCond(b){
+  const m=M(),qa=m.stage.kind==='qa';
+  const p=panel('무엇을 살펴볼까요?'),host=p.querySelector('.opts'),items=[];
+  if(!qa)Object.entries(CONDS).forEach(([k,v])=>items.push({lab:v,v:k}));
+  items.push({lab:'＝ 같은가? 만들기…',v:'__eq'});
+  items.push({lab:'＞ 큰가? 만들기…',v:'__gt'});
+  btns(host,items,v=>{
+    if(v==='__eq'||v==='__gt'){p.remove();cmpPanel(b,v==='__eq'?'=':'>');return;}
+    p.remove();b.c=v;if(S.tries>0)S.fixCode++;draw();});
+}
+function pickSet(b){
+  const m=M(),vars=m.stage.vars||[];
+  const p=panel(b.t==='setv'?'어느 것을 무엇으로 정할까요?':'어느 것에 얼마를 더할까요?');
+  const host=p.querySelector('.opts');
+  const sub={texts:m.says||[],nums:true,ans:true,vars:vars,calc:true,free:true};
+  const re=()=>{
+    const chips=vars.map(n=>`<button class="num ${b.name===n?'on':''}" data-v="${esc(n)}">${esc(n)}</button>`).join('');
+    host.innerHTML=`<div style="width:100%">
+      <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px">${chips}</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
+        <b style="font-size:16px">${esc(b.name||'?')} ${b.t==='setv'?'를(을)':'에'}</b>
+        <button class="vslot sv">${esc(vtext(b.val))}</button>
+        <b style="font-size:16px">${b.t==='setv'?'로 정하기':'만큼 더하기'}</b>
+      </div>
+      <button class="btn sok">확인</button></div>`;
+    host.querySelectorAll('[data-v]').forEach(x=>x.onclick=()=>{b.name=x.dataset.v;re();});
+    host.querySelector('.sv').onclick=()=>pickValue('무슨 값으로?',b.val,sub,v=>{b.val=v;re();});
+    host.querySelector('.sok').onclick=()=>{p.remove();if(S.tries>0)S.fixCode++;draw();};
+  };
+  re();
+}
+function openPicker(b){
+  document.querySelectorAll('.picker').forEach(x=>x.remove());
+  const m=M(),qa=m.stage.kind==='qa';
+  if(b.t==='rep'){
+    const p=panel('몇 번 반복할까요?');
+    btns(p.querySelector('.opts'),[2,3,4,5,6,7,8,10,12].map(n=>({lab:String(n),cls:'num',v:n})),
+      v=>{b.n=v;p.remove();if(S.tries>0)S.fixCode++;draw();});
+  }
+  else if(b.t==='iff'||b.t==='ifel')pickCond(b);
+  else if(b.t==='setv'||b.t==='addv')pickSet(b);
+  else if(b.t==='ask')pickValue('무엇을 물어볼까요?',b.q,{texts:m.asks||[],free:true},
+      v=>{b.q=v;if(S.tries>0)S.fixCode++;draw();});
+  else if(b.t==='say'){
+    if(qa)pickValue('무엇을 말할까요?',b.v,
+      {texts:m.says||[],nums:true,ans:true,vars:m.stage.vars||[],calc:true,free:true},
+      v=>{b.v=v;if(S.tries>0)S.fixCode++;draw();});
+    else{const p=panel('무엇을 말할까요?');
+      btns(p.querySelector('.opts'),(m.says||[]).map(s=>({lab:s,v:s})),
+        v=>{b.v=v;p.remove();if(S.tries>0)S.fixCode++;draw();});}
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   4. 무대와 인터프리터
+   ═══════════════════════════════════════════════════════════════ */
+const DX=[1,0,-1,0],DY=[0,1,0,-1];
+function newCtx(){
+  const st=M().stage,rb=st.robot||{x:0,y:0,d:0},vars={};
+  (st.vars||[]).forEach(n=>vars[n]=0);
+  return {x:rb.x,y:rb.y,d:rb.d,hold:null,said:[],
+    placed:[],items:(st.items||[]).map(i=>({...i})),
+    corners:(st.corners||[]).map(()=>false),dead:null,steps:0,
+    /* 문답 무대 — vars 는 변수판, inputs 는 아이가 답한 것들, chat 은 화면에 뜨는 대화 */
+    vars:vars,ans:'',inputs:[],chat:[],brk:false};
+}
+function markCorner(c){const cs=M().stage.corners;if(!cs)return;
+  cs.forEach((p,i)=>{if(p.x===c.x&&p.y===c.y)c.corners[i]=true;});}
+function blocked(c){const st=M().stage,nx=c.x+DX[c.d],ny=c.y+DY[c.d];
+  if(nx<0||ny<0||nx>=st.w||ny>=st.h)return true;
+  return st.walls.some(w=>w.x===nx&&w.y===ny);}
+function cond(k,c){
+  if(k&&typeof k==='object')return k.k==='cmp'?vcmp(k,c):false;
+  return k==='blocked'?blocked(c):
+    (M().stage.tables||[]).some(t=>t.x===c.x&&t.y===c.y);}
+/* 한 걸음씩 yield 한다. 「묻고 대답 기다리기」는 {ask:b} 를 yield 하고 멈춰서
+   it.next(아이가_친_답) 로 다시 깨어난다.
+   ★ 이 때문에 start() 가 「먼저 다 돌린 뒤 되감기」에서 「실시간 한 걸음씩」으로
+     바뀌었다(2026-09-09). 되돌리면 묻는 블록이 멎는다. */
+function* exec(list,c){
+  for(const b of list){
+    if(c.dead||c.brk)return;                 /* 반복 그만두기 — 남은 블록을 건너뛴다 */
+    if(b.t==='rep'){for(let i=0;i<b.n;i++){yield {b};yield* exec(b.body||[],c);
+      if(c.dead)return;if(c.brk){c.brk=false;break;}}}
+    else if(b.t==='loop'){
+      while(true){yield {b};yield* exec(b.body||[],c);
+        if(c.dead)return;
+        if(c.brk){c.brk=false;break;}
+        if(++c.steps>400){c.dead='계속 반복하기가 멈추지 않아요. 「반복 그만두기」가 있는지 볼까요?';return;}}
+    }
+    else if(b.t==='brk'){yield {b};c.brk=true;return;}
+    else if(b.t==='iff'){yield {b};if(cond(b.c,c))yield* exec(b.body||[],c);}
+    else if(b.t==='ifel'){yield {b};
+      if(cond(b.c,c))yield* exec(b.body||[],c);else yield* exec(b.body2||[],c);}
+    else if(b.t==='ask'){
+      yield {b};
+      c.chat.push({w:'q',t:String(vval(b.q,c))});
+      const a=yield {b:b,ask:b};
+      c.ans=String(a==null?'':a);c.inputs.push(c.ans);c.chat.push({w:'a',t:c.ans});
+    }
+    else{yield {b};act(b,c);}
+    if(++c.steps>400){c.dead='너무 오래 돌았어요. 반복 횟수를 줄여 볼까요?';return;}
+  }
+}
+function act(b,c){
+  if(b.t==='fwd'){
+    if(blocked(c)){c.dead='벽에 부딪혔어요.';return;}
+    c.x+=DX[c.d];c.y+=DY[c.d];markCorner(c);
+  }
+  else if(b.t==='turnR')c.d=(c.d+1)%4;
+  else if(b.t==='turnL')c.d=(c.d+3)%4;
+  else if(b.t==='pick'){const i=c.items.findIndex(v=>v.x===c.x&&v.y===c.y);
+    if(i>=0){c.hold=c.items[i];c.items.splice(i,1);}}
+  else if(b.t==='drop'){if(c.hold){c.placed.push({x:c.x,y:c.y});c.hold=null;}}
+  else if(b.t==='say'){const s=String(vval(b.v,c));c.said.push(s);c.chat.push({w:'s',t:s});}
+  else if(b.t==='setv'){if(b.name)c.vars[b.name]=vval(b.val,c);}
+  else if(b.t==='addv'){if(b.name)c.vars[b.name]=numOf(c.vars[b.name])+numOf(vval(b.val,c));}
+}
+function flat(){const o=[];S.code.forEach(l=>l.forEach(b=>o.push(b)));return o}
+
+function stageSVG(c,showGoal){
+  const st=M().stage,W=st.w,H=st.h,U=52,P=6,w=W*U+P*2,h=H*U+P*2;
+  let s=`<svg class="stage" viewBox="0 0 ${w} ${h}">
+    <rect width="${w}" height="${h}" fill="#fff" rx="12"/>`;
+  for(let i=0;i<=W;i++)s+=`<line x1="${P+i*U}" y1="${P}" x2="${P+i*U}" y2="${P+H*U}" stroke="#DCE4EC" stroke-width="1.5"/>`;
+  for(let j=0;j<=H;j++)s+=`<line x1="${P}" y1="${P+j*U}" x2="${P+W*U}" y2="${P+j*U}" stroke="#DCE4EC" stroke-width="1.5"/>`;
+  const cx=p=>P+p*U+U/2;
+  st.walls.forEach(w2=>s+=`<rect x="${P+w2.x*U+3}" y="${P+w2.y*U+3}" width="${U-6}" height="${U-6}" fill="#8494A5" rx="5"/>`);
+  (st.corners||[]).forEach((p,i)=>s+=`<circle cx="${cx(p.x)}" cy="${cx(p.y)}" r="15"
+    fill="${c&&c.corners[i]?'#2E9E5B':'none'}" stroke="#2E9E5B" stroke-width="3"/>`);
+  if(showGoal)(st.tables||[]).forEach(t=>s+=`<rect x="${P+t.x*U+6}" y="${P+t.y*U+6}" width="${U-12}" height="${U-12}"
+    fill="#FFE8B0" stroke="#E0A93B" stroke-width="3" rx="6"/>
+    <text x="${cx(t.x)}" y="${cx(t.y)+6}" font-size="20" text-anchor="middle">🍽</text>`);
+  (c?c.items:st.items).forEach(it=>s+=`<text x="${cx(it.x)}" y="${cx(it.y)+8}" font-size="24" text-anchor="middle">🍜</text>`);
+  if(c)c.placed.forEach(p=>s+=`<text x="${cx(p.x)}" y="${cx(p.y)+8}" font-size="24" text-anchor="middle">🍜</text>`);
+  if(S.guess&&S.step===4)s+=`<rect x="${P+S.guess.x*U+2}" y="${P+S.guess.y*U+2}" width="${U-4}" height="${U-4}"
+    fill="none" stroke="#1B6FE0" stroke-width="4" stroke-dasharray="7 5" rx="6"/>`;
+  const r=c||{x:st.robot.x,y:st.robot.y,d:st.robot.d,hold:null};
+  const a=[0,90,180,270][r.d];
+  s+=`<g transform="translate(${cx(r.x)},${cx(r.y)}) rotate(${a})">
+    <circle r="19" fill="#3B7DD8"/><polygon points="6,-9 20,0 6,9" fill="#fff"/>
+    <circle cx="-5" cy="-6" r="3.4" fill="#fff"/><circle cx="-5" cy="6" r="3.4" fill="#fff"/></g>`;
+  if(r.hold)s+=`<text x="${cx(r.x)+16}" y="${cx(r.y)-12}" font-size="17" text-anchor="middle">🍜</text>`;
+  if(c&&c.said.length)s+=`<g><rect x="${P+4}" y="${P+4}" width="${w-P*2-8}" height="26" rx="8" fill="#22303F" opacity=".85"/>
+    <text x="${P+12}" y="${P+22}" font-size="14" fill="#fff">💬 ${c.said[c.said.length-1]}</text></g>`;
+  return s+'</svg>';
+}
+
+/* ── 문답 무대 그리기 ── */
+function qaSVG(c){
+  const rows=(c.chat||[]).map(x=>x.w==='q'?`<div class="ch bot">🤖 ${esc(x.t)}</div>`
+    :x.w==='a'?`<div class="ch me">🙋 ${esc(x.t)}</div>`
+    :`<div class="ch say">💬 ${esc(x.t)}</div>`).join('')
+    ||'<div class="empty">아직 아무 말도 오가지 않았어요.</div>';
+  const vs=Object.keys(c.vars||{});
+  return `<div class="qapanel">${rows}</div>`
+    +(vs.length?`<div class="vars">${vs.map(n=>
+      `<span><b>${esc(n)}</b> ${esc(String(c.vars[n]))}</span>`).join('')}</div>`:'');
+}
+
+/* 통과한 뒤 앱이 몰래 다른 답으로 다시 돌려 본다 (PLAN.md 4장).
+   ★ 이것이 「대답 대신 답을 그대로 적어 넣기」를 잡는 유일한 그물이다. 지우지 말 것. */
+function headless(ins){
+  const c=newCtx(),it=exec(flat(),c);let k=0,feed,guard=0;
+  while(guard++<3000){
+    const r=it.next(feed);feed=undefined;
+    if(r.done)break;
+    if(r.value.ask)feed=(k<ins.length?ins[k++]:'');
+  }
+  return c;
+}
+
+/* ── ④ 실행·점검 ── */
+function drawRun(){
+  const m=M(),qa=m.stage.kind==='qa',c=S.run||newCtx();
+  const needGuess=!qa&&S.firstRun&&!S.guess&&!S.res;
+  let res='';
+  if(S.res){
+    const r=S.res;
+    res=`<div class="result ${r.ok?'ok':(r.kind==='mid'?'mid':'no')}">${r.msg}
+      ${r.ok?`<div class="stars">${'★'.repeat(r.star)}${'☆'.repeat(3-r.star)}</div>`:''}</div>`;
+  }
+  $('main').innerHTML=`<h2>④ 돌려 보고 살펴봐요</h2>
+    ${res}
+    ${needGuess?`<div class="result mid">먼저 <b>예상</b>해 볼까요? 로봇이 <b>어디에서 멈출지</b> 무대의 한 칸을 눌러 보세요.</div>`:''}
+    ${S.askOpen?`<div class="askbox">🤖 ${esc(S.askOpen.q)}
+      <input id="ansin" placeholder="여기에 답을 쓰세요"><button class="btn" id="anssend">답하기</button></div>`:''}
+    <div class="rwrap">
+      <div class="rstage">${qa?qaSVG(c):stageSVG(S.run,m.showGoal)}
+        <div class="legend">${qa
+          ?'🤖 프로그램이 묻는 말 · 🙋 내가 답한 것 · 💬 프로그램이 말한 것<br>노란 칸은 <b>변수</b>가 지금 담고 있는 값입니다.'
+          :'🍽 테이블 · 🍜 음식 · 회색 칸은 벽'
+            +(m.showGoal?'':'<br>이 미션은 <b>목표를 말로만</b> 알려 줍니다.')}</div></div>
+      <div class="rcode"><div class="card" style="margin:0">
+        <h3 style="margin:0 0 8px;font-size:14px;color:#66788A">내 프로그램</h3>
+        ${S.plan.map((id,i)=>{const cd=m.cards.find(x=>x.id===id);
+          return `<div style="font-size:13px;font-weight:800;color:#66788A;margin:7px 0 2px">${i+1}. ${cd.t}</div>`
+            +((S.code[i]||[]).map(b=>blkHTML(b,0)).join('')||'<div class="empty" style="padding:4px;font-size:13px">비어 있음</div>')
+        }).join('')}
+      </div></div>
+    </div>
+    ${S.hint>=1?`<div class="hintbox">💡 ${m.tip}</div>`:''}
+    ${S.hint>=2?`<div class="hintbox">💡 ${missingMsg()}</div>`:''}`;
+  if(needGuess)bindGuess();
+  if(S.askOpen){
+    const el=$('ansin'),go=()=>{const v=el.value;S.askOpen.go(v);};
+    $('anssend').onclick=go;
+    el.onkeydown=e=>{if(e.key==='Enter')go();};
+    setTimeout(()=>{try{el.focus()}catch(e){}},30);
+    $('msg').innerHTML='프로그램이 <b>대답을 기다리고</b> 있어요.';
+    $('acts').innerHTML='';
+    return;
+  }
+  const canHint=S.tries>=2;
+  $('msg').innerHTML=S.tries?`돌려 본 횟수 <b>${S.tries}</b>번`:'';
+  $('acts').innerHTML=
+    `${canHint&&S.hint<2?`<button class="btn ghost" id="hint">힌트</button>`:''}
+     <button class="btn ghost" id="bk">← 블록 고치기</button>
+     <button class="btn ghost" id="bk2">← 설계 고치기</button>
+     <button class="btn big" id="go">▶ 실행</button>
+     ${S.exam?`<button class="btn big" id="sub" style="background:#2E9E5B">제출</button>`:''}`;
+  if($('sub'))$('sub').onclick=submitExam;
+  /* ★ 8장의 진짜 평가 — 실패한 뒤 ②설계로 갔나, ③블록만 만졌나 */
+  $('bk').onclick=()=>{if(S.tries>0)S.toCode++;
+    S.runId=++RUNID;S.step=3;S.res=null;S.run=null;S.askOpen=null;draw();};
+  $('bk2').onclick=()=>{if(S.tries>0)S.toDesign++;
+    S.runId=++RUNID;S.step=2;S.res=null;S.run=null;S.askOpen=null;draw();};
+  if($('hint'))$('hint').onclick=()=>{S.hint=Math.min(2,S.hint+1);draw();};
+  $('go').onclick=start;
+}
+function bindGuess(){
+  const svg=document.querySelector('svg.stage');if(!svg)return;
+  svg.style.cursor='pointer';
+  svg.onclick=e=>{const st=M().stage,U=52,P=6,r=svg.getBoundingClientRect();
+    const sx=(e.clientX-r.left)/r.width*(st.w*U+P*2), sy=(e.clientY-r.top)/r.height*(st.h*U+P*2);
+    const gx=Math.floor((sx-P)/U), gy=Math.floor((sy-P)/U);
+    if(gx<0||gy<0||gx>=st.w||gy>=st.h)return;
+    S.guess={x:gx,y:gy};draw();};
+}
+/* 실시간으로 한 걸음씩 돈다. 「묻고 대답 기다리기」에서 멈춰 아이의 답을 받는다.
+   ★ 「먼저 다 돌린 뒤 되감기」로 되돌리지 말 것 — 묻는 블록이 멎는다(2026-09-09). */
+function start(){
+  const m=M();S.tries++;S.res=null;S.hi=null;S.askOpen=null;
+  const c=newCtx();S.run=c;
+  const it=exec(flat(),c);
+  const id=++RUNID;S.runId=id;
+  let n=0,feed;
+  const tick=()=>{
+    if(S.runId!==id||S.sc!=='m'||S.step!==4)return;   /* 화면을 떠났으면 멈춘다 */
+    let r;
+    try{r=it.next(feed);}catch(e){c.dead='프로그램이 도중에 멈췄어요.';finish(c);return;}
+    feed=undefined;
+    if(r.done){finish(c);return;}
+    if(r.value.ask){
+      S.hi=r.value.ask.u;
+      S.askOpen={q:c.chat[c.chat.length-1].t,go:v=>{feed=v;S.askOpen=null;tick();}};
+      draw();return;
+    }
+    S.hi=r.value.b.u;draw();
+    n++;
+    setTimeout(tick,n<40?300:(n<120?90:20));
+  };
+  tick();
+}
+function finish(c){
+  const m=M();S.hi=null;S.run=c;S.askOpen=null;
+  const passed=!c.dead&&m.check(c);
+  /* 통과했으면 다른 답으로 몰래 두 번 더 돌려 본다 (PLAN.md 4장) */
+  let trialBad=null;
+  if(passed&&m.trials&&m.trials.length)
+    trialBad=m.trials.find(ins=>{const t=headless(ins);
+      return t.dead||!(m.trialCheck?m.trialCheck(t,ins):m.check(t));})||null;
+  const ok=passed&&!trialBad;
+  const n=S.code.reduce((a,l)=>a+count(l),0);
+  let star=3,msg='';
+  if(ok){
+    if(m.star&&n>m.star.max)star=1;
+    else if(S.tries>3)star=2;
+    msg=`잘했어요! ${m.title} 통과 🎉`;
+    if(m.star&&n>m.star.max)
+      msg+=`<br>그런데 블록이 <b>${n}개</b>예요. <b>${m.star.txt}</b>로 줄일 수 있어요. 반복 블록을 써 볼까요?`;
+    if(S.guess){const hit=S.guess.x===c.x&&S.guess.y===c.y;
+      msg+=`<br><span style="font-weight:600">${hit?'예상한 자리에서 멈췄어요. 내 코드가 어떻게 돌지 알고 있었네요.':'예상한 자리와는 달랐어요. 어디서 갈렸는지 볼까요?'}</span>`;}
+    if(m.trials&&m.trials.length)
+      msg+=`<br><span style="font-weight:600">다른 답 ${m.trials.length}가지로도 몰래 시험해 봤어요 — 모두 잘 돌아갑니다.</span>`;
+    if(!S.exam){
+      const d=SAVE.done[m.id]||{};
+      if(!d.star||star>d.star)SAVE.done[m.id]={star};
+      SAVE.log[m.id]={num:SAVE.num,tries:S.tries,hint:S.hint,blocks:n,
+        fixDesign:S.fixDesign,fixCode:S.fixCode,plan:S.plan.slice(),at:new Date().toISOString()};
+      save();
+    }
+  }else if(passed){
+    /* 이 답으로는 됐는데 다른 답으로는 안 된다 — 정해진 값을 그대로 적어 넣은 자리 */
+    msg=`이 답으로는 잘 됐어요. 그런데 <b>다른 답(${esc(trialBad.join(' · '))})</b>으로 해 보니 안 돼요.`
+      +`<br>어떤 답이 들어와도 되게 하려면 <b>대답</b>과 <b>변수</b>를 써야 해요.`
+      +` 정해진 값을 그대로 적어 넣지는 않았나요?`;
+  }else{
+    const why=c.dead||m.why(c);
+    msg=`아직이에요. <b>${why}</b>`;
+    const miss=m.need.filter(id=>!S.plan.includes(id));
+    if(miss.length){const cd=m.cards.find(x=>x.id===miss[0]);
+      msg+=`<br>혹시 <b>설계</b>에 「${cd.t}」가 빠지지 않았을까요?`;}
+    else msg+=`<br>코드는 설계대로 돌았어요. <b>설계</b>를 다시 볼까요, <b>블록</b>을 고칠까요?`;
+  }
+  S.firstRun=false;
+  S.res={ok,star,msg,kind:ok?'ok':(passed?'mid':'no')};
+  draw();
+  if(ok&&S.exam){
+    $('acts').innerHTML=`<button class="btn ghost" id="again">더 고치기</button>
+      <button class="btn big" id="sub2" style="background:#2E9E5B">제출하기</button>`;
+    $('again').onclick=()=>{S.step=3;S.res=null;S.run=null;draw();};
+    $('sub2').onclick=submitExam;
+  }
+  else if(ok)$('acts').innerHTML=`<button class="btn ghost" id="again">다시 해 보기</button>
+    <button class="btn big" id="next">${S.mi<MISSIONS.length-1?'다음 미션 →':'목록으로 →'}</button>`,
+    $('again').onclick=()=>{S.step=3;S.res=null;S.run=null;draw();},
+    $('next').onclick=()=>{if(S.mi<MISSIONS.length-1)openMission(S.mi+1);else{S.sc='home';draw();}};
+  else if(S.exam&&$('sub'))$('sub').onclick=submitExam;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   5. 평가 모드 — ⑥차시 (PLAN.md 4·7·8장)
+   4층 「자기가 정한다」다. 아이가 **먼저 목표를 선언**하고, 그 선언이 곧 채점 기준이 된다.
+   ★ 여기서도 ②설계에 정답 판정을 넣지 말 것. 평가라고 친절해지면 이 단원이 무의미해진다.
+   ═══════════════════════════════════════════════════════════════ */
+const DECL0={topic:'재활용품 분리배출',piece:'',q:'',ans:'',yes:'',no:''};
+const wrongOf=a=>String(a).trim()==='다른 것'?'아무거나':'다른 것';
+const joinSaid=c=>c.said.map(String).join(' ⏎ ');
+
+const EXAM={
+  id:'E',title:'평가 — 내 조각 프로그램',sub:'',layer:4,
+  stage:{kind:'qa',vars:['점수']},
+  cards:[],need:[],trap:null,
+  blocks:['ask','say','ifel','iff','addv','setv','loop','rep','brk'],
+  intro:{now:'',goal:'',q:[],a:0},
+  get asks(){return [S.decl.q].filter(Boolean)},
+  get says(){return [S.decl.yes,S.decl.no].filter(Boolean)},
+  /* 앱이 스스로 시험한다 — 정답을 넣어 보고, 오답을 넣어 본다 (PLAN.md 4장) */
+  get trials(){const a=S.decl.ans,w=wrongOf(a);return [[a],[w,a,a,a]]},
+  check(c){
+    const D=S.decl;if(!c.inputs.length)return false;
+    const said=joinSaid(c),last=String(c.inputs[c.inputs.length-1]).trim();
+    return last===String(D.ans).trim()?said.includes(D.yes):said.includes(D.no);
+  },
+  trialCheck(c,ins){
+    const D=S.decl,said=joinSaid(c);
+    if(ins.length===1)return said.includes(D.yes)&&!said.includes(D.no);
+    return said.includes(D.no);
+  },
+  why(c){
+    const D=S.decl;
+    if(!c.inputs.length)return '아무것도 묻지 않았어요. 「'+D.q+'」를 묻는 블록이 있나요?';
+    const last=String(c.inputs[c.inputs.length-1]).trim();
+    return last===String(D.ans).trim()
+      ?'정답을 넣었는데 「'+D.yes+'」가 나오지 않았어요.'
+      :'정답이 아닌 답을 넣었는데 「'+D.no+'」가 나오지 않았어요.';
+  },
+  tip:'내가 ①에서 선언한 것과 코드를 나란히 놓고 보세요 — <b>묻기 → 대답이 정답과 같은지 → 맞으면 이 말 / 아니면 저 말</b>. 한 줄이 빠져 있지 않나요?'
+};
+
+function openExam(){
+  const prev=SAVE.exam||{};
+  S={sc:'m',exam:true,mi:0,step:1,pick:null,plan:[],code:[],sel:null,selSide:0,
+     guess:null,run:null,res:null,hint:0,tries:0,fixDesign:0,fixCode:0,
+     toDesign:0,toCode:0,codeTouched:false,designTouched:false,firstRun:true,
+     askOpen:null,runId:++RUNID,pool:[],
+     decl:Object.assign({},DECL0,prev.decl||{}),
+     skeleton:!!prev.skeleton,t0:Date.now(),plan0:prev.plan0||null};
+  EXAM.cards=(prev.cards||[]).map(c=>({...c}));
+  S.plan=(prev.plan||[]).filter(id=>EXAM.cards.some(c=>c.id===id));
+  try{S.code=prev.code?JSON.parse(JSON.stringify(prev.code)):[];}catch(e){S.code=[];}
+  S.code.forEach(l=>walk(l,b=>{b.u=uid++}));
+  syncCode();
+  document.querySelectorAll('.picker').forEach(x=>x.remove());
+  draw();
+}
+
+/* 이 태블릿에 계속 적어 둔다. Firebase 는 그 위에 얹는 것이다 (PLAN.md 9장) */
+function keepExam(){
+  SAVE.exam=Object.assign({},SAVE.exam,{
+    decl:S.decl,cards:EXAM.cards,plan:S.plan.slice(),plan0:S.plan0,
+    code:S.code,skeleton:S.skeleton});
+  save();
+}
+
+/* ── ① 목표 선언 — 아이가 선언한 것이 곧 채점 기준이다 ── */
+function drawDeclare(){
+  const D=S.decl;
+  const F=(k,lab,ph,why)=>`<div class="fr"><label>${lab}</label>
+    <input data-k="${k}" value="${esc(D[k]||'')}" placeholder="${esc(ph)}">
+    <div class="why">${why}</div></div>`;
+  $('main').innerHTML=`<h2>① 무엇을 만들지 먼저 정해요</h2>
+    <div style="font-size:14px;color:#66788A;margin:-4px 0 12px;line-height:1.55">
+      ⑤차시에 <b>모둠이 종이에 나눈 내 조각</b>을 적습니다.
+      <b>여기에 적은 것이 그대로 채점 기준</b>이 돼요 — 앱이 이대로 시험합니다.
+      <br><b>이름은 적지 않습니다.</b> 번호만 씁니다.</div>
+    <div class="dform">
+      ${F('topic','문제 상황','재활용품 분리배출','기본은 재활용품 분리배출이에요. <b>다른 주제를 골라도 됩니다.</b>')}
+      ${F('piece','내가 맡은 조각','유리 / 종이 / 캔 / 플라스틱','모둠에서 내가 맡기로 한 하나')}
+      ${F('q','물어볼 말','이 유리병은 어디에 버릴까요?','프로그램이 사람에게 물어볼 말')}
+      ${F('ans','정답','유리','이 답이 들어오면 맞은 것으로 칩니다')}
+      ${F('yes','맞았을 때 할 말','맞아요!','')}
+      ${F('no','틀렸을 때 할 말','다시 생각해 보세요.','')}
+    </div>
+    <div class="preview">앱이 이렇게 시험합니다 —
+      <br>· <b>${esc(D.ans||'정답')}</b> 을 넣어 보고 <b>${esc(D.yes||'맞았을 때 할 말')}</b> 이 나오는지
+      <br>· <b>${esc(wrongOf(D.ans))}</b> 을 넣어 보고 <b>${esc(D.no||'틀렸을 때 할 말')}</b> 이 나오는지</div>`;
+  $('main').querySelectorAll('[data-k]').forEach(el=>{
+    el.oninput=()=>{D[el.dataset.k]=el.value;keepExam();
+      const p=document.querySelector('.preview');
+      if(p)p.innerHTML=`앱이 이렇게 시험합니다 —
+        <br>· <b>${esc(D.ans||'정답')}</b> 을 넣어 보고 <b>${esc(D.yes||'맞았을 때 할 말')}</b> 이 나오는지
+        <br>· <b>${esc(wrongOf(D.ans))}</b> 을 넣어 보고 <b>${esc(D.no||'틀렸을 때 할 말')}</b> 이 나오는지`;
+      const bad=declProblem();
+      $('msg').innerHTML=bad||'다 적었으면 설계로 갑니다.';
+      const nx=$('nx');if(nx)nx.disabled=!!bad;};
+  });
+  const bad=declProblem();
+  $('msg').innerHTML=bad||(D.q?'다 적었으면 설계로 갑니다.':'여섯 칸을 채워 주세요.');
+  $('acts').innerHTML=`<button class="btn ghost" id="hm">← 목록</button>
+    <button class="btn" id="nx" ${bad?'disabled':''}>설계로 →</button>`;
+  $('hm').onclick=()=>{keepExam();S.sc='home';S.exam=false;draw();};
+  $('nx').onclick=()=>{if(declProblem())return;keepExam();S.step=2;draw();};
+}
+function declProblem(){
+  const D=S.decl;
+  for(const [k,n] of [['q','물어볼 말'],['ans','정답'],['yes','맞았을 때 할 말'],['no','틀렸을 때 할 말']])
+    if(!String(D[k]||'').trim())return '<b>'+n+'</b>을 적어 주세요.';
+  const y=D.yes.trim(),n=D.no.trim();
+  if(y===n)return '맞았을 때와 틀렸을 때의 말이 <b>같아요.</b> 다르게 적어 주세요.';
+  if(y.includes(n)||n.includes(y))
+    return '두 말 중 하나가 <b>다른 하나 안에 들어 있어요.</b> 앱이 구분하지 못해요 — 다르게 적어 주세요.';
+  return '';
+}
+
+/* ── 뼈대 받기 — 「도움을 받아」의 근거를 남긴다 (PLAN.md 7장 등급표) ──
+   ★ 정답을 주지 않는다. 칸의 이름만 준다. 코드는 비워 둔 채로 넘긴다.
+   ★ 이 버튼을 없애지 말 것 — 없으면 못 하는 아이가 빈 화면을 내고,
+     「노력 요함」조차 근거 없이 매기게 된다. */
+function giveSkeleton(){
+  const D=S.decl;
+  const rows=[ '「'+(D.q||'물어볼 말')+'」 묻고 대답 기다리기',
+               '대답이 「'+(D.ans||'정답')+'」과 같은지 살펴보기',
+               '같으면 「'+(D.yes||'맞았을 때 할 말')+'」 하고 점수 올리기',
+               '아니면 「'+(D.no||'틀렸을 때 할 말')+'」 하기' ];
+  rows.forEach((t,i)=>{const id='sk'+Date.now().toString(36)+i;
+    EXAM.cards.push({id,t});S.plan.push(id);});
+  S.skeleton=true;syncCode();keepExam();draw();
+}
+
+/* ═══ 근거 꾸러미 — 8장의 표를 그대로 담는다 ═══ */
+function cardText(id){const c=EXAM.cards.find(x=>x.id===id);return c?c.t:String(id)}
+function codeText(list,d){
+  return (list||[]).map(b=>{
+    const pad='  '.repeat(d||0);let s=pad;
+    if(b.t==='rep')s+=b.n+'번 반복하기';
+    else if(b.t==='loop')s+='계속 반복하기';
+    else if(b.t==='brk')s+='반복 그만두기';
+    else if(b.t==='iff'||b.t==='ifel')s+='만약 '+vtext(b.c)+' 라면';
+    else if(b.t==='say')s+=vtext(b.v)+' 말하기';
+    else if(b.t==='ask')s+=vtext(b.q)+' 묻고 대답 기다리기';
+    else if(b.t==='setv')s+=(b.name||'?')+' 를 '+vtext(b.val)+' 로 정하기';
+    else if(b.t==='addv')s+=(b.name||'?')+' 에 '+vtext(b.val)+' 만큼 더하기';
+    else s+=(BLOCKS[b.t]||{}).text||b.t;
+    let out=s;
+    if(b.body)out+='\n'+codeText(b.body,(d||0)+1);
+    if(b.body2)out+='\n'+pad+'아니면\n'+codeText(b.body2,(d||0)+1);
+    return out;
+  }).join('\n');
+}
+function evidence(){
+  const D=S.decl;
+  const kinds={rep:0,loop:0,brk:0,cond:0,vars:0,calc:0,ask:0,say:0};
+  S.code.forEach(l=>walk(l,b=>{
+    if(b.t==='rep'||b.t==='loop')kinds.rep++;
+    if(b.t==='loop')kinds.loop++;
+    if(b.t==='brk')kinds.brk++;
+    if(b.t==='iff'||b.t==='ifel')kinds.cond++;
+    if(b.t==='setv'||b.t==='addv')kinds.vars++;
+    if(b.t==='ask')kinds.ask++;
+    if(b.t==='say')kinds.say++;
+    [b.v,b.val,b.q,b.c].forEach(v=>{
+      if(v&&typeof v==='object'){
+        if(v.k==='calc')kinds.calc++;
+        if(v.k==='cmp'&&((v.a&&v.a.k==='calc')||(v.b&&v.b.k==='calc')))kinds.calc++;
+      }});
+  }));
+  const w=wrongOf(D.ans);
+  const t1=headless([D.ans]), t2=headless([w,D.ans,D.ans,D.ans]);
+  const pass1=!t1.dead&&EXAM.trialCheck(t1,[D.ans]);
+  const pass2=!t2.dead&&EXAM.trialCheck(t2,[w,D.ans]);
+  const e={v:1,num:String(SAVE.num||''),at:new Date().toISOString(),
+    sec:Math.round((Date.now()-S.t0)/1000),
+    decl:D,
+    plan0:S.plan0,plan:S.plan.map(cardText),
+    codeText:S.code.map((l,i)=>
+      (i+1)+'. '+cardText(S.plan[i]||'')+'\n'+(codeText(l,1)||'   (비어 있음)')).join('\n'),
+    blocks:S.code.reduce((a,l)=>a+count(l),0),kinds:kinds,
+    empty:S.code.filter(l=>!l.length).length,
+    tries:S.tries,hint:S.hint,toDesign:S.toDesign,toCode:S.toCode,
+    fixDesign:S.fixDesign,fixCode:S.fixCode,skeleton:!!S.skeleton,
+    t1:pass1,t2:pass2,passed:pass1&&pass2};
+  e.grade=suggestGrade(e);
+  return e;
+}
+/* 자동 등급은 **제안**이다. 교사가 눌러야 확정된다 (PLAN.md 7장) — 확정으로 쓰지 말 것. */
+function suggestGrade(e){
+  const k=e.kinds,runs=e.passed;
+  if(e.skeleton)return runs?'보통':'노력 요함';
+  const has=k.cond>0&&k.vars>0, all=has&&k.rep>0;
+  const wide=(e.decl.topic!==DECL0.topic)||k.cond>=2||k.loop>0;
+  if(runs&&all&&e.empty===0&&e.hint<=1&&wide)return '매우 잘함';
+  if(runs&&has)return '잘함';
+  if(k.ask>0||k.cond>0||k.vars>0)return '보통';
+  return '노력 요함';
+}
+
+/* ═══ 제출 — 태블릿 안이 먼저, Firebase 는 그 위에 얹는 것 (PLAN.md 9장) ═══
+   ★ 학생 화면은 읽지 않는다. 쓰기만 한다. 읽는 코드를 만들지 말 것 —
+     규칙이 읽기를 교사 하나로 잠가 두었다(401 로 죽는다). */
+const FB={db:'https://toolbox-private-default-rtdb.asia-southeast1.firebasedatabase.app',
+          path:'codelab_8f0c74b38f1f_2026',
+          key:'AIzaSyBFvWuonCVh0CyWLgFlzzov9hnGilh12V8'};
+const QK='orderlab_queue';
+const Q={
+  all(){try{return JSON.parse(localStorage.getItem(QK)||'[]')}catch(e){return []}},
+  set(v){try{localStorage.setItem(QK,JSON.stringify(v))}catch(e){}},
+  add(p){const q=Q.all();q.push(p);Q.set(q);}
+};
+const qcount=()=>Q.all().length;
+const nowHM=()=>{const d=new Date();
+  return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')};
+
+async function fbPut(sub,data,tok){
+  const r=await fetch(FB.db+'/'+FB.path+'/'+sub+'.json'+(tok?'?auth='+tok:''),
+    {method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+  if(!r.ok)throw new Error('HTTP '+r.status);
+  return true;
+}
+async function fbGet(sub,tok){
+  const r=await fetch(FB.db+'/'+FB.path+'/'+sub+'.json'+(tok?'?auth='+tok:''));
+  if(!r.ok)throw new Error('HTTP '+r.status);
+  return r.json();
+}
+async function flushQueue(){
+  const q=Q.all();if(!q.length)return {sent:0,left:0};
+  const left=[];let sent=0;
+  for(const p of q){
+    try{await fbPut('submit/'+p.num+'/'+p.key,p);sent++;}catch(e){left.push(p);}
+  }
+  Q.set(left);
+  if(!left.length&&SAVE.exam){SAVE.exam.sent=true;SAVE.exam.sentAt=nowHM();save();}
+  return {sent,left:left.length};
+}
+
+async function submitExam(){
+  keepExam();
+  const e=evidence();
+  e.key=String(Date.now());
+  Q.add(e);
+  SAVE.exam=Object.assign({},SAVE.exam,{last:e.key,sent:false});
+  save();
+  $('msg').innerHTML='저장됨 · <b>보내는 중…</b>';
+  $('acts').innerHTML='';
+  const r=await flushQueue();
+  const okAll=r.left===0;
+  S.step=4;S.res={ok:false,star:0,kind:okAll?'ok':'mid',
+    msg:okAll
+      ?'<b>제출했어요 ✓</b> ('+nowHM()+')<br>더 고쳐서 다시 내도 됩니다 — <b>낸 것이 다 남아요.</b>'
+      :'<b>이 태블릿에는 저장됐어요 ✓</b> 그런데 지금 <b>보내지지 않았습니다</b>(인터넷).'
+       +'<br>평가는 여기서 끝난 것이고, 나중에 목록 화면의 「못 보낸 것 보내기」로 보내면 됩니다.'
+       +' 선생님이 지금 걷는다면 아래 <b>파일로 내보내기</b>를 눌러 주세요.'};
+  draw();
+  if(!okAll){
+    $('msg').innerHTML='보내지 못했어요 — <b>이 태블릿에는 남아 있습니다.</b>';
+    $('acts').innerHTML='<button class="btn ghost" id="dl">파일로 내보내기</button>'
+      +'<button class="btn" id="retry">다시 보내 보기</button>';
+    $('dl').onclick=()=>downloadEvidence(e);
+    $('retry').onclick=submitExam;
+  }else{
+    $('msg').innerHTML='제출 끝. <b>'+(e.grade)+'</b> 은 제안일 뿐이고 선생님이 정합니다.';
+    $('acts').innerHTML='<button class="btn ghost" id="more">더 고치기</button>'
+      +'<button class="btn" id="hm2">목록으로 →</button>';
+    $('more').onclick=()=>{S.step=3;S.res=null;draw();};
+    $('hm2').onclick=()=>{S.sc='home';S.exam=false;draw();};
+  }
+}
+/* 최후 수단 — 방화벽에 막혀도 근거가 태블릿 밖으로 나온다.
+   계획서엔 QR 이었는데, 바뀌는 내용을 담으려면 QR 인코더(55KB)를 넣어야 해서
+   파일 내보내기로 바꿨다. 교사 화면의 「파일에서 읽어들이기」와 짝이다. PLAN.md 9장 */
+function downloadEvidence(e){
+  try{
+    const blob=new Blob([JSON.stringify(e,null,1)],{type:'application/json'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='순서설계실-제출-'+(e.num||'번호없음')+'-'+e.key+'.json';
+    document.body.appendChild(a);a.click();
+    setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1000);
+    $('msg').innerHTML='파일로 내보냈어요. <b>선생님께 보여 주세요.</b>';
+  }catch(err){$('msg').textContent='내보내기가 안 됐어요: '+err.message;}
+}
+
+/* 진도판에 살아 있음을 알린다 — 한 자리에 오래 머문 아이를 교사가 찾는다 (PLAN.md 11장) */
+let _st='',_stAt=Date.now();
+async function beat(){
+  const num=String(SAVE.num||'').trim();
+  if(!num||S.sc==='teacher')return;
+  const st=S.sc==='home'?'목록'
+    :(S.exam?'평가 '+'①②③④'[S.step-1]:'미션'+M().id+' '+'①②③④'[S.step-1]);
+  if(st!==_st){_st=st;_stAt=Date.now();}
+  try{await fbPut('live/'+num,{num:num,st:st,since:_stAt,at:Date.now(),
+    exam:!!S.exam,tries:S.tries,hint:S.hint,
+    sent:!!(SAVE.exam&&SAVE.exam.sent),queued:qcount()});}catch(e){}
+}
+setInterval(beat,30000);
+setInterval(()=>{if(qcount())flushQueue().catch(()=>{})},60000);
+
+/* ═══════════════════════════════════════════════════════════════
+   6. 교사 화면 (#teacher) — 처음부터 Firebase 인증으로 잠근다
+   ★ 비밀 경로로 막으려 하지 말 것. 이 화면을 교실 TV 에 띄우면 주소가 24명 앞에
+     공개된다. 읽기는 규칙에서 교사 UID 하나로 잠겨 있다.
+   ★ 파일에 교사 UID 를 적지 말 것 — 태블릿에서 소스보기로 보인다.
+   ★ 비밀번호를 저장하지 말 것 — refreshToken 만 저장한다.
+   ★ idToken 갱신(securetoken)을 지우지 말 것 — 한 시간이면 죽어 수업 도중 화면이 빈다.
+   ═══════════════════════════════════════════════════════════════ */
+const LS_AUTH='orderlab_auth';
+let TOK=null;
+try{TOK=JSON.parse(localStorage.getItem(LS_AUTH)||'null')}catch(e){TOK=null}
+const saveTok=t=>{TOK=t;try{localStorage.setItem(LS_AUTH,JSON.stringify(t))}catch(e){}};
+const clearTok=()=>{TOK=null;try{localStorage.setItem(LS_AUTH,'')}catch(e){}};
+
+async function signIn(email,pw){
+  const r=await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key='+FB.key,
+    {method:'POST',headers:{'Content-Type':'application/json'},
+     body:JSON.stringify({email:email,password:pw,returnSecureToken:true})});
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok)throw new Error((d.error&&d.error.message)||'SIGNIN_FAILED');
+  saveTok({id:d.idToken,refresh:d.refreshToken,
+    exp:Date.now()+(Number(d.expiresIn||3600)-120)*1000});
+}
+async function freshToken(){
+  if(!TOK)return null;
+  if(Date.now()<TOK.exp)return TOK.id;
+  try{
+    const r=await fetch('https://securetoken.googleapis.com/v1/token?key='+FB.key,
+      {method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},
+       body:'grant_type=refresh_token&refresh_token='+encodeURIComponent(TOK.refresh)});
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok||!d.id_token){clearTok();return null;}
+    saveTok({id:d.id_token,refresh:d.refresh_token||TOK.refresh,
+      exp:Date.now()+(Number(d.expires_in||3600)-120)*1000});
+    return TOK.id;
+  }catch(e){return TOK.id;}      /* 잠깐 끊긴 것뿐일 수 있다 */
+}
+
+const T={live:{},sub:{},grade:{},sel:null,err:'',loading:false,imported:{}};
+let tTimer=null;
+
+async function tPull(){
+  const tok=await freshToken();
+  if(!tok){T.err='로그인이 필요해요.';return;}
+  try{
+    const d=await fbGet('',tok)||{};
+    T.live=d.live||{};T.sub=d.submit||{};T.grade=d.grade||{};T.err='';
+  }catch(e){T.err='읽지 못했어요 ('+e.message+'). 인터넷이나 권한을 확인해 주세요.';}
+}
+
+const GRADES=['매우 잘함','잘함','보통','노력 요함'];
+const lastSub=num=>{const m=T.sub[num]||T.imported[num]||{};
+  const ks=Object.keys(m).sort();return ks.length?m[ks[ks.length-1]]:null;};
+const subCount=num=>Object.keys(T.sub[num]||T.imported[num]||{}).length;
+
+function drawTeacher(){
+  $('mt').textContent='교사 화면';
+  $('steps').style.display='none';
+  if(!TOK){drawLogin();return;}
+  const nums=[...new Set([].concat(Object.keys(T.live),Object.keys(T.sub),Object.keys(T.imported)))]
+    .sort((a,b)=>(+a||99)-(+b||99));
+  const now=Date.now();
+  const cells=nums.map(n=>{
+    const lv=T.live[n]||{},sb=lastSub(n),g=T.grade[n];
+    const stuck=lv.since&&(now-lv.since>5*60*1000)&&!sb;
+    const off=lv.at&&(now-lv.at>3*60*1000);
+    return `<div class="tc ${sb?'done':''} ${stuck?'stuck':''} ${off&&!sb?'off':''}" data-n="${esc(n)}">
+      <b>${esc(n)}</b>
+      <small>${esc(lv.st||'—')}${sb?'<br>제출 '+subCount(n)+'회':''}
+      ${g?'<br><b style="color:#1B6FE0">'+esc(g.grade)+'</b>':(sb?'<br>제안 '+esc(sb.grade||'—'):'')}
+      ${stuck?'<br><b style="color:#E0574B">5분+ 같은 자리</b>':''}</small></div>`;
+  }).join('')||'<div class="empty">아직 아무도 들어오지 않았어요.</div>';
+
+  $('main').innerHTML=`
+    ${T.err?`<div class="result no">${esc(T.err)}</div>`:''}
+    <div class="trow">
+      <b style="font-size:16px">진도판</b>
+      <span style="font-size:13px;color:#66788A">3초마다 새로 읽습니다 · 초록=제출 · 빨강=한 자리에 5분+ · 흐림=3분간 소식 없음</span>
+    </div>
+    <div class="tgrid">${cells}</div>
+    <div class="trow" style="margin-top:14px">
+      <button class="btn ghost" id="csv">성적표 내보내기(CSV)</button>
+      <label class="btn ghost" style="cursor:pointer">파일에서 읽어들이기
+        <input type="file" id="imp" multiple accept=".json" style="display:none"></label>
+      <button class="btn ghost" id="out">로그아웃</button>
+    </div>
+    ${T.sel?tDetail(T.sel):'<div class="empty">번호를 누르면 그 아이의 선언·설계·코드·근거가 나옵니다.</div>'}`;
+  $('main').querySelectorAll('[data-n]').forEach(el=>el.onclick=()=>{
+    T.sel=(T.sel===el.dataset.n)?null:el.dataset.n;draw();});
+  $('csv').onclick=exportCSV;
+  $('out').onclick=()=>{clearTok();T.sel=null;draw();};
+  $('imp').onchange=e=>importFiles(e.target.files);
+  if(T.sel)bindDetail();
+  $('msg').innerHTML=`제출 <b>${nums.filter(n=>lastSub(n)).length}</b>명 / 접속 <b>${nums.length}</b>명`;
+  $('acts').innerHTML='';
+  if(!tTimer)tTimer=setInterval(async()=>{
+    if(S.sc!=='teacher'||!TOK)return;
+    await tPull();if(S.sc==='teacher')draw();},3000);
+}
+
+function drawLogin(){
+  $('main').innerHTML=`<div class="tlogin">
+    <h3 style="margin:0 0 4px">교사 로그인</h3>
+    <div style="font-size:13px;color:#66788A;line-height:1.5;margin-bottom:12px">
+      아이들의 코드는 <b>선생님 계정으로만</b> 읽힙니다. 비밀번호는 저장하지 않아요.</div>
+    <input id="em" type="email" placeholder="이메일" autocomplete="username">
+    <input id="pw" type="password" placeholder="비밀번호" autocomplete="current-password">
+    <button class="btn big" id="go" style="width:100%">들어가기</button>
+    <div id="lerr" style="color:#9B2F26;font-size:14px;font-weight:700;margin-top:9px"></div>
+  </div>`;
+  $('msg').textContent='';$('acts').innerHTML='';
+  $('go').onclick=async()=>{
+    $('lerr').textContent='';
+    try{
+      await signIn($('em').value.trim(),$('pw').value);
+      await tPull();draw();
+    }catch(e){$('lerr').textContent='들어가지 못했어요 ('+e.message+')';}
+  };
+  $('pw').onkeydown=e=>{if(e.key==='Enter')$('go').onclick();};
+}
+
+function tDetail(n){
+  const e=lastSub(n),g=T.grade[n]||{};
+  if(!e)return `<div class="tdet"><h3>${esc(n)}번</h3>
+    <div class="empty">아직 제출한 것이 없어요. 진도판의 지금 자리만 보입니다.</div></div>`;
+  const k=e.kinds||{};
+  const row=(a,b)=>`<tr><td>${a}</td><td>${b}</td></tr>`;
+  const yn=v=>v?'<b style="color:#2E9E5B">예</b>':'<b style="color:#E0574B">아니오</b>';
+  return `<div class="tdet">
+    <h3>${esc(n)}번 · 제출 ${subCount(n)}회 · 마지막 ${esc((e.at||'').slice(11,16))}</h3>
+    <div style="font-size:14px;line-height:1.7;background:#F7FAFF;border-radius:10px;padding:11px;margin-bottom:10px">
+      <b>선언한 목표</b> — ${esc(e.decl.topic)} / 내 조각 <b>${esc(e.decl.piece||'—')}</b><br>
+      묻기 「${esc(e.decl.q)}」 · 정답 「${esc(e.decl.ans)}」<br>
+      맞으면 「${esc(e.decl.yes)}」 · 틀리면 「${esc(e.decl.no)}」</div>
+    <table>
+      ${row('앱 자동 시험 — 정답을 넣었을 때',yn(e.t1))}
+      ${row('앱 자동 시험 — 틀린 답을 넣었을 때',yn(e.t2))}
+      ${row('<b>실패한 뒤 ②설계로 돌아간 횟수</b>','<b>'+(e.toDesign||0)+'</b> 회 (블록만 고친 것 '+(e.toCode||0)+' 회)')}
+      ${row('설계 칸 중 코드가 빈 칸',(e.empty||0)+' 칸')}
+      ${row('쓴 것','반복 '+(k.rep||0)+' · 조건 '+(k.cond||0)+' · 변수 '+(k.vars||0)+' · 계산 '+(k.calc||0)+' · 묻기 '+(k.ask||0))}
+      ${row('힌트',(e.hint||0)+' 단계')}
+      ${row('뼈대를 받았나',e.skeleton?'<b style="color:#D98B2B">받음</b>':'아니오')}
+      ${row('실행 횟수 · 고친 횟수',(e.tries||0)+' 회 · 설계 '+(e.fixDesign||0)+' / 블록 '+(e.fixCode||0))}
+      ${row('걸린 시간',Math.round((e.sec||0)/60)+' 분')}
+      ${row('블록 수',(e.blocks||0)+' 개')}
+    </table>
+    <div style="margin:12px 0 6px;font-weight:800;font-size:15px">설계</div>
+    <div class="codebox">${esc((e.plan||[]).map((t,i)=>(i+1)+'. '+t).join('\n')||'(없음)')}</div>
+    <div style="margin:12px 0 6px;font-weight:800;font-size:15px">코드 전문</div>
+    <div class="codebox">${esc(e.codeText||'(없음)')}</div>
+    <div style="margin:14px 0 6px;font-weight:800;font-size:15px">
+      등급 — 앱의 <b style="color:#D98B2B">제안은 「${esc(e.grade||'—')}」</b>입니다. 누르면 확정됩니다.</div>
+    <div>${GRADES.map(x=>`<button class="gbtn ${g.grade===x?'on':''}" data-g="${x}">${x}</button>`).join('')}</div>
+    <input id="memo" placeholder="메모 (짝을 도와주느라 늦었다 / 조작은 서툰데 설계는 정확하다 …)"
+      value="${esc(g.memo||'')}"
+      style="width:100%;padding:11px;font-size:15px;border:2px solid #C6D2DE;border-radius:9px;
+             font-family:inherit;margin-top:9px">
+    <div style="font-size:13px;color:#66788A;margin-top:7px;line-height:1.5">
+      <b>제안은 제안일 뿐입니다.</b> 짝을 도와주느라 늦은 아이, 조작이 서툰데 설계는 정확한 아이 —
+      숫자가 다 놓칩니다.</div>
+  </div>`;
+}
+function bindDetail(){
+  const n=T.sel;
+  $('main').querySelectorAll('[data-g]').forEach(b=>b.onclick=async()=>{
+    const memo=($('memo')||{}).value||'';
+    const g={grade:b.dataset.g,memo:memo,at:new Date().toISOString()};
+    T.grade[n]=g;draw();
+    try{await fbPut('grade/'+n,g,await freshToken());}
+    catch(e){T.err='등급을 저장하지 못했어요 ('+e.message+')';draw();}
+  });
+  const mm=$('memo');
+  if(mm)mm.onchange=async()=>{
+    const g=Object.assign({},T.grade[n]||{},{memo:mm.value,at:new Date().toISOString()});
+    T.grade[n]=g;
+    try{await fbPut('grade/'+n,g,await freshToken());}catch(e){}
+  };
+}
+
+/* 파일에서 읽어들이기 — 학생 태블릿이 인터넷에 막혔을 때의 짝 (제출의 최후 수단) */
+function importFiles(files){
+  let n=0;
+  [...(files||[])].forEach(f=>{
+    const r=new FileReader();
+    r.onload=()=>{
+      try{
+        const e=JSON.parse(r.result);
+        if(!e||!e.num)throw new Error('번호가 없어요');
+        T.imported[e.num]=Object.assign({},T.imported[e.num]||{},{[e.key||String(++n)]:e});
+        T.err='';
+      }catch(err){T.err='파일을 읽지 못했어요: '+err.message;}
+      draw();
+    };
+    r.readAsText(f);
+  });
+}
+
+function exportCSV(){
+  const nums=[...new Set([].concat(Object.keys(T.live),Object.keys(T.sub),Object.keys(T.imported)))]
+    .sort((a,b)=>(+a||99)-(+b||99));
+  const head=['번호','확정등급','제안등급','메모','시험1(정답)','시험2(오답)','설계로 돌아감',
+    '블록만 고침','빈 칸','반복','조건','변수','계산','힌트','뼈대받음','실행횟수','분','블록수',
+    '주제','내 조각','질문','정답'];
+  const q=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
+  const rows=[head.map(q).join(',')];
+  nums.forEach(n=>{
+    const e=lastSub(n)||{},k=e.kinds||{},g=T.grade[n]||{},d=e.decl||{};
+    rows.push([n,g.grade||'',e.grade||'',g.memo||'',e.t1?'O':'X',e.t2?'O':'X',
+      e.toDesign||0,e.toCode||0,e.empty||0,k.rep||0,k.cond||0,k.vars||0,k.calc||0,
+      e.hint||0,e.skeleton?'O':'',e.tries||0,Math.round((e.sec||0)/60),e.blocks||0,
+      d.topic||'',d.piece||'',d.q||'',d.ans||''].map(q).join(','));
+  });
+  const blob=new Blob(['﻿'+rows.join('\n')],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='순서설계실-성적표-'+new Date().toISOString().slice(0,10)+'.csv';
+  document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1000);
+}
+
+/* ── 어느 화면으로 들어왔나 ── */
+function routeHash(){
+  if(location.hash==='#teacher'){
+    S.sc='teacher';
+    if(TOK)tPull().then(()=>{if(S.sc==='teacher')draw()});
+    draw();
+  }else if(S.sc==='teacher'){S.sc='home';T.sel=null;draw();}
+}
+window.addEventListener('hashchange',routeHash);
+
+$('home').onclick=()=>{
+  if(S.exam)keepExam();
+  if(location.hash==='#teacher'){location.hash='';return;}
+  S.sc='home';S.exam=false;S.runId=++RUNID;T.sel=null;draw();};
+routeHash();
+if(S.sc!=='teacher')draw();
+beat();
+</script>
+</body>
+</html>

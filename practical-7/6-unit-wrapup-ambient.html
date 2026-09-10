@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>단원 마무리 — 앰비언트 컴퓨팅</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --ink:#1c2430; --navy:#123a63; --navy2:#1d5b95;
+  --red:#c0392b; --gold:#c8963e; --green:#2e7d5b; --plum:#7d4a86;
+  --paper:#f6f2e9; --line:#d9d2c4; --muted:#6d6b66;
+}
+
+html,body{height:100%;background:#0d1520;font-family:'Noto Sans KR',sans-serif;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;overflow:hidden}
+
+#stage{position:absolute;left:50%;top:calc(50% - 23px);width:1280px;height:720px;
+  transform-origin:center center;background:var(--paper);overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,.6)}
+
+.slide{position:absolute;inset:0;padding:34px 50px 30px;display:none;
+  flex-direction:column;background:var(--paper);--acc:var(--navy2)}
+.slide.on{display:flex}
+.slide::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(circle at 12% 8%,rgba(29,91,149,.10),transparent 45%),
+             radial-gradient(circle at 92% 95%,rgba(200,150,62,.10),transparent 45%)}
+.slide>*{position:relative;z-index:1}
+
+.eyebrow{display:inline-block;font-size:19px;font-weight:700;color:#fff;
+  background:var(--acc);padding:5px 17px;border-radius:999px;margin-bottom:9px;align-self:flex-start}
+h2.stitle{font-size:38px;font-weight:900;color:var(--acc);line-height:1.2;letter-spacing:-.02em}
+h2.stitle.sm{font-size:32px}
+.rule{width:90px;height:7px;border-radius:4px;
+  background:linear-gradient(90deg,var(--navy2),var(--gold));margin:9px 0 16px}
+p.body{font-size:25px;line-height:1.5;color:var(--ink);font-weight:500}
+p.body+p.body{margin-top:11px}
+.small{font-size:21px;line-height:1.5}
+.tiny{font-size:18px;line-height:1.5}
+.mt{margin-top:14px}
+
+b.hl{font-weight:900;color:var(--red);background:linear-gradient(transparent 62%,rgba(192,57,43,.20) 62%);padding:0 2px}
+b.hn{font-weight:900;color:var(--navy2);background:linear-gradient(transparent 62%,rgba(29,91,149,.18) 62%);padding:0 2px}
+b.hg{font-weight:900;color:var(--green);background:linear-gradient(transparent 62%,rgba(46,125,91,.18) 62%);padding:0 2px}
+
+.cols{display:flex;gap:26px;flex:1;min-height:0;align-items:center}
+.col{flex:1;min-width:0}
+
+.term{background:#fff;border-left:9px solid var(--gold);border-radius:8px;padding:12px 16px;
+  box-shadow:0 6px 16px rgba(30,25,15,.10)}
+.term+.term{margin-top:11px}
+.term .t{font-size:22px;font-weight:900;color:var(--gold);margin-bottom:3px}
+.term .d{font-size:20px;font-weight:500;color:var(--ink);line-height:1.45}
+
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;
+  box-shadow:0 6px 16px rgba(30,25,15,.09)}
+.card h3{font-size:21px;font-weight:900;color:var(--acc);margin-bottom:6px}
+.card p{font-size:19px;line-height:1.42;font-weight:500;color:var(--ink)}
+.cardrow{display:flex;gap:14px}
+.cardrow>.card{flex:1}
+.cardgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+.act{background:#fff;border:3px dashed var(--red);border-radius:18px;padding:16px 20px}
+.act-h{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.act-badge{background:var(--red);color:#fff;font-weight:900;font-size:18px;
+  padding:5px 14px;border-radius:999px;white-space:nowrap}
+.act-t{font-size:24px;font-weight:900;color:var(--navy)}
+
+.chip{display:inline-block;background:#fff;border:2px solid var(--acc);color:var(--acc);
+  font-weight:900;font-size:21px;border-radius:999px;padding:9px 20px;margin:8px 9px 0 0}
+.chipwrap{display:flex;flex-wrap:wrap}
+
+.fig{display:flex;justify-content:center;align-items:center;flex:1;min-height:0}
+.fig svg{max-width:100%;max-height:100%}
+.figcap{font-size:18px;color:var(--muted);text-align:center;font-weight:600;margin-top:6px}
+
+.ph{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px;
+  box-shadow:0 6px 16px rgba(30,25,15,.09);text-align:center}
+.ph img{width:100%;display:block;border-radius:7px}
+.ph .cap{font-size:17px;color:var(--muted);font-weight:700;margin-top:6px;line-height:1.35}
+.phrow{display:flex;gap:16px;align-items:flex-start}
+.phrow>.ph{flex:1;min-width:0}
+.phrow.narrow{max-width:900px;margin:0 auto;align-self:center}
+
+.check{display:flex;flex-direction:column;gap:9px}
+.check .ci{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid var(--line);
+  border-radius:12px;padding:11px 17px;box-shadow:0 4px 12px rgba(30,25,15,.07)}
+.check .cn{background:var(--navy2);color:#fff;font-weight:900;font-size:19px;width:34px;height:34px;
+  border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none}
+.check .ct{font-size:22px;font-weight:700;color:var(--ink)}
+
+.vs{display:flex;flex:1;min-height:0;align-items:stretch;
+  background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;
+  box-shadow:0 6px 16px rgba(30,25,15,.09)}
+.vs .vcol{flex:1;padding:15px 18px}
+.vs .vcol+.vcol{border-left:2px solid var(--line)}
+.vs .vh{font-size:23px;font-weight:900;margin-bottom:9px}
+.vs .vi{font-size:20px;line-height:1.45;font-weight:500;color:var(--ink);
+  padding:7px 0;border-bottom:1px dashed var(--line)}
+.vs .vi:last-child{border-bottom:0}
+
+.cover2{justify-content:center;align-items:center;text-align:center;background:linear-gradient(160deg,#1c5a45,#123a63 70%)}
+.cover2 .kicker{color:#ffe9b0;font-size:22px;font-weight:700;margin-bottom:14px}
+.cover2 h1{color:#fff;font-size:52px;font-weight:900;line-height:1.26}
+.cover2 .sub{color:#d6e4f2;font-size:22px;font-weight:500;margin-top:20px;max-width:940px}
+
+.divider{justify-content:center;align-items:center;text-align:center;background:linear-gradient(160deg,#123a63,#1d5b95 70%)}
+.divider .num{color:#ffe9b0;font-size:24px;font-weight:900;margin-bottom:9px}
+.divider h1{color:#fff;font-size:44px;font-weight:900;line-height:1.25}
+.divider .sub{color:#cfe3d9;font-size:21px;font-weight:500;margin-top:15px;max-width:900px}
+
+.bar{position:fixed;left:0;right:0;bottom:0;height:46px;background:#0f1a29;color:#cfd8e6;
+  display:flex;align-items:center;gap:10px;padding:0 14px;font-size:15px;z-index:50}
+.bar button{background:#1d3350;color:#e8eef7;border:0;border-radius:7px;padding:7px 13px;
+  font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+#prog{position:fixed;left:0;top:0;height:4px;background:var(--navy2);z-index:60;transition:width .18s}
+.zone{position:fixed;top:0;bottom:46px;width:12%;z-index:40;cursor:pointer}
+#zl{left:0}#zr{right:0}
+</style>
+</head>
+<body>
+
+<div id="prog"></div>
+<div id="stage"></div>
+<div class="zone" id="zl"></div>
+<div class="zone" id="zr"></div>
+<div class="bar">
+  <button onclick="go(-1)">◀ 이전</button>
+  <button onclick="go(1)">다음 ▶</button>
+  <span id="counter">1 / 1</span>
+  <span style="margin-left:18px;opacity:.7">← → 이동 · F 전체화면</span>
+  <button style="margin-left:auto" onclick="fs()">⛶ 전체화면</button>
+</div>
+
+<script>
+/* ─────────────────────────────────────────────────────────────
+   실과 5-2 · 7단원 ⑥차시 마무리 — 단원 정리와 앰비언트 컴퓨팅 (교과서 124~125쪽)
+   ★ 짧다. ⑥차시의 **마지막 10분**용이다(PLAN.md 10장). 넘치면 다음 시간 자투리로.
+   ★ 교과서 124쪽의 정리 5문항은 넣지 않았다 — 아이들 책에 그대로 있다.
+     슬라이드의 몫은 **앰비언트 컴퓨팅이 어디서 왔나**와 **알아서 해 주는 게 늘 좋은가**다.
+   ───────────────────────────────────────────────────────────── */
+const IMG = {};
+const NS = 'font-family="Noto Sans KR" font-weight="900"';
+
+/* 여섯 시간을 한 줄로 */
+const flowFig = '<svg viewBox="0 0 1180 200">'
+  + '<rect x="10" y="50" width="176" height="96" rx="12" fill="#fff" stroke="#1d5b95" stroke-width="4"/>'
+  + '<text x="98" y="88" font-size="24" fill="#1d5b95" text-anchor="middle" '+NS+'>①</text>'
+  + '<text x="98" y="122" font-size="20" fill="#1c2430" text-anchor="middle" '+NS+'>지금과 목표</text>'
+  + '<rect x="208" y="50" width="176" height="96" rx="12" fill="#fff" stroke="#1d5b95" stroke-width="4"/>'
+  + '<text x="296" y="88" font-size="24" fill="#1d5b95" text-anchor="middle" '+NS+'>②</text>'
+  + '<text x="296" y="122" font-size="20" fill="#1c2430" text-anchor="middle" '+NS+'>알고리즘</text>'
+  + '<rect x="406" y="50" width="176" height="96" rx="12" fill="#fff" stroke="#c8963e" stroke-width="4"/>'
+  + '<text x="494" y="88" font-size="24" fill="#c8963e" text-anchor="middle" '+NS+'>③</text>'
+  + '<text x="494" y="122" font-size="20" fill="#1c2430" text-anchor="middle" '+NS+'>순차·반복·선택</text>'
+  + '<rect x="604" y="50" width="176" height="96" rx="12" fill="#fff" stroke="#c8963e" stroke-width="4"/>'
+  + '<text x="692" y="88" font-size="24" fill="#c8963e" text-anchor="middle" '+NS+'>④</text>'
+  + '<text x="692" y="122" font-size="20" fill="#1c2430" text-anchor="middle" '+NS+'>변수·묻고 답하기</text>'
+  + '<rect x="802" y="50" width="176" height="96" rx="12" fill="#fff" stroke="#c0392b" stroke-width="4"/>'
+  + '<text x="890" y="88" font-size="24" fill="#c0392b" text-anchor="middle" '+NS+'>⑤</text>'
+  + '<text x="890" y="122" font-size="20" fill="#1c2430" text-anchor="middle" '+NS+'>모둠 설계(종이)</text>'
+  + '<rect x="1000" y="50" width="176" height="96" rx="12" fill="#c0392b"/>'
+  + '<text x="1088" y="88" font-size="24" fill="#fff" text-anchor="middle" '+NS+'>⑥</text>'
+  + '<text x="1088" y="122" font-size="20" fill="#fff" text-anchor="middle" '+NS+'>내 조각 만들기</text>'
+  + '<text x="590" y="188" font-size="24" fill="#6d6b66" text-anchor="middle" '+NS+'>'
+  + '왼쪽 둘이 없으면 오른쪽 넷이 안 된다</text>'
+  + '</svg>';
+
+const SLIDES = [
+
+/* 1 표지 */
+`<section class="slide cover2">
+  <div class="kicker">실과 5학년 · 7단원 · 마지막 10분</div>
+  <h1>단원을 마치며</h1>
+  <div class="sub">교과서 124~125쪽<br><br>여섯 시간 동안 한 일을 한 줄로 묶고,
+    <b style="color:#ffe9b0">앞으로 올 컴퓨터</b>를 잠깐 본다.</div>
+</section>`,
+
+/* 2 여섯 시간 */
+`<section class="slide">
+  <span class="eyebrow">되짚기</span>
+  <h2 class="stitle sm">우리가 한 일</h2>
+  <div class="rule"></div>
+  <div class="fig">${flowFig}</div>
+</section>`,
+
+/* 3 남길 한 문장 */
+`<section class="slide" style="--acc:var(--red)">
+  <span class="eyebrow">이 단원의 한 문장</span>
+  <h2 class="stitle">과정을 잘 짜야 결과가 나온다</h2>
+  <div class="rule"></div>
+  <p class="body">오늘 앱이 본 것은 <b class="hl">「통과했느냐」가 아니다.</b></p>
+  <div class="cardrow mt">
+    <div class="card"><h3>실행이 어긋났을 때</h3>
+      <p><b>설계로 돌아가</b> 고쳤는가, 블록만 이리저리 바꿔 봤는가.</p></div>
+    <div class="card"><h3>내 설계와 내 코드</h3>
+      <p>설계 칸마다 코드가 <b>짝을 이루었는가</b>, 빈 칸으로 남았는가.</p></div>
+    <div class="card"><h3>스스로 알아챈 것</h3>
+      <p>종이 설계가 틀렸다는 걸 <b>스스로 알아채고 고쳤다면</b> — 그게 더 강한 증거다.</p></div>
+  </div>
+  <p class="body mt">그래서 <b class="hn">돌려 보고 실패한 횟수는 깎는 근거가 아니다.</b>
+    교과서가 매번 시키는 「오류가 있다면 수정합니다」가 바로 그것이다.</p>
+</section>`,
+
+/* 4 divider */
+`<section class="slide divider">
+  <div class="num">교과서 125쪽</div>
+  <h1>앰비언트 컴퓨팅</h1>
+  <div class="sub">ambient — <b style="color:#ffe9b0">「주위를 둘러싼」</b> 이라는 뜻이다.</div>
+</section>`,
+
+/* 5 무엇인가 */
+`<section class="slide">
+  <span class="eyebrow">교과서 125쪽</span>
+  <h2 class="stitle sm">시키지 않아도 알아서 해 주는 컴퓨터</h2>
+  <div class="rule"></div>
+  <p class="body">지금까지 우리는 <b class="hn">컴퓨터에게 시키는 법</b>을 배웠다.
+    버튼을 누르고, 블록을 놓고, 순서를 정해 주었다.</p>
+  <p class="body mt">앰비언트 컴퓨팅은 <b class="hl">그 시키는 일마저 줄이는 것</b>이다.
+    사람이 명령하거나 조작하지 않아도 주변 장치들이 알아서 도와준다.</p>
+  <div class="chipwrap mt">
+    <span class="chip">“오늘 날씨 어때?” — 스마트 스피커가 답한다</span>
+    <span class="chip">스마트 안경이 “오른쪽 길로 가세요”</span>
+    <span class="chip">우유가 떨어지면 냉장고가 주문한다</span>
+  </div>
+</section>`,
+
+/* 6 1991년 (교과서 밖) */
+`<section class="slide" style="--acc:var(--plum)">
+  <span class="eyebrow">교과서 밖 이야기</span>
+  <h2 class="stitle sm">이 생각은 <b style="color:var(--red)">1991년</b>에 나왔다</h2>
+  <div class="rule"></div>
+  <p class="body">미국의 연구자 <b class="hn">마크 와이저</b>가 한 잡지에 「21세기의 컴퓨터」라는 글을 썼다.
+    스마트폰도 없던 때다.</p>
+  <div class="term mt"><div class="t">그가 쓴 한 줄</div>
+    <div class="d">“가장 깊이 스며든 기술은 <b>사라진다.</b>” — 마크 와이저, 1991</div></div>
+  <p class="body mt">사라진다는 건 없어진다는 뜻이 아니다.
+    <b class="hl">너무 자연스러워져서 「컴퓨터를 쓰고 있다」는 생각조차 안 드는 것</b>을 말한다.</p>
+  <p class="body small mt"><b class="hn">이미 그렇게 된 것</b> — 교실 자동문, 교통카드, 급식 카드.
+    첫 시간에 우리가 세어 본 그것들이다. <b>아무도 그걸 「컴퓨터를 썼다」고 말하지 않았다.</b></p>
+  <div class="act mt">
+    <div class="act-h"><span class="act-badge">물어보기</span>
+      <span class="act-t">우리 학교에서 하나 더 찾아본다면?</span></div>
+    <p class="body small"><b>「컴퓨터를 쓰고 있다는 생각조차 안 드는 것」</b>을 하나만 더 찾아보자.
+      찾았다면 물어보자 — <b class="hl">그 안의 순서는 누가 정해 두었을까?</b></p>
+  </div>
+</section>`,
+
+/* 7 특징 넷 */
+`<section class="slide" style="--acc:var(--gold)">
+  <span class="eyebrow">교과서 125쪽</span>
+  <h2 class="stitle sm">어떤 특징이 있나</h2>
+  <div class="rule"></div>
+  <div class="cardgrid">
+    <div class="card"><h3>눈에 띄지 않는다</h3><p>공기처럼 우리를 도우므로 <b>특별히 신경 쓰지 않아도</b> 된다.</p></div>
+    <div class="card"><h3>손대지 않아도 된다</h3><p>버튼을 누르거나 화면에 손대지 않고 <b>자연스럽게</b> 이용한다.</p></div>
+    <div class="card"><h3>시간을 아낀다</h3><p>직접 명령하거나 조작하지 않아도 되므로 <b>편리하다</b>.</p></div>
+    <div class="card"><h3>말과 몸짓으로</h3><p>말을 하거나 손짓하는 <b>자연스러운 동작</b>으로 원하는 일을 시킨다.</p></div>
+  </div>
+</section>`,
+
+/* 8 되물음 */
+`<section class="slide" style="--acc:var(--red)">
+  <span class="eyebrow">그런데 — 오늘의 마지막 물음</span>
+  <h2 class="stitle sm">알아서 해 주는 것은 <b style="color:var(--red)">늘 좋은가?</b></h2>
+  <div class="rule"></div>
+  <div class="cardrow">
+    <div class="card"><h3>알아서 해 주려면</h3>
+      <p>내가 무엇을 하는지 <b>늘 지켜보고 있어야</b> 한다. 스피커는 <b>늘 듣고 있다.</b></p></div>
+    <div class="card"><h3>끊기면</h3>
+      <p>알아서 해 주던 것이 멈춘다. 그때 <b>내가 직접 할 줄 아는가?</b></p></div>
+    <div class="card"><h3>누가 정하나</h3>
+      <p>내가 안 정하면 <b>만든 사람이 정해 둔 대로</b> 된다. 그게 내가 바라던 것과 같을까?</p></div>
+  </div>
+  <p class="body mt"><b class="hl">답이 정해진 물음이 아니다.</b> 좋은 점과 걸리는 점을 <b>둘 다</b> 말할 수 있으면 된다.</p>
+</section>`,
+
+/* 9 마무리 */
+`<section class="slide cover2">
+  <div class="kicker">7단원 끝</div>
+  <h1>기계가 아무리 알아서 해 줘도<br>순서를 정하는 건 사람이다</h1>
+  <div class="sub">첫 시간에 한 말과 같다. 여섯 시간 내내 우리가 한 일이 그것이었다.<br><br>
+    <b style="color:#ffe9b0">무엇을, 어떤 순서로.</b></div>
+</section>`
+
+];
+
+const stage = document.getElementById("stage");
+stage.innerHTML = SLIDES.join("");
+stage.querySelectorAll("img[data-img]").forEach(el => {
+  const k = el.getAttribute("data-img");
+  if (IMG[k]) el.src = IMG[k];
+});
+const slides = [...stage.querySelectorAll(".slide")];
+
+let cur = 0;
+function show(i){
+  cur = Math.max(0, Math.min(slides.length - 1, i));
+  slides.forEach((s,n) => s.classList.toggle("on", n === cur));
+  document.getElementById("counter").textContent = (cur+1) + " / " + slides.length;
+  const p = document.getElementById("prog");
+  p.style.width = ((cur+1)/slides.length*100) + "%";
+  p.style.background = getComputedStyle(slides[cur]).getPropertyValue("--acc");
+}
+function go(d){ show(cur + d); }
+function fit(){
+  const s = Math.min(window.innerWidth/1280, (window.innerHeight-46)/720);
+  stage.style.transform = "translate(-50%,-50%) scale(" + s + ")";
+}
+function fs(){
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+  else document.exitFullscreen();
+}
+document.addEventListener("keydown", e => {
+  if (["ArrowRight","PageDown"," "].includes(e.key)) { e.preventDefault(); go(1); }
+  if (["ArrowLeft","PageUp"].includes(e.key)) { e.preventDefault(); go(-1); }
+  if (e.key === "Home") show(0);
+  if (e.key === "End") show(slides.length-1);
+  if (e.key === "f" || e.key === "F") fs();
+});
+document.getElementById("zl").onclick = () => go(-1);
+document.getElementById("zr").onclick = () => go(1);
+let tx=0, ty=0;
+document.addEventListener("touchstart", e => { tx=e.touches[0].clientX; ty=e.touches[0].clientY; }, {passive:true});
+document.addEventListener("touchend", e => {
+  const dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty;
+  if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) go(dx < 0 ? 1 : -1);
+}, {passive:true});
+window.addEventListener("resize", fit);
+fit();
+show(0);
+</script>
+</body>
+</html>

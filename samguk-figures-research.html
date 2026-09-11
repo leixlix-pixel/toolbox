@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>삼국·가야·발해 인물 조사 학습지</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --ink:#1a1a1a; --line:#c9cdd4; --muted:#71767e; --paper:#fff;
+  --warn:#c0392b; --soft:#f4f6f9;
+}
+html,body{margin:0;padding:0}
+body{font-family:'Noto Sans KR',sans-serif;background:#e8eaee;color:var(--ink);
+     -webkit-print-color-adjust:exact;print-color-adjust:exact}
+
+/* ── 화면 전용 조작 바 ─────────────────────────── */
+.bar{position:sticky;top:0;z-index:50;background:#0f1b2d;color:#fff;
+     padding:10px 16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;
+     font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.bar b{font-size:15px;letter-spacing:-.3px}
+.bar .sp{flex:1}
+.bar select{font-family:inherit;font-size:14px;padding:9px 10px;border-radius:8px;
+            border:none;min-height:40px;max-width:230px}
+.bar button{font-family:inherit;font-size:14px;font-weight:700;min-height:40px;
+            padding:9px 16px;border:none;border-radius:8px;background:#ffd34d;color:#1a1a1a;
+            cursor:pointer;touch-action:manipulation}
+.bar button.ghost{background:rgba(255,255,255,.16);color:#fff}
+.bar .hint{width:100%;font-size:12.5px;color:#b9c4d4;line-height:1.5}
+
+/* ── A4 ────────────────────────────────────────── */
+@page{size:A4;margin:0}
+.page{
+  width:210mm;height:297mm;padding:12mm 13mm 12mm;background:var(--paper);
+  margin:16px auto;box-shadow:0 3px 14px rgba(0,0,0,.18);
+  display:flex;flex-direction:column;overflow:hidden;position:relative;
+  --acc:#1f4e79;
+}
+.page.hide{display:none !important}
+
+/* 머리 */
+.head{display:flex;align-items:flex-end;gap:12px;border-bottom:3px solid var(--acc);
+      padding-bottom:7px;flex:none}
+.badge{background:var(--acc);color:#fff;border-radius:8px;padding:5px 11px;
+       font-size:15px;font-weight:900;line-height:1.1;text-align:center;flex:none}
+.badge small{display:block;font-size:10.5px;font-weight:500;opacity:.85;margin-top:2px}
+.who{flex:1;min-width:0}
+.who .eyebrow{font-size:11.5px;color:var(--muted);letter-spacing:1px;font-weight:700}
+.who h1{margin:0;font-size:34px;font-weight:900;letter-spacing:-1.5px;line-height:1.1;color:var(--acc)}
+.name-in{flex:none;font-size:12px;color:#333;text-align:right;line-height:2.1;white-space:nowrap}
+.name-in u{text-decoration:none;border-bottom:1px solid #999;display:inline-block;min-width:52px}
+
+/* 본문: 남는 높이를 쓰는 칸과 여백에 나눠 준다 */
+.pbody{flex:1;min-height:0;display:flex;flex-direction:column;
+       justify-content:space-between;gap:9px;padding-top:9px}
+.sec{display:flex;flex-direction:column;min-height:0}
+.grow{flex-grow:var(--g,.5);min-height:0}
+.st{font-size:13.5px;font-weight:900;color:var(--acc);margin:0 0 5px;
+    display:flex;align-items:center;gap:6px;flex:none}
+.st .num{background:var(--acc);color:#fff;width:19px;height:19px;border-radius:50%;
+         font-size:12px;display:flex;align-items:center;justify-content:center;flex:none}
+.st .tip{font-size:11px;font-weight:500;color:var(--muted);letter-spacing:-.2px}
+
+/* 쓰는 줄 (SVG 로 긋는다 — 인쇄에서 사라지지 않게) */
+.wr{position:relative;flex:1 1 0;min-height:0}
+.wr svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.wr svg line{stroke:var(--line);stroke-width:1}
+
+/* ① 언제 사람 */
+.when{display:flex;gap:8px;flex:none}
+.when .cell{flex:1;border:1.5px solid var(--line);border-radius:6px;padding:5px 8px 0;height:46px}
+.when .cell span{font-size:11px;color:var(--muted);font-weight:700}
+.when .cell .blank{border-bottom:1px dotted #b9bec6;height:20px;margin-top:3px}
+
+/* ② 찾아올 것 3가지 */
+.qs{flex:1;min-height:0;display:flex;flex-direction:column;gap:7px}
+.q{flex:1;min-height:0;display:flex;flex-direction:column;
+   border-left:4px solid var(--acc);padding-left:8px}
+.q .qt{font-size:12.5px;font-weight:700;line-height:1.35;margin-bottom:2px;flex:none}
+.q .qt i{font-style:normal;color:var(--acc);font-weight:900;margin-right:4px}
+
+/* ③ 그림 */
+.draw{flex:1 1 0;min-height:0;border:2px dashed #b9bec6;border-radius:8px;
+      position:relative;background:#fcfcfd}
+.draw .cap{position:absolute;left:10px;top:8px;font-size:11.5px;color:var(--muted)}
+.drawname{font-size:12px;margin-bottom:5px;flex:none}
+.drawname u{text-decoration:none;border-bottom:1px solid #aaa;display:inline-block;min-width:200px}
+
+/* 각주 */
+.foot{flex:none;border-top:1.5px solid #dde1e6;padding-top:7px;margin-top:9px}
+.warn{background:#fdf0ee;border-left:4px solid var(--warn);border-radius:0 6px 6px 0;
+      padding:6px 9px;font-size:11.5px;line-height:1.45}
+.warn b{color:var(--warn)}
+.keys{font-size:11.5px;color:#333;margin-top:6px;line-height:1.5}
+.keys b{color:var(--acc)}
+.keys .kw{background:var(--soft);border:1px solid #e1e5ea;border-radius:4px;
+          padding:1px 6px;margin-right:4px;display:inline-block;font-weight:700}
+.src{display:flex;align-items:flex-end;gap:6px;font-size:11.5px;color:#333;margin-top:6px}
+.src .l{flex:1;border-bottom:1px dotted #b9bec6;height:15px}
+
+@media print{
+  body{background:#fff}
+  .no-print{display:none !important}
+  .page{margin:0;box-shadow:none;page-break-after:always}
+  .page:last-of-type{page-break-after:auto}
+}
+</style>
+</head>
+<body>
+
+<div class="bar no-print">
+  <b>삼국·가야·발해 인물 조사 학습지</b>
+  <span class="sp"></span>
+  <select id="pick" onchange="only(this.value)"></select>
+  <button class="ghost" onclick="only('')">전체 보기</button>
+  <button onclick="window.print()">🖨 인쇄</button>
+  <div class="hint">인물 한 명당 A4 한 장(모두 24장). 한 명만 뽑으려면 위에서 고른 뒤 인쇄를 누른다 — 보이는 쪽만 나온다.</div>
+</div>
+
+<div id="out"></div>
+
+<script>
+const COLOR = {
+  '고구려':'#1f4e79', '백제':'#7b2d6b', '신라':'#a8751a',
+  '통일신라':'#9c4221', '가야':'#0f766e', '발해':'#4a3a8c'
+};
+
+const FIG = [
+{n:1,st:'고구려',name:'광개토대왕',
+ q:['광개토대왕릉비는 누가, 왜 세웠나? 그 비석은 지금 어느 나라 땅에 있나?',
+    '넓힌 땅이 북쪽으로 어디까지, 남쪽으로 어디까지였나?',
+    "'영락'이라는 연호는 무슨 뜻이고, 왜 직접 만들었을까?"],
+ draw:'광개토대왕릉비',
+ me:'내가 임금이 되어 연호를 만든다면 무엇이라 짓고, 왜 그렇게 짓겠나?',
+ warn:'이 사람은 이름이 여러 개다(담덕·호태왕·국강상광개토경평안호태왕). 다른 이름으로 나온 자료도 같은 사람이다.',
+ keys:['광개토대왕릉비','영락 연호','호태왕']},
+
+{n:2,st:'고구려',name:'장수왕',
+ q:['왜 도읍을 국내성에서 평양으로 옮겼나?',
+    '충주 고구려비에는 무엇이 적혀 있나? (남한에 남은 단 하나의 고구려 비석)',
+    '몇 년 동안 왕이었고, 몇 살까지 살았나?'],
+ draw:'충주 고구려비',
+ me:'우리 학교를 다른 곳으로 옮긴다면 어디로, 왜 옮기겠나?',
+ warn:"'장수왕'은 본래 이름이 아니라 죽은 뒤에 붙인 이름이다. 왜 그런 이름이 붙었을지 생각하며 찾아라.",
+ keys:['장수왕 평양 천도','충주 고구려비']},
+
+{n:3,st:'고구려',name:'을지문덕',
+ q:['살수는 지금의 어느 강인가?',
+    '쳐들어온 수나라 군사는 몇 명이었고, 몇 명이 살아 돌아갔나?',
+    '우중문에게 보낸 시에 무엇이라 썼나? (한 줄이라도 옮겨 써라)'],
+ draw:'살수대첩 장면, 또는 시의 한 구절',
+ me:'싸우지 않고 이기는 방법에는 무엇이 있을까?',
+ warn:'태어나고 죽은 해가 기록에 없다. ①번에는 <b>「기록에 없음」</b>이라고 써도 된다. 그것도 옳은 답이다.',
+ keys:['살수대첩','여수장우중문시']},
+
+{n:4,st:'고구려',name:'연개소문',
+ q:['어떻게 권력을 잡았나? (무슨 일을 벌였는지 순서대로)',
+    '당 태종이 쳐들어왔을 때 어떻게 막아 냈나? (안시성)',
+    '연개소문이 죽은 뒤 고구려는 어떻게 되었나?'],
+ draw:'안시성 싸움, 또는 칼 다섯 자루를 찬 연개소문',
+ me:'연개소문은 영웅일까, 나쁜 사람일까? 내 생각과 그 까닭을 쓰자.',
+ warn:'연개소문에 대한 기록은 <b>신라와 당나라 쪽이 남긴 것</b>이다. 미워하는 쪽이 쓴 글일 수 있다는 점을 생각하며 읽어라.',
+ keys:['연개소문 정변','안시성 싸움','대막리지']},
+
+{n:5,st:'고구려',name:'온달·평강공주',
+ q:['이야기의 줄거리는? (둘이 어떻게 만나 어떻게 되었나)',
+    '온달이 죽은 곳은 어디이고, 지금도 그 이름이 남은 곳이 있나?',
+    '이 이야기는 어느 책에 실려 있나?'],
+ draw:'온달산성, 또는 이야기의 한 장면',
+ me:'이 이야기에서 진짜 있었을 것 같은 부분과 지어낸 것 같은 부분을 갈라 써 보자.',
+ warn:'역사책(삼국사기)에 실렸지만 <b>이야기에 가깝다.</b> 「사실」과 「전해 오는 이야기」를 섞어 쓰지 말고 나누어 적어라.',
+ keys:['삼국사기 온달전','온달산성','아차산성']},
+
+{n:6,st:'백제',name:'근초고왕',
+ q:['백제의 땅이 가장 넓었을 때 어디까지였나?',
+    '칠지도는 어떤 물건이고, 지금 어느 나라에 있나?',
+    '왜 바다 건너 왜(일본)와 가까이 지냈을까?'],
+ draw:'칠지도',
+ me:'다른 나라에 선물을 보낸다면 무엇을, 왜 보내겠나?',
+ warn:'칠지도에 새겨진 글자는 <b>한국과 일본의 해석이 서로 다르다.</b> 어느 한쪽만 옮겨 적지 말고 「이렇게 보는 사람도 있다」고 함께 써라.',
+ keys:['근초고왕 백제 전성기','칠지도']},
+
+{n:7,st:'백제',name:'무령왕',
+ q:['무령왕릉은 언제, 어떻게 발견되었나?',
+    '무덤 안에서 나온 물건 세 가지를 적어라.',
+    '누구의 무덤인지 어떻게 알아냈나?'],
+ draw:'금제 관식, 또는 무덤을 지키던 진묘수',
+ me:'1500년 뒤 누군가 내 방을 발견한다면, 무엇을 보고 나를 알아볼까?',
+ warn:'<b>발굴을 너무 급하게 해서 많은 것이 망가졌다.</b> 그 이야기도 꼭 함께 적어라 — 이 무덤이 남긴 가장 큰 교훈이다.',
+ keys:['무령왕릉','무령왕릉 지석','진묘수']},
+
+{n:8,st:'백제',name:'성왕',
+ q:['왜 도읍을 웅진(공주)에서 사비(부여)로 옮겼나?',
+    '일본에 무엇을 전했나?',
+    '관산성에서 무슨 일이 있었나? 누구와 싸웠나?'],
+ draw:'부여 정림사지 5층 석탑',
+ me:'믿고 손잡았던 사람에게 배신당했다면 나는 어떻게 하겠나?',
+ warn:'신라 진흥왕과는 <b>원래 힘을 합친 사이</b>였다. 언제, 왜 사이가 갈라졌는지를 찾아야 이야기가 이어진다.',
+ keys:['성왕 사비 천도','관산성 전투','백제 불교 전파']},
+
+{n:9,st:'백제',name:'계백',
+ q:['황산벌 싸움은 언제, 누구와 싸운 것인가?',
+    '계백의 군사는 몇 명, 신라의 군사는 몇 명이었나?',
+    '싸우러 나가기 전에 계백은 무슨 일을 했나?'],
+ draw:'황산벌이 어디인지 표시한 지도',
+ me:'이길 수 없다는 것을 알면서도 싸우는 것은 옳은 일일까?',
+ warn:'가족에 대한 기록은 <b>아주 짧은 몇 줄뿐</b>이다. 드라마·만화에서 본 장면을 사실처럼 적지 마라.',
+ keys:['황산벌 전투','계백 오천결사대','관창']},
+
+{n:10,st:'신라',name:'진흥왕',
+ q:['순수비는 모두 몇 개이고 어디에 남아 있나?',
+    '한강 유역을 차지한 것이 왜 그렇게 중요한가?',
+    '화랑도는 무엇이고 왜 만들었나?'],
+ draw:'북한산 진흥왕 순수비',
+ me:'내가 다녀온 곳에 비석을 세운다면 무엇이라고 새기겠나?',
+ warn:'북한산 순수비는 <b>오랫동안 다른 사람의 비석인 줄 알았다.</b> 누가 언제 밝혀냈는지도 찾아보면 재미있다.',
+ keys:['진흥왕 순수비','단양 적성비','화랑도']},
+
+{n:11,st:'신라',name:'선덕여왕',
+ q:['어떻게 여자가 왕이 될 수 있었나?',
+    '첨성대는 무엇을 하던 곳이었나?',
+    '황룡사 9층 목탑은 왜 세웠고, 지금은 왜 없나?'],
+ draw:'첨성대',
+ me:'「여자라서 안 된다」는 말을 들었다면 나는 무엇이라 답하겠나?',
+ warn:'첨성대가 무엇을 하던 곳인지는 <b>학자마다 생각이 다르다.</b> 한 가지만 쓰지 말고 여러 주장을 모두 적어라.',
+ keys:['선덕여왕','첨성대','황룡사 9층 목탑','성골']},
+
+{n:12,st:'신라',name:'이사부',
+ q:['우산국은 지금의 어디인가?',
+    '나무로 만든 사자를 어떻게 썼나?',
+    '이사부가 임금에게 건의한 다른 중요한 일 하나는?'],
+ draw:'나무 사자, 또는 우산국이 있던 자리를 표시한 지도',
+ me:'싸우지 않고 상대를 항복시킬 꾀를 낸다면 어떤 방법이 있을까?',
+ warn:'우산국은 <b>울릉도</b>를 가리킨다. 독도와 이어서 말할 때는 「기록에 무엇까지 적혀 있는지」를 분명히 구분해서 써라.',
+ keys:['이사부 우산국','신라 국사 편찬']},
+
+{n:13,st:'신라',name:'김유신',
+ q:['어느 집안 출신인가? (뿌리가 어느 나라인지 꼭 확인할 것)',
+    '삼국을 통일하는 과정에서 한 일은?',
+    '김춘추와는 어떤 사이였나?'],
+ draw:'김유신 묘를 둘러싼 십이지신상',
+ me:'망한 나라의 후손이 새 나라에서 으뜸이 되려면 무엇이 필요했을까?',
+ warn:'김유신은 <b>가야 왕족의 후손</b>이다. 그리고 「삼국통일」이라는 말에는 발해가 빠져 있다 — 정말 다 합친 것일까?',
+ keys:['김유신 금관가야','나당연합','황산벌']},
+
+{n:14,st:'통일신라',name:'원효',
+ q:['해골물 이야기에서 무엇을 깨달았나?',
+    '왜 절에서 나와 백성들 속으로 들어갔나?',
+    '아들 설총은 무엇을 한 사람인가?'],
+ draw:'원효가 들고 다닌 바가지(무애박), 또는 분황사',
+ me:'어려운 것을 친구에게 쉽게 설명한 경험을 떠올려 써 보자.',
+ warn:'해골물 이야기는 원효가 살던 때가 아니라 <b>한참 뒤에 정리된 글</b>에 실려 있다.',
+ keys:['원효 무애가','원효 해골물','설총 이두']},
+
+{n:15,st:'통일신라',name:'혜초',
+ q:['몇 살에 어디로 떠났나?',
+    '『왕오천축국전』은 어떤 책이고, 지금 어느 나라에 있나?',
+    '어느 나라들을 지나갔나?'],
+ draw:'혜초가 다녀온 길을 그린 지도',
+ me:'혼자 낯선 나라로 떠난다면 무엇을 챙기고, 무엇이 가장 두려울까?',
+ warn:'이 책은 지금 <b>프랑스</b>에 있다. 왜 그 먼 곳에 있게 되었는지까지 찾아야 절반이 끝난다.',
+ keys:['혜초 왕오천축국전','천축','둔황 막고굴']},
+
+{n:16,st:'통일신라',name:'장보고',
+ q:['청해진은 어디이고, 왜 하필 그곳이었나?',
+    '당나라에서는 무엇을 했고 왜 신라로 돌아왔나?',
+    '장보고는 어떻게 죽었나?'],
+ draw:'청해진 자리를 표시한 지도, 또는 신라의 배',
+ me:'신분이 낮은 내가 큰 힘을 얻게 된다면 무엇을 하겠나?',
+ warn:'<b>사람을 사고파는 일을 막으려 했다</b>는 대목을 빠뜨리지 마라. 그가 바다를 지킨 진짜 까닭 가운데 하나다.',
+ keys:['장보고 청해진','법화원','완도']},
+
+{n:17,st:'통일신라',name:'최치원',
+ q:['몇 살에 당나라로 갔고, 무슨 시험에 붙었나?',
+    '「토황소격문」은 무엇이고 왜 유명한가?',
+    '신라에 돌아와서는 왜 뜻을 펴지 못했나?'],
+ draw:'최치원이 머물던 해인사, 또는 그의 초상',
+ me:'아무리 잘해도 넘을 수 없는 벽이 있다면 나는 어떻게 하겠나?',
+ warn:'<b>6두품이 무엇인지 먼저 찾아라.</b> 그것을 모르면 ③번을 쓸 수 없다.',
+ keys:['최치원 빈공과','토황소격문','골품제 6두품']},
+
+{n:18,st:'통일신라',name:'김대성',
+ q:['불국사와 석굴암을 왜 지었나? (부모에 얽힌 이야기)',
+    '석굴암은 어떻게 만들었기에 대단하다고 하나?',
+    '두 절을 끝내 완성한 사람은 김대성이 맞나?'],
+ draw:'석굴암 본존불, 또는 불국사 다보탑',
+ me:'부모님을 위해 무언가를 만든다면 무엇을 만들겠나?',
+ warn:'<b>김대성은 살아서 완성하지 못했다.</b> 누가 마무리했는지까지 찾아야 ③번의 답이 된다.',
+ keys:['김대성 불국사','석굴암 구조','삼국유사 대성효이세부모']},
+
+{n:19,st:'가야',name:'김수로왕',
+ q:['알에서 태어났다는 이야기의 줄거리는?',
+    '「구지가」에는 무슨 내용이 담겨 있나?',
+    '김해 김씨와는 무슨 관계인가?'],
+ draw:'구지봉, 또는 수로왕릉',
+ me:'우리 반의 「건국 이야기」를 짓는다면 어떻게 시작하겠나?',
+ warn:'알에서 태어난 왕이 <b>또 있다</b>(주몽·박혁거세). 왜 이야기가 서로 닮았을지 생각하며 찾아라.',
+ keys:['김수로왕','구지가','삼국유사 가락국기']},
+
+{n:20,st:'가야',name:'허황옥',
+ q:['어디에서 왔다고 기록되어 있나?',
+    '배에 무엇을 싣고 왔다고 하나?',
+    '자식들의 성(姓)은 어떻게 되었나?'],
+ draw:'허황옥이 싣고 왔다는 파사석탑',
+ me:'말이 통하지 않는 먼 나라로 가야 한다면 무엇이 가장 힘들까?',
+ warn:'먼 나라에서 왔다는 것은 <b>확인된 사실이 아니라 기록에 적힌 이야기</b>다. 「~라고 전해진다」라고 써야 맞다.',
+ keys:['허황옥 아유타국','파사석탑','김해 허씨']},
+
+{n:21,st:'가야',name:'우륵',
+ q:['가야금은 몇 줄이고, 누가 만들라고 했나?',
+    '가야가 무너질 때 우륵은 어디로 갔나?',
+    '우륵이 지은 12곡은 무엇을 뜻하는 이름이었나?'],
+ draw:'가야금',
+ me:'나라가 없어질 때 딱 하나만 들고 갈 수 있다면 무엇을 들겠나?',
+ warn:'가야금을 <b>만들라고 한 사람은 가실왕</b>이라는 기록이 있다. 우륵이 혼자 만들었다고 쓰지 않도록 조심.',
+ keys:['우륵 12곡','가실왕','충주 탄금대']},
+
+{n:22,st:'발해',name:'대조영',
+ q:['원래 어느 나라 사람이었고, 어디로 끌려갔다가 어떻게 빠져나왔나?',
+    '발해를 세운 해와 처음 붙인 나라 이름은?',
+    '천문령에서 무슨 일이 있었나?'],
+ draw:'발해의 땅을 그린 지도',
+ me:'망해 버린 나라를 다시 세운다면 이름을 무엇이라 짓겠나?',
+ warn:'처음 나라 이름은 「발해」가 아니었다. <b>바꾸기 전 이름</b>까지 찾아야 ②번이 끝난다.',
+ keys:['대조영 천문령','진국','고구려 유민']},
+
+{n:23,st:'발해',name:'무왕 (대무예)',
+ q:['당나라의 산둥반도를 공격한 일 — 왜 그렇게까지 했나?',
+    '일본에 사신을 보낸 까닭은 무엇일까?',
+    '동생 대문예와는 왜 다투었나?'],
+ draw:'발해가 당나라·일본과 오간 길을 그린 지도',
+ me:'나보다 훨씬 큰 상대와 맞서야 한다면 어떻게 하겠나?',
+ warn:'<b>이 사람은 자료가 아주 적다.</b> 못 찾은 것은 「자료를 찾지 못했다」라고 쓰고, <b>어디까지 찾아봤는지</b>를 적어라. 그것도 훌륭한 답이다.',
+ keys:['발해 무왕','장문휴 등주','대문예']},
+
+{n:24,st:'발해',name:'문왕 (대흠무)',
+ q:['일본에 보낸 편지에서 자기를 무엇이라고 불렀나?',
+    '도읍을 몇 번 옮겼나?',
+    '당나라에서 무엇을 들여와 나라를 정비했나?'],
+ draw:'발해의 도읍 상경성 터',
+ me:'스스로를 「고구려를 잇는 나라」라고 한 것은 무슨 뜻일까?',
+ warn:'<b>이 사람도 자료가 아주 적다.</b> 못 찾은 것은 「자료를 찾지 못했다」라고 쓰고, 어디까지 찾아봤는지를 적어라.',
+ keys:['발해 문왕 고려국왕','상경 용천부','주자감']}
+];
+
+/* ── 페이지 그리기 ───────────────────────────── */
+const out = document.getElementById('out');
+out.innerHTML = FIG.map(f => `
+<article class="page" data-n="${f.n}" style="--acc:${COLOR[f.st]}">
+  <div class="head">
+    <div class="badge">${f.st}<small>${String(f.n).padStart(2,'0')}번 인물</small></div>
+    <div class="who">
+      <div class="eyebrow">삼국·가야·발해 인물 조사</div>
+      <h1>${f.name}</h1>
+    </div>
+    <div class="name-in">5학년 <u></u>반<br>이름 <u></u></div>
+  </div>
+
+  <div class="pbody">
+
+    <div class="sec">
+      <p class="st"><span class="num">1</span>언제 사람인가?
+        <span class="tip">— 모르면 「기록에 없음」이라고 써도 된다</span></p>
+      <div class="when">
+        <div class="cell"><span>태어난 해</span><div class="blank"></div></div>
+        <div class="cell"><span>죽은 해</span><div class="blank"></div></div>
+        <div class="cell"><span>나라 · 무엇을 한 사람</span><div class="blank"></div></div>
+      </div>
+    </div>
+
+    <div class="sec grow" style="--g:.34">
+      <p class="st"><span class="num">2</span>꼭 찾아올 것 세 가지
+        <span class="tip">— 이 세 가지는 반드시 채운다</span></p>
+      <div class="qs">
+        ${f.q.map((q,i)=>`
+        <div class="q">
+          <div class="qt"><i>${'①②③'[i]}</i>${q}</div>
+          <div class="wr"><svg class="rules" data-pitch="26"></svg></div>
+        </div>`).join('')}
+      </div>
+    </div>
+
+    <div class="sec grow" style="--g:.35">
+      <p class="st"><span class="num">3</span>이 사람이 남긴 것을 하나 그리자</p>
+      <div class="drawname">그린 것의 이름 : <u></u> <span style="color:#71767e;font-size:11px">(보기 : ${f.draw})</span></div>
+      <div class="draw"><div class="cap">그림을 그리고, 아래에 한 줄 설명을 덧붙여도 좋다</div></div>
+    </div>
+
+    <div class="sec grow" style="--g:.08">
+      <p class="st"><span class="num">4</span>이 사람 때문에 나라는 어떻게 달라졌나?</p>
+      <div class="wr"><svg class="rules" data-pitch="26"></svg></div>
+    </div>
+
+    <div class="sec grow" style="--g:.06">
+      <p class="st"><span class="num">5</span>나라면? <span class="tip">— ${f.me}</span></p>
+      <div class="wr"><svg class="rules" data-pitch="26"></svg></div>
+    </div>
+
+  </div>
+
+  <div class="foot">
+    <div class="warn"><b>조심!</b> ${f.warn}</div>
+    <div class="keys"><b>이 말로 찾아보자 :</b> ${f.keys.map(k=>`<span class="kw">${k}</span>`).join('')}</div>
+    <div class="src"><span>찾아본 곳(책 이름 · 누리집) :</span><span class="l"></span></div>
+  </div>
+</article>`).join('');
+
+/* 인물 고르기 */
+const pick = document.getElementById('pick');
+pick.innerHTML = '<option value="">— 인물 고르기 (전체 24장) —</option>' +
+  FIG.map(f=>`<option value="${f.n}">${String(f.n).padStart(2,'0')}. ${f.name} (${f.st})</option>`).join('');
+
+function only(n){
+  document.querySelectorAll('.page').forEach(p=>{
+    p.classList.toggle('hide', !!n && p.dataset.n !== String(n));
+  });
+  pick.value = n || '';
+  window.scrollTo(0,0);
+  draw();
+}
+
+/* 쓰는 줄은 SVG 로 긋는다 — 줄 수가 아니라 줄 간격을 고정한다 */
+function draw(){
+  document.querySelectorAll('svg.rules').forEach(svg=>{
+    const w = svg.clientWidth, h = svg.clientHeight;
+    if(!w || !h) return;
+    const pitch = parseFloat(svg.dataset.pitch) || 26;
+    const n = Math.max(1, Math.round(h / pitch));
+    const gap = h / n;
+    let s = '';
+    for(let i=1;i<=n;i++){
+      const y = Math.round(gap*i) - 1.5;
+      s += `<line x1="1" y1="${y}" x2="${w-1}" y2="${y}"/>`;
+    }
+    svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+    svg.setAttribute('preserveAspectRatio','none');
+    svg.innerHTML = s;
+  });
+}
+draw();
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
+window.addEventListener('load', draw);
+window.addEventListener('resize', draw);
+window.addEventListener('beforeprint', draw);
+</script>
+</body>
+</html>

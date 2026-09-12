@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>AB 형식 — 섬마을</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --ink:#1b2836; --navy:#123a63; --deep:#15507f;
+  --sky:#2e86c1; --wind:#2fa39a; --gold:#c8963e; --red:#c0392b; --plum:#7d4a86;
+  --sun:#e07a3f; --sunl:#f2a36b;
+  --paper:#f3f7fb; --line:#cfdde8; --muted:#5f6f7d;
+  --acol:#d94f70; --bcol:#2e86c1;
+}
+
+html,body{height:100%;background:#0d1720;font-family:'Noto Sans KR',sans-serif;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;overflow:hidden}
+
+#stage{position:absolute;left:50%;top:50%;width:1280px;height:720px;
+  transform-origin:center center;background:var(--paper);overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,.6)}
+
+.slide{position:absolute;inset:0;padding:26px 40px;display:none;
+  flex-direction:column;background:var(--paper);--acc:var(--deep)}
+.slide.on{display:flex}
+.slide::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(circle at 7% 4%,rgba(46,134,193,.12),transparent 46%),
+             radial-gradient(circle at 96% 97%,rgba(224,122,63,.10),transparent 46%)}
+.slide>*{position:relative;z-index:1}
+
+.eyebrow{display:inline-block;font-size:18px;font-weight:700;color:#fff;
+  background:var(--acc);padding:4px 16px;border-radius:999px;margin-bottom:6px;align-self:flex-start}
+h1.title{font-size:52px;font-weight:900;color:var(--deep);line-height:1.16;letter-spacing:-.02em}
+h2.stitle{font-size:34px;font-weight:900;color:var(--acc);line-height:1.2;letter-spacing:-.02em}
+.rule{width:84px;height:6px;border-radius:4px;
+  background:linear-gradient(90deg,var(--sky),var(--sun));margin:6px 0 12px}
+p.body{font-size:22.5px;line-height:1.48;color:var(--ink);font-weight:500}
+p.body+p.body{margin-top:7px}
+p.small{font-size:18.5px;line-height:1.42;color:var(--muted);font-weight:500}
+b.hl{background:linear-gradient(transparent 58%,rgba(46,134,193,.30) 58%);font-weight:900;color:var(--deep)}
+b.hn{background:linear-gradient(transparent 58%,rgba(47,163,154,.30) 58%);font-weight:900;color:#1c7169}
+b.hr{background:linear-gradient(transparent 58%,rgba(217,79,112,.26) 58%);font-weight:900;color:#b0335a}
+b.ho{background:linear-gradient(transparent 58%,rgba(224,122,63,.28) 58%);font-weight:900;color:#a9531f}
+.sp{flex:1;min-height:0}
+
+.cover{justify-content:center;align-items:center;text-align:center;
+  background:linear-gradient(160deg,#2e86c1,#15507f 45%,#123a63 72%,#3b2540)}
+.cover h1{color:#fff;font-size:64px}
+.cover .sub{color:#bfe3f5;font-size:24px;font-weight:700;margin-top:12px}
+.cover .kr{font-family:'Gaegu',sans-serif;font-size:32px;color:#fff;opacity:.95;margin-top:20px;
+  border-top:3px solid rgba(255,255,255,.3);padding-top:16px;line-height:1.4}
+.cover::after{display:none}
+
+.act{background:#fff;border:3px solid var(--acc);border-radius:15px;padding:13px 17px}
+.term{background:#fff8e8;border-left:8px solid var(--gold);border-radius:0 12px 12px 0;
+  padding:13px 17px;font-size:19.5px;line-height:1.45}
+.cols{display:flex;gap:15px;flex:1;min-height:0}
+.card{background:#fff;border:2px solid var(--line);border-radius:13px;padding:12px 15px;
+  box-shadow:0 3px 10px rgba(20,50,80,.07)}
+
+.btn{font-family:inherit;font-size:19px;font-weight:700;border:0;border-radius:11px;
+  padding:10px 19px;min-height:48px;background:var(--acc);color:#fff;cursor:pointer}
+.btn.ghost{background:#fff;color:var(--acc);border:3px solid var(--acc)}
+.btn.a{background:var(--acol)} .btn.b{background:var(--bcol)}
+.btn.on{background:var(--wind)}
+.btn:active{transform:translateY(2px)}
+.btn.sm{font-size:17px;padding:8px 14px;min-height:42px;border-radius:9px}
+.btnrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+
+.nums{display:flex;flex-direction:column;gap:9px}
+.numrow{display:flex;gap:12px;align-items:flex-start;background:#fff;border:2px solid var(--line);
+  border-radius:13px;padding:10px 14px}
+.numrow .nn{flex:none;width:38px;height:38px;border-radius:50%;background:var(--acc);color:#fff;
+  font-size:20px;font-weight:900;display:grid;place-items:center}
+.numrow .nt{font-size:20.5px;line-height:1.36;font-weight:500;color:var(--ink);padding-top:2px}
+.numrow .nt b{font-weight:900;color:var(--deep)}
+
+table.cmp{width:100%;border-collapse:collapse;font-size:19px}
+table.cmp th,table.cmp td{border:2px solid var(--line);padding:7px 10px;text-align:left}
+table.cmp th{background:var(--acc);color:#fff;font-weight:700;font-size:18px}
+table.cmp td.k{font-weight:900;color:var(--navy);white-space:nowrap;background:#eef5fa}
+
+/* ===== 가락선 · 악보 띠 ===== */
+.melbox{position:relative;background:#fff;border:3px solid var(--line);border-radius:14px;
+  flex:1;min-height:0;overflow:hidden}
+.melbox svg{position:absolute;inset:0;width:100%;height:100%}
+.legend{display:flex;gap:14px;align-items:center;font-size:17px;font-weight:700;color:var(--muted)}
+.legend i{display:inline-block;width:26px;height:6px;border-radius:3px;margin-right:6px;vertical-align:middle}
+
+/* 마디 칩 */
+.mrow{display:flex;gap:6px}
+.mchip{flex:1;border:3px solid var(--line);border-radius:11px;background:#fff;padding:6px 4px;
+  text-align:center;transition:background .08s,border-color .08s,transform .08s}
+.mchip .mn{font-size:15px;font-weight:900;color:var(--muted);line-height:1}
+.mchip .mt{font-family:'Gaegu',sans-serif;font-size:20px;color:var(--ink);line-height:1.1;margin-top:2px;
+  white-space:nowrap;letter-spacing:-.04em}
+.mchip.A{border-color:#f0b9c6} .mchip.B{border-color:#a9d3ee}
+.mchip.on{background:#fff2c9;border-color:var(--gold);transform:translateY(-3px)}
+.mchip.same{background:#eaf7f5;border-color:var(--wind)}
+
+/* 층 그림 */
+.layer{display:flex;flex-direction:column;gap:16px}
+.lrow{display:flex;align-items:center;gap:10px}
+.lrow .lb{flex:none;width:118px;font-size:22px;font-weight:900;color:var(--deep);text-align:right}
+.lrow .lbar{flex:1;display:flex;gap:4px}
+.lrow .lbar span{flex:1;height:74px;border-radius:10px;background:#fff;border:2.5px solid var(--line);
+  display:grid;place-items:center;font-size:17px;font-weight:700;color:var(--muted)}
+.lrow.m1 .lbar span{background:#fdf2f5;border-color:#f0b9c6;color:#b0335a}
+.lrow.m2 .lbar span{background:#fff6e6;border-color:#e6c88a;color:#8a6420}
+.lrow.m3 .lbar span{background:#eef7ec;border-color:#a9cfa0;color:#3d7a36}
+.lrow.m4 .lbar span{background:#eaf3fb;border-color:#a9d3ee;color:#1b5e8f}
+.lrow .lnote{flex:none;width:200px;font-size:18.5px;font-weight:700;color:var(--muted);line-height:1.3}
+
+/* 파트 배지 */
+.pbadge{display:inline-grid;place-items:center;width:44px;height:44px;border-radius:12px;
+  font-size:26px;font-weight:900;color:#fff}
+.pbadge.A{background:var(--acol)} .pbadge.B{background:var(--bcol)}
+.pbadge.sm{width:32px;height:32px;font-size:19px;border-radius:9px}
+
+/* 퀴즈 */
+.quiz{display:flex;flex-direction:column;gap:12px;flex:1;min-height:0}
+.qstat{font-size:21px;font-weight:900;color:var(--deep)}
+.qres{font-size:25px;font-weight:900;min-height:34px}
+.qres.ok{color:#1c7169} .qres.no{color:var(--red)}
+
+/* 5음 건반 */
+.keys{display:flex;gap:8px;justify-content:center}
+.keys button{font-family:inherit;font-size:20px;font-weight:900;border:3px solid var(--line);
+  background:#fff;color:var(--deep);border-radius:12px;min-width:74px;min-height:62px;cursor:pointer}
+.keys button:active{background:#fff2c9}
+.keys button.pick{background:var(--sun);border-color:var(--sun);color:#fff}
+
+/* 가락 바꾸기 도구 */
+.maker{display:flex;gap:8px;align-items:stretch}
+.slot{flex:1;border:3px dashed var(--line);border-radius:12px;background:#fff;padding:7px 4px;
+  text-align:center;cursor:pointer;display:flex;flex-direction:column;justify-content:center;gap:3px}
+.slot.sel{border-style:solid;border-color:var(--sun);background:#fff4ea}
+.slot .sn{font-size:14px;font-weight:700;color:var(--muted)}
+.slot .sv{font-family:'Gaegu',sans-serif;font-size:30px;font-weight:700;color:var(--deep);line-height:1.1}
+.slot .sd{font-size:13px;color:var(--muted);font-weight:700}
+
+.imgbox{background:#fff;border:3px solid var(--line);border-radius:14px;overflow:hidden;
+  display:flex;align-items:center;justify-content:center}
+.imgbox img{width:100%;height:100%;object-fit:cover;display:block}
+
+.bar{position:fixed;left:0;right:0;bottom:0;height:46px;background:#0d1720;display:flex;
+  align-items:center;justify-content:center;gap:16px;z-index:50}
+.bar button{font-family:inherit;font-size:22px;font-weight:900;border:0;
+  color:#cfe6f5;background:#16293a;border-radius:9px;width:52px;height:34px;cursor:pointer}
+.bar #counter{color:#9fc0d6;font-size:16px;font-weight:700;min-width:76px;text-align:center}
+#progwrap{position:fixed;left:0;bottom:46px;height:4px;width:100%;background:rgba(255,255,255,.12)}
+#prog{height:100%;width:0;background:var(--sky);transition:width .2s}
+#zl,#zr{position:fixed;top:0;bottom:46px;width:12%;z-index:40}
+#zl{left:0}#zr{right:0}
+@media print{.bar,#zl,#zr,#progwrap{display:none}}
+</style>
+</head>
+<body>
+
+<div id="stage">
+
+<!-- 1 표지 -->
+<section class="slide cover on">
+  <h1>AB 형식</h1>
+  <div class="sub">「섬마을」 · 음악 교과서 76~77쪽</div>
+  <div class="kr">지난번엔 <b style="color:#f2a36b">a b a</b> 였는데<br>오늘은 왜 <b style="color:#f2a36b">A B</b> 일까?</div>
+</section>
+
+<!-- 2 후크 -->
+<section class="slide" style="--acc:var(--plum)">
+  <span class="eyebrow">생각 열기</span>
+  <h2 class="stitle">글자가 커졌다</h2>
+  <div class="rule"></div>
+  <div class="cols">
+    <div class="card" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:14px">
+      <div style="text-align:center">
+        <div style="font-size:20px;font-weight:700;color:var(--muted)">56~57쪽 · 「음악은 영원히」</div>
+        <div style="font-family:'Gaegu',sans-serif;font-size:86px;color:var(--acol);line-height:1.05">a b a</div>
+        <div style="font-size:20px;font-weight:700;color:var(--ink)">작은 글자 세 개</div>
+      </div>
+      <div style="text-align:center;border-top:2px dashed var(--line);padding-top:14px">
+        <div style="font-size:20px;font-weight:700;color:var(--muted)">76~77쪽 · 「섬마을」</div>
+        <div style="font-family:'Gaegu',sans-serif;font-size:86px;color:var(--bcol);line-height:1.05">A B</div>
+        <div style="font-size:20px;font-weight:700;color:var(--ink)">큰 글자 두 개</div>
+      </div>
+    </div>
+    <div style="flex:1.15;display:flex;flex-direction:column;gap:12px;justify-content:center">
+      <p class="body">교과서는 아무렇지 않게 글자 크기를 바꿔 놓았다. 그런데 이건 <b class="hl">실수도 멋내기도 아니다.</b></p>
+      <p class="body">a 와 A 는 <b class="hr">가리키는 덩어리의 크기가 다르다.</b> 낱말과 문단이 다르듯이.</p>
+      <div class="term">오늘 풀 문제 — <b>「서로 다른 두 개의 큰악절」</b>이라는 교과서 한 줄에서,<br><b>큰악절</b>이 도대체 얼마만 한 것인가?</div>
+      <div class="card" style="border-color:var(--plum)">
+        <p class="small" style="font-size:19px"><b style="color:var(--plum)">한 가지만 미리 말해 두면</b> —
+          a 는 <b>4마디</b>, A 는 <b>8마디</b>다. 같은 글자라도 <b class="hr">가리키는 길이가 두 배</b>다.
+          오늘은 그 8마디가 어떻게 생겼는지를 본다.</p>
+      </div>
+      <p class="small">먼저 노래부터 듣자. 귀로 먼저 겪고 이름은 나중에 붙인다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 3 먼저 듣기 -->
+<section class="slide" style="--acc:var(--deep)">
+  <span class="eyebrow">귀로 먼저</span>
+  <h2 class="stitle">「섬마을」 — 두 덩어리로 되어 있다</h2>
+  <div class="rule"></div>
+  <div class="btnrow" style="margin-bottom:9px">
+    <button class="btn a" id="p3a">🔊 앞부분 듣기</button>
+    <button class="btn b" id="p3b">🔊 뒷부분 듣기</button>
+    <button class="btn ghost" id="p3all">전체 듣기</button>
+    <button class="btn ghost sm" id="p3stop">■ 멈춤</button>
+    <span class="legend"><i style="background:var(--acol)"></i>앞부분 &nbsp; <i style="background:var(--bcol)"></i>뒷부분</span>
+  </div>
+  <div class="melbox" id="mel3"></div>
+  <div class="mrow" id="ly3" style="margin-top:9px"></div>
+  <p class="small" style="margin-top:7px">가락선은 음이 높을수록 위로 올라간다. 뒷부분이 <b class="hl">눈에 띄게 높은 데서 시작</b>하는 것이 보이는가?</p>
+</section>
+
+<!-- 4 음악의 층 -->
+<section class="slide" style="--acc:var(--gold)">
+  <span class="eyebrow">이름 붙이기</span>
+  <h2 class="stitle">음악에도 낱말과 문단이 있다</h2>
+  <div class="rule"></div>
+  <div class="cols" style="gap:16px">
+    <div style="flex:1.25;display:flex;flex-direction:column;gap:20px;justify-content:center">
+      <div class="layer">
+        <div class="lrow m1"><div class="lb">마디</div><div class="lbar">
+          <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span></div>
+          <div class="lnote">글자 한 자</div></div>
+        <div class="lrow m2"><div class="lb">동기</div><div class="lbar">
+          <span>2마디</span><span>2마디</span><span>2마디</span><span>2마디</span></div>
+          <div class="lnote">낱말 하나 — <b>생각의 씨앗</b></div></div>
+        <div class="lrow m3"><div class="lb">작은악절</div><div class="lbar">
+          <span>4마디 = 동기 2개</span><span>4마디 = 동기 2개</span></div>
+          <div class="lnote">문장 하나 — <b>숨 한 번</b></div></div>
+        <div class="lrow m4"><div class="lb">큰악절</div><div class="lbar">
+          <span>8마디 = 작은악절 2개</span></div>
+          <div class="lnote">문단 하나 — <b>할 말을 다 한 덩어리</b></div></div>
+      </div>
+      <div class="btnrow" style="margin-top:6px">
+        <button class="btn sm" id="p4m">마디 하나</button>
+        <button class="btn sm" id="p4d">동기 하나</button>
+        <button class="btn sm" id="p4s">작은악절 하나</button>
+        <button class="btn sm" id="p4b">큰악절 하나(=A)</button>
+        <button class="btn ghost sm" id="p4stop">■</button>
+      </div>
+    </div>
+    <div style="flex:.78;display:flex;flex-direction:column;gap:16px;justify-content:center">
+      <div class="term"><b>동기</b>는 2마디. 「노을이 젖어드는 둥근섬 마을」이 딱 하나다. 여기서 노래가 시작된다.</div>
+      <div class="term" style="border-color:#a9cfa0;background:#f1f8ef;border-left-color:#5a9a4e">
+        <b>작은악절</b>은 4마디. 한 번 숨 쉬고 끝나는 자리 — 악보의 <b>쉼표 모양 ’</b> 이 그 자리다.</div>
+      <div class="term" style="border-color:#a9d3ee;background:#eef5fb;border-left-color:var(--sky)">
+        <b>큰악절</b>은 8마디. 여기까지 와야 <b>「한 얘기가 끝났다」</b>는 느낌이 난다.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 섬마을 세어 보기 -->
+<section class="slide" style="--acc:var(--deep)">
+  <span class="eyebrow">세어 보기</span>
+  <h2 class="stitle">「섬마을」은 몇 층으로 되어 있나</h2>
+  <div class="rule"></div>
+  <div class="melbox" id="mel5" style="flex:1;min-height:250px"></div>
+  <div class="mrow" id="ly5" style="margin-top:8px"></div>
+  <div class="cols" style="margin-top:11px;flex:none;gap:12px;align-items:stretch">
+    <div class="card" style="flex:1;text-align:center;padding:9px 8px">
+      <div style="font-size:34px;font-weight:900;color:var(--deep);line-height:1.1">16</div>
+      <div style="font-size:18px;font-weight:700;color:var(--muted)">마디</div></div>
+    <div class="card" style="flex:1;text-align:center;padding:9px 8px">
+      <div style="font-size:34px;font-weight:900;color:var(--gold);line-height:1.1">8</div>
+      <div style="font-size:18px;font-weight:700;color:var(--muted)">동기(2마디씩)</div></div>
+    <div class="card" style="flex:1;text-align:center;padding:9px 8px">
+      <div style="font-size:34px;font-weight:900;color:#3d7a36;line-height:1.1">4</div>
+      <div style="font-size:18px;font-weight:700;color:var(--muted)">작은악절(4마디씩)</div></div>
+    <div class="card" style="flex:1.5;text-align:center;padding:9px 8px;background:#eef5fb;border-color:var(--sky)">
+      <div style="font-size:34px;font-weight:900;color:var(--sky);line-height:1.1">2</div>
+      <div style="font-size:18px;font-weight:700;color:var(--deep)">큰악절 = <b style="color:var(--acol)">A</b> 와 <b style="color:var(--bcol)">B</b></div></div>
+  </div>
+  <p class="small" style="margin-top:9px">그래서 이 노래의 형식은 <b class="hl">AB</b> 다 — 서로 다른 큰악절이 둘.</p>
+</section>
+
+<!-- 6 그래서 대문자 -->
+<section class="slide" style="--acc:var(--plum)">
+  <span class="eyebrow">오늘의 핵심</span>
+  <h2 class="stitle">대문자는 「더 큰 덩어리」라는 뜻이다</h2>
+  <div class="rule"></div>
+  <div class="cols" style="gap:14px">
+    <div class="card" style="flex:1;border-color:#f0b9c6;display:flex;flex-direction:column;gap:9px;justify-content:center">
+      <div style="font-family:'Gaegu',sans-serif;font-size:46px;color:var(--acol);line-height:1">a b a</div>
+      <p class="small" style="font-size:19px;color:var(--ink)">「음악은 영원히」 · 56쪽<br>
+        <b>작은악절</b>(4마디)이 세 개 — a 로 열고, b 로 다르게 가고, 다시 a 로 돌아온다.</p>
+      <div style="display:flex;gap:4px">
+        <div style="flex:1;height:38px;border-radius:8px;background:#fdf2f5;border:2.5px solid var(--acol);
+          display:grid;place-items:center;font-weight:900;color:var(--acol)">a · 4마디</div>
+        <div style="flex:1;height:38px;border-radius:8px;background:#fff;border:2.5px solid var(--line);
+          display:grid;place-items:center;font-weight:900;color:var(--muted)">b · 4마디</div>
+        <div style="flex:1;height:38px;border-radius:8px;background:#fdf2f5;border:2.5px solid var(--acol);
+          display:grid;place-items:center;font-weight:900;color:var(--acol)">a · 4마디</div>
+      </div>
+      <p class="small">돌아오는 것이 핵심이라 <b class="hr">「되풀이」</b>가 귀에 남는다.</p>
+    </div>
+    <div class="card" style="flex:1;border-color:#a9d3ee;display:flex;flex-direction:column;gap:9px;justify-content:center">
+      <div style="font-family:'Gaegu',sans-serif;font-size:46px;color:var(--bcol);line-height:1">A B</div>
+      <p class="small" style="font-size:19px;color:var(--ink)">「섬마을」 · 76쪽<br>
+        <b>큰악절</b>(8마디)이 두 개 — A 로 이야기하고, B 로 넘어가고, <b>돌아오지 않는다.</b></p>
+      <div style="display:flex;gap:4px">
+        <div style="flex:1;height:38px;border-radius:8px;background:#fdf2f5;border:2.5px solid var(--acol);
+          display:grid;place-items:center;font-weight:900;color:var(--acol)">A · 8마디</div>
+        <div style="flex:1;height:38px;border-radius:8px;background:#eef5fb;border:2.5px solid var(--bcol);
+          display:grid;place-items:center;font-weight:900;color:var(--bcol)">B · 8마디</div>
+      </div>
+      <p class="small">끝나고 다시 처음부터 부르면 자연히 A 로 돌아온다 — <b class="hl">노래를 한 번 더 부르는 것이 곧 되풀이다.</b></p>
+    </div>
+  </div>
+  <div class="term" style="margin-top:11px">글자가 같아도 <b>소문자는 작은악절, 대문자는 큰악절</b>. 크기를 모르면 「a 가 몇 마디냐」는 말이 아무 뜻이 없다.</div>
+</section>
+
+<!-- 7 반은 똑같다 -->
+<section class="slide" style="--acc:var(--wind)">
+  <span class="eyebrow">뜻밖의 사실</span>
+  <h2 class="stitle">A 와 B 는 「서로 다르다」는데 — 반은 똑같다</h2>
+  <div class="rule"></div>
+  <div class="mrow" id="sm7" style="margin-bottom:10px"></div>
+  <div class="btnrow" style="margin-bottom:10px">
+    <button class="btn sm" id="p7a">2마디(둥근섬 마을)</button>
+    <button class="btn sm" id="p7b">6마디(오색실 달아)</button>
+    <button class="btn sm" id="p7c">10마디(기를올 려라)</button>
+    <button class="btn sm" id="p7d">14마디(돛을내 려라)</button>
+    <button class="btn ghost sm" id="p7stop">■</button>
+  </div>
+  <div class="cols" style="gap:14px">
+    <div class="card" style="flex:1.1;display:flex;flex-direction:column;gap:9px">
+      <p class="body" style="font-size:21px">네 번 다 <b class="hn">완전히 같은 가락</b>이다. 음도 리듬도 하나 안 틀린다.</p>
+      <div style="display:flex;gap:6px">
+        <div style="flex:1;text-align:center;background:#eaf7f5;border:2.5px solid var(--wind);border-radius:10px;padding:6px 2px">
+          <div style="font-family:'Gaegu',sans-serif;font-size:30px;color:#1c7169;line-height:1">레</div>
+          <div style="font-size:13px;color:var(--muted);font-weight:700">♬</div></div>
+        <div style="flex:1;text-align:center;background:#eaf7f5;border:2.5px solid var(--wind);border-radius:10px;padding:6px 2px">
+          <div style="font-family:'Gaegu',sans-serif;font-size:30px;color:#1c7169;line-height:1">도</div>
+          <div style="font-size:13px;color:var(--muted);font-weight:700">♬</div></div>
+        <div style="flex:1.5;text-align:center;background:#eaf7f5;border:2.5px solid var(--wind);border-radius:10px;padding:6px 2px">
+          <div style="font-family:'Gaegu',sans-serif;font-size:30px;color:#1c7169;line-height:1">도</div>
+          <div style="font-size:13px;color:var(--muted);font-weight:700">♪.</div></div>
+        <div style="flex:1;text-align:center;background:#eaf7f5;border:2.5px solid var(--wind);border-radius:10px;padding:6px 2px">
+          <div style="font-family:'Gaegu',sans-serif;font-size:30px;color:#1c7169;line-height:1">레</div>
+          <div style="font-size:13px;color:var(--muted);font-weight:700">♬</div></div>
+        <div style="flex:2;text-align:center;background:#eaf7f5;border:2.5px solid var(--wind);border-radius:10px;padding:6px 2px">
+          <div style="font-family:'Gaegu',sans-serif;font-size:30px;color:#1c7169;line-height:1">낮은라</div>
+          <div style="font-size:13px;color:var(--muted);font-weight:700">♩.</div></div>
+      </div>
+      <p class="small">「둥근섬 마을」 「오색실 달아」 「기를올 려라」 「돛을내 려라」 —
+        <b>가사만 갈아 끼운 것</b>이다. 그러니 「A 와 B 가 다르다」는 말은 <b class="hr">통째로 다르다는 뜻이 아니다.</b></p>
+    </div>
+    <div class="card" style="flex:1;background:#eaf7f5;border-color:var(--wind);display:flex;flex-direction:column;gap:9px">
+      <p class="body" style="font-size:21px">노래는 이렇게 만든다 —<br><b class="hn">한쪽은 붙잡아 두고 한쪽만 바꾼다.</b></p>
+      <p class="small">전부 다르면 외우기 어렵고, 전부 같으면 지루하다. 그 사이를 고르는 것이 작곡이다.
+        지난 시간 <b>b 를 바꾸는 세 손잡이</b>와 같은 이야기다.</p>
+      <div class="sp"></div>
+      <div style="background:#fff;border-radius:10px;padding:9px 12px;border:2px solid var(--wind)">
+        <p class="small" style="font-size:17.5px">이 마디가 <b>네 번</b> 돌아오기 때문에, 노래를 처음 배우는 사람도
+          <b class="hn">절반은 금방 외운다.</b> 다 같이 부르는 노래일수록 이렇게 만든다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 8 다른 건 앞마디 -->
+<section class="slide" style="--acc:var(--sun)">
+  <span class="eyebrow">그럼 어디가 다른가</span>
+  <h2 class="stitle">다른 것은 앞마디 — 말하듯 vs 외치듯</h2>
+  <div class="rule"></div>
+  <div class="btnrow" style="margin-bottom:9px">
+    <button class="btn a sm" id="p8a">🔊 A 의 첫 마디</button>
+    <button class="btn b sm" id="p8b">🔊 B 의 첫 마디</button>
+    <button class="btn ghost sm" id="p8ab">두 개 이어서</button>
+    <button class="btn ghost sm" id="p8stop">■</button>
+  </div>
+  <div class="melbox" id="mel8" style="flex:none;height:196px"></div>
+  <div class="cols" style="margin-top:11px;gap:14px">
+    <div class="card" style="flex:1;border-color:#f0b9c6;display:flex;flex-direction:column;gap:7px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="pbadge A">A</span><b style="font-size:22px;color:var(--acol)">노을이 젖어드는…</b></div>
+      <p class="small" style="font-size:18.5px">음이 <b>미</b> 하나에 붙어 조금씩만 움직인다. 8분·16분음표가 촘촘해
+        <b class="hr">말을 하는 것처럼</b> 들린다. 풍경을 설명하는 자리다.</p>
+      <p class="small" style="font-size:17.5px;color:#b0335a"><b>두 마디에 12음절</b> · 가장 긴 음이 점8분 하나</p>
+    </div>
+    <div class="card" style="flex:1;border-color:#a9d3ee;display:flex;flex-direction:column;gap:7px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="pbadge B">B</span><b style="font-size:22px;color:var(--bcol)">에 헤—야…</b></div>
+      <p class="small" style="font-size:18.5px">여섯 음 위 <b>높은 솔</b>에서 <b>긴 음</b>으로 시작한다.
+        음절은 셋뿐인데 두 마디를 쓴다 — <b class="hl">말이 아니라 외침이다.</b></p>
+      <p class="small" style="font-size:17.5px;color:#1b5e8f"><b>두 마디에 8음절</b> · 첫 음 하나가 벌써 2박</p>
+    </div>
+  </div>
+</section>
+
+<!-- 9 에헤야 -->
+<section class="slide" style="--acc:var(--gold)">
+  <span class="eyebrow">B 를 더 들여다보면</span>
+  <h2 class="stitle">「에헤야」는 무슨 뜻일까 — 뜻이 없다</h2>
+  <div class="rule"></div>
+  <div class="cols" style="gap:15px">
+    <div style="flex:1.1;display:flex;flex-direction:column;gap:15px;justify-content:center">
+      <p class="body">국어사전을 찾아도 안 나온다. <b class="ho">에헤야 · 어기여차 · 얼씨구</b> 는
+        뜻을 전하는 말이 아니라 <b class="hl">힘을 맞추고 흥을 돋우는 소리</b>다.</p>
+      <p class="body">뜻이 없으니 <b>남는 것은 소리와 가락뿐</b>이다. 그래서 마음껏 길게, 높게 뽑을 수 있다.</p>
+      <div class="term">「늴리리야」를 배울 때도 같은 이야기를 했다 — <b>뜻이 없으니 신명만 남는다.</b>
+        <br>그때는 피리 소리 흉내였고, 이번엔 뱃사람들이 함께 내는 기합이다.</div>
+      <div style="display:flex;gap:7px">
+        <div style="flex:1;background:#fff;border:2px solid var(--line);border-radius:11px;padding:7px 4px;text-align:center">
+          <div style="font-family:'Gaegu',sans-serif;font-size:25px;color:var(--deep);line-height:1.1">에헤야</div>
+          <div style="font-size:14.5px;color:var(--muted);font-weight:700">뱃노래·들노래</div></div>
+        <div style="flex:1;background:#fff;border:2px solid var(--line);border-radius:11px;padding:7px 4px;text-align:center">
+          <div style="font-family:'Gaegu',sans-serif;font-size:25px;color:var(--deep);line-height:1.1">어기여차</div>
+          <div style="font-size:14.5px;color:var(--muted);font-weight:700">힘을 모을 때</div></div>
+        <div style="flex:1;background:#fff;border:2px solid var(--line);border-radius:11px;padding:7px 4px;text-align:center">
+          <div style="font-family:'Gaegu',sans-serif;font-size:25px;color:var(--deep);line-height:1.1">지화자</div>
+          <div style="font-size:14.5px;color:var(--muted);font-weight:700">흥이 날 때</div></div>
+        <div style="flex:1;background:#fff;border:2px solid var(--line);border-radius:11px;padding:7px 4px;text-align:center">
+          <div style="font-family:'Gaegu',sans-serif;font-size:25px;color:var(--deep);line-height:1.1">얼씨구</div>
+          <div style="font-size:14.5px;color:var(--muted);font-weight:700">장단을 받을 때</div></div>
+      </div>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;gap:15px;justify-content:center">
+      <div class="card" style="border-color:var(--gold);padding:16px 18px">
+        <b style="font-size:21px;color:var(--deep)">한 사람이 메기고 여럿이 받는다</b>
+        <p class="small" style="margin-top:6px">A 는 이야기를 들려주는 자리라 혼자 불러도 되지만,
+          B 는 <b>여럿이 같이 소리치는 자리</b>다. 뱃일도 탈춤도 이 구조다.</p>
+      </div>
+      <div class="btnrow">
+        <button class="btn sm" id="p9one">🔊 혼자 부르듯 (여리게)</button>
+        <button class="btn sm" id="p9all">🔊 여럿이 받듯 (세게)</button>
+        <button class="btn ghost sm" id="p9stop">■</button>
+      </div>
+      <p class="small">악보에도 A 는 <b>mp</b>(조금 여리게), B 는 <b>mf</b>(조금 세게)라고 적혀 있다.
+        <b class="ho">셈여림까지 형식을 따라간다.</b></p>
+    </div>
+  </div>
+</section>
+
+<!-- 10 가사 순서 -->
+<section class="slide" style="--acc:var(--sun)">
+  <span class="eyebrow">가사 속 숨은 순서</span>
+  <h2 class="stitle">B 의 네 마디는 배 한 척의 하루다</h2>
+  <div class="rule"></div>
+  <div class="cols" style="gap:12px;flex:1;min-height:0">
+    <div class="card" style="flex:1;text-align:center;border-color:var(--sun);padding:11px 8px;display:flex;flex-direction:column;justify-content:center">
+      <div style="font-size:52px;line-height:1.1">🚩</div>
+      <div style="font-family:'Gaegu',sans-serif;font-size:31px;color:var(--deep);line-height:1.15;margin-top:4px">기를 올려라</div>
+      <div style="font-size:18px;font-weight:700;color:var(--muted);margin-top:6px">깃발을 올린다<br><b style="color:var(--sun)">떠날 준비</b></div>
+    </div>
+    <div class="card" style="flex:1;text-align:center;border-color:var(--sun);padding:11px 8px;display:flex;flex-direction:column;justify-content:center">
+      <div style="font-size:52px;line-height:1.1">🚣</div>
+      <div style="font-family:'Gaegu',sans-serif;font-size:31px;color:var(--deep);line-height:1.15;margin-top:4px">노를 잡아라</div>
+      <div style="font-size:18px;font-weight:700;color:var(--muted);margin-top:6px">노를 젓는다<br><b style="color:var(--sun)">나아감</b></div>
+    </div>
+    <div class="card" style="flex:1;text-align:center;border-color:var(--sun);padding:11px 8px;display:flex;flex-direction:column;justify-content:center">
+      <div style="font-size:52px;line-height:1.1">⛵</div>
+      <div style="font-family:'Gaegu',sans-serif;font-size:31px;color:var(--deep);line-height:1.15;margin-top:4px">돛을 내려라</div>
+      <div style="font-size:18px;font-weight:700;color:var(--muted);margin-top:6px">돛을 접는다<br><b style="color:var(--sun)">멈춤</b></div>
+    </div>
+    <div class="card" style="flex:1;text-align:center;border-color:var(--sun);padding:11px 8px;display:flex;flex-direction:column;justify-content:center">
+      <div style="font-size:52px;line-height:1.1">⚓</div>
+      <div style="font-family:'Gaegu',sans-serif;font-size:31px;color:var(--deep);line-height:1.15;margin-top:4px">닻을 매어라</div>
+      <div style="font-size:18px;font-weight:700;color:var(--muted);margin-top:6px">닻을 묶는다<br><b style="color:var(--sun)">돌아옴</b></div>
+    </div>
+  </div>
+  <div class="cols" style="margin-top:13px;gap:14px;flex:none">
+    <div class="card" style="flex:1.2">
+      <p class="body" style="font-size:21px">네 마디를 순서대로 놓으면 <b class="ho">배가 나갔다가 돌아오는 한 바퀴</b>가 된다.
+        아무 말이나 늘어놓은 것이 아니다.</p>
+      <p class="small" style="margin-top:7px">그리고 A 를 다시 보자 — <b>「노을이 젖어드는」 「고깃배가 오색실 달아」
+        「고동소리 크게 울린다」.</b> 해 질 녘, 돌아오는 배다.</p>
+    </div>
+    <div class="card" style="flex:1;background:#fff4ea;border-color:var(--sun)">
+      <p class="body" style="font-size:21px"><b class="hl">A 는 바라보는 사람의 말</b>,
+        <b class="hr">B 는 배 위에서 일하는 사람의 말</b>이다.</p>
+      <p class="small" style="margin-top:7px">말하는 사람이 바뀌니 가락도 바뀐다 — 형식은 <b>그저 모양이 아니라 내용에서 나온다.</b></p>
+    </div>
+  </div>
+</section>
+
+<!-- 11 화음 -->
+<section class="slide" style="--acc:var(--wind)">
+  <span class="eyebrow">63쪽과 이어서</span>
+  <h2 class="stitle">A 와 B 가 다른데 — 화음은 똑같다</h2>
+  <div class="rule"></div>
+  <table class="cmp" style="margin-bottom:11px">
+    <tr><th style="width:88px">큰악절</th><th>1마디</th><th>2마디</th><th>3마디</th><th>4마디</th>
+        <th>5마디</th><th>6마디</th><th>7마디</th><th>8마디</th></tr>
+    <tr><td class="k" style="background:#fdf2f5;color:var(--acol)">A</td>
+        <td>Ⅰ</td><td>Ⅳ</td><td>Ⅰ</td><td>Ⅴ</td><td>Ⅰ</td><td>Ⅳ</td><td>Ⅰ</td><td>Ⅴ → Ⅰ</td></tr>
+    <tr><td class="k" style="background:#eef5fb;color:var(--bcol)">B</td>
+        <td>Ⅰ</td><td>Ⅳ</td><td>Ⅰ</td><td>Ⅴ</td><td>Ⅰ</td><td>Ⅳ</td><td>Ⅰ</td><td>Ⅴ → Ⅰ</td></tr>
+  </table>
+  <div class="btnrow" style="margin-bottom:10px">
+    <button class="btn sm" id="p11c">🔊 반주만 듣기 (화음)</button>
+    <button class="btn a sm" id="p11a">A + 반주</button>
+    <button class="btn b sm" id="p11b">B + 반주</button>
+    <button class="btn ghost sm" id="p11stop">■</button>
+  </div>
+  <div class="cols" style="gap:14px">
+    <div class="card" style="flex:1;display:flex;flex-direction:column;justify-content:center">
+      <p class="body" style="font-size:21px">반주만 들으면 <b class="hr">지금이 A 인지 B 인지 알 수 없다.</b>
+        여덟 마디 화음이 글자 하나 안 틀리고 같기 때문이다.</p>
+      <p class="small" style="margin-top:7px">형식을 정하는 것은 화음이 아니라 <b>가락</b>이다.
+        지난 시간에 「형식은 가사가 아니라 가락으로 정해진다」고 한 것과 같은 자리다.</p>
+    </div>
+    <div class="card" style="flex:1;background:#eaf7f5;border-color:var(--wind);display:flex;flex-direction:column;justify-content:center">
+      <p class="body" style="font-size:21px">덕분에 <b class="hn">반주 한 벌로 노래 전체를 칠 수 있다.</b></p>
+      <p class="small" style="margin-top:7px">그리고 이것이 교과서 4번 활동(가락 바꾸기)이 되는 까닭이다 —
+        <b>바닥(화음)이 그대로니 그 위에 다른 가락을 얹어도 어울린다.</b></p>
+    </div>
+  </div>
+</section>
+
+<!-- 12 다섯 음 -->
+<section class="slide" style="--acc:var(--plum)">
+  <span class="eyebrow">교과서 밖 이야기</span>
+  <h2 class="stitle">이 노래에는 음이 다섯 개뿐이다</h2>
+  <div class="rule"></div>
+  <div class="cols" style="gap:15px">
+    <div style="flex:1.05;display:flex;flex-direction:column;gap:10px;justify-content:center">
+      <p class="body">「섬마을」 16마디를 통째로 뒤져도 <b class="hr">시(♭시)와 미</b>는 한 번도 안 나온다.
+        쓰인 음은 <b class="hl">도·레·미·솔·라</b> 다섯 개뿐.</p>
+      <p class="body">바장조 악보에 화음까지 붙어 있지만, 가락 자체는 <b class="ho">우리 노래의 다섯 음</b>이다.</p>
+      <div class="term">「늴리리야」에서 배운 경토리도 <b>솔·라·도·레·미</b> 다섯 음이었다.
+        음 다섯이 똑같다 — 다른 것은 <b>어느 음에서 끝나느냐</b>뿐이다.
+        <br>경토리는 <b>솔</b>에서, 「섬마을」은 <b>도</b>에서 끝난다.</div>
+    </div>
+    <div style="flex:.95;display:flex;flex-direction:column;gap:12px;justify-content:center">
+      <div class="card" style="padding:14px 12px">
+        <p class="small" style="text-align:center;margin-bottom:9px">눌러서 들어 보자 — 이 다섯 음만으로 노래가 다 된다</p>
+        <div class="keys">
+          <button data-n="F4">도</button><button data-n="G4">레</button><button data-n="A4">미</button>
+          <button data-n="C5">솔</button><button data-n="D5">라</button>
+        </div>
+        <p class="small" style="text-align:center;margin-top:9px">피아노 <b>검은건반 다섯 개</b>만 눌러도 같은 원리다</p>
+      </div>
+      <div class="btnrow" style="justify-content:center">
+        <button class="btn sm" id="p12s">🔊 다섯 음 훑기</button>
+        <button class="btn ghost sm" id="p12e">🔊 시·미를 넣어 보면</button>
+        <button class="btn ghost sm" id="p12stop">■</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 13 퀴즈 -->
+<section class="slide" style="--acc:var(--deep)">
+  <span class="eyebrow">귀 시험</span>
+  <h2 class="stitle">지금 들은 것은 A 인가 B 인가</h2>
+  <div class="rule"></div>
+  <div class="quiz">
+    <div class="btnrow">
+      <button class="btn" id="q13play">🔊 한 도막 듣기</button>
+      <button class="btn a" id="q13a">A 같다</button>
+      <button class="btn b" id="q13b">B 같다</button>
+      <button class="btn ghost sm" id="q13again">다시 듣기</button>
+    </div>
+    <div class="qstat" id="q13stat">버튼을 누르면 A 나 B 에서 두 마디를 뽑아 들려준다.</div>
+    <div class="qres" id="q13res"></div>
+    <div class="cols" style="gap:14px">
+      <div class="card" style="flex:1;display:flex;flex-direction:column;justify-content:center">
+        <b style="font-size:20px;color:var(--acol)">A 를 가리키는 단서</b>
+        <p class="small" style="margin-top:6px">· 음이 <b>가운데쯤</b>에서 촘촘히 움직인다<br>
+          · 짧은 음이 많아 <b>말하는 것처럼</b> 들린다<br>· 음절이 많다(7~8자)</p>
+      </div>
+      <div class="card" style="flex:1;display:flex;flex-direction:column;justify-content:center">
+        <b style="font-size:20px;color:var(--bcol)">B 를 가리키는 단서</b>
+        <p class="small" style="margin-top:6px">· <b>높은 음</b>에서 시작한다<br>
+          · <b>긴 음</b>이 있어 뻗어 나간다<br>· 「에 헤—」 하고 한 음절을 여러 음으로 끈다</p>
+      </div>
+      <div class="card" style="flex:1;background:#fff8e8;border-color:var(--gold);display:flex;flex-direction:column;justify-content:center">
+        <b style="font-size:20px;color:#8a6420">함정 하나</b>
+        <p class="small" style="margin-top:6px">짝수 마디는 A 와 B 가 <b>똑같다.</b>
+          그 마디가 나오면 <b class="ho">아무도 못 맞힌다</b> — 틀려도 괜찮은 문제다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 14 AB는 어디에나 -->
+<section class="slide" style="--acc:var(--sky)">
+  <span class="eyebrow">더 넓게</span>
+  <h2 class="stitle">AB 는 네가 듣는 노래의 기본 꼴이다</h2>
+  <div class="rule"></div>
+  <div class="nums" style="gap:11px;flex:1;min-height:0">
+    <div class="numrow" style="flex:1;align-items:center"><div class="nn">1</div><div class="nt">
+      좋아하는 노래를 떠올려 보자. <b>절</b>이 있고 <b>후렴</b>이 있다.
+      절에서 이야기하고 후렴에서 함께 외친다 — 그게 바로 <b>A 와 B</b> 다.</div></div>
+    <div class="numrow" style="flex:1;align-items:center"><div class="nn">2</div><div class="nt">
+      후렴은 거의 언제나 <b>더 높고 더 길고 더 세다.</b>
+      「에 헤—야」가 높은 솔에서 시작한 것과 같은 이유다.</div></div>
+    <div class="numrow" style="flex:1;align-items:center"><div class="nn">3</div><div class="nt">
+      절이 두 번 나오면 <b>A A B</b>, 후렴 뒤에 또 절이 오면 <b>A B A B</b>.
+      <b class="hl">글자를 붙이는 방법만 알면 어떤 노래든 적을 수 있다.</b></div></div>
+    <div class="numrow" style="flex:1;align-items:center"><div class="nn">4</div><div class="nt">
+      더 큰 곡은 여기서 한 층 더 올라간다 — <b>ABA(세도막)</b>, <b>ABACA(론도)</b>.
+      가운데가 몇 개든 <b>두 가지 재료를 언제 내놓느냐</b>의 문제다.</div></div>
+  </div>
+  <div class="term" style="margin-top:11px">형식을 안다는 것은 <b>노래를 듣다가 「지금 어디쯤이다」를 알아채는 것</b>이다.
+    그러면 다음에 무엇이 올지 짐작이 되고, 여럿이 같이 부를 수 있다.</div>
+</section>
+
+<!-- 15 가락 바꾸기 -->
+<section class="slide" style="--acc:var(--sun)">
+  <span class="eyebrow">교과서 77쪽 4번</span>
+  <h2 class="stitle">B 의 첫 두 마디를 바꿔 보자</h2>
+  <div class="rule"></div>
+  <div class="cols" style="gap:14px;flex:1;min-height:0">
+    <div style="flex:1.25;display:flex;flex-direction:column">
+      <p class="small" style="margin-bottom:6px">칸을 고르고 아래 다섯 음 중 하나를 누른다 · 리듬은 교과서 그대로다</p>
+      <div class="maker" id="mk15" style="flex:1;min-height:130px"></div>
+      <div class="keys" id="mkkeys" style="margin-top:13px">
+        <button data-n="F4">도</button><button data-n="G4">레</button><button data-n="A4">미</button>
+        <button data-n="C5">솔</button><button data-n="D5">라</button>
+      </div>
+      <div class="btnrow" style="margin-top:13px">
+        <button class="btn sm" id="mkplay">🔊 내 가락 듣기</button>
+        <button class="btn ghost sm" id="mkfull">이어서 뒤까지</button>
+        <button class="btn ghost sm" id="mkreset">교과서 가락으로</button>
+        <button class="btn ghost sm" id="mkstop">■</button>
+      </div>
+      <div id="mkjudge" style="margin-top:9px;font-size:19px;font-weight:700;color:var(--muted);min-height:26px"></div>
+    </div>
+    <div class="card" style="flex:.85;background:#fff4ea;border-color:var(--sun);padding:14px 16px;display:flex;flex-direction:column;justify-content:space-between">
+      <b style="font-size:20px;color:#a9531f">교과서가 알려 준 네 가지</b>
+      <p class="small" style="margin-top:7px;font-size:18px;line-height:1.5">
+        ① 화음에 어울리는 음을 고른다 → 이 마디는 <b>Ⅰ 화음(도·미·솔)</b><br>
+        ② 노랫말에 맞게 <b>올라가고 내려간다</b><br>
+        ③ <b>리듬은 그대로</b> 쓴다<br>
+        ④ <b>AB 형식</b>을 생각한다 → B 답게 <b>높이</b> 시작할 것</p>
+      <p class="small" style="margin-top:8px;border-top:2px dashed #e0c0a0;padding-top:7px">
+        ④번이 오늘의 숙제다. 낮게만 만들면 A 와 구별이 안 되어 <b class="ho">AB 가 아니게 된다.</b></p>
+    </div>
+  </div>
+</section>
+
+<!-- 16 정리 -->
+<section class="slide" style="--acc:var(--deep)">
+  <span class="eyebrow">오늘 배운 것</span>
+  <h2 class="stitle">정리하고 부르기</h2>
+  <div class="rule"></div>
+  <div class="cols" style="gap:14px">
+    <div style="flex:1.05;display:flex;flex-direction:column;gap:11px">
+      <div class="numrow" style="padding:9px 13px;flex:1;align-items:center"><div class="nn" style="background:var(--gold)">1</div><div class="nt">
+        마디 → <b>동기</b>(2) → <b>작은악절</b>(4) → <b>큰악절</b>(8). 음악에도 층이 있다.</div></div>
+      <div class="numrow" style="padding:9px 13px;flex:1;align-items:center"><div class="nn" style="background:var(--plum)">2</div><div class="nt">
+        <b>소문자 aba</b> 는 작은악절 셋, <b>대문자 AB</b> 는 큰악절 둘.</div></div>
+      <div class="numrow" style="padding:9px 13px;flex:1;align-items:center"><div class="nn" style="background:var(--wind)">3</div><div class="nt">
+        A 와 B 는 <b>짝수 마디가 같다.</b> 다른 것은 앞마디 — 말하듯 vs 외치듯.</div></div>
+      <div class="numrow" style="padding:9px 13px;flex:1;align-items:center"><div class="nn" style="background:var(--sun)">4</div><div class="nt">
+        화음은 A·B 가 똑같다. <b>형식은 가락이 정한다.</b></div></div>
+    </div>
+    <div style="flex:.95;display:flex;flex-direction:column;gap:10px">
+      <div class="act" style="border-color:var(--deep)">
+        <b style="font-size:21px;color:var(--deep)">부르는 차례</b>
+        <p class="small" style="margin-top:6px;font-size:18.5px">① A 만 두 번 — 말하듯, <b>mp</b><br>
+          ② B 만 두 번 — 외치듯, <b>mf</b><br>
+          ③ 반 나눠서: A 는 한 모둠, B 는 다 같이<br>
+          ④ 끝까지 이어서 한 번</p>
+      </div>
+      <div class="btnrow">
+        <button class="btn a sm" id="p16a">A</button>
+        <button class="btn b sm" id="p16b">B</button>
+        <button class="btn sm" id="p16all">전체</button>
+        <button class="btn ghost sm" id="p16stop">■</button>
+      </div>
+      <p class="small">교과서 76쪽 1번은 <b>「가락의 흐름을 살려」</b> 부르라고 한다 —
+        오르내림을 손으로 그리며 부르면 그 말이 무슨 뜻인지 몸으로 안다.</p>
+    </div>
+  </div>
+</section>
+</div>
+
+<div id="zl"></div><div id="zr"></div>
+
+<div class="bar">
+  <button id="prev">‹</button>
+  <span id="counter">1 / 1</span>
+  <button id="next">›</button>
+  <button id="fsb">⛶</button>
+  <div id="progwrap"><div id="prog"></div></div>
+</div>
+
+<script>
+/* ===================== 소리 ===================== */
+let AC = null;
+function ac(){
+  if(!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
+  if(AC.state === 'suspended') AC.resume();
+  return AC;
+}
+const FREQ = { F3:174.61, G3:196.00, A3:220.00, Bb3:233.08, C4:261.63, D4:293.66,
+               E4:329.63, F4:349.23, G4:392.00, A4:440.00, Bb4:466.16, C5:523.25, D5:587.33, F5:698.46 };
+/* 계이름(바장조) */
+const SOL = { C4:'솔', D4:'라', F4:'도', G4:'레', A4:'미', Bb4:'파', C5:'솔', D5:'라', E4:'시' };
+const SOLL = { C4:'낮은솔', D4:'낮은라', F4:'도', G4:'레', A4:'미', C5:'높은솔', D5:'높은라' };
+/* 가락선 계단 — 이 곡에 나오는 다섯 음만 쓴다 */
+const STEP = { C4:0, D4:1, F4:2, G4:3, A4:4, Bb4:4.5, C5:5, D5:6, E4:1.5 };
+
+let nodes = [], timers = [];
+function reg(o){ nodes.push(o); }
+function stopAll(){
+  nodes.forEach(o => { try{ o.stop(); }catch(e){} });
+  nodes = [];
+  timers.forEach(clearTimeout); timers = [];
+  document.querySelectorAll('.mchip.on').forEach(e => e.classList.remove('on'));
+  document.querySelectorAll('.dotnow').forEach(e => e.setAttribute('opacity','0'));
+}
+function voice(f, when, dur, vol, type){
+  const a = ac(), o = a.createOscillator(), g = a.createGain();
+  o.type = type || 'triangle'; o.frequency.value = f;
+  g.gain.setValueAtTime(0, when);
+  g.gain.linearRampToValueAtTime(vol, when + .022);
+  g.gain.setValueAtTime(vol, when + Math.max(.03, dur - .07));
+  g.gain.exponentialRampToValueAtTime(.0001, when + dur + .04);
+  o.connect(g).connect(a.destination); o.start(when); o.stop(when + dur + .07);
+  reg(o);
+}
+
+/* ===================== 노래 ===================== */
+/* [음, 길이(8분음표 단위), 가사] — 교과서 76쪽 악보를 그대로 옮겼다 */
+const RAW = [
+/* 1*/['C4',1,'노'],['A4',1,'을'],['A4',1,'이'],['A4',1.5,'젖'],['A4',.5,'어'],['G4',.5,'드'],['A4',.5,'는'],
+/* 2*/['G4',.5,'둥'],['F4',.5,'근'],['F4',1.5,'섬'],['G4',.5,'마'],['D4',3,'을'],
+/* 3*/['C4',1,'금'],['F4',1,'물'],['F4',1,'결'],['F4',1.5,'파'],['G4',.5,'도'],['A4',.5,'위'],['F4',.5,'에'],
+/* 4*/['G4',.5,'갈'],['G4',.5,'매'],['G4',1.5,'기'],['D4',.5,'날'],['G4',3,'고'],
+/* 5*/['A4',1,'노'],['C5',1,'을'],['C5',.5,'실'],['C5',.5,'은'],['A4',1.5,'고'],['A4',.5,'깃'],['G4',.5,'배'],['A4',.5,'가'],
+/* 6*/['G4',.5,'오'],['F4',.5,'색'],['F4',1.5,'실'],['G4',.5,'달'],['D4',3,'아'],
+/* 7*/['C4',.5,'뚜'],['F4',.5,'뚜'],['F4',1.5,'뚜'],['G4',.5,'와'],['A4',1.5,'고'],['A4',.5,'동'],['G4',.5,'소'],['F4',.5,'리'],
+/* 8*/['G4',1.5,'크'],['G4',.5,'게'],['G4',.5,'울'],['D4',.5,'린'],['F4',3,'다'],
+/* 9*/['C5',2,'에'],['D5',.5,'헤'],['C5',.5,'—'],['A4',3,'야'],
+/*10*/['G4',.5,'기'],['F4',.5,'를'],['F4',1.5,'올'],['G4',.5,'려'],['D4',3,'라'],
+/*11*/['C4',1.5,'에'],['D4',.5,'헤'],['F4',.5,'—'],['G4',.5,'—'],['A4',.5,'에'],['C5',1.5,'헤'],['A4',1,'야'],
+/*12*/['G4',1.5,'노'],['G4',.5,'를'],['G4',.5,'잡'],['D4',.5,'아'],['G4',3,'라'],
+/*13*/['C5',2,'에'],['D5',.5,'헤'],['C5',.5,'—'],['A4',3,'야'],
+/*14*/['G4',.5,'돛'],['F4',.5,'을'],['F4',1.5,'내'],['G4',.5,'려'],['D4',3,'라'],
+/*15*/['C4',1.5,'에'],['D4',.5,'헤'],['F4',.5,'—'],['G4',.5,'—'],['A4',.5,'에'],['C5',1.5,'헤'],['A4',1,'야'],
+/*16*/['G4',1.5,'닻'],['A4',.5,'을'],['G4',.5,'매'],['D4',.5,'어'],['F4',3,'라']
+];
+/* 마디 번호(1~16)와 마디 안 위치를 붙인다 */
+const SONG = [];
+(function(){
+  let acc = 0;
+  RAW.forEach(n => {
+    const m = Math.floor(acc / 6) + 1;
+    SONG.push({ p:n[0], d:n[1], ly:n[2], m:m, at:acc, inM:acc - (m-1)*6 });
+    acc += n[1];
+  });
+})();
+const MEAS = [];                       /* MEAS[m] = 그 마디의 음들 */
+for(let m = 1; m <= 16; m++) MEAS[m] = SONG.filter(n => n.m === m);
+const HEAD = ['','노을','둥근','금물','갈매','노을','오색','뚜뚜','크게',
+              '에헤','기를','에헤','노를','에헤','돛을','에헤','닻을'];
+/* 화음 — A 와 B 가 똑같다 */
+const CH = { I:['F3','A3','C4'], IV:['Bb3','D4','F4'], V:['C4','E4','G4'] };
+const PROG = ['','I','IV','I','V','I','IV','I','V','I','IV','I','V','I','IV','I','V'];
+
+const E = 0.30;                        /* 8분음표 한 개의 길이(초) */
+
+function seq(notes, opt){
+  opt = opt || {}; stopAll();
+  const a = ac(), t0 = a.currentTime + .10;
+  let t = 0;
+  notes.forEach(n => {
+    voice(FREQ[n.p], t0 + t, n.d * E * .94, opt.vol || .20);
+    if(opt.mark){
+      timers.push(setTimeout(() => opt.mark(n), Math.max(0, (t0 + t - a.currentTime) * 1000)));
+    }
+    t += n.d * E;
+  });
+  if(opt.chord){
+    let ct = 0;
+    const ms = [...new Set(notes.map(n => n.m))];
+    ms.forEach(m => {
+      const c = CH[PROG[m]];
+      for(let half = 0; half < 2; half++){
+        const b = t0 + ct + half * 3 * E;
+        voice(FREQ[c[0]] / 2, b, E * .9, .13, 'sine');
+        for(let k = 1; k <= 2; k++)
+          c.forEach(p => voice(FREQ[p], b + k * E, E * .8, .055, 'triangle'));
+      }
+      /* 마지막 마디는 뒤 반박을 으뜸화음으로 닫는다 */
+      if(m === 8 || m === 16){
+        const c2 = CH.I, b = t0 + ct + 3 * E;
+        c2.forEach(p => voice(FREQ[p], b, E * 2.4, .05, 'triangle'));
+      }
+      ct += 6 * E;
+    });
+  }
+  if(opt.end) timers.push(setTimeout(opt.end, (t0 + t - a.currentTime) * 1000 + 120));
+  return t;
+}
+function playM(from, to, opt){
+  const list = [];
+  for(let m = from; m <= to; m++) list.push(...MEAS[m]);
+  return seq(list, opt);
+}
+
+/* ===================== 마디 칩 ===================== */
+function chips(el, opt){
+  opt = opt || {};
+  el.innerHTML = '';
+  for(let m = 1; m <= 16; m++){
+    const d = document.createElement('div');
+    d.className = 'mchip ' + (m <= 8 ? 'A' : 'B');
+    if(opt.same && [2,6,10,14].includes(m)) d.className += ' same';
+    d.dataset.m = m;
+    d.innerHTML = '<div class="mn">' + m + '</div><div class="mt">' + HEAD[m] + '</div>';
+    d.onclick = () => playM(m, m, { mark: mk(el) });
+    el.appendChild(d);
+  }
+}
+function mk(el){
+  return n => {
+    el.querySelectorAll('.mchip').forEach(c => c.classList.toggle('on', +c.dataset.m === n.m));
+  };
+}
+
+/* ===================== 가락선 ===================== */
+function melody(el, from, to, opt){
+  opt = opt || {};
+  const W = 1000, H = 300, padL = 56, padR = 18, padT = 22, padB = 30;
+  const list = [];
+  for(let m = from; m <= to; m++) list.push(...MEAS[m]);
+  const t0 = list[0].at, tot = list.reduce((s, n) => s + n.d, 0);
+  const x = t => padL + (t - t0) / tot * (W - padL - padR);
+  const y = p => padT + (6 - STEP[p]) / 6 * (H - padT - padB);
+  let g = '';
+  /* 가로 눈금 = 다섯 음 */
+  ['C4','D4','F4','G4','A4','C5','D5'].forEach(p => {
+    g += '<line x1="' + padL + '" y1="' + y(p) + '" x2="' + (W - padR) + '" y2="' + y(p) +
+         '" stroke="#e6eef5" stroke-width="1.5"/>' +
+         '<text x="6" y="' + (y(p) + 5) + '" font-size="13" fill="#9fb0bd" font-weight="700">' + SOLL[p] + '</text>';
+  });
+  /* 마디 구분 */
+  for(let m = from; m <= to + 1; m++){
+    const tt = (m - 1) * 6;
+    if(tt < t0 || tt > t0 + tot) continue;
+    g += '<line x1="' + x(tt) + '" y1="' + padT + '" x2="' + x(tt) + '" y2="' + (H - padB) +
+         '" stroke="#cfdde8" stroke-width="' + ((m - 1) % 8 === 0 ? 3 : 1.5) + '"/>';
+    if(m <= to) g += '<text x="' + (x(tt) + 5) + '" y="' + (H - padB + 17) + '" font-size="13" fill="#8fa3b3" font-weight="700">' + m + '</text>';
+  }
+  /* 선 + 점 */
+  ['A','B'].forEach(part => {
+    const seg = list.filter(n => (part === 'A' ? n.m <= 8 : n.m > 8));
+    if(!seg.length) return;
+    const col = part === 'A' ? '#d94f70' : '#2e86c1';
+    let d = '';
+    seg.forEach((n, i) => {
+      d += (i ? ' L' : 'M') + x(n.at) + ' ' + y(n.p) + ' L' + x(n.at + n.d) + ' ' + y(n.p);
+    });
+    g += '<path d="' + d + '" fill="none" stroke="' + col + '" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round" opacity=".9"/>';
+    seg.forEach(n => {
+      g += '<circle cx="' + x(n.at) + '" cy="' + y(n.p) + '" r="5" fill="' + col + '"/>';
+      if(opt.lyric && n.d >= 1)
+        g += '<text x="' + (x(n.at) + 3) + '" y="' + (y(n.p) - 9) + '" font-size="14" fill="#5f6f7d" font-weight="700">' + n.ly + '</text>';
+    });
+  });
+  /* 재생 표시 점 */
+  g += '<circle class="dotnow" cx="0" cy="0" r="10" fill="none" stroke="#c8963e" stroke-width="4" opacity="0"/>';
+  el.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none">' + g + '</svg>';
+  el._x = x; el._y = y;
+  return n => {
+    const c = el.querySelector('.dotnow');
+    if(!c) return;
+    if(n.at < t0 || n.at > t0 + tot){ c.setAttribute('opacity','0'); return; }
+    c.setAttribute('cx', x(n.at)); c.setAttribute('cy', y(n.p)); c.setAttribute('opacity','1');
+  };
+}
+
+/* ===================== 슬라이드 3 ===================== */
+const mel3 = document.getElementById('mel3'), ly3 = document.getElementById('ly3');
+const dot3 = melody(mel3, 1, 16, {});
+chips(ly3);
+const mark3 = n => { dot3(n); mk(ly3)(n); };
+document.getElementById('p3a').onclick = () => playM(1, 8, { mark: mark3 });
+document.getElementById('p3b').onclick = () => playM(9, 16, { mark: mark3 });
+document.getElementById('p3all').onclick = () => playM(1, 16, { mark: mark3 });
+document.getElementById('p3stop').onclick = stopAll;
+
+/* ===================== 슬라이드 4 ===================== */
+document.getElementById('p4m').onclick = () => playM(1, 1, {});
+document.getElementById('p4d').onclick = () => playM(1, 2, {});
+document.getElementById('p4s').onclick = () => playM(1, 4, {});
+document.getElementById('p4b').onclick = () => playM(1, 8, {});
+document.getElementById('p4stop').onclick = stopAll;
+
+/* ===================== 슬라이드 5 — 구조도 ===================== */
+(function(){
+  const el = document.getElementById('mel5'), ly5 = document.getElementById('ly5');
+  const W = 1000, H = 214, L = 14, R = 14;
+  const cw = (W - L - R) / 16;
+  let g = '';
+  for(let i = 0; i < 16; i++){
+    const xx = L + i * cw;
+    g += '<rect x="' + (xx + 1.5) + '" y="14" width="' + (cw - 3) + '" height="30" rx="6" fill="' +
+         (i < 8 ? '#fdf2f5' : '#eef5fb') + '" stroke="' + (i < 8 ? '#f0b9c6' : '#a9d3ee') + '" stroke-width="2"/>' +
+         '<text x="' + (xx + cw/2) + '" y="34" font-size="15" text-anchor="middle" fill="#5f6f7d" font-weight="700">' + (i+1) + '</text>';
+  }
+  const band = (y, n, cols, fill, stroke, txt, h) => {
+    let s = '';
+    const w = (W - L - R) / n;
+    for(let i = 0; i < n; i++){
+      const xx = L + i * w;
+      s += '<rect x="' + (xx + 2) + '" y="' + y + '" width="' + (w - 4) + '" height="' + h + '" rx="7" fill="' + fill +
+           '" stroke="' + stroke + '" stroke-width="2"/>' +
+           '<text x="' + (xx + w/2) + '" y="' + (y + h/2 + 6) + '" font-size="15" text-anchor="middle" fill="#4a5a68" font-weight="700">' +
+           (typeof txt === 'function' ? txt(i) : txt) + '</text>';
+    }
+    return s;
+  };
+  g += band(52, 8, 0, '#fff6e6', '#e6c88a', i => '동기 ' + (i+1), 30);
+  g += band(88, 4, 0, '#eef7ec', '#a9cfa0', i => '작은악절 ' + (i+1), 32);
+  g += '<rect x="' + (L+2) + '" y="126" width="' + ((W-L-R)/2 - 4) + '" height="46" rx="9" fill="#fdf2f5" stroke="#d94f70" stroke-width="3"/>' +
+       '<text x="' + (L + (W-L-R)/4) + '" y="155" font-size="21" text-anchor="middle" fill="#b0335a" font-weight="900">큰악절 A · 8마디</text>';
+  g += '<rect x="' + (L + (W-L-R)/2 + 2) + '" y="126" width="' + ((W-L-R)/2 - 4) + '" height="46" rx="9" fill="#eef5fb" stroke="#2e86c1" stroke-width="3"/>' +
+       '<text x="' + (L + (W-L-R)*3/4) + '" y="155" font-size="21" text-anchor="middle" fill="#1b5e8f" font-weight="900">큰악절 B · 8마디</text>';
+  g += '<text x="' + (L) + '" y="192" font-size="15" fill="#8fa3b3" font-weight="700">마디 16개 · 동기 8개 · 작은악절 4개 · 큰악절 2개</text>';
+  el.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none">' + g + '</svg>';
+  chips(ly5);
+})();
+
+/* ===================== 슬라이드 7 ===================== */
+(function(){
+  const el = document.getElementById('sm7');
+  chips(el, { same:true });
+  const m7 = mk(el);
+  [['p7a',2],['p7b',6],['p7c',10],['p7d',14]].forEach(([id, m]) => {
+    document.getElementById(id).onclick = () => playM(m, m, { mark:m7 });
+  });
+  document.getElementById('p7stop').onclick = stopAll;
+})();
+
+/* ===================== 슬라이드 8 ===================== */
+(function(){
+  const el = document.getElementById('mel8');
+  const W = 1000, H = 200;
+  const build = () => {
+    const mkline = (ms, col, x0, x1) => {
+      const list = []; ms.forEach(m => list.push(...MEAS[m]));
+      const t0 = list[0].at, tot = list.reduce((s,n) => s+n.d, 0);
+      const X = t => x0 + (t - t0)/tot * (x1 - x0);
+      const Y = p => 30 + (6 - STEP[p])/6 * (H - 30 - 34);
+      let d = '', s = '';
+      list.forEach((n,i) => { d += (i?' L':'M') + X(n.at) + ' ' + Y(n.p) + ' L' + X(n.at+n.d) + ' ' + Y(n.p); });
+      s += '<path d="' + d + '" fill="none" stroke="' + col + '" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>';
+      list.forEach(n => {
+        s += '<circle cx="' + X(n.at) + '" cy="' + Y(n.p) + '" r="5.5" fill="' + col + '"/>' +
+             '<text x="' + X(n.at) + '" y="' + (Y(n.p) - 11) + '" font-size="15" text-anchor="middle" fill="#4a5a68" font-weight="700">' + n.ly + '</text>';
+      });
+      return s;
+    };
+    let g = '';
+    ['C4','D4','F4','G4','A4','C5','D5'].forEach(p => {
+      const yy = 30 + (6 - STEP[p])/6 * (H - 64);
+      g += '<line x1="56" y1="' + yy + '" x2="974" y2="' + yy + '" stroke="#e6eef5" stroke-width="1.5"/>' +
+           '<text x="6" y="' + (yy+5) + '" font-size="13" fill="#9fb0bd" font-weight="700">' + SOLL[p] + '</text>';
+    });
+    g += '<line x1="500" y1="16" x2="500" y2="' + (H-20) + '" stroke="#cfdde8" stroke-width="3" stroke-dasharray="7 5"/>';
+    g += mkline([1,2], '#d94f70', 68, 470);
+    g += mkline([9,10], '#2e86c1', 530, 960);
+    g += '<text x="44" y="' + (H-6) + '" font-size="15" fill="#b0335a" font-weight="900">A 시작 — 1·2마디</text>';
+    g += '<text x="534" y="' + (H-6) + '" font-size="15" fill="#1b5e8f" font-weight="900">B 시작 — 9·10마디</text>';
+    el.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none">' + g + '</svg>';
+  };
+  build();
+  document.getElementById('p8a').onclick = () => playM(1, 2, {});
+  document.getElementById('p8b').onclick = () => playM(9, 10, {});
+  document.getElementById('p8ab').onclick = () => {
+    const list = [...MEAS[1], ...MEAS[2], ...MEAS[9], ...MEAS[10]];
+    seq(list, {});
+  };
+  document.getElementById('p8stop').onclick = stopAll;
+})();
+
+/* ===================== 슬라이드 9 ===================== */
+document.getElementById('p9one').onclick = () => playM(9, 10, { vol:.12 });
+document.getElementById('p9all').onclick = () => {
+  const t = playM(9, 10, { vol:.26 });
+  /* 여럿이 받는 느낌 — 옥타브를 살짝 겹친다 */
+  const a = ac(), t0 = a.currentTime + .10; let x = 0;
+  [...MEAS[9], ...MEAS[10]].forEach(n => {
+    voice(FREQ[n.p] / 2, t0 + x, n.d * E * .9, .10, 'sine');
+    x += n.d * E;
+  });
+};
+document.getElementById('p9stop').onclick = stopAll;
+
+/* ===================== 슬라이드 11 ===================== */
+document.getElementById('p11c').onclick = () => {
+  /* 반주만 — 8마디 */
+  stopAll();
+  const a = ac(), t0 = a.currentTime + .10;
+  for(let i = 0; i < 8; i++){
+    const c = CH[PROG[i+1]];
+    for(let half = 0; half < 2; half++){
+      const b = t0 + i * 6 * E + half * 3 * E;
+      voice(FREQ[c[0]] / 2, b, E * .9, .16, 'sine');
+      for(let k = 1; k <= 2; k++) c.forEach(p => voice(FREQ[p], b + k * E, E * .8, .07, 'triangle'));
+    }
+  }
+};
+document.getElementById('p11a').onclick = () => playM(1, 8, { chord:true });
+document.getElementById('p11b').onclick = () => playM(9, 16, { chord:true });
+document.getElementById('p11stop').onclick = stopAll;
+
+/* ===================== 슬라이드 12 ===================== */
+(function(){
+  document.querySelectorAll('.slide .keys button[data-n]').forEach(b => {
+    if(b.closest('#mkkeys')) return;
+    b.onclick = () => { stopAll(); const a = ac(); voice(FREQ[b.dataset.n], a.currentTime + .02, .7, .22); };
+  });
+  document.getElementById('p12s').onclick = () => {
+    stopAll(); const a = ac(), t0 = a.currentTime + .08;
+    ['F4','G4','A4','C5','D5','C5','A4','G4','F4'].forEach((p,i) => voice(FREQ[p], t0 + i*.28, .3, .2));
+  };
+  document.getElementById('p12e').onclick = () => {
+    stopAll(); const a = ac(), t0 = a.currentTime + .08;
+    ['F4','G4','A4','Bb4','C5','D5','E4'].forEach((p,i) => voice(FREQ[p], t0 + i*.28, .3, .2));
+    /* 부딪히는 두 음을 겹쳐 들려준다 */
+    timers.push(setTimeout(() => {
+      const b = ac().currentTime + .05;
+      voice(FREQ.A4, b, .9, .18); voice(FREQ.Bb4, b, .9, .18);
+    }, 2200));
+  };
+  document.getElementById('p12stop').onclick = stopAll;
+})();
+
+/* ===================== 슬라이드 13 — 퀴즈 ===================== */
+(function(){
+  let ans = null, last = null;
+  const stat = document.getElementById('q13stat'), res = document.getElementById('q13res');
+  function pick(){
+    const starts = [1,2,3,4,5,6,7,9,10,11,12,13,14,15];
+    let s; do { s = starts[Math.floor(Math.random()*starts.length)]; } while(s === last && starts.length > 1);
+    last = s; ans = s <= 8 ? 'A' : 'B';
+    return s;
+  }
+  function play(s){ playM(s, s+1, {}); }
+  let cur = null;
+  document.getElementById('q13play').onclick = () => {
+    cur = pick(); res.textContent = ''; res.className = 'qres';
+    stat.textContent = '잘 듣고 A 인지 B 인지 고르자.';
+    play(cur);
+  };
+  document.getElementById('q13again').onclick = () => { if(cur) play(cur); };
+  const judge = g => {
+    if(!cur){ stat.textContent = '먼저 「한 도막 듣기」를 누르자.'; return; }
+    const ok = g === ans;
+    res.textContent = ok ? '맞았다 — ' + ans + ' 였다 (' + cur + '·' + (cur+1) + '마디)'
+                         : '아니다 — ' + ans + ' 였다 (' + cur + '·' + (cur+1) + '마디)';
+    res.className = 'qres ' + (ok ? 'ok' : 'no');
+    stat.textContent = '「다시 듣기」로 확인해 보고, 다음 문제를 뽑자.';
+  };
+  document.getElementById('q13a').onclick = () => judge('A');
+  document.getElementById('q13b').onclick = () => judge('B');
+})();
+
+/* ===================== 슬라이드 15 — 가락 바꾸기 ===================== */
+(function(){
+  const box = document.getElementById('mk15'), keys = document.getElementById('mkkeys'),
+        judge = document.getElementById('mkjudge');
+  const ORIG = MEAS[9].map(n => n.p);
+  let cur = ORIG.slice(), sel = 0;
+  const LAB = ['에', '헤', '—', '야'], DUR = ['♩ (2박)', '♬', '♬', '♩. (3박)'];
+  function draw(){
+    box.innerHTML = '';
+    cur.forEach((p, i) => {
+      const d = document.createElement('div');
+      d.className = 'slot' + (i === sel ? ' sel' : '');
+      d.innerHTML = '<div class="sn">' + LAB[i] + '</div><div class="sv">' + SOL[p] + '</div><div class="sd">' + DUR[i] + '</div>';
+      d.onclick = () => { sel = i; draw(); };
+      box.appendChild(d);
+    });
+    say();
+  }
+  function notes(){
+    return MEAS[9].map((n, i) => ({ p:cur[i], d:n.d, ly:n.ly, m:9, at:n.at }));
+  }
+  function say(){
+    const I = ['F4','A4','C5'], out = [];
+    if(STEP[cur[0]] >= 5) out.push('✅ 높은 데서 시작했다 — B 답다');
+    else if(STEP[cur[0]] <= 2) out.push('⚠️ 너무 낮게 시작했다 — A 와 구별이 안 된다');
+    else out.push('△ 조금 더 높이 시작해 보자');
+    out.push(I.includes(cur[0]) ? '✅ 첫 음이 Ⅰ화음 음(도·미·솔)이다' : '△ 첫 음이 화음 밖이다 — 지나가는 음으로는 괜찮다');
+    if(cur.join() === ORIG.join()) judge.innerHTML = '<span style="color:#5f6f7d">교과서 가락 그대로다. 칸을 골라 음을 바꿔 보자.</span>';
+    else judge.innerHTML = out.join(' &nbsp;·&nbsp; ');
+  }
+  keys.querySelectorAll('button').forEach(b => {
+    b.onclick = () => {
+      cur[sel] = b.dataset.n;
+      stopAll(); voice(FREQ[b.dataset.n], ac().currentTime + .02, .5, .22);
+      sel = Math.min(3, sel + 1); draw();
+    };
+  });
+  document.getElementById('mkplay').onclick = () => seq(notes(), { chord:true });
+  document.getElementById('mkfull').onclick = () => seq([...notes(), ...MEAS[10], ...MEAS[11], ...MEAS[12]], { chord:true });
+  document.getElementById('mkreset').onclick = () => { cur = ORIG.slice(); sel = 0; draw(); };
+  document.getElementById('mkstop').onclick = stopAll;
+  draw();
+})();
+
+/* ===================== 슬라이드 16 ===================== */
+document.getElementById('p16a').onclick = () => playM(1, 8, { chord:true });
+document.getElementById('p16b').onclick = () => playM(9, 16, { chord:true });
+document.getElementById('p16all').onclick = () => playM(1, 16, { chord:true });
+document.getElementById('p16stop').onclick = stopAll;
+
+/* ===================== 넘기기 ===================== */
+const stage = document.getElementById('stage');
+const slides = [...stage.querySelectorAll('.slide')];
+let cur = 0;
+function show(i){
+  stopAll();
+  cur = Math.max(0, Math.min(slides.length - 1, i));
+  slides.forEach((s, n) => s.classList.toggle('on', n === cur));
+  document.getElementById('counter').textContent = (cur + 1) + ' / ' + slides.length;
+  const p = document.getElementById('prog');
+  p.style.width = ((cur + 1) / slides.length * 100) + '%';
+  p.style.background = getComputedStyle(slides[cur]).getPropertyValue('--acc');
+  try { history.replaceState(null, '', '#' + (cur + 1)); } catch(e){}
+}
+function go(d){ show(cur + d); }
+function fit(){
+  const s = Math.min(window.innerWidth / 1280, (window.innerHeight - 46) / 720);
+  stage.style.transform = 'translate(-50%,-50%) scale(' + s + ')';
+}
+function fs(){
+  if(!document.fullscreenElement) document.documentElement.requestFullscreen();
+  else document.exitFullscreen();
+}
+document.getElementById('prev').onclick = () => go(-1);
+document.getElementById('next').onclick = () => go(1);
+document.getElementById('fsb').onclick = fs;
+document.addEventListener('keydown', e => {
+  if(e.target.tagName === 'INPUT') return;
+  if(['ArrowRight','PageDown',' '].includes(e.key)){ e.preventDefault(); go(1); }
+  if(['ArrowLeft','PageUp'].includes(e.key)){ e.preventDefault(); go(-1); }
+  if(e.key === 'Home') show(0);
+  if(e.key === 'End') show(slides.length - 1);
+  if(e.key === 'f' || e.key === 'F') fs();
+});
+document.getElementById('zl').onclick = () => go(-1);
+document.getElementById('zr').onclick = () => go(1);
+let tx = 0, ty = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, {passive:true});
+document.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty;
+  if(Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) go(dx < 0 ? 1 : -1);
+}, {passive:true});
+window.addEventListener('resize', fit);
+fit();
+const hh = parseInt((location.hash || '').replace('#', ''), 10);
+show(isFinite(hh) && hh > 0 ? hh - 1 : 0);
+</script>
+</body>
+</html>

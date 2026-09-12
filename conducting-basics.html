@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>지휘 — 손으로 노래를 이끄는 법</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --ink:#1b2836; --navy:#123a63; --deep:#15507f;
+  --sky:#2e86c1; --wind:#2fa39a; --gold:#c8963e; --red:#c0392b; --plum:#7d4a86;
+  --paper:#f2f7fb; --line:#cfdde8; --muted:#5f6f7d;
+}
+
+html,body{height:100%;background:#0d1720;font-family:'Noto Sans KR',sans-serif;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;overflow:hidden}
+
+#stage{position:absolute;left:50%;top:50%;width:1280px;height:720px;
+  transform-origin:center center;background:var(--paper);overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,.6)}
+
+.slide{position:absolute;inset:0;padding:28px 42px;display:none;
+  flex-direction:column;background:var(--paper);--acc:var(--deep)}
+.slide.on{display:flex}
+.slide::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(circle at 8% 4%,rgba(46,134,193,.12),transparent 46%),
+             radial-gradient(circle at 96% 97%,rgba(47,163,154,.11),transparent 46%)}
+.slide>*{position:relative;z-index:1}
+
+.eyebrow{display:inline-block;font-size:18px;font-weight:700;color:#fff;
+  background:var(--acc);padding:4px 16px;border-radius:999px;margin-bottom:7px;align-self:flex-start}
+h1.title{font-size:54px;font-weight:900;color:var(--deep);line-height:1.16;letter-spacing:-.02em}
+h2.stitle{font-size:35px;font-weight:900;color:var(--acc);line-height:1.2;letter-spacing:-.02em}
+.rule{width:84px;height:6px;border-radius:4px;
+  background:linear-gradient(90deg,var(--sky),var(--wind));margin:7px 0 13px}
+p.body{font-size:23px;line-height:1.5;color:var(--ink);font-weight:500}
+p.body+p.body{margin-top:8px}
+p.small{font-size:19px;line-height:1.45;color:var(--muted);font-weight:500}
+b.hl{background:linear-gradient(transparent 58%,rgba(46,134,193,.30) 58%);font-weight:900;color:var(--deep)}
+b.hn{background:linear-gradient(transparent 58%,rgba(47,163,154,.30) 58%);font-weight:900;color:#1c7169}
+b.hr{background:linear-gradient(transparent 58%,rgba(192,57,43,.24) 58%);font-weight:900;color:var(--red)}
+.sp{flex:1;min-height:0}
+
+/* 표지 */
+.cover{justify-content:center;align-items:center;text-align:center;
+  background:linear-gradient(155deg,#2e86c1,#15507f 55%,#0d2f4d)}
+.cover h1{color:#fff;font-size:66px}
+.cover .sub{color:#bfe3f5;font-size:25px;font-weight:700;margin-top:13px}
+.cover .kr{font-family:'Gaegu',sans-serif;font-size:33px;color:#fff;opacity:.94;margin-top:24px;
+  border-top:3px solid rgba(255,255,255,.3);padding-top:18px;line-height:1.4}
+.cover::after{display:none}
+
+/* 공통 박스 */
+.act{background:#fff;border:3px solid var(--acc);border-radius:15px;padding:14px 18px}
+.term{background:#fff8e8;border-left:8px solid var(--gold);border-radius:0 12px 12px 0;
+  padding:11px 16px;font-size:19.5px;line-height:1.45}
+.cols{display:flex;gap:16px;flex:1;min-height:0}
+.card{background:#fff;border:2px solid var(--line);border-radius:13px;padding:13px 15px;
+  box-shadow:0 3px 10px rgba(20,50,80,.07)}
+
+.btn{font-family:inherit;font-size:19px;font-weight:700;border:0;border-radius:11px;
+  padding:11px 20px;min-height:48px;background:var(--acc);color:#fff;cursor:pointer}
+.btn.ghost{background:#fff;color:var(--acc);border:3px solid var(--acc)}
+.btn.on{background:var(--wind)}
+.btn:active{transform:translateY(2px)}
+.btn.sm{font-size:17px;padding:8px 14px;min-height:40px;border-radius:9px}
+.btnrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+
+/* 번호 목록 */
+.nums{display:flex;flex-direction:column;gap:10px}
+.numrow{display:flex;gap:13px;align-items:flex-start;background:#fff;border:2px solid var(--line);
+  border-radius:13px;padding:11px 15px}
+.numrow .nn{flex:none;width:40px;height:40px;border-radius:50%;background:var(--acc);color:#fff;
+  font-size:21px;font-weight:900;display:grid;place-items:center}
+.numrow .nt{font-size:21px;line-height:1.38;font-weight:500;color:var(--ink);padding-top:3px}
+.numrow .nt b{font-weight:900;color:var(--deep)}
+
+/* ======== 지휘 연습기 ======== */
+.cond{display:flex;flex-direction:column;gap:8px;min-height:0;flex:1}
+.cond .pad{position:relative;flex:1;min-height:0;background:#fff;border:3px solid var(--line);
+  border-radius:16px;overflow:hidden}
+.cond svg.cvs{position:absolute;inset:0;width:100%;height:100%}
+.cond .bignum{position:absolute;left:14px;top:8px;font-size:74px;font-weight:900;
+  color:var(--acc);opacity:.36;line-height:1;font-family:'Gaegu',sans-serif}
+.cond .patname{position:absolute;right:16px;top:12px;font-size:21px;font-weight:900;color:var(--muted)}
+.cond .hint{position:absolute;left:0;right:0;bottom:8px;text-align:center;font-size:16.5px;
+  color:var(--muted);font-weight:700}
+.cond .ctl{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.cond .seg{display:flex;gap:0;border:3px solid var(--acc);border-radius:11px;overflow:hidden}
+.cond .seg button{font-family:inherit;font-size:18px;font-weight:900;border:0;padding:8px 15px;
+  min-height:42px;background:#fff;color:var(--acc);cursor:pointer}
+.cond .seg button.on{background:var(--acc);color:#fff}
+.cond .spd{display:flex;align-items:center;gap:8px;font-size:17px;font-weight:700;color:var(--muted)}
+.cond input[type=range]{width:150px;accent-color:var(--acc)}
+.cond .val{font-size:17px;font-weight:900;color:var(--acc);min-width:76px}
+.cond .toggle{font-family:inherit;font-size:17px;font-weight:700;border:3px solid var(--line);
+  background:#fff;color:var(--muted);border-radius:11px;padding:8px 13px;min-height:42px;cursor:pointer}
+.cond .toggle.on{border-color:var(--wind);background:var(--wind);color:#fff}
+
+/* 가사 띠 */
+.lyric{display:flex;gap:8px}
+.lyric .mea{flex:1;background:#fff;border:3px solid var(--line);border-radius:12px;
+  padding:8px 6px;text-align:center;transition:background .08s,border-color .08s}
+.lyric .mea.on{background:#e6f3fb;border-color:var(--sky)}
+.lyric .mea .mk{font-size:20px;font-weight:900;color:var(--sky);line-height:1}
+.lyric .mea .tx{font-family:'Gaegu',sans-serif;font-size:29px;color:var(--ink);line-height:1.15;margin-top:2px}
+.lyric .mea.pick .tx{color:var(--deep)}
+
+/* 비교표 */
+table.cmp{width:100%;border-collapse:collapse;font-size:19px}
+table.cmp th,table.cmp td{border:2px solid var(--line);padding:8px 11px;text-align:left}
+table.cmp th{background:var(--acc);color:#fff;font-weight:700;font-size:18px}
+table.cmp td.k{font-weight:900;color:var(--navy);white-space:nowrap;background:#eef5fa}
+
+/* 네 도형 모아보기 */
+.quad{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;flex:1;min-height:0}
+.quad>div{display:flex;flex-direction:column;min-height:0}
+.quad .cond{gap:5px}
+.quad .cond .pad{border-width:2px}
+.quad .qname{text-align:center;font-size:19px;font-weight:900;color:var(--deep)}
+/* 네 개를 나란히 놓을 때는 칸마다 이름이 이미 위에 있다 — 안내 문구와 큰 숫자는 덜어 낸다 */
+.quad .bignum,.quad .patname,.quad .hint{display:none}
+</style>
+</head>
+<body>
+
+<div id="stage"></div>
+<div id="zl"></div><div id="zr"></div>
+
+<div class="bar">
+  <button id="prev">‹</button>
+  <span id="counter">1 / 1</span>
+  <button id="next">›</button>
+  <button id="fsb">⛶</button>
+  <div id="progwrap"><div id="prog"></div></div>
+</div>
+
+<style>
+.bar{position:fixed;left:0;right:0;bottom:0;height:46px;background:#0d1720;display:flex;
+  align-items:center;justify-content:center;gap:16px;z-index:50}
+.bar button{font-family:inherit;font-size:22px;font-weight:900;border:0;
+  color:#cfe6f5;background:#16293a;border-radius:9px;width:52px;height:34px;cursor:pointer}
+.bar #counter{color:#9fc0d6;font-size:16px;font-weight:700;min-width:76px;text-align:center}
+#progwrap{position:fixed;left:0;bottom:46px;height:4px;width:100%;background:rgba(255,255,255,.12)}
+#prog{height:100%;width:0;background:var(--sky);transition:width .2s}
+#zl,#zr{position:fixed;top:0;bottom:46px;width:12%;z-index:40}
+#zl{left:0}#zr{right:0}
+@media print{.bar,#zl,#zr,#progwrap{display:none}}
+</style>
+
+<script>
+/* ===================== 소리 ===================== */
+let AC = null;
+function ac(){
+  if(!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
+  if(AC.state === 'suspended') AC.resume();
+  return AC;
+}
+/* 메트로놈 클릭. lv: 2=강(마디 첫 박) 1=중 0=약 */
+function click(lv){
+  const a = ac(), t = a.currentTime;
+  const f = lv === 2 ? 1240 : lv === 1 ? 980 : 820;
+  const v = lv === 2 ? .42 : lv === 1 ? .26 : .17;
+  const o = a.createOscillator(), g = a.createGain();
+  o.type = 'triangle'; o.frequency.value = f;
+  g.gain.setValueAtTime(v, t);
+  g.gain.exponentialRampToValueAtTime(.0001, t + .07);
+  o.connect(g).connect(a.destination); o.start(t); o.stop(t + .09);
+  if(lv === 2){ /* 강박에 낮은 몸통을 얹는다 */
+    const o2 = a.createOscillator(), g2 = a.createGain();
+    o2.type = 'sine'; o2.frequency.value = 165;
+    g2.gain.setValueAtTime(.30, t);
+    g2.gain.exponentialRampToValueAtTime(.0001, t + .11);
+    o2.connect(g2).connect(a.destination); o2.start(t); o2.stop(t + .13);
+  }
+}
+/* 부드러운 한 음 */
+function tone(freq, when, dur, vol, type){
+  const a = ac(), t = a.currentTime + (when || 0);
+  const o = a.createOscillator(), g = a.createGain();
+  o.type = type || 'triangle'; o.frequency.value = freq;
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(vol, t + .018);
+  g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+  o.connect(g).connect(a.destination); o.start(t); o.stop(t + dur + .05);
+}
+const N = { D3:146.83, E3:164.81, Fs3:185.00, G3:196.00, A3:220.00, B3:246.94, Cs4:277.18,
+            D4:293.66, E4:329.63, Fs4:369.99, G4:392.00, A4:440.00, B4:493.88, Cs5:554.37, D5:587.33 };
+
+/* ===================== 지휘 도형 ===================== */
+/* 좌표: x 는 가운데가 0(오른쪽이 +), y 는 아래로 갈수록 큼.
+   전부 「지휘자 본인이 보는 자리」다 — 화면 속 손과 같은 쪽으로 움직이면 된다. */
+const PAT = {
+  2: { name:'두 박',   pts:[[0,112],[70,26]] },
+  3: { name:'세 박',   pts:[[0,112],[84,68],[36,14]] },
+  4: { name:'네 박',   pts:[[0,112],[-84,76],[88,76],[34,16]] },
+  6: { name:'여섯 박', pts:[[0,116],[-46,106],[-94,80],[70,88],[108,58],[38,12]] }
+};
+const BCOL = ['#2e86c1','#e08a2e','#8e44ad','#2fa39a','#d94f70','#2f6fd0'];
+
+function bez(p0,c1,c2,p1,t){
+  const u = 1 - t, a = u*u*u, b = 3*u*u*t, c = 3*u*t*t, d = t*t*t;
+  return [a*p0[0] + b*c1[0] + c*c2[0] + d*p1[0],
+          a*p0[1] + b*c1[1] + c*c2[1] + d*p1[1]];
+}
+/* 박 i → 박 i+1 구간의 제어점.
+   나갈 때는 위로 튕기고(r0), 들어올 때는 위에서 떨어진다(r1). */
+function ctrl(p0, p1, last){
+  const dx = p1[0] - p0[0];
+  const r0 = last ? 26 : 40, r1 = last ? 56 : 46;
+  return [[p0[0] + dx*.12, p0[1] - r0], [p1[0] - dx*.30, p1[1] - r1]];
+}
+function pathOf(pts){
+  let d = 'M' + pts[0][0] + ' ' + pts[0][1];
+  for(let i = 0; i < pts.length; i++){
+    const p0 = pts[i], p1 = pts[(i+1) % pts.length], last = (i === pts.length - 1);
+    const c = ctrl(p0, p1, last);
+    d += ' C' + c[0][0] + ' ' + c[0][1] + ',' + c[1][0] + ' ' + c[1][1] + ',' + p1[0] + ' ' + p1[1];
+  }
+  return d;
+}
+/* 박점에서 빠르고 꼭대기에서 느리다 — 실제 팔의 움직임 */
+function ease(t){ return t + .52 * Math.sin(2 * Math.PI * t) / (2 * Math.PI); }
+
+const conds = [];
+class Cond{
+  constructor(el){
+    this.el = el;
+    const d = el.dataset;
+    this.pat = +(d.pat || 4);
+    this.bpm = +(d.bpm || 72);
+    this.ctlSet = (d.ctl || '').split(',').filter(Boolean);
+    this.sound = d.snd !== '0';
+    this.accomp = d.accomp === '1';
+    this.song = d.song === '1';
+    this.dq = +(d.dq || 52);
+    this.scale = +(d.scale || 1);
+    /* 보기 칸이 세로로 길면(네 개 나란히 놓을 때) 도형이 가로에 맞춰지며 작아진다 — 칸 비율에 맞춰 준다 */
+    this.vb = d.vb || '-160 -46 320 196';
+    this.mirror = false;
+    this.running = false;
+    this.t0 = 0; this.lastB = -1; this.lastE = -1;
+    this.trail = [];
+    this.onMeasure = null;
+    this.build();
+    conds.push(this);
+  }
+  beatMs(){
+    if(this.song) return this.pat === 6 ? 60000 / this.dq / 3 : 60000 / this.dq;
+    return 60000 / this.bpm;
+  }
+  eighthMs(){ return 60000 / this.dq / 3; }
+
+  build(){
+    const e = this.el;
+    e.innerHTML =
+      '<div class="pad">' +
+        '<div class="bignum">·</div><div class="patname"></div>' +
+        '<svg class="cvs" viewBox="' + this.vb + '" preserveAspectRatio="xMidYMid meet">' +
+          '<path class="guide" fill="none" stroke="#c6d8e6" stroke-width="2.6" stroke-linecap="round"/>' +
+          '<path class="trail" fill="none" stroke="#2e86c1" stroke-width="5" stroke-linecap="round" ' +
+                'stroke-linejoin="round" opacity=".30"/>' +
+          '<g class="pts"></g>' +
+          '<circle class="hand" r="12" fill="#15507f" stroke="#fff" stroke-width="3.5"/>' +
+        '</svg>' +
+        '<div class="hint"></div>' +
+      '</div>' +
+      '<div class="ctl"></div>';
+    this.pad = e.querySelector('.pad');
+    this.svg = e.querySelector('svg.cvs');
+    this.gGuide = e.querySelector('.guide');
+    this.gTrail = e.querySelector('.trail');
+    this.gPts = e.querySelector('.pts');
+    this.gHand = e.querySelector('.hand');
+    this.big = e.querySelector('.bignum');
+    this.pname = e.querySelector('.patname');
+    this.hint = e.querySelector('.hint');
+    this.buildCtl();
+    this.draw();
+  }
+  buildCtl(){
+    const c = this.el.querySelector('.ctl');
+    let h = '';
+    if(this.ctlSet.includes('play')) h += '<button class="btn play">▶ 시작</button>';
+    if(this.ctlSet.includes('pat')){
+      h += '<div class="seg patseg">' +
+        [2,3,4,6].map(n => '<button data-p="' + n + '">' + n + '박</button>').join('') + '</div>';
+    }
+    if(this.ctlSet.includes('sixtwo')){
+      h += '<div class="seg patseg">' +
+        '<button data-p="6">여섯 박</button><button data-p="2">두 박</button></div>';
+    }
+    if(this.ctlSet.includes('spd')){
+      const lab = this.song ? '곡 빠르기' : '빠르기';
+      const v = this.song ? this.dq : this.bpm;
+      const mn = this.song ? 34 : 40, mx = this.song ? 112 : 168;
+      h += '<div class="spd"><span>' + lab + '</span>' +
+           '<input type="range" class="rng" min="' + mn + '" max="' + mx + '" value="' + v + '">' +
+           '<span class="val"></span></div>';
+    }
+    if(this.ctlSet.includes('size')){
+      h += '<div class="seg sizeseg">' +
+        '<button data-s="0.55">여리게</button><button data-s="1">보통</button>' +
+        '<button data-s="1.38">세게</button></div>';
+    }
+    if(this.ctlSet.includes('snd')) h += '<button class="toggle sndb">🔊 박 소리</button>';
+    if(this.ctlSet.includes('acc')) h += '<button class="toggle accb">🎵 반주</button>';
+    if(this.ctlSet.includes('mir')) h += '<button class="toggle mirb">🪞 마주 보기</button>';
+    c.innerHTML = h;
+
+    const q = s => c.querySelector(s), qa = s => [...c.querySelectorAll(s)];
+    const pb = q('.play');
+    if(pb) pb.onclick = () => { this.running ? this.stop() : this.start(); };
+    qa('.patseg button').forEach(b => {
+      b.onclick = () => { this.setPat(+b.dataset.p); if(!this.running) this.start(); };
+    });
+    const rng = q('.rng');
+    if(rng) rng.oninput = () => {
+      const v = +rng.value;
+      if(this.song) this.dq = v; else this.bpm = v;
+      this.rebase(); this.syncCtl();
+    };
+    qa('.sizeseg button').forEach(b => {
+      b.onclick = () => { this.scale = +b.dataset.s; this.draw(); this.syncCtl(); if(!this.running) this.start(); };
+    });
+    const sb = q('.sndb');
+    if(sb) sb.onclick = () => { this.sound = !this.sound; this.syncCtl(); };
+    const ab = q('.accb');
+    if(ab) ab.onclick = () => { this.accomp = !this.accomp; this.syncCtl(); };
+    const mb = q('.mirb');
+    if(mb) mb.onclick = () => { this.mirror = !this.mirror; this.draw(); this.syncCtl(); };
+    this.syncCtl();
+  }
+  syncCtl(){
+    const c = this.el.querySelector('.ctl');
+    const pb = c.querySelector('.play');
+    if(pb) pb.textContent = this.running ? '⏸ 멈춤' : '▶ 시작';
+    c.querySelectorAll('.patseg button').forEach(b => b.classList.toggle('on', +b.dataset.p === this.pat));
+    c.querySelectorAll('.sizeseg button').forEach(b => b.classList.toggle('on', +b.dataset.s === this.scale));
+    const v = c.querySelector('.val');
+    if(v){
+      if(this.song) v.textContent = '♩. = ' + this.dq;
+      else v.textContent = this.bpm + ' BPM';
+    }
+    const sb = c.querySelector('.sndb'); if(sb) sb.classList.toggle('on', this.sound);
+    const ab = c.querySelector('.accb'); if(ab) ab.classList.toggle('on', this.accomp);
+    const mb = c.querySelector('.mirb'); if(mb) mb.classList.toggle('on', this.mirror);
+    this.hint.textContent = this.mirror
+      ? '마주 보고 따라 하기 — 선생님이 앞에서 보여 줄 때'
+      : '화면 속 손과 같은 쪽으로 움직인다';
+  }
+  pts(){
+    const s = this.scale, m = this.mirror ? -1 : 1;
+    return PAT[this.pat].pts.map(p => [p[0] * s * m, 72 + (p[1] - 72) * s]);
+  }
+  draw(){
+    const pts = this.pts();
+    this.gGuide.setAttribute('d', pathOf(pts));
+    this.gPts.innerHTML = pts.map((p, i) =>
+      '<g class="bp" data-i="' + i + '">' +
+        '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="11.5" fill="#fff" stroke="' + BCOL[i] + '" stroke-width="3"/>' +
+        '<text x="' + p[0] + '" y="' + (p[1] + 5.2) + '" text-anchor="middle" font-size="14" ' +
+              'font-weight="900" fill="' + BCOL[i] + '" font-family="Noto Sans KR,sans-serif">' + (i+1) + '</text>' +
+      '</g>').join('');
+    this.bps = [...this.gPts.querySelectorAll('.bp')];
+    this.pname.textContent = PAT[this.pat].name;
+    this.gHand.setAttribute('cx', pts[0][0]);
+    this.gHand.setAttribute('cy', pts[0][1]);
+    this.trail = [];
+    this.gTrail.setAttribute('d', '');
+  }
+  setPat(n){
+    this.pat = n; this.draw(); this.rebase(); this.syncCtl();
+  }
+  rebase(){ /* 빠르기·박자가 바뀌어도 지금 자리를 이어서 */
+    if(this.running) this.t0 = performance.now();
+    this.lastB = -1; this.lastE = -1;
+  }
+  start(){
+    if(this.sound || this.accomp) ac();
+    this.running = true; this.t0 = performance.now();
+    this.lastB = -1; this.lastE = -1; this.trail = [];
+    this.syncCtl();
+  }
+  stop(){
+    this.running = false; this.syncCtl();
+    this.bps && this.bps.forEach(g => this.markPt(g, false));
+  }
+  markPt(g, on){
+    const c = g.querySelector('circle'), i = +g.dataset.i;
+    c.setAttribute('r', on ? 16 : 11.5);
+    c.setAttribute('fill', on ? BCOL[i] : '#fff');
+    g.querySelector('text').setAttribute('fill', on ? '#fff' : BCOL[i]);
+  }
+  frame(now){
+    if(!this.running) return;
+    const pts = this.pts(), n = pts.length;
+    let ph = (now - this.t0) / this.beatMs();
+    if(ph < 0){ this.t0 = now; ph = 0; }   /* rAF 의 now 가 start() 보다 이를 때가 있다 — 그냥 두면 1박을 통째로 건너뛴다 */
+    const bi = Math.floor(ph), fr = ph - bi;
+    const i = ((bi % n) + n) % n;
+    const p0 = pts[i], p1 = pts[(i+1) % n], last = (i === n - 1);
+    const c = ctrl(p0, p1, last);
+    const pos = bez(p0, c[0], c[1], p1, ease(fr));
+    this.gHand.setAttribute('cx', pos[0]);
+    this.gHand.setAttribute('cy', pos[1]);
+    /* 잔상 */
+    this.trail.push(pos);
+    if(this.trail.length > 16) this.trail.shift();
+    this.gTrail.setAttribute('d', 'M' + this.trail.map(p => p[0] + ' ' + p[1]).join(' L'));
+    /* 박이 바뀌는 순간 */
+    if(bi !== this.lastB){
+      this.lastB = bi;
+      this.bps.forEach((g, k) => this.markPt(g, k === i));
+      this.big.textContent = i + 1;
+      if(this.sound){
+        let lv = 0;
+        if(i === 0) lv = 2;
+        else if((n === 4 && i === 2) || (n === 6 && i === 3)) lv = 1;
+        click(lv);
+      }
+    }
+    /* 6/8 반주 — 지휘와 같은 t0 를 쓰므로 저절로 맞는다 */
+    if(this.accomp){
+      const e8 = Math.floor((now - this.t0) / this.eighthMs());
+      if(e8 !== this.lastE){
+        this.lastE = e8;
+        const m = Math.floor(e8 / 6), b = ((e8 % 6) + 6) % 6;
+        const CH = [[N.D3,N.Fs4,N.A4],[N.G3,N.B4,N.D5],[N.A3,N.Cs5,N.E4],[N.D3,N.Fs4,N.A4]];
+        const ch = CH[m % 4];
+        if(b === 0 || b === 3){
+          tone(ch[0] * (b === 0 ? 1 : 1.5), 0, .34, .12, 'sine');
+          tone(ch[1], 0, .26, .055, 'triangle');
+        }else{
+          tone(b % 3 === 1 ? ch[1] : ch[2], 0, .19, .036, 'triangle');
+        }
+        if(b === 0 && this.onMeasure) this.onMeasure(m);
+      }
+    }
+  }
+}
+function loopAll(now){ for(const c of conds) c.frame(now); requestAnimationFrame(loopAll); }
+requestAnimationFrame(loopAll);
+function stopAllConds(){ for(const c of conds) c.stop(); }
+
+/* ===================== 슬라이드 ===================== */
+const S = [];
+
+/* 1 표지 */
+S.push(
+'<section class="slide cover">' +
+  '<h1 class="title">지휘</h1>' +
+  '<div class="sub">손으로 노래를 이끄는 법 — 두 박 · 세 박 · 네 박 · 여섯 박</div>' +
+  '<div class="kr">5학년 2학기 음악 4. 음악으로 행복을 나누어요<br>' +
+  '교과서 72~73쪽 「내 손은 바람을 그려요」</div>' +
+'</section>');
+
+/* 2 되물음 */
+S.push(
+'<section class="slide" style="--acc:var(--deep)">' +
+  '<span class="eyebrow">생각해 보기</span>' +
+  '<h2 class="stitle">맨 앞에 선 사람은 소리를 하나도 내지 않는다</h2><div class="rule"></div>' +
+  '<div class="cols">' +
+    '<div style="flex:1;display:flex;flex-direction:column;gap:9px">' +
+      '<div class="card"><p class="body">노래를 부르지 않는다</p></div>' +
+      '<div class="card"><p class="body">악기도 들고 있지 않다</p></div>' +
+      '<div class="card"><p class="body">관객에게 <b class="hn">등을 돌리고</b> 서 있다</p></div>' +
+      '<div class="card" style="border-color:var(--red)"><p class="body">그런데 그 사람이 없으면 ' +
+        '<b class="hr">연주가 시작되지 않는다</b></p></div>' +
+    '</div>' +
+    '<div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:14px">' +
+      '<div class="act" style="border-width:5px;text-align:center">' +
+        '<p class="body" style="font-size:33px;font-weight:900;color:var(--deep);line-height:1.3">' +
+        '지휘자는<br>무엇을 하고 있을까?</p></div>' +
+      '<p class="small">지휘는 <b>멋있게 팔을 흔드는 일</b>이 아니다.<br>' +
+      '다음 장에서 <b class="hl">귀로</b> 확인해 보자.</p>' +
+    '</div>' +
+  '</div>' +
+'</section>');
+
+/* 3 귀로 확인 */
+S.push(
+'<section class="slide" style="--acc:var(--sky)">' +
+  '<span class="eyebrow">귀로 확인</span>' +
+  '<h2 class="stitle">네 사람이 같은 가락을 부른다</h2><div class="rule"></div>' +
+  '<p class="body">한 번은 <b class="hr">신호 없이 각자</b>, 한 번은 <b class="hl">신호를 보고 다 같이</b>. ' +
+  '무엇이 달라지는지 들어 보자.</p>' +
+  '<div class="btnrow" style="margin-top:14px">' +
+    '<button class="btn ghost" id="d3a">🔇 신호 없이 시작</button>' +
+    '<button class="btn" id="d3b">✋ 신호를 보고 시작</button>' +
+    '<span class="small">소리가 나는 자리에 불이 켜진다 — <b>귀로도, 눈으로도</b> 보인다.</span>' +
+  '</div>' +
+  '<div style="flex:1;min-height:0;background:#fff;border:3px solid var(--line);border-radius:14px;' +
+       'margin:12px 0 0;padding:8px 10px;display:flex">' +
+    '<svg id="tl" viewBox="0 0 1100 172" preserveAspectRatio="xMidYMid meet" style="width:100%;height:100%"></svg>' +
+  '</div>' +
+  '<div class="sp" style="flex:0 0 12px"></div>' +
+  '<div class="cols" style="flex:none">' +
+    '<div class="card" style="flex:1;border-color:var(--red)">' +
+      '<p class="body" style="font-size:21px"><b class="hr">신호가 없으면</b><br>' +
+      '시작이 어긋난다 · 끝나는 자리도 제각각이다 · 빠르기가 조금씩 달라진다</p></div>' +
+    '<div class="card" style="flex:1;border-color:var(--sky)">' +
+      '<p class="body" style="font-size:21px"><b class="hl">신호가 있으면</b><br>' +
+      '한 덩어리로 들린다 · 소리가 커진다 · 셋이 아니라 <b>하나</b>가 된다</p></div>' +
+  '</div>' +
+  '<div class="term" style="margin-top:13px">지휘는 <b>눈에 보이는 것</b>이지만, ' +
+  '지휘가 하는 일은 <b>귀에 들린다</b>.</div>' +
+'</section>');
+
+/* 4 네 가지 일 */
+S.push(
+'<section class="slide" style="--acc:var(--deep)">' +
+  '<span class="eyebrow">지휘가 하는 일</span>' +
+  '<h2 class="stitle">말을 한마디도 하지 않고 네 가지를 전한다</h2><div class="rule"></div>' +
+  '<div class="nums" style="flex:1">' +
+    '<div class="numrow"><div class="nn">1</div><div class="nt">' +
+      '<b>언제 시작할지</b> 알려 준다 — 시작하기 한 박 전에 손이 먼저 움직인다</div></div>' +
+    '<div class="numrow"><div class="nn">2</div><div class="nt">' +
+      '<b>같은 빠르기</b>를 지켜 준다 — 노래가 빨라지거나 늘어지지 않게</div></div>' +
+    '<div class="numrow"><div class="nn">3</div><div class="nt">' +
+      '<b>크게·여리게</b>를 정한다 — 손을 크게 저으면 세게, 작게 저으면 여리게</div></div>' +
+    '<div class="numrow"><div class="nn">4</div><div class="nt">' +
+      '<b>언제 끝낼지</b> 알려 준다 — 마지막 음을 다 같이 끊는다</div></div>' +
+  '</div>' +
+  '<div class="term">연주 중에는 아무도 말을 할 수 없다. ' +
+  '<b>그래서 손으로 말한다</b> — 지휘는 소리 없는 말이다.</div>' +
+'</section>');
+
+/* 5 첫 박은 아래 · 박은 점이다 */
+S.push(
+'<section class="slide" style="--acc:var(--wind)">' +
+  '<span class="eyebrow">지휘의 규칙 ①</span>' +
+  '<h2 class="stitle">첫 박은 반드시 아래로 내린다</h2><div class="rule"></div>' +
+  '<div class="cols">' +
+    '<div style="width:470px;flex:none;display:flex;flex-direction:column;gap:10px">' +
+      '<p class="body">세계 어느 나라의 지휘든 <b class="hn">1박은 아래</b>다. ' +
+      '영어로도 첫 박을 <b>다운비트</b>(내려치는 박)라고 부른다.</p>' +
+      '<p class="body">왜일까? <b class="hl">손은 놓으면 저절로 떨어지기 때문</b>이다. ' +
+      '힘을 들이지 않아도 늘 같은 자리, 같은 순간에 닿는다.</p>' +
+      '<div class="act"><p class="body" style="font-size:21px">' +
+      '<b class="hn">박은 선이 아니라 점이다.</b><br>' +
+      '손이 방향을 바꾸며 <b>톡 튕기는 그 순간</b>이 박이다. ' +
+      '지휘는 그림을 그리는 것이 아니라 <b>점을 찍는 일</b>이고, ' +
+      '도형은 점과 점을 잇다 보니 생긴 자국일 뿐이다.</p></div>' +
+    '</div>' +
+    '<div class="cond" data-pat="2" data-bpm="50" data-ctl="play,snd" style="flex:1"></div>' +
+  '</div>' +
+'</section>');
+
+/* 6 예비박 */
+S.push(
+'<section class="slide" style="--acc:var(--sky)">' +
+  '<span class="eyebrow">지휘의 규칙 ②</span>' +
+  '<h2 class="stitle">시작하기 한 박 전에 손이 먼저 간다 — 예비박</h2><div class="rule"></div>' +
+  '<div class="cols">' +
+    '<div style="flex:1;display:flex;flex-direction:column;gap:10px">' +
+      '<p class="body">갑자기 1박을 내리면 아무도 따라오지 못한다. ' +
+      '<b class="hl">한 박을 미리 저어</b> 빠르기를 알려 주어야 한다.</p>' +
+      '<p class="body">그 한 박은 <b class="hn">“준비!”</b> 신호이자 ' +
+      '<b class="hn">다 같이 숨을 들이쉬는 자리</b>다. 노래는 숨에서 시작한다.</p>' +
+      '<div class="btnrow" style="margin-top:6px">' +
+        '<button class="btn ghost" id="d6a">예비박 없이</button>' +
+        '<button class="btn" id="d6b">예비박 주고</button>' +
+      '</div>' +
+      '<div class="card" style="border-color:var(--wind);margin-top:4px">' +
+        '<p class="body" style="font-size:19px"><b class="hn">예비박은 어디서 젓나</b><br>' +
+        '· 두 박·세 박·네 박 → <b>마지막 박 자리</b>에서 한 번<br>' +
+        '· 6/8을 두 박으로 → <b>둘째 박 자리</b>에서 한 번<br>' +
+        '· <b class="hl">노래가 마디 중간에서 시작하면</b> → 그 앞 박에서<br>' +
+        '<span style="font-size:17.5px;color:var(--muted)">' +
+        '「내 손은 바람을 그려요」가 바로 이 경우다 — ' +
+        '<b>「하늘」</b> 두 글자가 마디보다 먼저 나온다.</span></p></div>' +
+    '</div>' +
+    '<div style="flex:1;display:flex;flex-direction:column;gap:10px;justify-content:center">' +
+      '<div class="card" style="border-color:var(--sky)"><p class="body" style="font-size:20px">' +
+      '<b class="hl">지휘자가 되면 꼭 할 것</b><br>' +
+      '① 손을 들어 모두를 본다 (아직 젓지 않는다)<br>' +
+      '② 눈을 맞춘다<br>' +
+      '③ <b>예비박 한 번</b> — 여기서 다 같이 숨<br>' +
+      '④ 1박을 내린다 = 노래 시작</p></div>' +
+      '<p class="small">예비박은 <b>곡과 같은 빠르기</b>로 저어야 한다. ' +
+      '느리게 예비박을 주면 노래도 느리게 시작된다.</p>' +
+    '</div>' +
+  '</div>' +
+'</section>');
+
+/* 7 두 박 */
+S.push(
+'<section class="slide" style="--acc:#2e86c1">' +
+  '<span class="eyebrow">따라 하기 ①</span>' +
+  '<h2 class="stitle">두 박 — 내려갔다 올라온다</h2><div class="rule"></div>' +
+  '<div class="cols">' +
+    '<div style="width:360px;flex:none;display:flex;flex-direction:column;gap:9px">' +
+      '<div class="card"><p class="body" style="font-size:21px">' +
+      '<b class="hl">1</b> 아래로 내린다<br><b class="hl">2</b> 오른쪽 위로 올린다</p></div>' +
+      '<p class="body" style="font-size:21px">행진곡, 빠른 노래에 쓴다. ' +
+      '<b class="hn">쿵–짝</b> 두 번이면 한 마디.</p>' +
+      '<div class="term" style="font-size:18px">오른손으로 젓는다. 왼손은 셈여림·신호용이라 ' +
+      '처음에는 <b>가만히 두어도 된다</b>.</div>' +
+      '<p class="small">팔꿈치를 몸에서 살짝 띄우고, 손목만 까딱이지 말 것. ' +
+      '팔 전체가 한 덩어리로 움직인다.</p>' +
+    '</div>' +
+    '<div class="cond" data-pat="2" data-bpm="84" data-ctl="play,spd,snd,mir" style="flex:1"></div>' +
+  '</div>' +
+'</section>');
+
+/* 8 세 박 */
+S.push(
+'<section class="slide" style="--acc:#e08a2e">' +
+  '<span class="eyebrow">따라 하기 ②</span>' +
+  '<h2 class="stitle">세 박 — 아래 · 옆 · 위</h2><div class="rule"></div>' +
+  '<div class="cols">' +
+    '<div style="width:360px;flex:none;display:flex;flex-direction:column;gap:9px">' +
+      '<div class="card"><p class="body" style="font-size:21px">' +
+      '<b class="hl">1</b> 아래<br><b class="hl">2</b> 바깥(오른쪽)<br><b class="hl">3</b> 위</p></div>' +
+      '<p class="body" style="font-size:21px">왈츠와 세마치가 세 박이다. ' +
+      '지난 시간에 부른 <b class="hn">아리랑</b>도 세 박으로 젓는다.</p>' +
+      '<div class="term" style="font-size:18px">세 박은 <b>삼각형</b>을 그린다고 외우면 쉽다. ' +
+      '다만 삼각형을 <b>그리는 것</b>이 아니라 세 점을 <b>찍는 것</b>이다.</div>' +
+    '</div>' +
+    '<div class="cond" data-pat="3" data-bpm="96" data-ctl="play,spd,snd,mir" style="flex:1"></div>' +
+  '</div>' +
+'</section>');
+
+/* 9 네 박 */
+S.push(
+'<section class="slide" style="--acc:#8e44ad">' +
+  '<span class="eyebrow">따라 하기 ③</span>' +
+  '<h2 class="stitle">네 박 — 가장 많이 쓰는 지휘</h2><div class="rule"></div>' +
+  '<div class="cols">' +
+    '<div style="width:360px;flex:none;display:flex;flex-direction:column;gap:9px">' +
+      '<div class="card"><p class="body" style="font-size:21px">' +
+      '<b class="hl">1</b> 아래<br><b class="hl">2</b> 안쪽(왼쪽)<br>' +
+      '<b class="hl">3</b> 바깥(오른쪽)<br><b class="hl">4</b> 위</p></div>' +
+      '<p class="body" style="font-size:20px">2박은 <b>안쪽</b>, 3박은 <b>바깥쪽</b>. ' +
+      '순서가 헷갈리면 <b class="hn">“아래–안–밖–위”</b>로 소리 내어 외운다.</p>' +
+      '<div class="term" style="font-size:18px">우리가 부르는 노래 대부분이 네 박이다. ' +
+      '애국가도, 교가도 네 박.</div>' +
+    '</div>' +
+    '<div class="cond" data-pat="4" data-bpm="84" data-ctl="play,spd,snd,mir" style="flex:1"></div>' +
+  '</div>' +
+'</section>');
+
+/* 10 여섯 박 */
+S.push(
+'<section class="slide" style="--acc:#2fa39a">' +
+  '<span class="eyebrow">따라 하기 ④</span>' +
+  '<h2 class="stitle">여섯 박 — 왼쪽으로 둘, 오른쪽으로 둘</h2><div class="rule"></div>' +
+  '<div class="cols">' +
+    '<div style="width:360px;flex:none;display:flex;flex-direction:column;gap:9px">' +
+      '<div class="card"><p class="body" style="font-size:20px">' +
+      '<b class="hl">1</b> 아래 &nbsp; <b class="hl">2·3</b> 왼쪽으로 점점<br>' +
+      '<b class="hl">4·5</b> 오른쪽으로 점점 &nbsp; <b class="hl">6</b> 위</p></div>' +
+      '<p class="body" style="font-size:20px">교과서 73쪽에 나온 그 도형이다. ' +
+      '<b class="hn">6/8박자를 느리게</b> 부를 때 쓴다.</p>' +
+      '<div class="term" style="font-size:18px">점이 여섯 개라 헷갈리기 쉽다. ' +
+      '<b>1은 아래, 6은 위</b>만 확실히 하면 가운데는 자연스럽게 따라온다.</div>' +
+    '</div>' +
+    '<div class="cond" data-pat="6" data-bpm="150" data-ctl="play,spd,snd,mir" style="flex:1"></div>' +
+  '</div>' +
+'</section>');
+
+/* 11 네 가지 한눈에 */
+S.push(
+'<section class="slide" style="--acc:var(--deep)">' +
+  '<span class="eyebrow">한눈에 보기</span>' +
+  '<h2 class="stitle">박자가 달라도 규칙은 셋뿐이다</h2><div class="rule"></div>' +
+  '<div class="btnrow" style="margin-bottom:9px">' +
+    '<button class="btn" id="q4go">▶ 네 가지 동시에</button>' +
+    '<button class="btn ghost" id="q4st">⏸ 멈춤</button>' +
+    '<span class="small">각 도형의 <b>맨 아래 점이 1박</b>, <b>맨 위 점이 마지막 박</b>이다.</span>' +
+  '</div>' +
+  '<div class="quad">' +
+    '<div><div class="qname">두 박</div><div class="cond q" data-pat="2" data-bpm="80" data-snd="0" data-vb="-120 -50 240 180"></div></div>' +
+    '<div><div class="qname">세 박</div><div class="cond q" data-pat="3" data-bpm="80" data-snd="0" data-vb="-120 -50 240 180"></div></div>' +
+    '<div><div class="qname">네 박</div><div class="cond q" data-pat="4" data-bpm="80" data-snd="0" data-vb="-120 -50 240 180"></div></div>' +
+    '<div><div class="qname">여섯 박</div><div class="cond q" data-pat="6" data-bpm="80" data-snd="0" data-vb="-120 -50 240 180"></div></div>' +
+  '</div>' +
+  '<div class="term" style="margin-top:10px">① 1박은 <b>아래</b> &nbsp;② 마지막 박은 <b>위</b> &nbsp;' +
+  '③ 박 수만큼 <b>점을 찍는다</b> — 그래서 처음 보는 박자도 저을 수 있다.</div>' +
+'</section>');
+
+/* 12 교과서 활동 1 — 6/8 */
+S.push(
+'<section class="slide" style="--acc:var(--wind)">' +
+  '<span class="eyebrow">교과서 73쪽 ①</span>' +
+  '<h2 class="stitle">「내 손은 바람을 그려요」는 6/8박자</h2><div class="rule"></div>' +
+  '<div class="cols">' +
+    '<div style="width:370px;flex:none;display:flex;flex-direction:column;gap:9px">' +
+      '<p class="body" style="font-size:21px">한 마디에 <b class="hn">여덟분음표 여섯 개</b>가 들어간다. ' +
+      '그래서 저을 수 있는 방법이 <b>두 가지</b>다.</p>' +
+      '<div class="card" style="border-color:var(--wind)"><p class="body" style="font-size:19.5px">' +
+      '<b class="hl">노래가 느릴 때 — 여섯 박</b><br>여섯 번 다 젓는다. 한 박씩 또박또박.</p></div>' +
+      '<div class="card" style="border-color:var(--sky)"><p class="body" style="font-size:19.5px">' +
+      '<b class="hl">노래가 빠를 때 — 두 박</b><br>두 번만 젓고 <b>한 번에 셋씩</b> 담는다.<br>' +
+      '<span style="font-family:Gaegu,sans-serif;font-size:25px;color:var(--deep)">' +
+      '하나 둘 셋 · 둘 둘 셋</span></p></div>' +
+      '<p class="small">아래 단추로 바꿔 가며 저어 보자. <b>반주는 그대로</b>이고 지휘만 바뀐다.</p>' +
+    '</div>' +
+    '<div class="cond" data-song="1" data-pat="6" data-dq="44" data-accomp="1" ' +
+         'data-ctl="play,sixtwo,spd,snd,acc" style="flex:1"></div>' +
+  '</div>' +
+'</section>');
+
+/* 13 왜 빠르면 두 박인가 */
+S.push(
+'<section class="slide" style="--acc:var(--red)">' +
+  '<span class="eyebrow">직접 해 보기</span>' +
+  '<h2 class="stitle">빠르기를 올려 보자 — 여섯 박이 되는가?</h2><div class="rule"></div>' +
+  '<div class="cols">' +
+    '<div style="width:400px;flex:none;display:flex;flex-direction:column;gap:9px">' +
+      '<p class="body" style="font-size:21px">빠르기를 <b class="hr">가장 빠르게</b> 놓고 ' +
+      '<b>여섯 박</b>으로 저어 보자. 그 다음 <b>두 박</b>으로 바꿔 보자.</p>' +
+      '<div class="card" style="border-color:var(--red)"><p class="body" style="font-size:19.5px">' +
+      '<b class="hr">여섯 박으로 저으면</b><br>· 손이 못 따라가 박이 뭉개진다<br>' +
+      '· 어디가 마디의 첫 박인지 안 보인다<br>· 보는 사람이 어지럽다</p></div>' +
+      '<div class="card" style="border-color:var(--sky)"><p class="body" style="font-size:19.5px">' +
+      '<b class="hl">두 박으로 묶으면</b><br>· 큰 흐름이 보인다<br>' +
+      '· 6/8의 <b>출렁이는 느낌</b>이 살아난다</p></div>' +
+      '<div class="term" style="font-size:19px">음악이 빨라지면 지휘는 ' +
+      '<b>더 크게</b>가 아니라 <b>더 적게</b> 젓는다.</div>' +
+    '</div>' +
+    '<div class="cond" data-song="1" data-pat="6" data-dq="92" data-accomp="1" ' +
+         'data-ctl="play,sixtwo,spd,snd,acc" style="flex:1"></div>' +
+  '</div>' +
+'</section>');
+
+/* 14 곡에 맞춰 */
+S.push(
+'<section class="slide" style="--acc:var(--sky)">' +
+  '<span class="eyebrow">노래에 맞추어</span>' +
+  '<h2 class="stitle">어느 글자에서 손을 내리는가</h2><div class="rule"></div>' +
+  '<div class="lyric" id="lyr">' +
+    '<div class="mea pick"><div class="mk">▼ 1마디</div><div class="tx">끝에서<br>불어오</div></div>' +
+    '<div class="mea"><div class="mk">▼ 2마디</div><div class="tx">는 —<br>파 — 란</div></div>' +
+    '<div class="mea"><div class="mk">▼ 3마디</div><div class="tx">바람냄<br>새 —</div></div>' +
+    '<div class="mea"><div class="mk">▼ 4마디</div><div class="tx">나도<br>모르게</div></div>' +
+  '</div>' +
+  '<div class="cols" style="margin-top:10px">' +
+    '<div style="width:340px;flex:none;display:flex;flex-direction:column;gap:8px">' +
+      '<p class="body" style="font-size:20px"><b class="hl">▼</b> 는 마디의 첫 박, ' +
+      '곧 <b>손을 아래로 내리는 자리</b>다. 노래 앞의 <b>「하늘」</b> 두 글자는 ' +
+      '마디가 시작되기 전이라 <b class="hn">예비박</b>에 얹힌다.</p>' +
+      '<div class="card" style="padding:10px 13px"><p class="body" style="font-size:18.5px">' +
+      '<b class="hl">해 보는 차례</b><br>① 가사만 읽으며 ▼에서 손 내리기<br>' +
+      '② 두 박으로 저으며 노래<br>③ 여섯 박으로 바꿔 노래<br>' +
+      '④ 어느 쪽이 이 노래에 어울리는지 정하기</p></div>' +
+    '</div>' +
+    '<div class="cond" id="songc" data-song="1" data-pat="2" data-dq="60" data-accomp="1" ' +
+         'data-ctl="play,sixtwo,spd,acc" style="flex:1"></div>' +
+  '</div>' +
+'</section>');
+
+/* 15 셈여림 · 끝 신호 */
+S.push(
+'<section class="slide" style="--acc:var(--plum)">' +
+  '<span class="eyebrow">지휘의 규칙 ③</span>' +
+  '<h2 class="stitle">셈여림은 손의 크기로 말한다</h2><div class="rule"></div>' +
+  '<div class="cols">' +
+    '<div style="width:380px;flex:none;display:flex;flex-direction:column;gap:9px">' +
+      '<p class="body" style="font-size:21px">여리게는 <b class="hl">작게</b>, 세게는 ' +
+      '<b class="hl">크게</b> 젓는다. 소리를 손 크기로 보여 주는 것이다.</p>' +
+      '<div class="card" style="border-color:var(--red)"><p class="body" style="font-size:19.5px">' +
+      '<b class="hr">자주 하는 실수</b><br>크게 저으면 저절로 <b>느려지고</b>, ' +
+      '작게 저으면 <b>빨라진다</b>.<br>→ <b>크기만 바꾸고 빠르기는 그대로</b>.</p></div>' +
+      '<div class="card" style="border-color:var(--plum)"><p class="body" style="font-size:19.5px">' +
+      '<b style="color:var(--plum);font-weight:900">끝내는 신호</b><br>' +
+      '마지막 음에서 손을 <b>동그랗게 말아 멈춘다</b>. 멈추는 그 순간이 끝이다.<br>' +
+      '멈춘 뒤 손을 <b>바로 내리지 않는다</b> — 여운까지가 음악이다.</p></div>' +
+    '</div>' +
+    '<div class="cond" data-pat="4" data-bpm="76" data-ctl="play,size,snd" style="flex:1"></div>' +
+  '</div>' +
+'</section>');
+
+/* 16 활동과 기준 */
+S.push(
+'<section class="slide" style="--acc:var(--deep)">' +
+  '<span class="eyebrow">모둠 활동</span>' +
+  '<h2 class="stitle">돌아가며 지휘자가 되어 보자</h2><div class="rule"></div>' +
+  '<div class="cols">' +
+    '<div style="flex:1;display:flex;flex-direction:column;gap:9px">' +
+      '<div class="numrow"><div class="nn">1</div><div class="nt">' +
+      '한 사람이 앞에 서고 <b>나머지가 노래</b>한다 (한 절씩 바꾼다)</div></div>' +
+      '<div class="numrow"><div class="nn">2</div><div class="nt">' +
+      '지휘자는 <b>예비박</b>을 반드시 준다 — 그래야 다 같이 들어온다</div></div>' +
+      '<div class="numrow"><div class="nn">3</div><div class="nt">' +
+      '노래보다 <b>아주 조금 먼저</b> 움직인다 — 손이 따라오면 늦는다</div></div>' +
+      '<div class="numrow"><div class="nn">4</div><div class="nt">' +
+      '악보가 아니라 <b>사람의 눈</b>을 본다</div></div>' +
+    '</div>' +
+    '<div style="width:420px;flex:none;display:flex;flex-direction:column;gap:11px;justify-content:center">' +
+      '<div class="act" style="border-width:5px;text-align:center">' +
+        '<p class="body" style="font-size:29px;font-weight:900;color:var(--deep);line-height:1.35">' +
+        '잘 저었는가를 보지 않는다.<br>손과 노래가 같이 갔는가만 본다.</p></div>' +
+      '<div class="term" style="font-size:18.5px">교과서 73쪽 확인해요 — ' +
+      '<b>악곡의 특징을 다양한 방법으로 표현하기</b></div>' +
+    '</div>' +
+  '</div>' +
+'</section>');
+
+/* ===================== 렌더링 ===================== */
+const stage = document.getElementById('stage');
+stage.innerHTML = S.join('');
+document.querySelectorAll('.cond').forEach(el => new Cond(el));
+
+/* 슬라이드 11 — 네 도형 동시 */
+const quads = [...document.querySelectorAll('.cond.q')].map(el => conds.find(c => c.el === el));
+document.getElementById('q4go').onclick = () => {
+  const t = performance.now();
+  quads.forEach(c => { c.start(); c.t0 = t; });
+};
+document.getElementById('q4st').onclick = () => quads.forEach(c => c.stop());
+
+/* 슬라이드 14 — 마디 하이라이트 */
+const songc = conds.find(c => c.el.id === 'songc');
+const meas = [...document.querySelectorAll('#lyr .mea')];
+if(songc){
+  songc.onMeasure = m => {
+    meas.forEach((d, i) => d.classList.toggle('on', i === m % 4));
+  };
+}
+
+/* 슬라이드 3 — 네 사람 데모. 어긋남은 귀로도 들리지만 눈으로 한 번 더 보여 준다 */
+const VCOL = ['#2e86c1','#e08a2e','#8e44ad','#2fa39a'];
+const tlSvg = document.getElementById('tl');
+(function buildTL(){
+  let h = '';
+  for(let v = 0; v < 4; v++){
+    const y = 6 + v * 41;
+    h += '<text x="8" y="' + (y + 21) + '" font-size="19" font-weight="700" fill="#5f6f7d" ' +
+         'font-family="Noto Sans KR,sans-serif">친구 ' + (v+1) + '</text>';
+    for(let i = 0; i < 6; i++){
+      h += '<rect class="c" data-v="' + v + '" data-i="' + i + '" x="' + (96 + i*167) + '" y="' + y +
+           '" width="152" height="30" rx="7" fill="#e6eef4"/>';
+    }
+  }
+  tlSvg.innerHTML = h;
+})();
+const tlCells = [...tlSvg.querySelectorAll('rect.c')];
+let tlTimers = [];
+function tlReset(){
+  tlTimers.forEach(t => clearTimeout(t)); tlTimers = [];
+  tlCells.forEach(c => c.setAttribute('fill', '#e6eef4'));
+}
+function tlPlay(offs){
+  tlReset();
+  tlCells.forEach(c => {
+    const v = +c.dataset.v, i = +c.dataset.i;
+    const at = (offs[v] + i * .42) * 1000;
+    tlTimers.push(setTimeout(() => {
+      c.setAttribute('fill', VCOL[v]);
+      tlTimers.push(setTimeout(() => c.setAttribute('fill', '#e6eef4'), 380));
+    }, at));
+  });
+}
+
+function choir(offs){
+  const mel = [N.D4, N.E4, N.Fs4, N.A4, N.Fs4, N.D4];
+  const voices = [
+    { m: 1,    type: 'triangle', v: .16 },
+    { m: 1,    type: 'sine',     v: .15 },
+    { m: 0.5,  type: 'triangle', v: .12 },
+    { m: 2,    type: 'sine',     v: .09 }
+  ];
+  ac();
+  voices.forEach((vo, k) => {
+    mel.forEach((f, i) => tone(f * vo.m, offs[k] + i * .42, .40, vo.v, vo.type));
+  });
+}
+document.getElementById('d3a').onclick = () => { const o = [.25, .46, .10, .60]; choir(o); tlPlay(o); };
+document.getElementById('d3b').onclick = () => {
+  const o = [.62, .62, .62, .62];
+  click(2); choir(o); tlPlay(o);
+};
+
+/* 슬라이드 6 — 예비박 데모 */
+document.getElementById('d6a').onclick = () => { click(2); choir([.18, .40, .06, .52]); };
+document.getElementById('d6b').onclick = () => {
+  ac(); click(0);                                   /* 예비박 */
+  setTimeout(() => click(2), 700);                  /* 1박 = 시작 */
+  choir([.70, .70, .70, .70]);
+};
+
+/* ===================== 넘기기 ===================== */
+const slides = [...stage.querySelectorAll('.slide')];
+let cur = 0;
+function show(i){
+  stopAllConds();
+  tlReset();
+  cur = Math.max(0, Math.min(slides.length - 1, i));
+  slides.forEach((s, n) => s.classList.toggle('on', n === cur));
+  document.getElementById('counter').textContent = (cur + 1) + ' / ' + slides.length;
+  const p = document.getElementById('prog');
+  p.style.width = ((cur + 1) / slides.length * 100) + '%';
+  p.style.background = getComputedStyle(slides[cur]).getPropertyValue('--acc');
+  try { history.replaceState(null, '', '#' + (cur + 1)); } catch(e){}
+}
+function go(d){ show(cur + d); }
+function fit(){
+  const s = Math.min(window.innerWidth / 1280, (window.innerHeight - 46) / 720);
+  stage.style.transform = 'translate(-50%,-50%) scale(' + s + ')';
+}
+function fs(){
+  if(!document.fullscreenElement) document.documentElement.requestFullscreen();
+  else document.exitFullscreen();
+}
+document.getElementById('prev').onclick = () => go(-1);
+document.getElementById('next').onclick = () => go(1);
+document.getElementById('fsb').onclick = fs;
+document.addEventListener('keydown', e => {
+  if(e.target.tagName === 'INPUT') return;
+  if(['ArrowRight','PageDown',' '].includes(e.key)){ e.preventDefault(); go(1); }
+  if(['ArrowLeft','PageUp'].includes(e.key)){ e.preventDefault(); go(-1); }
+  if(e.key === 'Home') show(0);
+  if(e.key === 'End') show(slides.length - 1);
+  if(e.key === 'f' || e.key === 'F') fs();
+});
+document.getElementById('zl').onclick = () => go(-1);
+document.getElementById('zr').onclick = () => go(1);
+let tx = 0, ty = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, {passive:true});
+document.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty;
+  if(Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) go(dx < 0 ? 1 : -1);
+}, {passive:true});
+window.addEventListener('resize', fit);
+fit();
+const h = parseInt((location.hash || '').replace('#', ''), 10);
+show(isFinite(h) && h > 0 ? h - 1 : 0);
+</script>
+</body>
+</html>

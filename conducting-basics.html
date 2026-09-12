@@ -89,12 +89,12 @@ b.hr{background:linear-gradient(transparent 58%,rgba(192,57,43,.24) 58%);font-we
   color:var(--muted);font-weight:700}
 .cond .ctl{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .cond .seg{display:flex;gap:0;border:3px solid var(--acc);border-radius:11px;overflow:hidden}
-.cond .seg button{font-family:inherit;font-size:18px;font-weight:900;border:0;padding:8px 15px;
+.cond .seg button{font-family:inherit;font-size:18px;font-weight:900;border:0;padding:8px 12px;
   min-height:42px;background:#fff;color:var(--acc);cursor:pointer}
 .cond .seg button.on{background:var(--acc);color:#fff}
 .cond .spd{display:flex;align-items:center;gap:8px;font-size:17px;font-weight:700;color:var(--muted)}
-.cond input[type=range]{width:150px;accent-color:var(--acc)}
-.cond .val{font-size:17px;font-weight:900;color:var(--acc);min-width:76px}
+.cond input[type=range]{width:118px;accent-color:var(--acc)}
+.cond .val{font-size:17px;font-weight:900;color:var(--acc);min-width:68px}
 .cond .toggle{font-family:inherit;font-size:17px;font-weight:700;border:3px solid var(--line);
   background:#fff;color:var(--muted);border-radius:11px;padding:8px 13px;min-height:42px;cursor:pointer}
 .cond .toggle.on{border-color:var(--wind);background:var(--wind);color:#fff}
@@ -293,7 +293,7 @@ class Cond{
         '<button data-p="6">여섯 박</button><button data-p="2">두 박</button></div>';
     }
     if(this.ctlSet.includes('spd')){
-      const lab = this.song ? '곡 빠르기' : '빠르기';
+      const lab = '빠르기';
       const v = this.song ? this.dq : this.bpm;
       const mn = this.song ? 34 : 40, mx = this.song ? 112 : 168;
       h += '<div class="spd"><span>' + lab + '</span>' +
@@ -305,9 +305,9 @@ class Cond{
         '<button data-s="0.55">여리게</button><button data-s="1">보통</button>' +
         '<button data-s="1.38">세게</button></div>';
     }
-    if(this.ctlSet.includes('snd')) h += '<button class="toggle sndb">🔊 박 소리</button>';
+    if(this.ctlSet.includes('snd')) h += '<button class="toggle sndb">🔊 박</button>';
     if(this.ctlSet.includes('acc')) h += '<button class="toggle accb">🎵 반주</button>';
-    if(this.ctlSet.includes('mir')) h += '<button class="toggle mirb">🪞 마주 보기</button>';
+    if(this.ctlSet.includes('mir')) h += '<button class="toggle mirb">🪞 거울</button>';
     c.innerHTML = h;
 
     const q = s => c.querySelector(s), qa = s => [...c.querySelectorAll(s)];
@@ -347,9 +347,12 @@ class Cond{
     const sb = c.querySelector('.sndb'); if(sb) sb.classList.toggle('on', this.sound);
     const ab = c.querySelector('.accb'); if(ab) ab.classList.toggle('on', this.accomp);
     const mb = c.querySelector('.mirb'); if(mb) mb.classList.toggle('on', this.mirror);
+    /* 화면에는 사람이 아니라 손이 지나간 자리만 있다 — 그래서 화면의 왼쪽이 곧 보는 사람의 왼쪽이고,
+       TV 를 마주 보고 따라 해도 좌우가 뒤집히지 않는다. 거울은 「마주 본 사람 눈에 어떻게 보이나」를
+       보여 줄 때만 켠다(따라 할 때 켜면 반대로 배운다). */
     this.hint.textContent = this.mirror
-      ? '마주 보고 따라 하기 — 선생님이 앞에서 보여 줄 때'
-      : '화면 속 손과 같은 쪽으로 움직인다';
+      ? '거울 — 마주 본 사람 눈에는 이렇게 보인다 (따라 할 때는 꺼 둘 것)'
+      : 'TV 를 보고 그대로 따라 하면 된다 — 화면의 왼쪽이 곧 내 왼쪽';
   }
   pts(){
     const s = this.scale, m = this.mirror ? -1 : 1;
@@ -545,7 +548,7 @@ S.push(
       '지휘는 그림을 그리는 것이 아니라 <b>점을 찍는 일</b>이고, ' +
       '도형은 점과 점을 잇다 보니 생긴 자국일 뿐이다.</p></div>' +
     '</div>' +
-    '<div class="cond" data-pat="2" data-bpm="50" data-ctl="play,snd" style="flex:1"></div>' +
+    '<div class="cond" data-pat="2" data-bpm="50" data-ctl="play,snd,mir" style="flex:1"></div>' +
   '</div>' +
 '</section>');
 
@@ -599,8 +602,12 @@ S.push(
       '<b class="hn">쿵–짝</b> 두 번이면 한 마디.</p>' +
       '<div class="term" style="font-size:18px">오른손으로 젓는다. 왼손은 셈여림·신호용이라 ' +
       '처음에는 <b>가만히 두어도 된다</b>.</div>' +
-      '<p class="small">팔꿈치를 몸에서 살짝 띄우고, 손목만 까딱이지 말 것. ' +
-      '팔 전체가 한 덩어리로 움직인다.</p>' +
+      '<div class="card" style="border-color:var(--wind);padding:10px 13px">' +
+      '<p class="body" style="font-size:18px"><b class="hn">좌우가 뒤집힐 걱정은 없다</b><br>' +
+      '화면에는 사람이 없고 <b>손이 지나간 자리</b>만 있다. 화면의 왼쪽이 곧 내 왼쪽이니, ' +
+      'TV 를 마주 보고 <b class="hl">그대로 따라 하면 된다</b>.<br>' +
+      '<span style="color:var(--muted);font-size:16.5px">🪞 거울은 ' +
+      '<b>앞에 나가 지휘할 때 친구들 눈에 어떻게 보이는지</b> 볼 때만 켠다.</span></p></div>' +
     '</div>' +
     '<div class="cond" data-pat="2" data-bpm="84" data-ctl="play,spd,snd,mir" style="flex:1"></div>' +
   '</div>' +
@@ -700,7 +707,7 @@ S.push(
       '<p class="small">아래 단추로 바꿔 가며 저어 보자. <b>반주는 그대로</b>이고 지휘만 바뀐다.</p>' +
     '</div>' +
     '<div class="cond" data-song="1" data-pat="6" data-dq="44" data-accomp="1" ' +
-         'data-ctl="play,sixtwo,spd,snd,acc" style="flex:1"></div>' +
+         'data-ctl="play,sixtwo,spd,snd,acc,mir" style="flex:1"></div>' +
   '</div>' +
 '</section>');
 
@@ -710,7 +717,7 @@ S.push(
   '<span class="eyebrow">직접 해 보기</span>' +
   '<h2 class="stitle">빠르기를 올려 보자 — 여섯 박이 되는가?</h2><div class="rule"></div>' +
   '<div class="cols">' +
-    '<div style="width:400px;flex:none;display:flex;flex-direction:column;gap:9px">' +
+    '<div style="width:370px;flex:none;display:flex;flex-direction:column;gap:9px">' +
       '<p class="body" style="font-size:21px">빠르기를 <b class="hr">가장 빠르게</b> 놓고 ' +
       '<b>여섯 박</b>으로 저어 보자. 그 다음 <b>두 박</b>으로 바꿔 보자.</p>' +
       '<div class="card" style="border-color:var(--red)"><p class="body" style="font-size:19.5px">' +
@@ -723,7 +730,7 @@ S.push(
       '<b>더 크게</b>가 아니라 <b>더 적게</b> 젓는다.</div>' +
     '</div>' +
     '<div class="cond" data-song="1" data-pat="6" data-dq="92" data-accomp="1" ' +
-         'data-ctl="play,sixtwo,spd,snd,acc" style="flex:1"></div>' +
+         'data-ctl="play,sixtwo,spd,snd,acc,mir" style="flex:1"></div>' +
   '</div>' +
 '</section>');
 
@@ -749,7 +756,7 @@ S.push(
       '④ 어느 쪽이 이 노래에 어울리는지 정하기</p></div>' +
     '</div>' +
     '<div class="cond" id="songc" data-song="1" data-pat="2" data-dq="60" data-accomp="1" ' +
-         'data-ctl="play,sixtwo,spd,acc" style="flex:1"></div>' +
+         'data-ctl="play,sixtwo,spd,acc,mir" style="flex:1"></div>' +
   '</div>' +
 '</section>');
 
@@ -770,7 +777,7 @@ S.push(
       '마지막 음에서 손을 <b>동그랗게 말아 멈춘다</b>. 멈추는 그 순간이 끝이다.<br>' +
       '멈춘 뒤 손을 <b>바로 내리지 않는다</b> — 여운까지가 음악이다.</p></div>' +
     '</div>' +
-    '<div class="cond" data-pat="4" data-bpm="76" data-ctl="play,size,snd" style="flex:1"></div>' +
+    '<div class="cond" data-pat="4" data-bpm="76" data-ctl="play,size,snd,mir" style="flex:1"></div>' +
   '</div>' +
 '</section>');
 

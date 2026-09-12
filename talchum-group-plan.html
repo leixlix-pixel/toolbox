@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>탈춤놀이 모둠 배치판</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#231d18; --red:#c0392b; --deep:#8e2b1f; --gold:#c8963e;
+  --navy:#2c3e6b; --green:#2e7d5b;
+  --paper:#fffdf8; --line:#d8cfc0; --muted:#7b7267;
+}
+body{font-family:'Noto Sans KR',sans-serif;background:#e8e4dc;color:var(--ink);
+  -webkit-print-color-adjust:exact;print-color-adjust:exact}
+@page{size:A4;margin:0}
+
+.bar{background:var(--ink);color:#fff;padding:12px 20px;display:flex;
+  align-items:center;gap:16px;font-size:14px}
+.bar b{font-size:15px}
+.bar button{margin-left:auto;background:var(--gold);color:#231d18;border:0;
+  border-radius:8px;padding:10px 22px;font-family:inherit;font-weight:700;
+  font-size:15px;min-height:44px;cursor:pointer}
+
+.page{width:210mm;height:297mm;background:var(--paper);margin:16px auto;
+  padding:10mm 12mm 9mm;overflow:hidden;position:relative;
+  display:flex;flex-direction:column;box-shadow:0 4px 20px rgba(0,0,0,.18)}
+
+.head{display:flex;align-items:flex-end;gap:12px;
+  border-bottom:3px solid var(--ink);padding-bottom:6px}
+.head h1{font-family:'Gaegu',sans-serif;font-size:27px;line-height:1;white-space:nowrap}
+.head h1 em{font-style:normal;color:var(--deep)}
+.head .sub{font-size:11px;color:var(--muted);padding-bottom:2px;white-space:nowrap;line-height:1.35}
+.head .who{margin-left:auto;font-size:11.5px;color:var(--ink);text-align:right;
+  white-space:nowrap;padding-bottom:2px;line-height:1.7}
+.head .who u{text-decoration:none;border-bottom:1.4px solid var(--ink);
+  display:inline-block;min-width:54px}
+
+.pbody{flex:1;min-height:0;display:flex;flex-direction:column;
+  justify-content:space-between;gap:8px;padding-top:8px}
+.grow{flex-grow:var(--g,.5);min-height:0;display:flex;flex-direction:column}
+
+h2.st{font-size:13.5px;font-weight:900;display:flex;align-items:center;gap:6px;margin-bottom:5px}
+h2.st .n{background:var(--ink);color:#fff;width:19px;height:19px;border-radius:50%;
+  display:grid;place-items:center;font-size:11.5px;flex:none}
+h2.st small{font-weight:500;font-size:10.5px;color:var(--muted);margin-left:2px}
+h2.st .hi{color:var(--deep)}
+
+/* 카드 여섯 */
+.six{display:grid;grid-template-columns:repeat(6,1fr);gap:5px}
+.sc{border:1.5px solid var(--line);border-radius:9px;background:#fff;
+  display:flex;flex-direction:column;align-items:center;padding:3px 2px 4px;position:relative}
+.sc .n6{position:absolute;top:2px;left:5px;font-size:11px;font-weight:900;color:var(--deep)}
+.sc svg{width:100%;height:62px}
+.sc .nm{font-family:'Gaegu',sans-serif;font-size:16px;color:var(--deep);line-height:1}
+.sc .og{font-size:8.5px;color:var(--muted);line-height:1.2}
+
+/* 역할 */
+.roles{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.rl{border:1.5px solid var(--line);border-radius:9px;background:#fff;padding:5px 6px 6px;text-align:center}
+.rl.hi{border-color:var(--green);background:#f2f9f5}
+.rl .rn{font-size:12px;font-weight:900;color:var(--deep)}
+.rl.hi .rn{color:var(--green)}
+.rl .rd{font-size:9px;color:var(--muted);line-height:1.25;margin-top:1px}
+.rl .nmline{border-bottom:1.4px solid var(--ink);height:17px;margin-top:5px}
+
+/* 순서표 */
+table.plan{width:100%;border-collapse:collapse;font-size:11.5px;table-layout:fixed;
+  flex:1;min-height:0}
+table.plan th,table.plan td{border:1.6px solid var(--line);padding:3px 6px;text-align:left}
+table.plan th{background:var(--deep);color:#fff;font-weight:700;font-size:11px;padding:4px 6px}
+table.plan td.g{text-align:center;font-weight:900;color:var(--deep);width:34px}
+table.plan td.who{font-weight:700;color:var(--navy);font-size:10.5px;width:106px}
+table.plan td.card{width:74px;background:#fff9ec}
+table.plan tr.rep td.card{background:#f4f1ea;color:var(--muted);font-weight:500;
+  font-size:10px;text-align:center}
+table.plan tr.rep{color:var(--muted)}
+table.plan .ly{font-size:10.5px;color:var(--muted)}
+table.plan td.card .box{border:1.6px dashed var(--deep);border-radius:6px;
+  height:100%;min-height:19px;display:grid;place-items:center;
+  font-size:15px;font-weight:900;color:var(--deep)}
+
+/* 마무리 */
+.endrow{display:grid;grid-template-columns:1.15fr 1fr;gap:9px}
+.bx{border:1.5px solid var(--line);border-radius:10px;background:#fff;padding:7px 10px 8px}
+.bx .bt{font-size:12px;font-weight:900;color:var(--deep);margin-bottom:4px}
+.bx .bd{font-size:10.5px;line-height:1.45;color:#3a3733}
+.posebox{border:1.6px dashed var(--deep);border-radius:7px;height:40px;margin-top:5px}
+.chk{display:flex;flex-direction:column;gap:4px;margin-top:3px}
+.chk div{font-size:10.5px;display:flex;align-items:center;gap:6px;line-height:1.35}
+.chk i{font-style:normal;width:13px;height:13px;border:1.6px solid var(--ink);
+  border-radius:3px;flex:none}
+
+.warn{background:#fff4e0;border:2px dashed var(--gold);border-radius:8px;
+  padding:5px 10px;font-size:11px;line-height:1.4;font-weight:500}
+.warn b{color:var(--deep);font-weight:900}
+
+.foot{border-top:1.5px solid var(--line);padding-top:4px;display:flex;
+  font-size:9px;color:var(--muted)}
+.foot .r{margin-left:auto}
+
+@media print{
+  body{background:#fff}
+  .no-print{display:none}
+  .page{margin:0;box-shadow:none}
+}
+</style>
+</head>
+<body>
+
+<div class="bar no-print">
+  <b>탈춤놀이 모둠 배치판</b>
+  <span>A4 1장 · 모둠에 한 장씩</span>
+  <button onclick="window.print()">인쇄하기</button>
+</div>
+
+<div class="page">
+
+  <div class="head">
+    <h1>탈춤놀이 — 우리 모둠이 <em>정할 것은 네 칸</em></h1>
+    <div class="sub">음악 70~71쪽<br>「탈춤놀이」 자진모리</div>
+    <div class="who">5학년 <u style="min-width:34px"></u>반 &nbsp; <u style="min-width:44px"></u>모둠<br>
+      <span style="color:#7b7267;font-size:10px">이름은 아래 역할 칸에 적는다</span></div>
+  </div>
+
+  <div class="pbody">
+
+  <!-- 1. 카드 여섯 -->
+  <section>
+    <h2 class="st"><span class="n">1</span>고를 수 있는 카드는 여섯 장<small>새로 만들지 않는다 · 발은 제자리</small></h2>
+    <div class="six" id="six"></div>
+  </section>
+
+  <!-- 2. 역할 -->
+  <section>
+    <h2 class="st"><span class="n">2</span>역할을 나눈다<small>춤이 싫으면 추임새나 장단을 맡는다 — 빠지는 것이 아니다</small></h2>
+    <div class="roles">
+      <div class="rl"><div class="rn">메기는 소리</div><div class="rd">③·⑤ 앞소리</div><div class="nmline"></div></div>
+      <div class="rl"><div class="rn">받는 소리</div><div class="rd">괄호 안을 받음</div><div class="nmline"></div></div>
+      <div class="rl hi"><div class="rn">추임새</div><div class="rd">덩실덩실·으쓱으쓱</div><div class="nmline"></div></div>
+      <div class="rl hi"><div class="rn">장단</div><div class="rd">소고·장구·무릎</div><div class="nmline"></div></div>
+      <div class="rl"><div class="rn">동작</div><div class="rd">카드대로</div><div class="nmline"></div></div>
+    </div>
+  </section>
+
+  <!-- 3. 순서표 -->
+  <section class="grow" style="--g:.62">
+    <h2 class="st"><span class="n">3</span>우리 모둠의 순서 — <span class="hi">색칠된 네 칸만</span> 채우면 된다</h2>
+    <table class="plan">
+      <tr><th style="width:34px">칸</th><th>가사</th><th style="width:106px">누가 하나</th><th style="width:74px">카드 번호</th></tr>
+      <tr><td class="g">①</td><td>미운 얼굴 고운 얼굴 탈 하나에 가려 두고</td>
+          <td class="who">다 같이</td><td class="card"><div class="box"></div></td></tr>
+      <tr class="rep"><td class="g">②</td><td>어른 아이 한데 어울려 탈춤놀이 하여 보자</td>
+          <td class="who">다 같이</td><td class="card">①과 같게</td></tr>
+      <tr><td class="g">③</td><td>탈춤판을 벌려 보자 <span class="ly">(탈춤판을 벌려 보자)</span><br>
+          <span class="ly">앞 — 메기는 짝 / 괄호 — 받는 짝</span></td>
+          <td class="who">메기는 짝</td><td class="card"><div class="box"></div></td></tr>
+      <tr><td class="g">③</td><td>탈춤놀이 재미있다 <span class="ly">(탈춤놀이 재미있다)</span></td>
+          <td class="who">받는 짝</td><td class="card"><div class="box"></div></td></tr>
+      <tr><td class="g">④</td><td>신명 나게 풀어 놓는 탈춤놀이 한마당 <span class="ly">← 가장 큰 동작으로</span></td>
+          <td class="who">다 같이</td><td class="card"><div class="box"></div></td></tr>
+      <tr class="rep"><td class="g">⑤</td><td>우리 가락 좋을씨고 <span class="ly">(우리 장단 좋을씨고)</span></td>
+          <td class="who">메기 ↔ 받기</td><td class="card">③과 같게</td></tr>
+      <tr class="rep"><td class="g">⑥</td><td>신명 나게 풀어 놓는 탈춤놀이 한마당</td>
+          <td class="who">다 같이</td><td class="card">④와 같게</td></tr>
+    </table>
+  </section>
+
+  <!-- 4. 마무리 -->
+  <section>
+    <h2 class="st"><span class="n">4</span>마지막 한 마디와 점검</h2>
+    <div class="endrow">
+      <div class="bx">
+        <div class="bt">끝 — 「탈춤놀이」 한 마디, 다 같이 멈추는 포즈</div>
+        <div class="bd">말로 적어도 되고 그림으로 그려도 된다. 모둠 전체가 <b>같은 자세로</b> 멈춘다.</div>
+        <div class="posebox"></div>
+      </div>
+      <div class="bx">
+        <div class="bt">연습하고 나서 스스로 확인</div>
+        <div class="chk">
+          <div><i></i>쿵 덕 쿵 덕 — 장단에 맞았다</div>
+          <div><i></i>주고받는 자리에서 두 편이 갈라졌다</div>
+          <div><i></i>마지막에 다 같이 멈췄다</div>
+          <div><i></i>다섯 역할이 모두 자기 일을 했다</div>
+        </div>
+      </div>
+    </div>
+    <div class="warn" style="margin-top:6px">
+      <b>잘 췄는가는 보지 않는다. 장단에 맞았는가만 본다.</b>
+      멈추는 카드(③ 활개 · ④ 쿵딛기)를 넣으면 오히려 탈춤답다 —
+      탈춤의 맛은 움직이는 데 있지 않고 <b>맺고 푸는 데</b> 있다.
+    </div>
+  </section>
+
+  </div>
+
+  <div class="foot">
+    <div>5학년 음악 4단원 「음악으로 행복을 나누어요」 · 70~71쪽 「탈춤놀이」 (정구성 작사 · 이성동 작곡)</div>
+    <div class="r">모둠에 한 장</div>
+  </div>
+
+</div>
+
+<script>
+/* 카드 여섯 — 슬라이드와 같은 피겨를 각 동작의 첫 박 자세로 세워 둔다 */
+var CARDS = [
+  { n:1, nm:'으쓱',    og:'어깨춤',   tilt:-7, dy:4,  la:19,  ra:-6,   head:0,   ll:9,  rl:-9 },
+  { n:2, nm:'뿌리기',  og:'외사위',   tilt:0,  dy:0,  la:150, ra:-12,  head:0,   ll:9,  rl:-9 },
+  { n:3, nm:'활개',    og:'활개펴기', tilt:0,  dy:0,  la:88,  ra:-88,  head:0,   ll:9,  rl:-9 },
+  { n:4, nm:'쿵딛기',  og:'배김새',   tilt:4,  dy:17, la:31,  ra:-31,  head:0,   ll:32, rl:-13 },
+  { n:5, nm:'탈 숨기', og:'놀이 동작',tilt:0,  dy:7,  la:222, ra:-222, head:6,   ll:9,  rl:-9 },
+  { n:6, nm:'까딱',    og:'고개잡이', tilt:0,  dy:3,  la:12,  ra:-12,  head:-11, ll:9,  rl:-9 }
+];
+
+function fig(c){
+  return '<svg viewBox="0 0 300 400" preserveAspectRatio="xMidYMid meet">' +
+    '<ellipse cx="150" cy="372" rx="66" ry="10" fill="#231d18" opacity=".10"/>' +
+    '<g transform="translate(0 ' + c.dy + ')">' +
+      '<g transform="rotate(' + c.ll + ' 150 243)">' +
+        '<line x1="150" y1="243" x2="150" y2="340" stroke="#231d18" stroke-width="11" stroke-linecap="round"/>' +
+        '<line x1="150" y1="340" x2="133" y2="352" stroke="#231d18" stroke-width="11" stroke-linecap="round"/></g>' +
+      '<g transform="rotate(' + c.rl + ' 150 243)">' +
+        '<line x1="150" y1="243" x2="150" y2="340" stroke="#231d18" stroke-width="11" stroke-linecap="round"/>' +
+        '<line x1="150" y1="340" x2="167" y2="352" stroke="#231d18" stroke-width="11" stroke-linecap="round"/></g>' +
+      '<g transform="rotate(' + c.tilt + ' 150 240)">' +
+        '<line x1="150" y1="132" x2="150" y2="246" stroke="#231d18" stroke-width="15" stroke-linecap="round"/>' +
+        '<g transform="rotate(' + c.head + ' 150 140)">' +
+          '<path d="M150 48 C182 48 199 70 199 94 C199 124 178 142 150 142 C122 142 101 124 101 94 C101 70 118 48 150 48 Z" fill="#b8402f" stroke="#231d18" stroke-width="5"/>' +
+          '<path d="M120 70 C134 64 166 64 180 70" stroke="#231d18" stroke-width="4" fill="none" stroke-linecap="round"/>' +
+          '<path d="M116 84 L139 94" stroke="#231d18" stroke-width="8" stroke-linecap="round"/>' +
+          '<path d="M184 84 L161 94" stroke="#231d18" stroke-width="8" stroke-linecap="round"/>' +
+          '<ellipse cx="130" cy="105" rx="10" ry="8" fill="#231d18"/>' +
+          '<ellipse cx="170" cy="105" rx="10" ry="8" fill="#231d18"/>' +
+          '<path d="M130 124 C142 118 158 118 170 124 C158 132 142 132 130 124 Z" fill="#231d18"/></g>' +
+        '<path d="M108 150 Q150 138 192 150 L188 232 Q150 242 112 232 Z" fill="#c0392b" stroke="#231d18" stroke-width="5" stroke-linejoin="round"/>' +
+        '<path d="M112 206 Q150 216 188 206 L188 218 Q150 228 112 218 Z" fill="#1d5b95" stroke="#231d18" stroke-width="4" stroke-linejoin="round"/>' +
+        '<g transform="rotate(' + c.la + ' 110 152)">' +
+          '<line x1="110" y1="152" x2="110" y2="232" stroke="#231d18" stroke-width="11" stroke-linecap="round"/>' +
+          '<circle cx="110" cy="238" r="10" fill="#f0e2c8" stroke="#231d18" stroke-width="4"/></g>' +
+        '<g transform="rotate(' + c.ra + ' 190 152)">' +
+          '<line x1="190" y1="152" x2="190" y2="232" stroke="#231d18" stroke-width="11" stroke-linecap="round"/>' +
+          '<circle cx="190" cy="238" r="10" fill="#f0e2c8" stroke="#231d18" stroke-width="4"/></g>' +
+      '</g>' +
+    '</g></svg>';
+}
+
+document.getElementById('six').innerHTML = CARDS.map(function(c){
+  return '<div class="sc"><div class="n6">' + c.n + '</div>' + fig(c) +
+    '<div class="nm">' + c.nm + '</div><div class="og">' + c.og + '</div></div>';
+}).join('');
+</script>
+
+</body>
+</html>

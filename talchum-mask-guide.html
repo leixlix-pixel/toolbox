@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>탈 그리기 가이드 — 탈춤놀이</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1c1b1a; --red:#c0392b; --deep:#8e2b1f; --gold:#d99b2b;
+  --paper:#fffdf8; --line:#d8cfc0; --muted:#7b7267; --navy:#2c3e6b;
+}
+body{font-family:'Noto Sans KR',sans-serif;background:#e8e4dc;color:var(--ink);
+     -webkit-print-color-adjust:exact;print-color-adjust:exact}
+@page{size:A4;margin:0}
+
+.bar{background:var(--ink);color:#fff;padding:12px 20px;display:flex;
+     align-items:center;gap:16px;font-size:14px}
+.bar b{font-size:15px}
+.bar button{margin-left:auto;background:var(--gold);color:#1c1b1a;border:0;
+  border-radius:8px;padding:10px 22px;font-family:inherit;font-weight:700;
+  font-size:15px;min-height:44px;cursor:pointer}
+
+.page{width:210mm;height:297mm;background:var(--paper);margin:16px auto;
+  padding:11mm 12mm 9mm;overflow:hidden;position:relative;
+  display:flex;flex-direction:column;box-shadow:0 4px 20px rgba(0,0,0,.18)}
+
+/* 머리 */
+.head{display:flex;align-items:flex-end;gap:12px;
+  border-bottom:3px solid var(--ink);padding-bottom:7px}
+.head h1{font-family:'Gaegu',sans-serif;font-size:25px;line-height:1.05;
+  letter-spacing:-.5px;white-space:nowrap}
+.head h1 em{font-style:normal;color:var(--red)}
+.head .sub{font-size:11.5px;color:var(--muted);padding-bottom:2px;line-height:1.4;
+  white-space:nowrap}
+.head .sub b{color:var(--ink)}
+.head .tag{margin-left:auto;background:var(--ink);color:#fff;font-size:11px;
+  font-weight:700;padding:4px 10px;border-radius:20px;white-space:nowrap}
+
+.pbody{flex:1;min-height:0;display:flex;flex-direction:column;
+  justify-content:space-between;padding-top:9px}
+
+h2.st{font-size:14.5px;font-weight:900;display:flex;align-items:center;gap:7px;
+  margin-bottom:7px}
+h2.st .n{background:var(--ink);color:#fff;width:21px;height:21px;border-radius:50%;
+  display:grid;place-items:center;font-size:12.5px;flex:none}
+h2.st .hi{color:var(--red)}
+h2.st small{font-weight:500;font-size:11.5px;color:var(--muted);margin-left:2px}
+
+/* 규칙 4칸 */
+.rules{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.rule{border:2px solid var(--ink);border-radius:10px;padding:7px 8px 8px;
+  background:#fff;display:flex;flex-direction:column;gap:4px}
+.rule .rt{font-size:13px;font-weight:900;color:var(--red)}
+.rule .rd{font-size:10.7px;line-height:1.4;color:#3a3733}
+.rule .rd b{color:var(--deep)}
+.rule svg{align-self:center;margin-top:1px}
+
+/* 미운 / 고운 */
+.flip{display:grid;grid-template-columns:1fr 118px 1fr;gap:8px;align-items:center}
+.mask{border:2px solid var(--ink);border-radius:12px;background:#fff;
+  padding:7px 9px 8px;display:flex;flex-direction:column;align-items:center;gap:4px}
+.mask .mt{font-family:'Gaegu',sans-serif;font-size:20px;line-height:1}
+.mask.bad .mt{color:var(--deep)}
+.mask.good .mt{color:var(--navy)}
+.mask .ml{font-size:10.6px;line-height:1.45;color:#3a3733;align-self:stretch}
+.mask .ml b{color:var(--red)}
+.flipmid{text-align:center;font-size:11px;line-height:1.45;color:#3a3733}
+.flipmid .ar{font-size:26px;color:var(--gold);line-height:1}
+.flipmid .big{display:block;font-size:12.5px;font-weight:700;margin:3px 0 4px}
+.flipmid .rd{color:var(--red);font-weight:700}
+.flipmid .mu{color:var(--muted)}
+
+/* 부품 */
+.parts{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.pcol{border:1.5px solid var(--line);border-radius:10px;background:#fff;padding:6px 5px 7px}
+.pcol .ph{text-align:center;font-size:11.5px;font-weight:900;margin-bottom:4px;
+  color:var(--ink);border-bottom:1.5px dotted var(--line);padding-bottom:3px}
+.pcol .ph i{font-style:normal;font-weight:400;font-size:9px;color:var(--muted)}
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:3px}
+.pit{text-align:center}
+.pit .pn{font-size:9px;color:var(--muted);margin-top:-1px}
+
+/* 순서 */
+.make{display:grid;grid-template-columns:1fr 152px;gap:10px;align-items:stretch}
+.steps{display:flex;flex-direction:column;gap:4px}
+.step{display:flex;gap:7px;align-items:flex-start;font-size:11.2px;line-height:1.42}
+.step .sn{background:var(--gold);color:#1c1b1a;font-weight:900;width:18px;height:18px;
+  border-radius:50%;display:grid;place-items:center;font-size:11px;flex:none;margin-top:1px}
+.step b{color:var(--red)}
+.diag{border:1.5px solid var(--line);border-radius:10px;background:#fff;
+  padding:5px;display:grid;place-items:center}
+
+.warn{margin-top:6px;background:#fff4e0;border:2px dashed var(--gold);border-radius:9px;
+  padding:6px 10px;font-size:11.6px;line-height:1.45;font-weight:500}
+.warn b{color:var(--deep);font-weight:900}
+
+.foot{border-top:1.5px solid var(--line);padding-top:5px;display:flex;
+  font-size:9.5px;color:var(--muted)}
+.foot .r{margin-left:auto}
+
+@media print{
+  body{background:#fff}
+  .no-print{display:none}
+  .page{margin:0;box-shadow:none}
+}
+</style>
+</head>
+<body>
+
+<div class="bar no-print">
+  <b>탈 그리기 가이드</b>
+  <span>A4 1장 · 모둠에 한 장씩 놓고 보세요</span>
+  <button onclick="window.print()">인쇄하기</button>
+</div>
+
+<div class="page">
+
+  <div class="head">
+    <h1>탈 그리기 — <em>이것만</em> 지키면 탈이 된다</h1>
+    <div class="sub">음악 70~71쪽 「탈춤놀이」<br>미운 얼굴 고운 얼굴 <b>탈 하나에 가려 두고</b></div>
+    <div class="tag">5분이면 된다</div>
+  </div>
+
+  <div class="pbody">
+
+  <!-- 1. 규칙 넷 -->
+  <section>
+    <h2 class="st"><span class="n">1</span>탈처럼 보이게 하는 건 이 넷뿐이다<small>잘 그리는 솜씨가 아니다</small></h2>
+    <div class="rules">
+
+      <div class="rule">
+        <div class="rt">① 굵게</div>
+        <svg width="88" height="30" viewBox="0 0 88 30">
+          <path d="M6 10 C22 4, 34 16, 50 9" stroke="#1c1b1a" stroke-width="1" fill="none"/>
+          <text x="56" y="13" font-size="9" fill="#7b7267">얼굴</text>
+          <path d="M6 24 C22 18, 34 30, 50 23" stroke="#1c1b1a" stroke-width="5"
+                fill="none" stroke-linecap="round"/>
+          <text x="56" y="27" font-size="9" font-weight="700" fill="#c0392b">탈</text>
+        </svg>
+        <div class="rd">연필 말고 <b>매직·굵은 사인펜</b>. 가는 선은 얼굴 그림이 되고, 굵은 선은 탈이 된다.</div>
+      </div>
+
+      <div class="rule">
+        <div class="rt">② 살색 금지</div>
+        <svg width="88" height="30" viewBox="0 0 88 30">
+          <circle cx="13" cy="15" r="10" fill="#f0c9a8" stroke="#1c1b1a" stroke-width="1.5"/>
+          <line x1="5" y1="23" x2="21" y2="7" stroke="#c0392b" stroke-width="2.5"/>
+          <circle cx="38" cy="15" r="10" fill="#b8402f" stroke="#1c1b1a" stroke-width="2"/>
+          <circle cx="61" cy="15" r="10" fill="#fdfbf5" stroke="#1c1b1a" stroke-width="2"/>
+          <circle cx="79" cy="15" r="8" fill="#2b2b2b" stroke="#1c1b1a" stroke-width="1.5"/>
+        </svg>
+        <div class="rd">빨강·흰색·검정·노랑. 얼굴색이 <b>사람 살색이 아닌 순간</b> 그건 탈이 된다.</div>
+      </div>
+
+      <div class="rule">
+        <div class="rt">③ 좌우 다르게</div>
+        <svg width="88" height="30" viewBox="0 0 88 30">
+          <g stroke="#1c1b1a" stroke-width="3.5" stroke-linecap="round" fill="none">
+            <path d="M4 12 L16 12"/><path d="M22 12 L34 12"/>
+          </g>
+          <text x="40" y="15" font-size="8" fill="#7b7267">이모티콘</text>
+          <g stroke="#1c1b1a" stroke-width="3.5" stroke-linecap="round" fill="none">
+            <path d="M4 26 L16 20"/><path d="M22 26 L34 27"/>
+          </g>
+          <text x="40" y="28" font-size="8" font-weight="700" fill="#c0392b">탈</text>
+        </svg>
+        <div class="rd">한쪽 눈썹만 올리고, 입은 한쪽으로 비튼다. <b>똑같으면 재미가 없다.</b></div>
+      </div>
+
+      <div class="rule">
+        <div class="rt">④ 눈·입은 새까맣게</div>
+        <svg width="88" height="30" viewBox="0 0 88 30">
+          <ellipse cx="24" cy="15" rx="11" ry="8" fill="#fff" stroke="#1c1b1a" stroke-width="1.2"/>
+          <ellipse cx="64" cy="15" rx="11" ry="8" fill="#1c1b1a" stroke="#1c1b1a" stroke-width="3.5"/>
+          <path d="M42 15 L52 15 M48 11 L52 15 L48 19" stroke="#d99b2b" stroke-width="2"
+                fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div class="rd">둘레를 굵게 두르고 안을 칠한다. <b>뻥 뚫린 것처럼</b> 보여야 탈이다.</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 2. 미운 / 고운 -->
+  <section>
+    <h2 class="st"><span class="n">2</span>미운 얼굴과 고운 얼굴은 <span class="hi">두 군데</span>만 다르다</h2>
+    <div class="flip">
+
+      <div class="mask bad">
+        <div class="mt">미운 탈</div>
+        <svg width="188" height="168" viewBox="0 0 200 230">
+          <path d="M100 12 C152 12 180 52 180 108 C180 178 146 222 100 222
+                   C54 222 20 178 20 108 C20 52 48 12 100 12 Z"
+                fill="#b8402f" stroke="#1c1b1a" stroke-width="5.5"/>
+          <g stroke="#1c1b1a" stroke-width="4" fill="none" stroke-linecap="round">
+            <path d="M62 42 C84 34 116 34 138 42"/>
+            <path d="M58 56 C84 47 116 47 142 56"/>
+          </g>
+          <g stroke="#1c1b1a" stroke-width="9" fill="none" stroke-linecap="round">
+            <path d="M42 73 L84 91"/>
+            <path d="M158 67 L116 91"/>
+          </g>
+          <ellipse cx="66" cy="119" rx="17" ry="14" fill="#1c1b1a"/>
+          <ellipse cx="134" cy="117" rx="20" ry="17" fill="#1c1b1a"/>
+          <path d="M100 118 C92 140 88 154 100 160 C112 154 108 140 100 118"
+                fill="#8e2b1f" stroke="#1c1b1a" stroke-width="4" stroke-linejoin="round"/>
+          <path d="M56 184 C76 168 124 168 146 180 C124 200 76 200 56 184 Z"
+                fill="#1c1b1a" stroke="#1c1b1a" stroke-width="4" stroke-linejoin="round"/>
+          <g fill="#fff">
+            <path d="M72 179 L82 178 L77 189 Z"/>
+            <path d="M96 177 L107 177 L101 190 Z"/>
+            <path d="M120 178 L130 180 L124 189 Z"/>
+          </g>
+          <circle cx="40" cy="150" r="11" fill="#8e2b1f" stroke="#1c1b1a" stroke-width="3.5"/>
+          <circle cx="163" cy="146" r="8" fill="#8e2b1f" stroke="#1c1b1a" stroke-width="3.5"/>
+        </svg>
+        <div class="ml"><b>눈썹</b> 안쪽 끝을 코 쪽으로 <b>내리꽂는다</b><br>
+        <b>입</b> 입꼬리를 내리고 안을 까맣게, 이빨 삐죽<br>
+        얼굴은 붉게 · 이마 주름 · 볼에 혹</div>
+      </div>
+
+      <div class="flipmid">
+        <div class="ar">↔</div>
+        <span class="big">눈썹 방향과<br>입 방향</span>
+        이 둘만 <span class="rd">뒤집으면</span> 나머지는 그대로 두어도 된다.<br><br>
+        <span class="mu">모둠 안에서<br>미운 탈 · 고운 탈을<br>나누어 만들면<br>주고받는 노래가<br>눈으로도 보인다</span>
+      </div>
+
+      <div class="mask good">
+        <div class="mt">고운 탈</div>
+        <svg width="188" height="168" viewBox="0 0 200 230">
+          <path d="M100 12 C152 12 180 52 180 108 C180 178 146 222 100 222
+                   C54 222 20 178 20 108 C20 52 48 12 100 12 Z"
+                fill="#fdf6ea" stroke="#1c1b1a" stroke-width="5.5"/>
+          <path d="M100 12 C152 12 180 50 180 78 C166 50 138 30 100 30
+                   C62 30 34 50 20 78 C20 50 48 12 100 12 Z" fill="#1c1b1a"/>
+          <g stroke="#1c1b1a" stroke-width="6" fill="none" stroke-linecap="round">
+            <path d="M44 100 C56 86 76 86 88 96"/>
+            <path d="M114 96 C126 88 146 90 156 102"/>
+          </g>
+          <path d="M46 128 C58 106 80 106 90 126 C76 138 58 138 46 128 Z" fill="#1c1b1a"/>
+          <path d="M112 126 C124 106 144 106 156 128 C142 138 124 138 112 126 Z" fill="#1c1b1a"/>
+          <path d="M100 132 C93 150 91 160 100 164 C109 160 107 150 100 132"
+                fill="none" stroke="#1c1b1a" stroke-width="4.5" stroke-linejoin="round"/>
+          <path d="M70 178 C86 200 114 200 132 176 C114 190 86 190 70 178 Z"
+                fill="#c0392b" stroke="#1c1b1a" stroke-width="4" stroke-linejoin="round"/>
+          <circle cx="45" cy="152" r="12" fill="#e8736a" opacity=".85"/>
+          <circle cx="157" cy="152" r="12" fill="#e8736a" opacity=".85"/>
+          <circle cx="100" cy="60" r="7" fill="#c0392b"/>
+        </svg>
+        <div class="ml"><b>눈썹</b> 둥근 <b>무지개</b>로 부드럽게<br>
+        <b>입</b> 입꼬리를 올린 초승달, 빨갛게<br>
+        얼굴은 희게 · 볼에 동그란 연지</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 3. 부품 -->
+  <section>
+    <h2 class="st"><span class="n">3</span>줄마다 하나씩 골라라<small>네 개만 고르면 탈 하나가 완성된다 · 섞어도 된다</small></h2>
+    <div class="parts">
+
+      <div class="pcol">
+        <div class="ph">눈썹</div>
+        <div class="pgrid">
+          <div class="pit"><svg width="52" height="20" viewBox="0 0 52 20">
+            <path d="M6 12 C18 4 34 4 46 11" stroke="#1c1b1a" stroke-width="8" fill="none" stroke-linecap="round"/></svg>
+            <div class="pn">붓 눈썹</div></div>
+          <div class="pit"><svg width="52" height="20" viewBox="0 0 52 20">
+            <path d="M6 5 L46 15" stroke="#1c1b1a" stroke-width="8" fill="none" stroke-linecap="round"/></svg>
+            <div class="pn">내리꽂기</div></div>
+          <div class="pit"><svg width="52" height="20" viewBox="0 0 52 20">
+            <path d="M6 15 C18 3 34 3 46 15" stroke="#1c1b1a" stroke-width="5" fill="none" stroke-linecap="round"/></svg>
+            <div class="pn">무지개</div></div>
+          <div class="pit"><svg width="52" height="20" viewBox="0 0 52 20">
+            <path d="M6 13 C12 4 18 16 24 8 C30 2 38 14 46 8" stroke="#1c1b1a" stroke-width="4.5" fill="none" stroke-linecap="round"/></svg>
+            <div class="pn">꼬불꼬불</div></div>
+        </div>
+      </div>
+
+      <div class="pcol">
+        <div class="ph">눈 <i>(뚫는다)</i></div>
+        <div class="pgrid">
+          <div class="pit"><svg width="52" height="22" viewBox="0 0 52 22">
+            <circle cx="26" cy="11" r="9" fill="#1c1b1a"/></svg>
+            <div class="pn">동그라미</div></div>
+          <div class="pit"><svg width="52" height="22" viewBox="0 0 52 22">
+            <path d="M10 14 C18 3 34 3 42 14 C32 19 20 19 10 14 Z" fill="#1c1b1a"/></svg>
+            <div class="pn">반달</div></div>
+          <div class="pit"><svg width="52" height="22" viewBox="0 0 52 22">
+            <path d="M8 11 C20 4 32 4 44 11 C32 17 20 17 8 11 Z" fill="#1c1b1a"/></svg>
+            <div class="pn">째진 눈</div></div>
+          <div class="pit"><svg width="52" height="22" viewBox="0 0 52 22">
+            <circle cx="15" cy="11" r="4.5" fill="#1c1b1a"/>
+            <circle cx="37" cy="11" r="9.5" fill="#1c1b1a"/></svg>
+            <div class="pn">짝눈</div></div>
+        </div>
+      </div>
+
+      <div class="pcol">
+        <div class="ph">입</div>
+        <div class="pgrid">
+          <div class="pit"><svg width="52" height="22" viewBox="0 0 52 22">
+            <path d="M8 7 C20 21 32 21 44 6 C32 15 20 15 8 7 Z" fill="#c0392b" stroke="#1c1b1a" stroke-width="2.5" stroke-linejoin="round"/></svg>
+            <div class="pn">초승달</div></div>
+          <div class="pit"><svg width="52" height="22" viewBox="0 0 52 22">
+            <path d="M5 8 C18 1 34 1 47 8 C34 20 18 20 5 8 Z" fill="#1c1b1a"/>
+            <g fill="#fff">
+              <path d="M15 6 L22 6 L18 13 Z"/><path d="M27 6 L34 6 L30 13 Z"/>
+              <path d="M20 17 L28 17 L24 11 Z"/></g></svg>
+            <div class="pn">이빨 입</div></div>
+          <div class="pit"><svg width="52" height="22" viewBox="0 0 52 22">
+            <path d="M9 14 C20 18 30 6 43 5" stroke="#1c1b1a" stroke-width="6" fill="none" stroke-linecap="round"/></svg>
+            <div class="pn">비뚤어진 입</div></div>
+          <div class="pit"><svg width="52" height="22" viewBox="0 0 52 22">
+            <ellipse cx="26" cy="11" rx="13" ry="9" fill="#1c1b1a"/>
+            <ellipse cx="26" cy="14" rx="7" ry="4" fill="#c0392b"/></svg>
+            <div class="pn">벌린 입</div></div>
+        </div>
+      </div>
+
+      <div class="pcol">
+        <div class="ph">꾸미개</div>
+        <div class="pgrid">
+          <div class="pit"><svg width="52" height="22" viewBox="0 0 52 22">
+            <g stroke="#1c1b1a" stroke-width="3.5" fill="none" stroke-linecap="round">
+              <path d="M10 6 C22 2 32 2 42 6"/><path d="M9 12 C22 8 32 8 43 12"/>
+              <path d="M10 18 C22 14 32 14 42 18"/></g></svg>
+            <div class="pn">이마 주름</div></div>
+          <div class="pit"><svg width="52" height="22" viewBox="0 0 52 22">
+            <circle cx="17" cy="11" r="7" fill="#8e2b1f" stroke="#1c1b1a" stroke-width="2.5"/>
+            <circle cx="36" cy="13" r="5" fill="#8e2b1f" stroke="#1c1b1a" stroke-width="2.5"/></svg>
+            <div class="pn">혹</div></div>
+          <div class="pit"><svg width="52" height="22" viewBox="0 0 52 22">
+            <path d="M9 2 C14 11 38 11 43 2" stroke="#7b7267" stroke-width="1.6"
+                  fill="none" stroke-dasharray="3 2"/>
+            <g stroke="#1c1b1a" stroke-width="3" fill="none" stroke-linecap="round">
+              <path d="M14 8 C13 13 14 17 17 20"/>
+              <path d="M20 9 C19 14 19 18 21 21"/>
+              <path d="M26 9 C26 14 26 18 26 21"/>
+              <path d="M32 9 C33 14 33 18 31 21"/>
+              <path d="M38 8 C39 13 38 17 35 20"/>
+            </g></svg>
+            <div class="pn">수염</div></div>
+          <div class="pit"><svg width="52" height="22" viewBox="0 0 52 22">
+            <path d="M13 19 C10 10 12 4 19 3 C16 9 17 14 20 19 Z" fill="#d99b2b" stroke="#1c1b1a" stroke-width="2.5" stroke-linejoin="round"/>
+            <path d="M39 19 C42 10 40 4 33 3 C36 9 35 14 32 19 Z" fill="#d99b2b" stroke="#1c1b1a" stroke-width="2.5" stroke-linejoin="round"/></svg>
+            <div class="pn">뿔</div></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 4. 만드는 순서 -->
+  <section>
+    <h2 class="st"><span class="n">4</span>만드는 차례 — <span class="hi">눈 구멍을 먼저</span> 뚫는다</h2>
+    <div class="make">
+      <div class="steps">
+        <div class="step"><span class="sn">1</span><div>색지를 <b>세로로 반 접는다.</b> 접힌 채로 자르면 양쪽 눈이 저절로 똑같아진다.</div></div>
+        <div class="step"><span class="sn">2</span><div><b>눈 구멍부터 자른다.</b> 접은 선에서 <b>3cm</b> 떨어진 곳, 높이는 <b>종이 한가운데</b>. 눈은 생각보다 아래에 있다.</div></div>
+        <div class="step"><span class="sn">3</span><div><b>펴서 얼굴에 대 보고</b> 눈이 맞는지 확인한다. 여기서 안 맞으면 새 종이로 다시 — 다 그려 놓고 뚫으면 늦다.</div></div>
+        <div class="step"><span class="sn">4</span><div>그 다음에 그린다. 위의 <b>규칙 넷</b>과 <b>부품 넷</b>만 쓰면 5분이면 끝난다.</div></div>
+        <div class="step"><span class="sn">5</span><div>귀 옆에 구멍 두 개를 뚫고 <b>고무줄</b>을 꿴다. 두 손이 놀아야 춤 동작을 할 수 있다.</div></div>
+        <div class="step"><span class="sn">+</span><div>턱 아래가 남으면 <b>둥글게 잘라 낸다.</b> 네모난 채로 두면 탈이 아니라 팻말처럼 보인다.</div></div>
+      </div>
+
+      <div class="diag">
+        <svg width="142" height="117" viewBox="0 0 168 138">
+          <rect x="26" y="10" width="98" height="120" rx="6" fill="#fff" stroke="#1c1b1a" stroke-width="2.5"/>
+          <line x1="75" y1="10" x2="75" y2="130" stroke="#c0392b" stroke-width="1.6" stroke-dasharray="5 4"/>
+          <text x="75" y="7" font-size="8" fill="#c0392b" text-anchor="middle" font-weight="700">접는 선</text>
+          <line x1="26" y1="70" x2="124" y2="70" stroke="#2c3e6b" stroke-width="1.2" stroke-dasharray="3 3"/>
+          <text x="127" y="67" font-size="8" fill="#2c3e6b" font-weight="700">한가운데</text>
+          <ellipse cx="53" cy="70" rx="12" ry="9" fill="#1c1b1a"/>
+          <ellipse cx="97" cy="70" rx="12" ry="9" fill="#1c1b1a"/>
+          <g stroke="#c0392b" stroke-width="1.4">
+            <line x1="53" y1="89" x2="75" y2="89"/>
+            <line x1="53" y1="85" x2="53" y2="93"/><line x1="75" y1="85" x2="75" y2="93"/>
+          </g>
+          <text x="64" y="102" font-size="9" fill="#c0392b" text-anchor="middle" font-weight="700">3cm</text>
+          <circle cx="33" cy="63" r="3" fill="none" stroke="#1c1b1a" stroke-width="1.6"/>
+          <circle cx="117" cy="63" r="3" fill="none" stroke="#1c1b1a" stroke-width="1.6"/>
+          <text x="75" y="122" font-size="8" fill="#7b7267" text-anchor="middle">A4 색지 한 장 그대로</text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="warn">
+      <b>잘 그리려고 하지 마세요.</b> 탈은 원래 나무를 툭툭 깎아 만든 것이라
+      삐뚤고 거칠수록 진짜 탈 같습니다. 예쁘게 다듬을수록 탈에서 멀어집니다 —
+      <b>5분 안에 끝내는 것</b>이 잘 만드는 것입니다.
+    </div>
+  </section>
+
+  </div>
+
+  <div class="foot">
+    <div>5학년 음악 4단원 「음악으로 행복을 나누어요」 · 70~71쪽 「탈춤놀이」 (정구성 작사 · 이성동 작곡)</div>
+    <div class="r">모둠에 한 장</div>
+  </div>
+
+</div>
+
+</body>
+</html>

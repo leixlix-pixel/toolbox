@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>탈춤놀이 — 동작 카드 여섯 장</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --ink:#231d18; --navy:#123a63; --deep:#8e2b1f;
+  --red:#c0392b; --gold:#c8963e; --green:#2e7d5b; --plum:#7d4a86;
+  --paper:#f7f1e4; --line:#d9cfbb; --muted:#6f675c;
+}
+
+html,body{height:100%;background:#12100e;font-family:'Noto Sans KR',sans-serif;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;overflow:hidden}
+
+#stage{position:absolute;left:50%;top:50%;width:1280px;height:720px;
+  transform-origin:center center;background:var(--paper);overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,.6)}
+
+.slide{position:absolute;inset:0;padding:32px 48px;display:none;
+  flex-direction:column;background:var(--paper);--acc:var(--deep)}
+.slide.on{display:flex}
+.slide::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(circle at 10% 6%,rgba(200,150,62,.13),transparent 46%),
+             radial-gradient(circle at 94% 96%,rgba(142,43,31,.10),transparent 46%)}
+.slide>*{position:relative;z-index:1}
+
+.eyebrow{display:inline-block;font-size:19px;font-weight:700;color:#fff;
+  background:var(--acc);padding:5px 17px;border-radius:999px;margin-bottom:9px;align-self:flex-start}
+h1.title{font-size:54px;font-weight:900;color:var(--deep);line-height:1.16;letter-spacing:-.02em}
+h2.stitle{font-size:37px;font-weight:900;color:var(--acc);line-height:1.2;letter-spacing:-.02em}
+.rule{width:86px;height:7px;border-radius:4px;
+  background:linear-gradient(90deg,var(--red),var(--gold));margin:8px 0 15px}
+p.body{font-size:24px;line-height:1.5;color:var(--ink);font-weight:500}
+p.body+p.body{margin-top:9px}
+b.hl{background:linear-gradient(transparent 58%,rgba(192,57,43,.30) 58%);font-weight:900;color:var(--deep)}
+b.hn{background:linear-gradient(transparent 58%,rgba(18,58,99,.24) 58%);font-weight:900;color:var(--navy)}
+.sp{flex:1}
+
+/* 표지 */
+.cover{justify-content:center;align-items:center;text-align:center;
+  background:linear-gradient(150deg,#8e2b1f,#5d1c14 60%,#3a1510)}
+.cover h1{color:#fff;font-size:64px}
+.cover .sub{color:#f0d9a8;font-size:26px;font-weight:700;margin-top:14px}
+.cover .kr{font-family:'Gaegu',sans-serif;font-size:34px;color:#fff;opacity:.92;margin-top:26px;
+  border-top:3px solid rgba(255,255,255,.3);padding-top:20px;line-height:1.4}
+.cover::after{display:none}
+
+/* 공통 박스 */
+.act{background:#fff;border:3px solid var(--acc);border-radius:16px;padding:16px 20px}
+.term{background:#fff6e2;border-left:8px solid var(--gold);border-radius:0 12px 12px 0;
+  padding:12px 18px;font-size:20px;line-height:1.45}
+.cols{display:flex;gap:18px;flex:1;min-height:0}
+.card{background:#fff;border:2px solid var(--line);border-radius:14px;padding:14px 16px;
+  box-shadow:0 3px 10px rgba(40,30,15,.07)}
+
+/* 장단 박자판 */
+.beats{display:flex;gap:10px;align-items:center}
+.beat{width:62px;height:62px;border-radius:14px;background:#fff;border:3px solid var(--line);
+  display:grid;place-items:center;font-size:23px;font-weight:900;color:var(--muted);
+  transition:background .06s,color .06s,transform .06s,border-color .06s}
+.beat.on{background:var(--deep);border-color:var(--deep);color:#fff;transform:translateY(-6px) scale(1.06)}
+.beat.strong{border-color:var(--deep);color:var(--deep)}
+
+.btn{font-family:inherit;font-size:20px;font-weight:700;border:0;border-radius:11px;
+  padding:12px 22px;min-height:50px;background:var(--deep);color:#fff;cursor:pointer}
+.btn.ghost{background:#fff;color:var(--deep);border:3px solid var(--deep)}
+.btn:active{transform:translateY(2px)}
+.btnrow{display:flex;gap:11px;align-items:center;flex-wrap:wrap}
+
+/* 동작 카드 */
+.movewrap{display:flex;gap:22px;flex:1;min-height:0;align-items:stretch}
+.figbox{width:432px;flex:none;background:#fff;border:3px solid var(--acc);border-radius:18px;
+  display:flex;flex-direction:column;align-items:center;padding:10px 0 12px;position:relative}
+.figbox .cardno{position:absolute;top:-16px;left:18px;background:var(--acc);color:#fff;
+  font-size:21px;font-weight:900;padding:3px 16px;border-radius:999px}
+.figbox svg{flex:1;min-height:0}
+.figbox .nm{font-family:'Gaegu',sans-serif;font-size:40px;color:var(--deep);line-height:1}
+.moveinfo{flex:1;min-width:0;display:flex;flex-direction:column;gap:11px;
+  justify-content:space-between}
+.howrow{display:flex;gap:9px}
+.how{flex:1;background:#fff;border:2px solid var(--line);border-radius:12px;padding:9px 10px;text-align:center}
+.how .hb{font-size:17px;font-weight:900;color:var(--deep)}
+.how .ht{font-size:16px;line-height:1.32;margin-top:4px;color:var(--ink);font-weight:500}
+.tagrow{display:flex;gap:9px;flex-wrap:wrap}
+.tg{font-size:17px;font-weight:700;padding:6px 13px;border-radius:999px;
+  background:#efe6d4;color:#6b4a1e}
+.tg.sit{background:#dfeee6;color:#1f6146}
+.tg.org{background:#f6ddd8;color:#8e2b1f}
+
+/* 구조표 */
+table.struct{width:100%;border-collapse:collapse;font-size:19px}
+table.struct th,table.struct td{border:2px solid var(--line);padding:7px 10px;text-align:left}
+table.struct th{background:var(--deep);color:#fff;font-weight:700;font-size:18px}
+table.struct td.who{font-weight:700;color:var(--navy);white-space:nowrap}
+table.struct tr.pick td{background:#fff3d6}
+table.struct td.num{text-align:center;font-weight:900;color:var(--deep);width:104px}
+table.struct .rep{color:var(--muted);font-weight:500;font-size:17px}
+
+/* 여섯 장 모아보기 */
+.sixgrid{display:grid;grid-template-columns:repeat(3,1fr);
+  grid-template-rows:repeat(2,minmax(0,1fr));gap:13px;flex:1;min-height:0}
+.sixcell{background:#fff;border:2px solid var(--line);border-radius:13px;
+  display:flex;flex-direction:column;align-items:center;padding:6px 4px 8px;position:relative;
+  min-height:0;overflow:hidden}
+.sixcell .n6{position:absolute;top:5px;left:9px;font-size:17px;font-weight:900;color:var(--deep)}
+.sixcell svg{flex:1 1 0;min-height:0;width:100%}
+.sixcell .nm6{font-family:'Gaegu',sans-serif;font-size:27px;color:var(--deep);line-height:1}
+.sixcell .d6{font-size:14.5px;color:var(--muted);line-height:1.3;text-align:center;margin-top:1px}
+
+/* 역할 */
+.roles{display:grid;grid-template-columns:repeat(5,1fr);gap:11px}
+.role{background:#fff;border:2px solid var(--line);border-radius:13px;padding:12px 10px;text-align:center}
+.role .ri{font-size:38px;line-height:1}
+.role .rn{font-size:21px;font-weight:900;color:var(--deep);margin-top:5px}
+.role .rd{font-size:15.5px;color:var(--muted);line-height:1.34;margin-top:4px}
+.role.hi{border-color:var(--green);background:#f0f8f4}
+.role.hi .rn{color:var(--green)}
+
+/* 조작 */
+#zl,#zr{position:fixed;top:0;bottom:46px;width:16%;z-index:5;cursor:pointer}
+#zl{left:0} #zr{right:0}
+#progwrap{position:fixed;left:0;right:0;bottom:46px;height:5px;background:rgba(255,255,255,.12);z-index:8}
+#prog{height:100%;width:0;background:var(--gold);transition:width .2s}
+.bar{position:fixed;left:0;right:0;bottom:0;height:46px;background:#1b1714;
+  display:flex;align-items:center;gap:9px;padding:0 14px;z-index:10}
+.bar button{font-family:inherit;font-size:14px;font-weight:700;background:#3a322b;color:#f3ead9;
+  border:0;border-radius:8px;padding:8px 15px;min-height:34px;cursor:pointer}
+.bar button:active{background:#55493e}
+.bar #counter{color:#bdb1a0;font-size:14px;font-weight:700;margin-left:5px}
+.bar .fl{flex:1}
+</style>
+</head>
+<body>
+
+<div id="stage"></div>
+<div id="zl"></div><div id="zr"></div>
+<div id="progwrap"><div id="prog"></div></div>
+<div class="bar">
+  <button onclick="go(-1)">◀ 이전</button>
+  <button onclick="go(1)">다음 ▶</button>
+  <span id="counter">1 / 1</span>
+  <span class="fl"></span>
+  <button onclick="stopAll()">■ 멈춤</button>
+  <button onclick="fs()">⛶ 전체화면</button>
+</div>
+
+<script>
+/* ===================== 장단 소리 (웹오디오 · 파일 없음) ===================== */
+let AC = null;
+function ac(){ if(!AC) AC = new (window.AudioContext || window.webkitAudioContext)(); return AC; }
+
+/* 북편 — 낮고 둥근 울림 (쿵/덩) */
+function kung(t, gain){
+  const c = ac(), o = c.createOscillator(), g = c.createGain(), f = c.createBiquadFilter();
+  o.type = 'sine';
+  o.frequency.setValueAtTime(150, t);
+  o.frequency.exponentialRampToValueAtTime(68, t + 0.16);
+  f.type = 'lowpass'; f.frequency.value = 420;
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(gain, t + 0.008);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + 0.36);
+  o.connect(f); f.connect(g); g.connect(c.destination);
+  o.start(t); o.stop(t + 0.4);
+}
+/* 채편 — 짧고 마른 탁 (덕/딱) */
+let NOISE = null;
+function noiseBuf(){
+  if(NOISE) return NOISE;
+  const c = ac(), n = Math.floor(c.sampleRate * 0.25);
+  NOISE = c.createBuffer(1, n, c.sampleRate);
+  const d = NOISE.getChannelData(0);
+  for(let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, 2);
+  return NOISE;
+}
+function duk(t, gain){
+  const c = ac(), s = c.createBufferSource(), g = c.createGain(), f = c.createBiquadFilter();
+  s.buffer = noiseBuf();
+  f.type = 'bandpass'; f.frequency.value = 2100; f.Q.value = 1.1;
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(gain, t + 0.004);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
+  s.connect(f); f.connect(g); g.connect(c.destination);
+  s.start(t); s.stop(t + 0.16);
+}
+
+/* ===================== 스틱 피겨 ===================== */
+/* 각도 규칙 — 팔·다리는 아래로 늘어뜨린 상태가 0도.
+   왼쪽(화면 왼쪽) 팔다리는 양수가 바깥, 오른쪽은 음수가 바깥이다. */
+const DEF = { la:12, ra:-12, tilt:0, dy:0, head:0, ll:9, rl:-9 };
+
+const MOVES = [
+  { n:1, name:'으쓱', org:'어깨춤',
+    how:['쿵 — 오른 어깨를 위로','덕 — 왼 어깨를 위로','쿵 — 다시 오른쪽','덕 — 다시 왼쪽'],
+    tip:'팔은 가만히 두고 어깨만. 네 박 동안 네 번.',
+    sit:'앉아서도 그대로 된다',
+    frames:[{tilt:-7,dy:4,la:19,ra:-6},{tilt:7,dy:0,la:6,ra:-19},
+            {tilt:-7,dy:4,la:19,ra:-6},{tilt:7,dy:0,la:6,ra:-19}] },
+
+  { n:2, name:'뿌리기', org:'외사위',
+    how:['쿵 — 왼팔을 위로 던지고','덕 — 툭 떨군다','쿵 — 오른팔을 위로','덕 — 툭 떨군다'],
+    tip:'던질 때 힘을 주고 떨굴 때 힘을 뺀다. 이 힘 빼기가 탈춤이다.',
+    sit:'앉아서도 그대로 된다',
+    frames:[{la:150,ra:-12,dy:0},{la:12,ra:-12,dy:11},
+            {la:12,ra:-150,dy:0},{la:12,ra:-12,dy:11}] },
+
+  { n:3, name:'활개', org:'활개펴기',
+    how:['쿵 — 두 팔을 크게 벌리고','덕 — 그대로 멈춤','쿵 — 그대로 멈춤','덕 — 스르르 내린다'],
+    tip:'세 박을 버티는 것이 이 카드의 전부다. 크게 벌릴수록 좋다.',
+    sit:'앉아서도 그대로 된다',
+    frames:[{la:88,ra:-88,dy:0},{la:88,ra:-88,dy:0},
+            {la:88,ra:-88,dy:0},{la:16,ra:-16,dy:12}] },
+
+  { n:4, name:'쿵딛기', org:'배김새',
+    how:['쿵 — 한 발을 크게 딛고','덕 — 정지','쿵 — 정지','덕 — 제자리로'],
+    tip:'딛고 나서 움직이지 않는 것이 동작이다. 멈춘 곳에서 힘이 보인다.',
+    sit:'앉은 사람은 발 대신 두 손으로 무릎을 친다',
+    frames:[{ll:32,rl:-13,dy:17,la:31,ra:-31,tilt:4},{ll:32,rl:-13,dy:17,la:31,ra:-31,tilt:4},
+            {ll:32,rl:-13,dy:17,la:31,ra:-31,tilt:4},{ll:9,rl:-9,dy:0,la:12,ra:-12,tilt:0}] },
+
+  { n:5, name:'탈 숨기', org:'놀이 동작',
+    how:['쿵 — 두 손으로 탈을 가리고','덕 — 가린 채','쿵 — 확 내리며 보여 준다','덕 — 그대로'],
+    tip:'가렸다가 보여 줄 때 고개를 함께 든다. 받는 쪽이 놀란다.',
+    sit:'앉아서도 그대로 된다',
+    frames:[{la:222,ra:-222,dy:7,head:6},{la:222,ra:-222,dy:7,head:6},
+            {la:12,ra:-12,dy:0,head:-5},{la:12,ra:-12,dy:0,head:-5}] },
+
+  { n:6, name:'까딱', org:'고개잡이',
+    how:['쿵 — 고개를 왼쪽으로','덕 — 오른쪽으로','쿵 — 왼쪽','덕 — 오른쪽'],
+    tip:'몸은 가만히, 고개만. 제일 작은 동작이지만 장단은 제일 잘 보인다.',
+    sit:'앉아서도 그대로 된다',
+    frames:[{head:-11,dy:3},{head:11,dy:0},{head:-11,dy:3},{head:11,dy:0}] }
+];
+
+/* 피겨 SVG — 탈을 쓴 사람 */
+function figSVG(uid){
+  return '<svg viewBox="0 0 300 400" class="fig" id="fig' + uid + '">' +
+    '<ellipse cx="150" cy="372" rx="66" ry="10" fill="#231d18" opacity=".10"/>' +
+    '<g class="f-body">' +
+      '<g class="f-legs">' +
+        '<g class="f-ll"><line x1="150" y1="243" x2="150" y2="340" stroke="#231d18" stroke-width="11" stroke-linecap="round"/>' +
+          '<line x1="150" y1="340" x2="133" y2="352" stroke="#231d18" stroke-width="11" stroke-linecap="round"/></g>' +
+        '<g class="f-rl"><line x1="150" y1="243" x2="150" y2="340" stroke="#231d18" stroke-width="11" stroke-linecap="round"/>' +
+          '<line x1="150" y1="340" x2="167" y2="352" stroke="#231d18" stroke-width="11" stroke-linecap="round"/></g>' +
+      '</g>' +
+      '<g class="f-torso">' +
+        '<line x1="150" y1="132" x2="150" y2="246" stroke="#231d18" stroke-width="15" stroke-linecap="round"/>' +
+        '<g class="f-head">' +
+          '<path d="M150 48 C182 48 199 70 199 94 C199 124 178 142 150 142 C122 142 101 124 101 94 C101 70 118 48 150 48 Z" ' +
+            'fill="#b8402f" stroke="#231d18" stroke-width="5"/>' +
+          '<path d="M120 70 C134 64 166 64 180 70" stroke="#231d18" stroke-width="4" fill="none" stroke-linecap="round"/>' +
+          '<path d="M116 84 L139 94" stroke="#231d18" stroke-width="8" stroke-linecap="round"/>' +
+          '<path d="M184 84 L161 94" stroke="#231d18" stroke-width="8" stroke-linecap="round"/>' +
+          '<ellipse cx="130" cy="105" rx="10" ry="8" fill="#231d18"/>' +
+          '<ellipse cx="170" cy="105" rx="10" ry="8" fill="#231d18"/>' +
+          '<path d="M130 124 C142 118 158 118 170 124 C158 132 142 132 130 124 Z" fill="#231d18"/>' +
+        '</g>' +
+        '<path d="M108 150 Q150 138 192 150 L188 232 Q150 242 112 232 Z" fill="#c0392b" stroke="#231d18" stroke-width="5" stroke-linejoin="round"/>' +
+        '<path d="M112 206 Q150 216 188 206 L188 218 Q150 228 112 218 Z" fill="#1d5b95" stroke="#231d18" stroke-width="4" stroke-linejoin="round"/>' +
+        '<g class="f-al"><line x1="110" y1="152" x2="110" y2="232" stroke="#231d18" stroke-width="11" stroke-linecap="round"/>' +
+          '<circle cx="110" cy="238" r="10" fill="#f0e2c8" stroke="#231d18" stroke-width="4"/></g>' +
+        '<g class="f-ar"><line x1="190" y1="152" x2="190" y2="232" stroke="#231d18" stroke-width="11" stroke-linecap="round"/>' +
+          '<circle cx="190" cy="238" r="10" fill="#f0e2c8" stroke="#231d18" stroke-width="4"/></g>' +
+      '</g>' +
+    '</g></svg>';
+}
+
+/* 포즈 적용 */
+function applyPose(root, p){
+  const q = s => root.querySelector(s);
+  const f = Object.assign({}, DEF, p || {});
+  const set = (el, tr, ox, oy) => { if(el){ el.style.transformOrigin = ox + 'px ' + oy + 'px'; el.style.transform = tr; } };
+  set(q('.f-body'),  'translateY(' + f.dy + 'px)', 150, 200);
+  set(q('.f-torso'), 'rotate(' + f.tilt + 'deg)', 150, 240);
+  set(q('.f-head'),  'rotate(' + f.head + 'deg)', 150, 140);
+  set(q('.f-al'), 'rotate(' + f.la + 'deg)', 110, 152);
+  set(q('.f-ar'), 'rotate(' + f.ra + 'deg)', 190, 152);
+  set(q('.f-ll'), 'rotate(' + f.ll + 'deg)', 150, 243);
+  set(q('.f-rl'), 'rotate(' + f.rl + 'deg)', 150, 243);
+}
+
+/* 카드마다 서 있는 자세가 달라야 한눈에 구분된다 — 멈춰 있을 때는 첫 박 자세로 둔다 */
+function poseOf(id){
+  const n = parseInt(String(id).replace(/^figS?/, ''), 10);
+  const m = MOVES.find(x => x.n === n);
+  return m ? m.frames[0] : null;
+}
+function restFigs(root){
+  (root || document).querySelectorAll('svg.fig').forEach(s => applyPose(s, poseOf(s.id)));
+}
+
+/* ===================== 재생 ===================== */
+let timer = null, running = false;
+
+function stopAll(){
+  running = false;
+  if(timer){ clearInterval(timer); timer = null; }
+  document.querySelectorAll('.beat').forEach(b => b.classList.remove('on'));
+}
+
+/* 자진모리 네 박 — 덩 덕 덩 덕 */
+function playBeats(opt){
+  stopAll();
+  const o = opt || {};
+  const step = o.slow ? 760 : 500;      /* 한 박 */
+  const bars = o.bars || 2;
+  const total = bars * 4;
+  const beatsEl = o.beatsEl || null;
+  const figRoot = o.figRoot || null;
+  const frames = o.frames || null;
+  let i = 0;
+  running = true;
+
+  const tick = () => {
+    if(!running) return;
+    const b = i % 4;
+    const t = ac().currentTime + 0.01;
+    if(b === 0 || b === 2){ kung(t, b === 0 ? 0.5 : 0.36); duk(t, 0.10); }
+    else { duk(t, 0.26); }
+    if(beatsEl){
+      beatsEl.querySelectorAll('.beat').forEach((el, n) => el.classList.toggle('on', n === b));
+    }
+    if(figRoot && frames) applyPose(figRoot, frames[b % frames.length]);
+    i++;
+    if(i >= total){
+      setTimeout(() => {
+        if(!running) return;
+        stopAll();
+        if(figRoot) applyPose(figRoot, poseOf(figRoot.id));
+      }, step);
+    }
+  };
+  ac().resume && ac().resume();
+  tick();
+  timer = setInterval(() => { if(i < total) tick(); }, step);
+}
+
+function playMove(n, slow){
+  const m = MOVES.find(x => x.n === n);
+  const fig = document.getElementById('fig' + n);
+  const bt = document.getElementById('beats' + n);
+  playBeats({ slow: !!slow, bars: 2, beatsEl: bt, figRoot: fig, frames: m.frames });
+}
+
+/* ===================== 슬라이드 ===================== */
+function beatBar(id){
+  return '<div class="beats" id="' + id + '">' +
+    '<div class="beat strong">쿵</div><div class="beat">덕</div>' +
+    '<div class="beat strong">쿵</div><div class="beat">덕</div></div>';
+}
+
+function moveSlide(m){
+  const hows = m.how.map((h, i) => {
+    const p = h.split(' — ');
+    return '<div class="how"><div class="hb">' + p[0] + '</div><div class="ht">' + (p[1] || '') + '</div></div>';
+  }).join('');
+  return '<section class="slide" style="--acc:var(--deep)">' +
+    '<h2 class="stitle">동작 카드 ' + ['①','②','③','④','⑤','⑥'][m.n - 1] + ' ' + m.name + '</h2>' +
+    '<div class="rule"></div>' +
+    '<div class="movewrap">' +
+      '<div class="figbox"><div class="cardno">' + m.n + '번</div>' +
+        figSVG(m.n) + '<div class="nm">' + m.name + '</div></div>' +
+      '<div class="moveinfo">' +
+        '<div class="howrow">' + hows + '</div>' +
+        '<div class="term">' + m.tip + '</div>' +
+        '<div class="tagrow">' +
+          '<span class="tg org">원래 이름 · ' + m.org + '</span>' +
+          '<span class="tg sit">' + m.sit + '</span>' +
+          '<span class="tg">발은 제자리</span></div>' +
+        beatBar('beats' + m.n) +
+        '<div class="btnrow">' +
+          '<button class="btn" onclick="playMove(' + m.n + ',false)">▶ 장단에 맞춰 두 번</button>' +
+          '<button class="btn ghost" onclick="playMove(' + m.n + ',true)">느리게</button>' +
+          '<button class="btn ghost" onclick="stopAll()">■ 멈춤</button>' +
+        '</div>' +
+      '</div>' +
+    '</div></section>';
+}
+
+const SLIDES = [];
+
+/* 1 표지 */
+SLIDES.push(
+'<section class="slide cover">' +
+  '<h1 class="title">탈춤놀이 한마당</h1>' +
+  '<div class="sub">동작 카드 여섯 장 · 음악 70~71쪽</div>' +
+  '<div class="kr">오늘은 춤을 배우지 않는다<br>카드를 고르고 순서를 정한다</div>' +
+'</section>');
+
+/* 2 탈을 쓰는 이유 */
+SLIDES.push(
+'<section class="slide" style="--acc:var(--deep)">' +
+  '<span class="eyebrow">먼저 · 왜 탈을 쓰는가</span>' +
+  '<h2 class="stitle">탈춤은 얼굴을 가리고 추는 춤이다</h2><div class="rule"></div>' +
+  '<p class="body">노래의 첫 줄이 이미 그렇게 말한다 —<br>' +
+  '<b class="hl">「미운 얼굴 고운 얼굴 탈 하나에 가려 두고」</b></p>' +
+  '<p class="body">탈을 쓰면 <b class="hn">누가 누구인지 보이지 않는다.</b> ' +
+  '옛날 사람들이 탈을 쓰고서야 하고 싶은 말을 다 했던 것도 같은 까닭이다.</p>' +
+  '<div class="sp"></div>' +
+  '<div class="act"><p class="body" style="font-size:26px">' +
+  '그러니 <b class="hl">부끄러운 것이 정상이다.</b> 부끄러우라고 쓰는 것이 아니라, ' +
+  '부끄럽지 않으라고 <b class="hl">얼굴을 가리고</b> 추는 춤이다.</p></div>' +
+'</section>');
+
+/* 3 자진모리 */
+SLIDES.push(
+'<section class="slide" style="--acc:var(--navy)">' +
+  '<span class="eyebrow">장단 · 자진모리</span>' +
+  '<h2 class="stitle">네 박이 한 묶음 — 쿵 덕 쿵 덕</h2><div class="rule"></div>' +
+  '<p class="body">「탈춤놀이」는 <b class="hn">자진모리장단</b>이다. ' +
+  '네 박이 한 묶음이고, <b class="hl">1박과 3박이 세다.</b></p>' +
+  '<p class="body">동작 카드는 모두 <b class="hn">이 네 박에 하나씩</b> 맞춰 만들어졌다. ' +
+  '박을 세는 것이 먼저고 동작은 그 다음이다.</p>' +
+  '<div class="sp"></div>' +
+  '<div style="display:flex;gap:26px;align-items:center">' +
+    beatBar('beatsA') +
+    '<div class="btnrow">' +
+      '<button class="btn" onclick="playBeats({beatsEl:document.getElementById(\'beatsA\'),bars:4})">▶ 네 마디 들어 보기</button>' +
+      '<button class="btn ghost" onclick="playBeats({beatsEl:document.getElementById(\'beatsA\'),bars:4,slow:true})">느리게</button>' +
+    '</div>' +
+  '</div>' +
+  '<div class="term" style="margin-top:16px">먼저 무릎을 치며 박만 세어 본다 — ' +
+  '<b class="hl">쿵 덕 쿵 덕.</b> 이것이 맞으면 나머지는 저절로 된다.</div>' +
+'</section>');
+
+/* 4~9 동작 카드 여섯 장 */
+MOVES.forEach(m => SLIDES.push(moveSlide(m)));
+
+/* 10 여섯 장 모아 보기 */
+SLIDES.push(
+'<section class="slide" style="--acc:var(--gold)">' +
+  '<h2 class="stitle">여섯 장이 전부다</h2><div class="rule"></div>' +
+  '<div class="sixgrid">' +
+    MOVES.map(m =>
+      '<div class="sixcell"><div class="n6">' + m.n + '</div>' +
+      figSVG('S' + m.n) +
+      '<div class="nm6">' + m.name + '</div>' +
+      '<div class="d6">' + m.org + '</div></div>').join('') +
+  '</div>' +
+  '<div class="term" style="margin-top:13px">' +
+  '<b class="hl">③ 활개</b>와 <b class="hl">④ 쿵딛기</b>는 거의 <b class="hn">가만히 있는 동작</b>이다. ' +
+  '탈춤의 맛은 움직이는 데 있지 않고 <b class="hl">멈추는 데</b> 있다.</div>' +
+'</section>');
+
+/* 11 노래 구조 */
+SLIDES.push(
+'<section class="slide" style="--acc:var(--navy)">' +
+  '<span class="eyebrow">노래 구조</span>' +
+  '<h2 class="stitle">노래가 이미 순서를 정해 두었다</h2><div class="rule"></div>' +
+  '<table class="struct">' +
+  '<tr><th style="width:52px">구간</th><th>가사</th><th style="width:186px">누가</th><th style="width:104px">카드</th></tr>' +
+  '<tr class="pick"><td>①</td><td>미운 얼굴 고운 얼굴 탈 하나에 가려 두고</td><td class="who">다 같이</td><td class="num">정하기</td></tr>' +
+  '<tr><td>②</td><td>어른 아이 한데 어울려 탈춤놀이 하여 보자</td><td class="who">다 같이</td><td class="num rep">①과 같게</td></tr>' +
+  '<tr class="pick"><td>③</td><td>탈춤판을 벌려 보자 <span style="color:#6f675c">(탈춤판을 벌려 보자)</span></td>' +
+  '<td class="who">메기는 짝 ↔ 받는 짝</td><td class="num">둘 정하기</td></tr>' +
+  '<tr class="pick"><td>④</td><td>신명 나게 풀어 놓는 탈춤놀이 한마당</td><td class="who">다 같이</td><td class="num">정하기</td></tr>' +
+  '<tr><td>⑤</td><td>우리 가락 좋을씨고 <span style="color:#6f675c">(우리 장단 좋을씨고)</span></td>' +
+  '<td class="who">메기 ↔ 받기</td><td class="num rep">③과 같게</td></tr>' +
+  '<tr><td>⑥</td><td>신명 나게 풀어 놓는 탈춤놀이 한마당</td><td class="who">다 같이</td><td class="num rep">④와 같게</td></tr>' +
+  '</table>' +
+  '<div class="term" style="margin-top:14px">③·⑤는 <b class="hl">주고받는 자리</b>다. ' +
+  '괄호는 받는 쪽이 부른다 — <b class="hn">그러니 모둠이 두 편으로 갈린다.</b></div>' +
+'</section>');
+
+/* 12 정할 것은 네 칸 */
+SLIDES.push(
+'<section class="slide" style="--acc:var(--red)">' +
+  '<span class="eyebrow">모둠 활동</span>' +
+  '<h2 class="stitle">정할 것은 <b class="hl" style="font-size:37px">네 칸</b>뿐이다</h2><div class="rule"></div>' +
+  '<div class="cols">' +
+    '<div class="card" style="flex:1"><p class="body" style="font-size:23px">' +
+    '<b class="hn">① 다 같이 부르는 자리</b> — 카드 하나<br><br>' +
+    '<b class="hn">③ 메기는 쪽</b> — 카드 하나<br><br>' +
+    '<b class="hn">③ 받는 쪽</b> — 카드 하나<br><br>' +
+    '<b class="hn">④ 후렴</b> — 카드 하나 <span style="color:#6f675c">(가장 큰 것으로)</span></p></div>' +
+    '<div class="card" style="flex:1;background:#fff6e2"><p class="body" style="font-size:23px">' +
+    '나머지 ②·⑤·⑥은 <b class="hl">앞에서 정한 것을 그대로 되풀이</b>한다.<br><br>' +
+    '그래서 외울 것이 <b class="hl">네 개</b>뿐이고, ' +
+    '노래 한 곡을 끝까지 갈 수 있다.<br><br>' +
+    '<span style="color:#8e2b1f;font-weight:900">새로 만들지 마라. 고르기만 해라.</span></p></div>' +
+  '</div>' +
+  '<div class="term" style="margin-top:14px">마지막 「탈춤놀이」 한 마디에는 ' +
+  '<b class="hl">모둠이 다 같이 멈추는 포즈</b> 하나만 정하면 끝이다.</div>' +
+'</section>');
+
+/* 13 역할 */
+SLIDES.push(
+'<section class="slide" style="--acc:var(--green)">' +
+  '<span class="eyebrow">역할 나누기 · 교과서 4번</span>' +
+  '<h2 class="stitle">춤이 싫으면 장단을 맡으면 된다</h2><div class="rule"></div>' +
+  '<div class="roles">' +
+    '<div class="role"><div class="ri">🎤</div><div class="rn">메기는 소리</div>' +
+      '<div class="rd">③·⑤의 앞소리를 부른다</div></div>' +
+    '<div class="role"><div class="ri">🗣️</div><div class="rn">받는 소리</div>' +
+      '<div class="rd">괄호 안을 받아 부른다</div></div>' +
+    '<div class="role hi"><div class="ri">❗</div><div class="rn">추임새</div>' +
+      '<div class="rd">덩실덩실 · 으쓱으쓱<br>71쪽 2번 자리</div></div>' +
+    '<div class="role hi"><div class="ri">🥁</div><div class="rn">장단</div>' +
+      '<div class="rd">소고 · 장구 · 무릎<br>쿵 덕 쿵 덕</div></div>' +
+    '<div class="role"><div class="ri">💃</div><div class="rn">동작</div>' +
+      '<div class="rd">카드대로 움직인다</div></div>' +
+  '</div>' +
+  '<div class="sp"></div>' +
+  '<div class="act"><p class="body">' +
+  '다섯 자리가 <b class="hl">모두 발표의 일부</b>다. 춤이 도무지 싫은 사람은 ' +
+  '<b class="hn">추임새나 장단</b>을 맡으면 된다 — 빠지는 것이 아니라 <b class="hl">맡는 것</b>이다.</p></div>' +
+'</section>');
+
+/* 14 발표 방법 */
+SLIDES.push(
+'<section class="slide" style="--acc:var(--plum)">' +
+  '<span class="eyebrow">발표</span>' +
+  '<h2 class="stitle">한 모둠씩 앞에 나오지 않는다</h2><div class="rule"></div>' +
+  '<div class="cols">' +
+    '<div class="card" style="flex:1"><div style="font-size:23px;font-weight:900;color:#7d4a86">첫째 판 · 다 같이</div>' +
+    '<p class="body" style="font-size:22px;margin-top:8px">교실 전체가 <b class="hn">바깥을 보고 둥글게</b> 서서 ' +
+    '동시에 한 번. 아무도 남을 보지 않으니 아무도 보이지 않는다.</p></div>' +
+    '<div class="card" style="flex:1"><div style="font-size:23px;font-weight:900;color:#7d4a86">둘째 판 · 두 모둠씩</div>' +
+    '<p class="body" style="font-size:22px;margin-top:8px">두 모둠이 <b class="hn">마주 보고</b> 동시에. ' +
+    '한쪽이 메기면 <b class="hl">맞은편이 받는다</b> — 관객이 아니라 상대가 된다.</p></div>' +
+  '</div>' +
+  '<div class="term" style="margin-top:15px">탈을 쓰고 있으므로 ' +
+  '<b class="hl">누가 누구인지 보이지 않는다.</b> 그것이 이 수업의 장치다.</div>' +
+'</section>');
+
+/* 15 기준 */
+SLIDES.push(
+'<section class="slide" style="--acc:var(--deep)">' +
+  '<span class="eyebrow">되돌아보기</span>' +
+  '<h2 class="stitle">오늘의 기준은 하나다</h2><div class="rule"></div>' +
+  '<div class="act" style="border-width:5px"><p class="body" style="font-size:34px;text-align:center;font-weight:900;color:#8e2b1f">' +
+  '잘 췄는가를 보지 않는다.<br>장단에 맞았는가만 본다.</p></div>' +
+  '<div class="sp"></div>' +
+  '<p class="body">· 우리 모둠은 <b class="hn">쿵 덕 쿵 덕</b>에 맞춰 움직였는가</p>' +
+  '<p class="body">· 주고받는 자리에서 <b class="hn">두 편이 갈라졌는가</b></p>' +
+  '<p class="body">· 마지막에 <b class="hn">다 같이 멈췄는가</b></p>' +
+  '<div class="sp"></div>' +
+  '<div class="term">교과서 71쪽 확인해요 — ' +
+  '<b class="hl">추임새 더하여 노래 부르기, 어울리는 신체 표현하기</b></div>' +
+'</section>');
+
+/* ===================== 렌더링 ===================== */
+const stage = document.getElementById('stage');
+stage.innerHTML = SLIDES.join('');
+restFigs();
+
+const slides = [...stage.querySelectorAll('.slide')];
+let cur = 0;
+function show(i){
+  stopAll();
+  cur = Math.max(0, Math.min(slides.length - 1, i));
+  slides.forEach((s, n) => s.classList.toggle('on', n === cur));
+  restFigs(slides[cur]);
+  document.getElementById('counter').textContent = (cur + 1) + ' / ' + slides.length;
+  const p = document.getElementById('prog');
+  p.style.width = ((cur + 1) / slides.length * 100) + '%';
+  p.style.background = getComputedStyle(slides[cur]).getPropertyValue('--acc');
+  try { history.replaceState(null, '', '#' + (cur + 1)); } catch(e){}
+}
+function go(d){ show(cur + d); }
+
+function fit(){
+  const s = Math.min(window.innerWidth / 1280, (window.innerHeight - 46) / 720);
+  stage.style.transform = 'translate(-50%,-50%) scale(' + s + ')';
+}
+function fs(){
+  if(!document.fullscreenElement) document.documentElement.requestFullscreen();
+  else document.exitFullscreen();
+}
+
+document.addEventListener('keydown', e => {
+  if(['ArrowRight','PageDown',' '].includes(e.key)){ e.preventDefault(); go(1); }
+  if(['ArrowLeft','PageUp'].includes(e.key)){ e.preventDefault(); go(-1); }
+  if(e.key === 'Home') show(0);
+  if(e.key === 'End') show(slides.length - 1);
+  if(e.key === 'f' || e.key === 'F') fs();
+});
+document.getElementById('zl').onclick = () => go(-1);
+document.getElementById('zr').onclick = () => go(1);
+
+let tx = 0, ty = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, {passive:true});
+document.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty;
+  if(Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) go(dx < 0 ? 1 : -1);
+}, {passive:true});
+
+window.addEventListener('resize', fit);
+fit();
+const h = parseInt((location.hash || '').replace('#', ''), 10);
+show(isFinite(h) && h > 0 ? h - 1 : 0);
+</script>
+
+<style>
+svg.fig .f-body,svg.fig .f-torso,svg.fig .f-head,
+svg.fig .f-al,svg.fig .f-ar,svg.fig .f-ll,svg.fig .f-rl{
+  transition:transform .17s cubic-bezier(.3,1.5,.5,1)}
+</style>
+</body>
+</html>

@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>음악 수행평가 — 변화하는 농악</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1d1710; --deep:#8c2f18; --red:#c0392b; --gold:#b5801c; --blue:#2a6aa8;
+  --green:#2e7d52; --line:#b9a88f; --muted:#6b5a49;
+}
+@page{ size:A4; margin:0 }
+html,body{background:#4a4038;font-family:'Noto Sans KR',sans-serif;color:var(--ink);
+  -webkit-print-color-adjust:exact;print-color-adjust:exact}
+
+.tip{max-width:210mm;margin:0 auto;padding:14px 18px;background:#2b241d;color:#f0e2cd;
+  font-size:15px;line-height:1.5}
+.tip b{color:#ffd9a0}
+.tip button{font-family:inherit;font-size:16px;font-weight:900;border:0;border-radius:9px;
+  padding:9px 18px;background:#c0392b;color:#fff;cursor:pointer;margin-left:10px}
+
+.page{width:210mm;height:297mm;margin:0 auto;background:#fff;padding:13mm 14mm 12mm;
+  display:flex;flex-direction:column;position:relative;overflow:hidden}
+.page + .page{margin-top:14px}
+/* display:flex 가 브라우저 기본 [hidden] 을 덮어쓴다 — 이 줄이 없으면 정답 쪽이 처음부터 보인다 */
+.page[hidden]{display:none}
+
+/* 머리 */
+.head{flex:none;border-bottom:3px solid var(--deep);padding-bottom:7px;margin-bottom:10px}
+.head .row{display:flex;align-items:flex-end;gap:12px}
+.head .row>div:first-child{flex:none}
+.head .ttl{font-size:25px;font-weight:900;color:var(--deep);line-height:1.15;white-space:nowrap}
+.head .sub{font-size:13.5px;color:var(--muted);font-weight:700;margin-top:3px;white-space:nowrap}
+.head .who{margin-left:auto;flex:none;display:flex;gap:6px;align-items:flex-end;
+  font-size:14px;font-weight:700;color:var(--muted)}
+.head .who .b{border-bottom:2px solid var(--line);width:64px;height:22px}
+.head .who .b.w{width:88px}
+
+.pbody{flex:1;min-height:0;display:flex;flex-direction:column;
+  justify-content:space-between;gap:12px}
+.sec{display:flex;flex-direction:column;min-height:0}
+.grow{flex-grow:var(--g,.5);min-height:0}
+.q{display:flex;align-items:baseline;gap:8px;margin-bottom:6px;flex:none}
+.q .n{flex:none;width:25px;height:25px;border-radius:50%;background:var(--deep);color:#fff;
+  font-size:16px;font-weight:900;display:grid;place-items:center;transform:translateY(3px)}
+.q .t{font-size:17.5px;font-weight:900;color:var(--ink);line-height:1.3}
+.q .h{font-size:13.5px;font-weight:700;color:var(--muted);margin-left:auto;text-align:right;
+  line-height:1.3;flex:none}
+
+svg.tbl{flex:1 1 0;min-height:0;width:100%;display:block}
+
+.note{flex:none;font-size:13px;color:var(--muted);font-weight:600;margin-top:4px;line-height:1.35}
+
+/* 각주 */
+.foot{flex:none;margin-top:auto;border-top:2px dashed var(--line);padding-top:7px;
+  display:flex;gap:10px;align-items:flex-start}
+.foot .bx{flex:1;font-size:12.8px;line-height:1.42;color:var(--muted)}
+.foot .bx b{color:var(--deep)}
+.foot .sc{flex:none;display:flex;gap:5px;align-items:center;font-size:12.5px;font-weight:700;color:var(--muted)}
+.foot .sc span{display:grid;place-items:center;width:34px;height:32px;border:2px solid var(--line);
+  border-radius:7px;font-size:11.5px;line-height:1.15;text-align:center}
+
+/* ── 2쪽 · 교사용 예시 답안 ── */
+.page.key .head{border-bottom-color:#2a6aa8}
+.page.key .ttl{color:#1d5a92;font-size:23px}
+.tag{display:inline-block;font-size:12.5px;font-weight:900;color:#fff;background:#2a6aa8;
+  border-radius:6px;padding:2px 9px;vertical-align:4px;margin-left:6px}
+.kbody{flex:1;min-height:0;display:flex;flex-direction:column;gap:11px;overflow:hidden}
+.ksec{display:flex;flex-direction:column}
+.kq{font-size:16px;font-weight:900;color:#1d1710;margin-bottom:5px;display:flex;
+  align-items:baseline;gap:7px;flex-wrap:wrap}
+.kq .n{flex:none;width:22px;height:22px;border-radius:50%;background:#2a6aa8;color:#fff;
+  font-size:14px;font-weight:900;display:grid;place-items:center;transform:translateY(3px)}
+.kq .hint{font-size:12.5px;font-weight:700;color:var(--muted)}
+
+/* 답이 다 차 있는 표라 CSS 테두리로 그려도 인쇄에서 선이 사라지지 않는다
+   (빈 칸의 세로선만 사라진다 — 1쪽 표를 SVG 로 그린 이유) */
+table.ans{width:100%;border-collapse:collapse;font-size:12.8px;line-height:1.38}
+table.ans th,table.ans td{border:1.4px solid var(--line);padding:5px 8px;
+  text-align:left;vertical-align:top}
+table.ans th{background:#efe7d8;font-weight:900;font-size:13px;color:#4a3a2a}
+table.ans th.a{background:#f7ddd6;color:#a5311a}
+table.ans th.b{background:#d9e7f4;color:#1d5a92}
+table.ans td.k{background:#f8f3e9;font-weight:900;color:#4a3a2a;white-space:nowrap;text-align:center}
+table.ans td.k.a2{background:#fbeee9;color:#a5311a}
+table.ans td.k.b2{background:#eaf2f9;color:#1d5a92}
+table.ans td b{font-weight:900;color:#8c2f18}
+
+.tipline{font-size:12.2px;line-height:1.4;color:var(--muted);margin-top:5px;
+  background:#f8f4ec;border-left:4px solid var(--gold);padding:5px 9px;border-radius:0 7px 7px 0}
+.tipline b{color:#8c2f18}
+
+.exrow{display:flex;flex-direction:column;gap:6px}
+.ex{border:1.4px solid var(--line);border-radius:9px;padding:6px 10px;
+  font-size:12.8px;line-height:1.42;background:#fffdf8}
+.ex .lv{font-size:12.5px;font-weight:900;color:#1d5a92;margin-bottom:2px}
+.ex b{font-weight:900;color:#8c2f18}
+
+.foot.key{flex-direction:column;gap:5px;align-items:stretch;border-top-color:#9db8d0}
+.foot.key .bx{font-size:12.2px}
+.lvtbl{display:flex;gap:6px;font-size:11.5px;line-height:1.35;color:var(--muted)}
+.lvtbl>div{flex:1;border:1.4px solid var(--line);border-radius:7px;padding:4px 7px;background:#f8f4ec}
+.lvtbl b{color:#1d5a92}
+
+@media print{ .tip{display:none} body{background:#fff} .page{margin:0} .page + .page{margin-top:0} }
+</style>
+</head>
+<body>
+
+<div class="tip">
+  <b>인쇄</b> — A4 세로, 배율 100%(「실제 크기」), 여백 없음.
+  칸은 화면 크기에 맞춰 다시 그려지므로 인쇄 미리보기에서 한 번 확인하면 된다.<br>
+  <b>예시 답안은 아래 단추를 눌러야 나온다</b> — 이 주소는 아이들도 열 수 있으니
+  <b>켜 둔 채로 태블릿에 띄우지 말 것.</b> 켜면 2쪽이 되고, 인쇄할 때도 같이 나온다.
+  <button onclick="window.print()">🖨 인쇄하기</button>
+  <button id="keyBtn" style="background:#2a6aa8" onclick="toggleKey()">🔑 예시 답안 보기</button>
+</div>
+
+<div class="page">
+  <div class="head">
+    <div class="row">
+      <div>
+        <div class="ttl">음악 수행평가 — 변화하는 농악</div>
+        <div class="sub">음악 74~75쪽 · 견주고, 찾고, 상상하기</div>
+      </div>
+      <div class="who">
+        <span>5학년</span><i class="b"></i><span>반</span><i class="b"></i><span>번</span>
+        <span>이름</span><i class="b w"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="pbody">
+
+    <div class="sec grow" style="--g:.35">
+      <div class="q"><div class="n">1</div>
+        <div class="t">농악과 사물놀이를 비교해서 적어 보세요.</div>
+        <div class="h">낱말만 적어도 되고, 문장으로 써도 된다</div></div>
+      <svg class="tbl" id="t1"></svg>
+    </div>
+
+    <div class="sec grow" style="--g:.31">
+      <div class="q"><div class="n">2</div>
+        <div class="t">농악과 사물놀이가 활용된 예를 적어 보세요.</div>
+        <div class="h">예를 하나 적고,<br>어디에 어떻게 쓰였는지 설명한다</div></div>
+      <svg class="tbl" id="t2"></svg>
+    </div>
+
+    <div class="sec grow" style="--g:.22">
+      <div class="q"><div class="n">3</div>
+        <div class="t">농악이 앞으로 어떻게 변화할지 상상하여 적어 보세요.</div>
+        <div class="h">무엇을 <b>남기고</b> 무엇을 <b>바꿀지</b>를<br>함께 쓰면 좋다</div></div>
+      <svg class="tbl" id="t3"></svg>
+    </div>
+
+  </div>
+
+  <div class="foot">
+    <div class="bx">
+      <b>이렇게 보고 채점한다</b> —
+      ① 농악과 사물놀이의 <b>차이</b>를 알고 있는가
+      ② 활용된 예를 <b>하나라도 정확히</b> 들었는가
+      ③ 제 생각을 <b>까닭과 함께</b> 썼는가.<br>
+      2·3번은 맞고 틀리고가 없다. <b>왜 그렇게 생각했는지</b>가 답이다.
+    </div>
+    <div class="sc"><span>매우<br>잘함</span><span>잘함</span><span>보통</span><span>노력<br>요함</span></div>
+  </div>
+</div>
+
+<!-- ══════════ 2쪽 — 교사용 예시 답안 ══════════
+     기본은 감춰 둔다. 이 파일은 깃허브(github.io/toolbox)에 올라가 아이들도 주소만
+     알면 열 수 있기 때문이다. 「🔑 예시 답안 보기」를 눌러야 나오고, 그때만 인쇄된다.
+     hidden 을 지우지 말 것 — 지우면 첫 화면부터 정답이 보인다. -->
+<div class="page key" id="keyPage" hidden>
+  <div class="head">
+    <div class="row">
+      <div>
+        <div class="ttl">예시 답안 · 채점 길잡이 <span class="tag">선생님용</span></div>
+        <div class="sub">학생에게 나눠 줄 때는 <b>1쪽만</b> 인쇄한다</div>
+      </div>
+      <div class="who" style="font-size:13px">음악 74~75쪽 · 변화하는 농악</div>
+    </div>
+  </div>
+
+  <div class="kbody">
+
+    <div class="ksec">
+      <div class="kq"><span class="n">1</span>농악과 사물놀이 비교
+        <span class="hint">— 정답이 있는 문항. 칸마다 하나만 맞아도 인정한다</span></div>
+      <table class="ans">
+        <tr><th style="width:15%"></th><th class="a" style="width:42.5%">농악</th><th class="b">사물놀이</th></tr>
+        <tr><td class="k">연주 악기</td>
+          <td>꽹과리 · 징 · 장구 · 북<br><b>+ 태평소 · 소고 · 나발</b></td>
+          <td><b>꽹과리 · 징 · 장구 · 북 넷만</b></td></tr>
+        <tr><td class="k">연주 인원</td>
+          <td>수십 명 (마을 사람 전부)</td>
+          <td><b>네 명</b> — 한 악기에 한 사람</td></tr>
+        <tr><td class="k">연주 장소</td>
+          <td>마을 마당 · 논밭 · 골목 (야외)</td>
+          <td><b>무대</b> (실내 공연장)</td></tr>
+        <tr><td class="k">연주 목적</td>
+          <td>마을 제사 · 농사일 · 돈 모으기 · 놀이<br>— <b>살기 위해</b></td>
+          <td><b>감상</b> — 관객에게 들려주기 위해</td></tr>
+      </table>
+      <div class="tipline"><b>이런 답도 맞다</b> — 모습(서서 돌며 춤춘다 / 앉아서 정면을 본다),
+        듣는 사람(구경꾼이 끼어들어 같이 논다 / 객석에서 본다), 옷차림(상모·고깔 / 공연복).
+        <b>흔한 오답</b> — 「사물놀이가 농악보다 오래됐다」(1978년에 생겼다),
+        「악기가 서로 다르다」(악기는 같고 <b>수가 줄었을 뿐</b>이다).</div>
+    </div>
+
+    <div class="ksec">
+      <div class="kq"><span class="n">2</span>활용된 예
+        <span class="hint">— 아래는 예시다. 수업에서 다룬 것이면 무엇이든 인정한다</span></div>
+      <table class="ans">
+        <tr><th style="width:15%"></th><th style="width:26%">활용된 예</th><th>설명 — 어디에, 어떻게</th></tr>
+        <tr><td class="k a2">농악</td><td><b>탈춤놀이의 반주</b><br>(고성오광대)</td>
+          <td>탈을 쓴 춤꾼이 춤추는 동안 농악이 쉬지 않고 장단을 친다.
+            장단이 멈추면 춤도 멈춘다.</td></tr>
+        <tr><td class="k a2"></td><td>남사당놀이</td>
+          <td>버나(접시 돌리기)·줄타기·탈놀이를 하며 떠돌던 놀이패가
+            풍물(농악)을 함께 쳤다.</td></tr>
+        <tr><td class="k b2">사물놀이</td><td><b>신모듬</b><br>(1987, 박범훈)</td>
+          <td>사물놀이가 국악관현악과 함께 연주하는 협주곡.
+            넷이 치던 것을 수십 명의 관현악이 받쳐 준다.</td></tr>
+        <tr><td class="k b2"></td><td>난타 (1997)</td>
+          <td>부엌이 무대. 도마·식칼·냄비로 사물놀이 장단을 친다.
+            대사가 없어 세계 어디서나 공연했다.</td></tr>
+      </table>
+      <div class="tipline"><b>그 밖에 인정</b> — 줄다리기·씨름판, 지신밟기, 개업한 가게 앞,
+        운동회 응원, 대학·직장 풍물패, 사극·게임 배경음악.
+        <b>예만 쓰고 설명이 없으면</b> 「어디에 어떻게 쓰였는지」를 한 줄 물어 보고 채워 쓰게 한다.</div>
+    </div>
+
+    <div class="ksec">
+      <div class="kq"><span class="n">3</span>앞으로 어떻게 변화할까
+        <span class="hint">— 정답 없음. <b>까닭</b>이 있으면 인정한다</span></div>
+      <div class="exrow">
+        <div class="ex"><div class="lv">잘함 — 무엇을 남기고 무엇을 바꿀지가 있다</div>
+          「게임에서 보스가 나올 때 휘모리 장단을 쓰면 좋겠다.
+          <b>악기는 전자음으로 바꾸고 장단은 그대로 남긴다.</b>
+          난타도 악기를 버리고 장단만 남겼으니까.」</div>
+        <div class="ex"><div class="lv">보통 — 생각은 있으나 까닭이 짧다</div>
+          「케이팝에 꽹과리를 넣으면 좋겠다. 신날 것 같다.」</div>
+        <div class="ex"><div class="lv">노력 요함 — 바꿀 것만 있고 남길 것이 없다</div>
+          「로봇이 대신 친다.」 → <b>「그럼 사람이 치던 것 중 무엇은 남기고 싶니?」</b>를 물어 본다.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="foot key">
+    <div class="bx">
+      <b>2학기 평가계획</b> — 단원 「변화하는 농악」 · 영역 <b>감상</b> · 방법 <b>보고서 평가</b><br>
+      성취기준 <b>[6음02-03]</b> 다양한 종류의 음악을 듣고 음악의 배경과 활용을 설명한다 ·
+      <b>[6음02-05]</b> 우리나라 음악 국가유산을 찾아 듣고 국악의 가치를 인식한다<br>
+      평가 요소 — 음악 국가유산인 농악의 다양한 활용을 알고 새로운 변화에 대하여 이야기하기
+    </div>
+    <div class="lvtbl">
+      <div><b>매우 잘함·잘함</b> 농악의 다양한 활용을 알고 새로운 변화에 대하여
+        <b>창의적으로</b> 이야기할 수 있다</div>
+      <div><b>보통</b> 농악의 다양한 활용을 알고 새로운 변화에 대하여 이야기할 수 있다</div>
+      <div><b>노력 요함</b> 이야기하는 데 어려움이 있다</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =====================================================================
+   칸은 SVG 선으로 긋는다. CSS 테두리로 그리면 인쇄할 때 빈 칸의
+   세로선이 통째로 사라진다(2026-08-28 필사 학습지에서 실제로 났다).
+   글자도 <text> 로 좌표를 찍어 「배경 그래픽 인쇄」 설정에 안 휘둘리게 한다.
+   ===================================================================== */
+const NS = 'http://www.w3.org/2000/svg';
+function el(tag, attrs, text){
+  const e = document.createElementNS(NS, tag);
+  for(const k in attrs) e.setAttribute(k, attrs[k]);
+  if(text != null) e.textContent = text;
+  return e;
+}
+function line(p, x1, y1, x2, y2, w, color){
+  p.appendChild(el('line', {x1, y1, x2, y2, stroke: color || '#6b5a49',
+    'stroke-width': w || 1.4, 'stroke-linecap': 'square'}));
+}
+function rectFill(p, x, y, w, h, fill){
+  p.appendChild(el('rect', {x, y, width: w, height: h, fill}));
+}
+function txt(p, x, y, s, opt){
+  opt = opt || {};
+  p.appendChild(el('text', {x, y, 'font-family': "'Noto Sans KR',sans-serif",
+    'font-size': opt.size || 15, 'font-weight': opt.weight || 700,
+    fill: opt.color || '#1d1710', 'text-anchor': opt.anchor || 'middle',
+    'dominant-baseline': 'middle'}, s));
+}
+
+/* 표 1 — 농악 / 사물놀이 비교 */
+function drawT1(svg, W, H){
+  svg.textContent = '';
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  const labelW = Math.round(W * 0.17);
+  const colW = (W - labelW) / 2;
+  const headH = 30;
+  const rows = ['연주 악기', '연주 인원', '연주 장소', '연주 목적'];
+  const rowH = (H - headH - 2) / rows.length;
+
+  /* 머리칸 배경 */
+  rectFill(svg, labelW, 1, colW, headH, '#f7ddd6');
+  rectFill(svg, labelW + colW, 1, colW, headH, '#d9e7f4');
+  rectFill(svg, 1, 1, labelW, headH, '#efe7d8');
+  for(let i = 0; i < rows.length; i++)
+    rectFill(svg, 1, headH + 1 + i * rowH, labelW, rowH, '#f8f3e9');
+
+  /* 선 */
+  const bottom = headH + 1 + rows.length * rowH;
+  line(svg, 1, 1, W - 1, 1, 2, '#8c2f18');
+  line(svg, 1, headH + 1, W - 1, headH + 1, 2, '#8c2f18');
+  for(let i = 1; i <= rows.length; i++)
+    line(svg, 1, headH + 1 + i * rowH, W - 1, headH + 1 + i * rowH, 1.4);
+  line(svg, 1, 1, 1, bottom, 1.4);
+  line(svg, labelW, 1, labelW, bottom, 1.4);
+  line(svg, labelW + colW, 1, labelW + colW, bottom, 1.4);
+  line(svg, W - 1, 1, W - 1, bottom, 1.4);
+
+  /* 글자 */
+  txt(svg, labelW + colW / 2, headH / 2 + 1, '농악', {size: 17, weight: 900, color: '#a5311a'});
+  txt(svg, labelW + colW * 1.5, headH / 2 + 1, '사물놀이', {size: 17, weight: 900, color: '#1d5a92'});
+  rows.forEach((r, i) => txt(svg, labelW / 2, headH + 1 + rowH * (i + .5), r,
+    {size: 14.5, weight: 900, color: '#4a3a2a'}));
+}
+
+/* 표 2 — 활용된 예 */
+function drawT2(svg, W, H){
+  svg.textContent = '';
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  const labelW = Math.round(W * 0.15);
+  const exW = Math.round(W * 0.26);
+  const headH = 28;
+  const bandH = (H - headH - 2) / 2;     /* 농악 / 사물놀이 두 덩이 */
+  const lineH = bandH / 2;               /* 설명은 두 줄 */
+
+  rectFill(svg, 1, 1, labelW, headH, '#efe7d8');
+  rectFill(svg, labelW, 1, exW, headH, '#efe7d8');
+  rectFill(svg, labelW + exW, 1, W - labelW - exW - 1, headH, '#efe7d8');
+  rectFill(svg, 1, headH + 1, labelW, bandH, '#f7ddd6');
+  rectFill(svg, 1, headH + 1 + bandH, labelW, bandH, '#d9e7f4');
+
+  const bottom = headH + 1 + bandH * 2;
+  line(svg, 1, 1, W - 1, 1, 2, '#8c2f18');
+  line(svg, 1, headH + 1, W - 1, headH + 1, 2, '#8c2f18');
+  line(svg, 1, headH + 1 + bandH, W - 1, headH + 1 + bandH, 1.8);
+  line(svg, 1, bottom, W - 1, bottom, 1.8);
+  /* 설명칸 안의 가는 줄 — 두 줄씩 쓰라는 뜻 */
+  line(svg, labelW + exW, headH + 1 + lineH, W - 1, headH + 1 + lineH, 1, '#b9a88f');
+  line(svg, labelW + exW, headH + 1 + bandH + lineH, W - 1, headH + 1 + bandH + lineH, 1, '#b9a88f');
+  line(svg, 1, 1, 1, bottom, 1.4);
+  line(svg, labelW, 1, labelW, bottom, 1.4);
+  line(svg, labelW + exW, 1, labelW + exW, bottom, 1.4);
+  line(svg, W - 1, 1, W - 1, bottom, 1.4);
+
+  txt(svg, labelW + exW / 2, headH / 2 + 1, '활용된 예', {size: 15, weight: 900, color: '#4a3a2a'});
+  txt(svg, labelW + exW + (W - labelW - exW) / 2, headH / 2 + 1, '설명 — 어디에, 어떻게 쓰였나',
+    {size: 15, weight: 900, color: '#4a3a2a'});
+  txt(svg, labelW / 2, headH + 1 + bandH / 2, '농악', {size: 16.5, weight: 900, color: '#a5311a'});
+  txt(svg, labelW / 2, headH + 1 + bandH * 1.5, '사물놀이', {size: 16.5, weight: 900, color: '#1d5a92'});
+}
+
+/* 표 3 — 쓰는 줄. 줄 수를 고정하지 않고 줄 간격을 고정한다 */
+function drawT3(svg, W, H){
+  svg.textContent = '';
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  const pitch = 30;
+  const n = Math.max(3, Math.round((H - 6) / pitch));
+  const step = (H - 6) / n;
+  for(let i = 1; i <= n; i++){
+    const y = 3 + i * step;
+    line(svg, 6, y, W - 6, y, 1.2, '#b9a88f');
+  }
+  txt(svg, W - 8, 3 + step * .5, '', {});
+}
+
+function drawAll(){
+  [['t1', drawT1], ['t2', drawT2], ['t3', drawT3]].forEach(([id, fn]) => {
+    const svg = document.getElementById(id);
+    if(!svg) return;
+    const r = svg.getBoundingClientRect();
+    if(r.width < 10 || r.height < 10) return;
+    fn(svg, Math.round(r.width), Math.round(r.height));
+  });
+}
+/* 예시 답안 열고 닫기 — 기본은 닫혀 있다(위 주석 참고) */
+function toggleKey(){
+  const p = document.getElementById('keyPage'), b = document.getElementById('keyBtn');
+  p.hidden = !p.hidden;
+  b.textContent = p.hidden ? '🔑 예시 답안 보기' : '🙈 예시 답안 감추기';
+  b.style.background = p.hidden ? '#2a6aa8' : '#2e7d52';
+  if(!p.hidden) p.scrollIntoView({behavior: 'smooth'});
+}
+
+addEventListener('load', drawAll);
+addEventListener('resize', drawAll);
+addEventListener('beforeprint', drawAll);
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(drawAll);
+drawAll();
+</script>
+</body>
+</html>

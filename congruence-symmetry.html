@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>합동과 대칭 — 포개면 딱 맞는다</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0f172a; --navy:#1e3a8a; --navy2:#3b82f6; --red:#dc2626;
+  --gold:#f59e0b; --green:#10b981; --purple:#a855f7;
+  --paper:#fdfcf8; --line:#d8d3c4; --muted:#6b7280;
+  --acc:var(--navy2);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:#111827}
+body{
+  font-family:'Noto Sans KR',sans-serif;
+  touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+  user-select:none; display:flex; flex-direction:column; align-items:center; justify-content:center;
+}
+
+/* ── 고정 무대 ───────────────────────────── */
+#wrap{position:relative;width:100%;height:calc(100% - 46px);display:flex;align-items:center;justify-content:center}
+#stage{flex:0 0 auto;width:1280px;height:720px;position:relative;transform-origin:center center;background:var(--paper);
+  border-radius:6px;overflow:hidden;box-shadow:0 12px 48px rgba(0,0,0,.5)}
+.slide{position:absolute;inset:0;padding:38px 52px 50px;display:none;flex-direction:column;color:var(--ink)}
+.slide.on{display:flex}
+.slide::after{content:'';position:absolute;left:0;bottom:0;height:7px;width:100%;background:var(--acc)}
+
+/* ── 공통 부품 ───────────────────────────── */
+.eyebrow{font-size:19px;font-weight:700;color:var(--acc);letter-spacing:.06em;margin-bottom:6px}
+h1{font-size:44px;font-weight:900;line-height:1.22;letter-spacing:-.02em}
+h2{font-size:34px;font-weight:900;line-height:1.28;letter-spacing:-.02em}
+h3{font-size:24px;font-weight:700;line-height:1.35}
+.lead{font-size:22px;line-height:1.6;color:#334155}
+b.hl{background:linear-gradient(transparent 58%, #fecaca 58%);font-weight:900;color:var(--red);padding:0 2px}
+b.hn{background:linear-gradient(transparent 58%, #bfdbfe 58%);font-weight:900;color:var(--navy);padding:0 2px}
+b.hg{background:linear-gradient(transparent 58%, #a7f3d0 58%);font-weight:900;color:#047857;padding:0 2px}
+b.hp{background:linear-gradient(transparent 58%, #e9d5ff 58%);font-weight:900;color:#7e22ce;padding:0 2px}
+.term{background:#fff;border:2px solid var(--line);border-left:7px solid var(--acc);
+  border-radius:8px;padding:12px 18px;font-size:21px;line-height:1.5}
+.act{background:#fff8e6;border:2px dashed var(--gold);border-radius:12px;padding:13px 18px;font-size:20px;line-height:1.5}
+.warn{background:#fef2f2;border:2px solid #fca5a5;border-left:7px solid var(--red);border-radius:10px;
+  padding:12px 18px;font-size:20px;line-height:1.5}
+.hand{font-family:'Gaegu',sans-serif;font-size:27px;color:var(--red);line-height:1.3}
+.row{display:flex;gap:26px;align-items:center}
+.col{display:flex;flex-direction:column}
+.grow{flex:1;min-height:0}
+.center{align-items:center;justify-content:center;text-align:center}
+.chip{display:inline-flex;align-items:center;gap:7px;font-size:19px;font-weight:700;
+  border-radius:999px;padding:4px 14px;border:2px solid}
+.card{background:#fff;border:2px solid var(--line);border-radius:12px;padding:12px 16px}
+.num{display:inline-flex;align-items:center;justify-content:center;width:31px;height:31px;flex:0 0 31px;
+  border-radius:50%;background:var(--acc);color:#fff;font-weight:900;font-size:19px;margin-right:9px}
+.big{font-size:30px;font-weight:900}
+ul{padding-left:24px}
+li{font-size:21px;line-height:1.55;margin-bottom:5px}
+table{border-collapse:collapse;width:100%;font-size:20px}
+th,td{border:2px solid var(--line);padding:9px 12px;text-align:center}
+th{background:#eef2ff;font-weight:900;font-size:20px}
+
+/* 단계 노출 */
+[data-step]{opacity:0;transition:opacity .38s ease}
+[data-step].vis{opacity:1}
+
+svg.gv{display:block;width:100%;height:auto}
+
+/* 하단 바 */
+.bar{height:46px;width:100%;display:flex;align-items:center;justify-content:center;gap:14px;
+  background:#111827;color:#e5e7eb;font-size:15px;flex:0 0 46px}
+.bar button{font-family:inherit;font-size:15px;font-weight:700;min-height:32px;padding:6px 16px;
+  border:0;border-radius:7px;background:#374151;color:#f9fafb;cursor:pointer}
+.bar button:active{background:#4b5563}
+#cnt{min-width:74px;text-align:center;font-variant-numeric:tabular-nums}
+#zl,#zr{position:absolute;top:0;bottom:46px;width:13%;z-index:5;background:transparent}
+#zl{left:0} #zr{right:0}
+</style>
+</head>
+<body>
+
+<div id="wrap">
+  <div id="stage"></div>
+</div>
+<div id="zl" onclick="go(-1)"></div>
+<div id="zr" onclick="go(1)"></div>
+
+<div class="bar no-print">
+  <button onclick="go(-1)">◀ 이전</button>
+  <span id="cnt">1 / 15</span>
+  <button onclick="go(1)">다음 ▶</button>
+  <button onclick="fs()">전체화면</button>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════
+   그리기 도구 — 좌표를 직접 찍지 않고 '변환'으로 만든다.
+   합동인 도형은 원본을 돌리거나 뒤집어서, 대칭도형은 반쪽을
+   실제로 반사·회전시켜서 만든다. 그래야 그림이 거짓말을
+   하지 않는다(눈대중으로 찍으면 미세하게 안 맞는다).
+   ══════════════════════════════════════════════════════════ */
+
+const C={ ink:'#0f172a', navy:'#1e3a8a', blue:'#3b82f6', red:'#dc2626',
+          gold:'#f59e0b', green:'#10b981', purple:'#a855f7', gray:'#94a3b8',
+          line:'#cbd5e1', muted:'#64748b' };
+
+/* 회전 — 점 p 를 중심 c 둘레로 a° (시계방향, 화면좌표) */
+const ROT=(p,c,a)=>{const r=a*Math.PI/180,x=p[0]-c[0],y=p[1]-c[1];
+  return [c[0]+x*Math.cos(r)-y*Math.sin(r), c[1]+x*Math.sin(r)+y*Math.cos(r)];};
+/* 세로직선 x=k 에 대한 반사 */
+const MIRX=(p,k)=>[2*k-p[0],p[1]];
+/* 가로직선 y=k 에 대한 반사 */
+const MIRY=(p,k)=>[p[0],2*k-p[1]];
+/* 평행이동 */
+const MOV=(p,dx,dy)=>[p[0]+dx,p[1]+dy];
+/* 크기 변환(합동이 '아닌' 예를 만들 때만 쓴다) */
+const SCL=(p,c,k)=>[c[0]+(p[0]-c[0])*k, c[1]+(p[1]-c[1])*k];
+/* 배열 전체에 적용 */
+const ALL=(ps,f)=>ps.map(f);
+const MID=ps=>[ps.reduce((a,p)=>a+p[0],0)/ps.length, ps.reduce((a,p)=>a+p[1],0)/ps.length];
+const PT=ps=>ps.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+
+function poly(ps,fill,stroke,w,extra){
+  return `<polygon points="${PT(ps)}" fill="${fill||'none'}" stroke="${stroke||C.ink}"
+    stroke-width="${w||3}" stroke-linejoin="round" ${extra||''}/>`;
+}
+function pline(ps,stroke,w,extra){
+  return `<polyline points="${PT(ps)}" fill="none" stroke="${stroke}" stroke-width="${w||3}"
+    stroke-linejoin="round" stroke-linecap="round" ${extra||''}/>`;
+}
+function seg(a,b,stroke,w,extra){
+  return `<line x1="${a[0].toFixed(1)}" y1="${a[1].toFixed(1)}" x2="${b[0].toFixed(1)}" y2="${b[1].toFixed(1)}"
+    stroke="${stroke}" stroke-width="${w||3}" stroke-linecap="round" ${extra||''}/>`;
+}
+function dot(p,col,r){
+  return `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${r||6.5}" fill="${col}"
+    stroke="#fff" stroke-width="2"/>`;
+}
+function txt(p,s,col,sz,anchor,weight){
+  return `<text x="${p[0].toFixed(1)}" y="${p[1].toFixed(1)}" text-anchor="${anchor||'middle'}"
+    font-size="${sz||19}" font-weight="${weight||700}" fill="${col||C.ink}"
+    font-family="'Noto Sans KR',sans-serif">${s}</text>`;
+}
+/* 꼭짓점 이름 — 도형 바깥쪽으로 밀어서 겹치지 않게.
+   fix 에 {0:[dx,dy]} 처럼 주면 그 점만 손으로 옮긴다.
+   대칭축 위에 앉은 꼭짓점은 바깥 방향이 곧 축 방향이라 라벨이 축선에
+   겹친다 — 그 자리를 비켜 주는 것이 fix 의 용도다. */
+function vlab(ps,names,col,sz,off,ctr,fix){
+  const c=ctr||MID(ps); fix=fix||{};
+  return ps.map((p,i)=>{
+    if(!names[i]) return '';
+    let x,y;
+    if(fix[i]){ x=p[0]+fix[i][0]; y=p[1]+fix[i][1]; }
+    else{ const dx=p[0]-c[0], dy=p[1]-c[1], L=Math.hypot(dx,dy)||1, d=off||24;
+          x=p[0]+dx/L*d; y=p[1]+dy/L*d; }
+    return txt([x,y+(sz||19)*0.34], names[i], col||C.muted, sz||19);
+  }).join('');
+}
+/* 점 목록을 감싸는 viewBox — 좌표를 줄이거나 옮기지 않고 '창'을 맞춘다.
+   도형을 축소·이동시키면 대칭축·대칭의 중심도 같이 옮겨야 해서
+   어긋나기 쉽다(실제로 어긋났다). 도형은 그대로 두고 창만 맞춘다. */
+function VB(ps,pad){
+  const p=pad==null?26:pad;
+  const xs=ps.map(q=>q[0]), ys=ps.map(q=>q[1]);
+  const x0=Math.min(...xs)-p, y0=Math.min(...ys)-p;
+  return [x0, y0, Math.max(...xs)+p-x0, Math.max(...ys)+p-y0];
+}
+const SVGB=(ps,pad,inner,style)=>{
+  const b=VB(ps,pad);
+  return `<svg class="gv" viewBox="${b.join(' ')}" style="${style||''}">${inner}</svg>`;
+};
+/* 여러 색으로 꼭짓점 찍기 */
+function dots(ps,cols,r){ return ps.map((p,i)=>dot(p,cols[i%cols.length],r)).join(''); }
+
+/* 각 표시 호 */
+function arc(p,a,b,r,col,w){
+  const u=[(a[0]-p[0]),(a[1]-p[1])], v=[(b[0]-p[0]),(b[1]-p[1])];
+  const lu=Math.hypot(...u)||1, lv=Math.hypot(...v)||1;
+  const s=[p[0]+u[0]/lu*r, p[1]+u[1]/lu*r], e=[p[0]+v[0]/lv*r, p[1]+v[1]/lv*r];
+  const cr=u[0]*v[1]-u[1]*v[0];
+  return `<path d="M${s[0].toFixed(1)},${s[1].toFixed(1)} A${r},${r} 0 0,${cr>0?1:0} ${e[0].toFixed(1)},${e[1].toFixed(1)}"
+    fill="none" stroke="${col}" stroke-width="${w||3}"/>`;
+}
+/* 직각 표시 */
+function rightAngle(p,a,b,s,col){
+  const u=[(a[0]-p[0]),(a[1]-p[1])], v=[(b[0]-p[0]),(b[1]-p[1])];
+  const lu=Math.hypot(...u)||1, lv=Math.hypot(...v)||1;
+  const U=[u[0]/lu*s,u[1]/lu*s], V=[v[0]/lv*s,v[1]/lv*s];
+  return pline([[p[0]+U[0],p[1]+U[1]],[p[0]+U[0]+V[0],p[1]+U[1]+V[1]],[p[0]+V[0],p[1]+V[1]]],col||C.red,2.5);
+}
+/* 변에 눈금 표시(길이가 같다는 뜻) */
+function tick(a,b,n,col){
+  const m=[(a[0]+b[0])/2,(a[1]+b[1])/2];
+  const dx=b[0]-a[0], dy=b[1]-a[1], L=Math.hypot(dx,dy)||1;
+  const ux=dx/L, uy=dy/L, nx=-uy, ny=ux;
+  let o='';
+  for(let i=0;i<n;i++){
+    const t=(i-(n-1)/2)*6;
+    o+=seg([m[0]+ux*t-nx*7, m[1]+uy*t-ny*7],[m[0]+ux*t+nx*7, m[1]+uy*t+ny*7],col||C.ink,2.5);
+  }
+  return o;
+}
+/* 모눈 */
+function grid(w,h,step,col){
+  let o='';
+  for(let x=0;x<=w;x+=step) o+=seg([x,0],[x,h],col||'#e2e8f0',1.2);
+  for(let y=0;y<=h;y+=step) o+=seg([0,y],[w,y],col||'#e2e8f0',1.2);
+  return o;
+}
+const SVG=(w,h,inner,style)=>`<svg class="gv" viewBox="0 0 ${w} ${h}" style="${style||''}">${inner}</svg>`;
+
+/* ══════════════════════════════════════════════════════════
+   이 자료가 계속 붙들고 가는 도형들
+   ══════════════════════════════════════════════════════════ */
+
+/* ① 합동 짝 — 삼각형 하나를 돌리고 뒤집어서 만든다 */
+const TRI=[[18,118],[150,118],[112,26]];            // 밑변 132, 기울어진 꼭짓점
+const TRI_C=MID(TRI);
+
+/* ② 선대칭 육각형 — 대칭축 x=200 에 대해 반쪽을 반사해 만든다 */
+const AX=200;
+const LHALF=[[200,22],[286,74],[300,176]];          // 위꼭짓점 + 오른쪽 두 점
+const LSYM=[ LHALF[0], LHALF[1], LHALF[2], [200,218], MIRX(LHALF[2],AX), MIRX(LHALF[1],AX) ];
+const LNAME=['ㄱ','ㄴ','ㄷ','ㄹ','ㅁ','ㅂ'];
+
+/* ③ 점대칭 육각형 — 세 점을 대칭의 중심으로 180° 돌려 만든다 */
+const O=[200,120];
+const PHALF=[[104,44],[248,36],[298,104]];
+const PSYM=[ PHALF[0], PHALF[1], PHALF[2],
+             ROT(PHALF[0],O,180), ROT(PHALF[1],O,180), ROT(PHALF[2],O,180) ];
+const PNAME=['ㄱ','ㄴ','ㄷ','ㄹ','ㅁ','ㅂ'];
+
+/* ══════════════════════════════════════════════════════════
+   슬라이드
+   ══════════════════════════════════════════════════════════ */
+const SLIDES=[
+
+/* ───────── 1. 표지 ───────── */
+`<section class="slide" style="--acc:#3b82f6">
+  <div class="eyebrow">수학 5-2 · 3단원</div>
+  <h1>합동과 대칭<br><span style="font-size:30px;font-weight:700;color:#334155">— 포개면 딱 맞는다</span></h1>
+  <div class="row grow" style="margin-top:6px;gap:20px">
+    ${['<b>합동</b><br><span style="font-size:17px;color:#64748b">도형 둘이 포개진다</span>',
+       '<b>선대칭도형</b><br><span style="font-size:17px;color:#64748b">접으면 저와 포개진다</span>',
+       '<b>점대칭도형</b><br><span style="font-size:17px;color:#64748b">반 바퀴 돌리면 포개진다</span>']
+      .map((cap,i)=>{
+        let g='',box;
+        if(i===0){
+          const a=TRI, b=ALL(TRI,p=>MOV(ROT(p,TRI_C,152),150,0));
+          g=poly(a,'#dbeafe',C.navy,3.5)+poly(b,'#dbeafe',C.navy,3.5);
+          box=a.concat(b);
+        }else if(i===1){
+          g=poly(LSYM,'#dcfce7',C.green,3.5)
+           +seg([AX,LSYM[0][1]-22],[AX,LSYM[3][1]+22],C.red,3,'stroke-dasharray="9 6"');
+          box=LSYM;
+        }else{
+          g=poly(PSYM,'#f3e8ff',C.purple,3.5)+dot(O,C.red,8);
+          box=PSYM;
+        }
+        return `<div class="card grow center col" style="gap:8px;padding:14px">
+          <div class="grow center" style="display:flex;width:100%">
+            ${SVGB(box,30,g,'max-height:176px')}</div>
+          <div style="font-size:21px;line-height:1.3">${cap}</div></div>`;
+      }).join('')}
+  </div>
+  <div class="term" style="margin-top:14px;font-size:23px">
+    셋은 따로 배우는 세 가지가 아니다. <b class="hn">「포개 보았더니 맞더라」</b> 하나를
+    <b class="hl">둘로 / 접어서 / 돌려서</b> 세 번 물어보는 것뿐이다.
+  </div>
+</section>`,
+
+/* ───────── 2. 단원 지도 ───────── */
+`<section class="slide" style="--acc:#3b82f6" data-steps="2">
+  <div class="eyebrow">단원 지도</div>
+  <h2>물어보는 건 늘 하나 — “포개면 맞나?”</h2>
+  <div class="row grow" style="margin-top:12px;align-items:stretch;gap:20px">
+    <div class="card col grow" style="border-color:#93c5fd;gap:6px">
+      <div class="big" style="color:var(--navy)">도형이 <span style="font-size:36px">둘</span>일 때</div>
+      <div class="grow center" style="display:flex">
+      ${(()=>{
+        const a=TRI, b=ALL(TRI,p=>MOV(ROT(p,TRI_C,200),172,4));
+        return SVGB(a.concat(b),30,
+          poly(a,'#dbeafe',C.navy,3.5)+poly(b,'#dbeafe',C.navy,3.5),
+          'max-height:150px');
+      })()}
+      </div>
+      <div style="font-size:18px;color:#64748b;text-align:center">하나를 들어다 다른 하나에 포갠다</div>
+      <div class="term" style="border-left-color:var(--navy);font-size:21px">
+        딱 맞으면 <b class="hn">서로 합동</b></div>
+    </div>
+    <div class="card col grow" style="border-color:#86efac;gap:6px;flex:1.95" data-step="1">
+      <div class="big" style="color:#047857">도형이 <span style="font-size:36px">하나</span>일 때</div>
+      <div class="row grow" style="gap:14px;align-items:stretch">
+        <div class="col center grow" style="gap:3px;justify-content:flex-end">
+          <div class="grow center" style="display:flex">
+          ${(()=>{
+            const g=poly(LSYM,'#dcfce7',C.green,3.5)
+              +seg([AX,LSYM[0][1]-34],[AX,LSYM[3][1]+30],C.red,3,'stroke-dasharray="9 6"')
+              +txt([AX+62,LSYM[0][1]-16],'접는다',C.red,19);
+            return SVGB(LSYM,40,g,'max-height:186px');
+          })()}
+          </div>
+          <div style="font-size:20px;font-weight:700">접어서 겹치면 <b class="hg">선대칭도형</b></div>
+        </div>
+        <div class="col center grow" style="gap:3px;justify-content:flex-end">
+          <div class="grow center" style="display:flex">
+          ${(()=>{
+            const g=poly(PSYM,'#f3e8ff',C.purple,3.5)+dot(O,C.red,8)
+              +`<path d="M ${O[0]+66},${O[1]-52} A 84 84 0 1 1 ${O[0]-20},${O[1]-84}"
+                  fill="none" stroke="${C.red}" stroke-width="2.8" stroke-dasharray="7 5"/>`
+              +poly([[O[0]-20,O[1]-84],[O[0]-6,O[1]-74],[O[0]-24,O[1]-68]],C.red,C.red,1)
+              +txt([O[0]+4,O[1]-96],'반 바퀴 돌린다',C.red,18);
+            return SVGB(PSYM,46,g,'max-height:186px');
+          })()}
+          </div>
+          <div style="font-size:20px;font-weight:700">돌려서 겹치면 <b class="hp">점대칭도형</b></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="act" style="margin-top:12px" data-step="2">
+    <b>4학년 때 배운 것이 그대로 쓰인다.</b> 포개는 방법은 <b class="hn">밀기 · 뒤집기 · 돌리기</b> 셋뿐이다.
+    선대칭은 <b class="hg">뒤집기</b>, 점대칭은 <b class="hp">180° 돌리기</b> — 그때 그 손동작을 도형 이름으로 부르는 것이다.
+  </div>
+</section>`,
+
+/* ───────── 3. 합동 ───────── */
+`<section class="slide" style="--acc:#1e3a8a" data-steps="2">
+  <div class="eyebrow">합동 ①</div>
+  <h2>모양과 크기가 같아 <b class="hn">완전히</b> 겹치면 서로 합동</h2>
+  <div class="grow center col" style="margin-top:8px">
+    ${SVG(1140,300,(()=>{
+      const base=ALL(TRI,p=>SCL(p,TRI_C,.92));
+      const put=(ps,dx,dy)=>ALL(ps,p=>MOV(p,dx,dy));
+      const 가=put(base,40,60);
+      const 나=put(ALL(base,p=>ROT(p,TRI_C,118)),300,54);
+      const 다=put(ALL(base,p=>MIRX(p,TRI_C[0])),560,60);
+      const 라=put(ALL(base,p=>SCL(p,TRI_C,.66)),840,74);
+      const cap=(x,t,c)=>txt([x,266],t,c,23,'middle',900);
+      return [가,나,다].map(s=>poly(s,'#dbeafe',C.navy,3.6)).join('')
+           + poly(라,'#fee2e2',C.red,3.6)
+           + cap(126,'가',C.navy)+cap(386,'나',C.navy)+cap(646,'다',C.navy)+cap(906,'라',C.red)
+           + txt([386,292],'돌려 놓았다',C.muted,18)
+           + txt([646,292],'뒤집어 놓았다',C.muted,18)
+           + txt([906,292],'작게 그렸다',C.red,18);
+    })(),'max-height:300px')}
+  </div>
+  <div class="term" data-step="1" style="font-size:23px">
+    <b class="hn">가 · 나 · 다는 서로 합동이다.</b> 들어서 <b>돌리거나 뒤집어</b> 포개면 딱 맞기 때문이다.
+    자리에 놓인 방향은 아무 상관이 없다.
+  </div>
+  <div class="warn" style="margin-top:10px" data-step="2">
+    <b class="hl">라는 합동이 아니다.</b> 모양은 같지만 <b>크기</b>가 다르다 —
+    “닮았다”와 “합동이다”는 다른 말이다. 합동은 <b>모양 + 크기가 둘 다</b> 같아야 한다.
+  </div>
+</section>`,
+
+/* ───────── 4. 대응점·대응변·대응각 ───────── */
+`<section class="slide" style="--acc:#1e3a8a" data-steps="3">
+  <div class="eyebrow">합동 ②</div>
+  <h2>포갰을 때 겹치는 짝 — <b class="hn">대응점 · 대응변 · 대응각</b></h2>
+  <div class="row grow" style="margin-top:10px;gap:20px;align-items:center">
+    <div class="grow" style="flex:1.25">
+      ${SVG(640,320,(()=>{
+        const base=ALL(TRI,p=>MOV(SCL(p,TRI_C,1.06),18,74));
+        const c2=MID(base);
+        const two=ALL(base,p=>MOV(ROT(p,c2,196),352,-6));
+        const cols=[C.red,C.green,C.gold];
+        return poly(base,'#eff6ff',C.navy,3.6)+poly(two,'#eff6ff',C.navy,3.6)
+             + dots(base,cols,8)+dots(two,cols,8)
+             + vlab(base,['ㄱ','ㄴ','ㄷ'],C.ink,22,28)
+             + vlab(two,['ㄹ','ㅁ','ㅂ'],C.ink,22,28)
+             + txt([170,308],'삼각형 ㄱㄴㄷ',C.navy,21,'middle',900)
+             + txt([492,308],'삼각형 ㄹㅁㅂ',C.navy,21,'middle',900);
+      })(),'max-height:320px')}
+    </div>
+    <div class="col" style="flex:1;gap:9px">
+      <div class="card" style="border-color:#fca5a5;font-size:21px">
+        <b style="color:${'#dc2626'}">●</b> 겹치는 <b>점</b> → <b class="hn">대응점</b>　점 ㄱ ↔ 점 ㄹ</div>
+      <div class="card" style="border-color:#86efac;font-size:21px" data-step="1">
+        겹치는 <b>변</b> → <b class="hn">대응변</b>　변 ㄱㄴ ↔ 변 ㄹㅁ</div>
+      <div class="card" style="border-color:#fcd34d;font-size:21px" data-step="1">
+        겹치는 <b>각</b> → <b class="hn">대응각</b>　각 ㄱㄴㄷ ↔ 각 ㄹㅁㅂ</div>
+      <div class="act" style="font-size:19px;margin-top:2px" data-step="2">
+        삼각형이면 대응점 3쌍 · 대응변 3쌍 · 대응각 3쌍.<br>
+        <b>사각형이면 각각 4쌍</b> — 꼭짓점 수만큼이다.
+      </div>
+    </div>
+  </div>
+  <div class="term" style="margin-top:8px;border-left-color:var(--red);font-size:21px" data-step="3">
+    <b class="hl">짝 찾는 요령</b> ① 눈에 띄는 표시(가장 긴 변 · 직각 · 주어진 각)부터 맞춘다.
+    ② 한 쌍이 정해지면 나머지는 <b>도형을 도는 방향대로</b> 따라온다 — 한 칸씩 밀려 적는 실수가 제일 많다.
+  </div>
+</section>`,
+
+/* ───────── 5. 합동의 성질 ───────── */
+`<section class="slide" style="--acc:#1e3a8a" data-steps="2">
+  <div class="eyebrow">합동 ③ · 문제의 열쇠</div>
+  <h2>합동의 성질은 딱 두 줄</h2>
+  <div class="row" style="margin-top:12px;gap:18px">
+    <div class="term grow" style="font-size:24px;border-left-color:var(--green)">
+      <span class="num" style="background:#10b981">1</span><b class="hg">대응변</b>의 길이는 서로 같다</div>
+    <div class="term grow" style="font-size:24px;border-left-color:var(--gold)">
+      <span class="num" style="background:#f59e0b">2</span><b style="color:#b45309">대응각</b>의 크기는 서로 같다</div>
+  </div>
+  <div class="grow center" style="margin-top:6px">
+    ${SVG(980,250,(()=>{
+      const q=[[40,40],[240,28],[268,196],[70,208]];
+      const c=MID(q);
+      const q2=ALL(q,p=>MOV(ROT(p,c,180),520,4));
+      const e=[C.green,C.gold,C.purple,C.blue];
+      let o=poly(q,'#f0fdf4',C.navy,3.6)+poly(q2,'#f0fdf4',C.navy,3.6);
+      o+=tick(q[0],q[1],1,C.green)+tick(q2[2],q2[3],1,C.green);
+      o+=tick(q[1],q[2],2,C.purple)+tick(q2[3],q2[0],2,C.purple);
+      o+=arc(q[0],q[1],q[3],30,C.gold,3.5)+arc(q2[2],q2[3],q2[1],30,C.gold,3.5);
+      o+=dots(q,[C.red,C.green,C.gold,C.blue],7)+dots(q2,[C.red,C.green,C.gold,C.blue],7);
+      o+=vlab(q,['ㄱ','ㄴ','ㄷ','ㄹ'],C.ink,21,26)+vlab(q2,['ㅅ','ㅇ','ㅁ','ㅂ'],C.ink,21,26);
+      o+=txt([490,120],'≡',C.red,44,'middle',900);
+      return o;
+    })(),'max-height:242px')}
+  </div>
+  <div class="act" style="font-size:22px" data-step="1">
+    <b>이 두 줄이 문제를 푸는 방법 전부다.</b> 한쪽 도형에 적힌 수를 <b class="hl">반대쪽 짝에게 그대로 옮겨 적는 것</b> —
+    문제는 언제나 이것을 시킨다.
+  </div>
+  <div class="warn" style="margin-top:10px" data-step="2">
+    <b>흔한 실수</b> — 짝이 아닌 변끼리 견주는 것. 「같은 자리에 있는 변」이 아니라 <b class="hl">「포갰을 때 겹치는 변」</b>이다.
+    도형이 돌아가 있으면 왼쪽 변의 짝이 오른쪽 변일 수도 있다.
+  </div>
+</section>`,
+
+/* ───────── 6. 합동 실전 ───────── */
+`<section class="slide" style="--acc:#dc2626" data-steps="4">
+  <div class="eyebrow">합동 ④ · 시험에 이렇게 나온다</div>
+  <h2>모르는 각 구하기 — 두 걸음이면 끝난다</h2>
+  <div class="row grow" style="margin-top:10px;gap:22px;align-items:center">
+    <div style="flex:1.12">
+      ${(()=>{
+        /* 두 번째 사각형은 첫 번째를 180° 돌려 옆에 놓은 것이다.
+           그래서 대응은 ㄱ↔ㅅ · ㄴ↔ㅇ · ㄷ↔ㅁ · ㄹ↔ㅂ 이고,
+           각도는 반드시 '짝이 맞는 꼭짓점'에 적어야 한다.
+           (여기에 엉뚱한 꼭짓점을 골라 95°와 70°가 같은 짝에
+            앉으면 문제 자체가 성립하지 않는다.) */
+        const q=[[60,52],[250,36],[286,214],[92,240]];
+        const c=MID(q);
+        const q2=ALL(q,p=>MOV(ROT(p,c,180),300,10));
+        const IN=(p,a,b,d)=>{                  /* 각 안쪽으로 d 만큼 들어간 자리 */
+          const u=[a[0]-p[0],a[1]-p[1]], v=[b[0]-p[0],b[1]-p[1]];
+          const lu=Math.hypot(...u)||1, lv=Math.hypot(...v)||1;
+          let w=[u[0]/lu+v[0]/lv, u[1]/lu+v[1]/lv];
+          const lw=Math.hypot(...w)||1;
+          return [p[0]+w[0]/lw*d, p[1]+w[1]/lw*d+7];
+        };
+        let o=poly(q,'#fff','#1e3a8a',3.6)+poly(q2,'#fff','#1e3a8a',3.6);
+        /* 왼쪽: ㄱ = 95°, ㄹ = ? */
+        o+=arc(q[0],q[1],q[3],27,C.gold,3.2)+txt(IN(q[0],q[1],q[3],50),'95°',C.ink,21);
+        o+=arc(q[3],q[0],q[2],27,C.red,3.6)+txt(IN(q[3],q[0],q[2],46),'?',C.red,32,'middle',900);
+        /* 오른쪽: ㅇ(=ㄴ의 짝) = 130°, ㅁ(=ㄷ의 짝) = 70° */
+        o+=arc(q2[1],q2[0],q2[2],27,C.blue,3.2)+txt(IN(q2[1],q2[0],q2[2],52),'130°',C.ink,21);
+        o+=arc(q2[2],q2[1],q2[3],27,C.green,3.2)+txt(IN(q2[2],q2[1],q2[3],48),'70°',C.ink,21);
+        o+=vlab(q,['ㄱ','ㄴ','ㄷ','ㄹ'],C.muted,20,25)
+          +vlab(q2,['ㅅ','ㅇ','ㅁ','ㅂ'],C.muted,20,25);
+        return SVGB(q.concat(q2),42,o,'max-height:292px');
+      })()}
+      <div class="hand" style="text-align:center;margin-top:2px">두 사각형은 서로 합동이다. 각 ㄹ은 몇 도?</div>
+    </div>
+    <div class="col" style="flex:1;gap:9px">
+      <div class="card" style="border-color:#93c5fd;font-size:21px" data-step="1">
+        <span class="num">1</span><b>대응각을 옮겨 적는다</b><br>
+        <span style="font-size:20px;color:#334155">각 ㄴ = 각 ㅇ = <b class="hn">130°</b>　각 ㄷ = 각 ㅅ = <b class="hn">70°</b></span></div>
+      <div class="card" style="border-color:#fcd34d;font-size:21px" data-step="2">
+        <span class="num" style="background:#f59e0b">2</span><b>남은 각은 내각의 합으로</b><br>
+        <span style="font-size:20px;color:#334155">사각형 네 각의 합 = <b>360°</b></span></div>
+      <div class="term" style="border-left-color:var(--red);font-size:22px" data-step="3">
+        360 − 95 − 130 − 70 = <b class="hl" style="font-size:28px">65°</b></div>
+      <div class="act" style="font-size:19px" data-step="4">
+        삼각형이면 <b>180°</b>, 사각형이면 <b>360°</b>.<br>
+        <b class="hl">길이를 물으면 1번만으로 끝난다</b> — 옮겨 적기가 곧 답이다.
+      </div>
+    </div>
+  </div>
+</section>`,
+
+/* ───────── 7. 대칭으로 ───────── */
+`<section class="slide" style="--acc:#10b981" data-steps="2">
+  <div class="eyebrow">여기서부터 대칭</div>
+  <h2>도형 <b class="hg">하나</b>가 <b class="hg">저 자신</b>과 합동일 때</h2>
+  <div class="lead" style="margin-top:8px">
+    합동은 도형 둘을 견주는 말이었다. 그런데 <b>도형 하나를 반으로 나누었더니 두 쪽이 합동</b>인 경우가 있다.
+    그런 도형을 따로 부르는 이름이 대칭이다.
+  </div>
+  <div class="row grow" style="margin-top:10px;gap:20px;align-items:stretch">
+    <div class="card col center grow" style="border-color:#86efac;gap:5px">
+      <div class="grow center" style="display:flex;width:100%">
+      ${(()=>{
+        const g=poly(LSYM,'#dcfce7',C.green,3.6)
+          +seg([AX,LSYM[0][1]-30],[AX,LSYM[3][1]+26],C.red,3.2,'stroke-dasharray="10 7"')
+          +txt([AX+74,LSYM[0][1]-14],'이 선을 따라 접는다',C.red,18);
+        return SVGB(LSYM,52,g,'max-height:212px');
+      })()}
+      </div>
+      <div style="font-size:23px;font-weight:900">접어서 겹친다 → <b class="hg">선대칭도형</b></div>
+      <div style="font-size:19px;color:#64748b">뒤집기와 같은 일이다</div>
+    </div>
+    <div class="card col center grow" style="border-color:#d8b4fe;gap:5px" data-step="1">
+      <div class="grow center" style="display:flex;width:100%">
+      ${(()=>{
+        const g=poly(PSYM,'#f3e8ff',C.purple,3.6)+dot(O,C.red,9)
+          +seg([O[0]+12,O[1]-10],[O[0]+66,O[1]-40],C.red,2,'')
+          +txt([O[0]+70,O[1]-46],'이 점을 꽂고 돌린다',C.red,18,'start');
+        return SVGB(PSYM.concat([[O[0]+230,O[1]-60]]),40,g,'max-height:212px');
+      })()}
+      </div>
+      <div style="font-size:23px;font-weight:900">반 바퀴 돌려 겹친다 → <b class="hp">점대칭도형</b></div>
+      <div style="font-size:19px;color:#64748b">180° 돌리기와 같은 일이다</div>
+    </div>
+  </div>
+  <div class="warn" style="margin-top:12px" data-step="2">
+    <b>둘은 따로 논다.</b> 선대칭이면서 점대칭인 도형(정사각형)도, 선대칭만 되는 도형(이등변삼각형)도,
+    점대칭만 되는 도형(평행사변형)도 있다. <b class="hl">하나가 되면 다른 하나도 된다고 짐작하지 말 것.</b>
+  </div>
+</section>`,
+
+/* ───────── 8. 선대칭 · 대칭축 ───────── */
+`<section class="slide" style="--acc:#10b981" data-steps="2">
+  <div class="eyebrow">선대칭 ①</div>
+  <h2>접는 그 선이 <b class="hg">대칭축</b></h2>
+  <div class="grow center col" style="margin-top:4px">
+    ${SVG(1150,260,(()=>{
+      const box=(x,label,n,shape,axes,col)=>{
+        let o=`<g transform="translate(${x},14)">`;
+        o+=shape;
+        o+=axes;
+        o+=txt([90,214],label,C.ink,21,'middle',900);
+        o+=txt([90,240],n,col,20,'middle',900);
+        o+='</g>';
+        return o;
+      };
+      const iso=[[90,20],[152,160],[28,160]];
+      const eq=(()=>{const c=[90,108],r=80;return [0,120,240].map(a=>ROT([90,108-r],c,a));})();
+      const sq=[[30,48],[150,48],[150,168],[30,168]];
+      const par=[[18,60],[128,60],[162,158],[52,158]];
+      const dash='stroke-dasharray="8 6"';
+      let o='';
+      o+=box(0,'이등변삼각형','대칭축 1개',poly(iso,'#dcfce7',C.green,3.4),
+             seg([90,12],[90,172],C.red,2.8,dash),C.red);
+      o+=box(232,'정삼각형','대칭축 3개',poly(eq,'#dcfce7',C.green,3.4),
+             eq.map((p,i)=>{const m=[(eq[(i+1)%3][0]+eq[(i+2)%3][0])/2,(eq[(i+1)%3][1]+eq[(i+2)%3][1])/2];
+               const d=[m[0]-p[0],m[1]-p[1]],L=Math.hypot(...d);
+               return seg([p[0]-d[0]/L*12,p[1]-d[1]/L*12],[m[0]+d[0]/L*12,m[1]+d[1]/L*12],C.red,2.6,dash);}).join(''),C.red);
+      o+=box(464,'정사각형','대칭축 4개',poly(sq,'#dcfce7',C.green,3.4),
+             seg([90,38],[90,178],C.red,2.6,dash)+seg([20,108],[160,108],C.red,2.6,dash)
+            +seg([20,38],[160,178],C.red,2.6,dash)+seg([160,38],[20,178],C.red,2.6,dash),C.red);
+      o+=box(696,'원','셀 수 없이 많다',`<circle cx="90" cy="108" r="72" fill="#dcfce7" stroke="${C.green}" stroke-width="3.4"/>`,
+             [0,45,90,135].map(a=>seg(ROT([90,28],[90,108],a),ROT([90,188],[90,108],a),C.red,2.4,dash)).join(''),C.red);
+      o+=box(928,'평행사변형','대칭축 0개',poly(par,'#fee2e2',C.red,3.4),
+             seg([35,55],[145,163],C.red,2.6,'stroke-dasharray="6 6" opacity=".45"')
+            +txt([90,108],'✕',C.red,40,'middle',900),C.red);
+      return o;
+    })(),'max-height:270px')}
+  </div>
+  <div class="term" style="font-size:22px" data-step="1">
+    대칭축은 <b class="hg">여러 개일 수 있다.</b> 「접을 수 있는 선이 몇 개냐」를 세는 문제가 자주 나온다 —
+    가로 · 세로만 보지 말고 <b class="hl">비스듬한 선</b>도 접어 보아야 한다.
+  </div>
+  <div class="warn" style="margin-top:10px" data-step="2">
+    <b class="hl">평행사변형은 선대칭도형이 아니다.</b> 대각선을 따라 접으면 삐죽 나온다 —
+    가장 많이 틀리는 자리다. (단, 반 바퀴 돌리면 겹치므로 <b class="hp">점대칭도형</b>이다.)
+  </div>
+</section>`,
+
+/* ───────── 9. 선대칭 성질 ───────── */
+`<section class="slide" style="--acc:#10b981" data-steps="3">
+  <div class="eyebrow">선대칭 ②</div>
+  <h2>선대칭도형의 성질 셋</h2>
+  <div class="row grow" style="margin-top:8px;gap:22px;align-items:center">
+    <div class="center" style="flex:1.05;display:flex">
+      ${(()=>{
+        const s=LSYM, top=s[0][1]-42, bot=s[3][1]+54;
+        let o=seg([AX,top],[AX,bot],C.red,3,'stroke-dasharray="10 7"');
+        o+=poly(s,'#f0fdf4',C.green,3.6);
+        /* 대응점 잇기 — ㄴ↔ㅂ, ㄷ↔ㅁ */
+        o+=seg(s[1],s[5],C.blue,2.8)+seg(s[2],s[4],C.blue,2.8);
+        const m1=[AX,s[1][1]], m2=[AX,s[2][1]];
+        o+=rightAngle(m1,s[1],[m1[0],m1[1]-30],14,C.red)
+          +rightAngle(m2,s[2],[m2[0],m2[1]-30],14,C.red);
+        o+=tick(s[1],m1,1,C.blue)+tick(m1,s[5],1,C.blue);
+        o+=tick(s[2],m2,2,C.blue)+tick(m2,s[4],2,C.blue);
+        o+=dots(s,[C.gold,C.green,C.purple,C.gold,C.purple,C.green],7.5);
+        /* 축 위의 ㄱ · ㄹ 은 라벨을 옆으로 비켜 준다 — 안 그러면 축선에 겹친다 */
+        o+=vlab(s,LNAME,C.ink,21,26,null,{0:[-26,-16],3:[-26,24]});
+        o+=txt([AX,bot+4],'대칭축',C.red,20);
+        return SVGB(s.concat([[AX,top],[AX,bot+12]]),34,o,'max-height:392px');
+      })()}
+    </div>
+    <div class="col" style="flex:1.15;gap:10px">
+      <div class="card" style="border-color:#86efac;font-size:21px">
+        <span class="num" style="background:#10b981">1</span>대응변의 길이가 서로 <b class="hg">같다</b></div>
+      <div class="card" style="border-color:#86efac;font-size:21px">
+        <span class="num" style="background:#10b981">2</span>대응각의 크기가 서로 <b class="hg">같다</b></div>
+      <div class="card" style="border-color:#93c5fd;font-size:21px" data-step="1">
+        <span class="num">3</span>대응점끼리 이은 선분은 대칭축과 <b class="hn">수직</b>으로 만나고,<br>
+        <span style="margin-left:40px">대칭축이 그 선분을 <b class="hn">반으로 나눈다</b></span></div>
+      <div class="act" style="font-size:20px" data-step="2">
+        1 · 2 는 합동의 성질과 똑같다. 접으면 두 쪽이 합동이니 당연하다.<br>
+        <b class="hl">새로 배우는 것은 3번뿐</b>이고, 이것이 다음 장 「그리기」의 근거다.
+      </div>
+      <div class="warn" style="font-size:19px;padding:9px 16px" data-step="3">
+        축 위에 놓인 꼭짓점(ㄱ · ㄹ)은 <b>제 자신이 대응점</b>이라 옮길 필요가 없다.
+      </div>
+    </div>
+  </div>
+</section>`,
+
+/* ───────── 10. 선대칭 그리기 ───────── */
+`<section class="slide" style="--acc:#10b981" data-steps="4">
+  <div class="eyebrow">선대칭 ③</div>
+  <h2>선대칭도형 그리기 — 점만 찍으면 끝난다</h2>
+  <div class="row grow" style="margin-top:8px;gap:20px;align-items:center">
+    <div class="center" style="flex:1.22;display:flex">
+      ${(()=>{
+        const A=240;                                  /* 대칭축 x */
+        const half=[[240,40],[120,80],[180,180],[240,240]];
+        const ref=[MIRX(half[1],A),MIRX(half[2],A)];
+        let o=`<rect x="60" y="10" width="360" height="264" fill="#fff"/>`+
+              `<g transform="translate(60,10)">`+grid(360,264,20)+`</g>`;
+        o+=seg([A,14],[A,270],C.red,3,'stroke-dasharray="10 7"');
+        o+=pline(half,C.green,4.2);
+        o+=dots(half,[C.gold,C.green,C.purple,C.gold],7.5);
+        o+=vlab(half,['ㄱ','ㄴ','ㄷ','ㄹ'],C.ink,20,24,[200,140],{0:[-28,-12],3:[-28,22]});
+        /* 1단계: 수선 */
+        o+=`<g class="g1">`+seg(half[1],ref[0],C.blue,2.4,'stroke-dasharray="6 5"')
+           +seg(half[2],ref[1],C.blue,2.4,'stroke-dasharray="6 5"')
+           +rightAngle([A,half[1][1]],half[1],[A,half[1][1]-26],13,C.red)
+           +rightAngle([A,half[2][1]],half[2],[A,half[2][1]-26],13,C.red)+`</g>`;
+        /* 2단계: 대응점 */
+        o+=`<g class="g2">`+tick(half[1],[A,half[1][1]],1,C.blue)+tick([A,half[1][1]],ref[0],1,C.blue)
+           +tick(half[2],[A,half[2][1]],2,C.blue)+tick([A,half[2][1]],ref[1],2,C.blue)
+           +dot(ref[0],C.green,7.5)+dot(ref[1],C.purple,7.5)
+           +vlab(ref,['ㅂ','ㅁ'],C.ink,20,24,[240,140])+`</g>`;
+        /* 3단계: 잇기 */
+        o+=`<g class="g3">`+pline([half[0],ref[0],ref[1],half[3]],C.green,4.2)+`</g>`;
+        return SVGB([[60,10],[420,274]],16,o,'max-height:308px');
+      })()}
+    </div>
+    <div class="col" style="flex:1;gap:10px">
+      <div class="card" style="border-color:#93c5fd;font-size:21px" data-step="1">
+        <span class="num">1</span>각 꼭짓점에서 대칭축에 <b class="hn">수선을 긋는다</b></div>
+      <div class="card" style="border-color:#93c5fd;font-size:21px" data-step="2">
+        <span class="num">2</span>대칭축까지의 거리가 <b class="hn">같도록</b> 반대쪽에 대응점을 찍는다<br>
+        <span style="font-size:19px;color:#64748b;margin-left:40px">모눈이면 칸 수를 세면 된다 — 3칸이면 3칸</span></div>
+      <div class="card" style="border-color:#93c5fd;font-size:21px" data-step="3">
+        <span class="num">3</span>찍은 점들을 <b class="hn">차례대로</b> 잇는다</div>
+      <div class="warn" style="font-size:20px" data-step="4">
+        <b>검산은 접어 보는 것.</b> 축 위의 꼭짓점은 그대로 두고,
+        <b class="hl">거리를 셀 때 축의 칸을 두 번 세지 않도록</b> 조심한다.
+      </div>
+    </div>
+  </div>
+</section>`,
+
+/* ───────── 11. 점대칭 · 대칭의 중심 ───────── */
+`<section class="slide" style="--acc:#a855f7" data-steps="3">
+  <div class="eyebrow">점대칭 ①</div>
+  <h2>꽂아 놓고 반 바퀴 — 그 점이 <b class="hp">대칭의 중심</b></h2>
+  <div class="row grow" style="margin-top:8px;gap:20px;align-items:center">
+    <div class="center" style="flex:1.05;display:flex">
+      ${(()=>{
+        const s=PSYM;
+        let o=poly(s,'#faf5ff',C.purple,3.6);
+        o+=s.slice(0,3).map((p,i)=>seg(p,s[i+3],C.blue,2.6,'stroke-dasharray="7 5"')).join('');
+        o+=dots(s,[C.red,C.green,C.gold,C.red,C.green,C.gold],8);
+        o+=dot(O,C.purple,9.5);
+        o+=vlab(s,PNAME,C.ink,21,27,O);
+        /* 대응점 색이 같은 것끼리 짝(ㄱ-ㄹ · ㄴ-ㅁ · ㄷ-ㅂ)임을 한 줄로 못 박는다 */
+        o+=seg([O[0]+13,O[1]+9],[O[0]+50,O[1]+42],C.purple,2)
+          +txt([O[0]+54,O[1]+50],'대칭의 중심 ㅇ',C.purple,20,'start');
+        return SVGB(s.concat([[O[0]+232,O[1]+58]]),34,o,'max-height:352px');
+      })()}
+    </div>
+    <div class="col" style="flex:1.1;gap:9px">
+      <div class="term" style="border-left-color:#a855f7;font-size:21px">
+        한 점을 중심으로 <b class="hp">180° 돌렸을 때</b> 처음 도형과 완전히 겹치면
+        <b class="hp">점대칭도형</b>, 그 점이 <b class="hp">대칭의 중심</b>이다.</div>
+      <div class="card" style="border-color:#d8b4fe;font-size:20px" data-step="1">
+        <b>대칭의 중심은 언제나 1개뿐.</b> 대칭축이 여러 개일 수 있는 것과 다르다.<br>
+        <span style="color:#64748b">찾는 법 — 대응점끼리 이어 보면 선들이 만나는 곳이 중심이다.</span></div>
+      <div class="warn" style="font-size:20px" data-step="2">
+        <b class="hl">흔한 오해 ①</b> “중심에서 모든 꼭짓점까지 거리가 같다”? <b>아니다.</b>
+        같은 것은 <b>대응점끼리</b>(ㄱ과 ㄹ)일 뿐, ㄱ과 ㄴ은 다를 수 있다.</div>
+      <div class="warn" style="font-size:20px" data-step="3">
+        <b class="hl">흔한 오해 ②</b> 180° 돌리기를 <b>옆으로 밀기</b>로 그리는 것.
+        반드시 <b>중심을 지나 반대쪽</b>으로 가야 한다 — 위아래까지 뒤집힌다.</div>
+    </div>
+  </div>
+</section>`,
+
+/* ───────── 12. 점대칭 성질 ───────── */
+`<section class="slide" style="--acc:#a855f7" data-steps="2">
+  <div class="eyebrow">점대칭 ②</div>
+  <h2>점대칭도형의 성질 셋</h2>
+  <div class="row grow" style="margin-top:8px;gap:22px;align-items:center">
+    <div class="center" style="flex:1.05;display:flex">
+      ${(()=>{
+        const s=PSYM;
+        let o=poly(s,'#faf5ff',C.purple,3.6);
+        o+=seg(s[0],s[3],C.blue,2.8)+seg(s[1],s[4],C.blue,2.8)+seg(s[2],s[5],C.blue,2.8);
+        o+=tick(s[0],O,1,C.blue)+tick(O,s[3],1,C.blue);
+        o+=tick(s[1],O,2,C.blue)+tick(O,s[4],2,C.blue);
+        o+=tick(s[2],O,3,C.blue)+tick(O,s[5],3,C.blue);
+        o+=tick(s[0],s[1],1,C.green)+tick(s[3],s[4],1,C.green);
+        o+=dots(s,[C.red,C.green,C.gold,C.red,C.green,C.gold],7.5);
+        o+=dot(O,C.purple,9.5)+vlab(s,PNAME,C.ink,21,27,O);
+        o+=txt([O[0]-6,O[1]+34],'ㅇ',C.purple,21);
+        return SVGB(s,36,o,'max-height:372px');
+      })()}
+    </div>
+    <div class="col" style="flex:1.15;gap:10px">
+      <div class="card" style="border-color:#d8b4fe;font-size:21px">
+        <span class="num" style="background:#a855f7">1</span>대응변의 길이가 서로 <b class="hp">같다</b></div>
+      <div class="card" style="border-color:#d8b4fe;font-size:21px">
+        <span class="num" style="background:#a855f7">2</span>대응각의 크기가 서로 <b class="hp">같다</b></div>
+      <div class="card" style="border-color:#93c5fd;font-size:21px" data-step="1">
+        <span class="num">3</span>대응점끼리 이은 선분은 모두 <b class="hn">대칭의 중심을 지나고</b>,<br>
+        <span style="margin-left:40px">중심이 그 선분을 <b class="hn">반으로 나눈다</b></span></div>
+      <div class="act" style="font-size:20px" data-step="1">
+        선대칭의 3번과 견주어 보자. 선대칭은 <b class="hg">수직 + 반으로</b>,
+        점대칭은 <b class="hp">중심을 지나 + 반으로</b>. <b class="hl">“반으로”는 똑같다.</b>
+      </div>
+    </div>
+  </div>
+</section>`,
+
+/* ───────── 13. 점대칭 그리기 ───────── */
+`<section class="slide" style="--acc:#a855f7" data-steps="4">
+  <div class="eyebrow">점대칭 ③</div>
+  <h2>점대칭도형 그리기 — 중심 너머로 같은 만큼</h2>
+  <div class="row grow" style="margin-top:8px;gap:20px;align-items:center">
+    <div class="center" style="flex:1.22;display:flex">
+      ${(()=>{
+        const o2=[240,150];
+        const half=[[120,70],[260,50],[340,130]];
+        const ref=ALL(half,p=>ROT(p,o2,180));
+        let o=`<rect x="60" y="20" width="360" height="260" fill="#fff"/>`+
+              `<g transform="translate(60,20)">`+grid(360,260,20)+`</g>`;
+        o+=pline(half,C.purple,4.2);
+        o+=dot(o2,C.purple,9.5)+txt([o2[0]+22,o2[1]+30],'ㅇ',C.purple,21);
+        o+=dots(half,[C.red,C.green,C.gold],7.5);
+        o+=vlab(half,['ㄱ','ㄴ','ㄷ'],C.ink,20,25,o2);
+        o+=`<g class="g1">`+half.map(p=>seg(p,ROT(p,o2,180),C.blue,2.4,'stroke-dasharray="6 5"')).join('')+`</g>`;
+        o+=`<g class="g2">`+half.map((p,i)=>tick(p,o2,i+1,C.blue)+tick(o2,ref[i],i+1,C.blue)).join('')
+           +ref.map((p,i)=>dot(p,[C.red,C.green,C.gold][i],7.5)).join('')
+           +vlab(ref,['ㄹ','ㅁ','ㅂ'],C.ink,20,25,o2)+`</g>`;
+        o+=`<g class="g3">`+pline([half[2],ref[0],ref[1],ref[2],half[0]],C.purple,4.2)+`</g>`;
+        return SVGB([[60,20],[420,280]],16,o,'max-height:308px');
+      })()}
+    </div>
+    <div class="col" style="flex:1;gap:10px">
+      <div class="card" style="border-color:#93c5fd;font-size:21px" data-step="1">
+        <span class="num">1</span>각 꼭짓점과 <b class="hn">대칭의 중심을 잇는다</b> — 그 선을 <b>중심 너머로 늘인다</b></div>
+      <div class="card" style="border-color:#93c5fd;font-size:21px" data-step="2">
+        <span class="num">2</span>중심에서 <b class="hn">같은 거리</b>인 곳에 대응점을 찍는다<br>
+        <span style="font-size:19px;color:#64748b;margin-left:40px">모눈이면 「오른쪽 3칸 위 2칸」 → 반대로 「왼쪽 3칸 아래 2칸」</span></div>
+      <div class="card" style="border-color:#93c5fd;font-size:21px" data-step="3">
+        <span class="num">3</span>점들을 차례대로 이어 완성한다</div>
+      <div class="warn" style="font-size:20px" data-step="4">
+        <b class="hl">칸 세기가 가장 안전하다.</b> 가로 칸 수와 세로 칸 수를 <b>둘 다</b> 반대로 —
+        하나만 반대로 하면 선대칭 그림이 되어 버린다.
+      </div>
+    </div>
+  </div>
+</section>`,
+
+/* ───────── 14. 비교 ───────── */
+`<section class="slide" style="--acc:#f59e0b" data-steps="2">
+  <div class="eyebrow">정리</div>
+  <h2>둘을 한 표로 — 그리고 눈으로 확인하기</h2>
+  <table style="margin-top:12px">
+    <tr><th style="width:132px"></th><th style="color:#047857">선대칭도형</th><th style="color:#7e22ce">점대칭도형</th></tr>
+    <tr><th>포개는 법</th><td>대칭축을 따라 <b>접는다</b></td><td>대칭의 중심으로 <b>180° 돌린다</b></td></tr>
+    <tr><th>기준</th><td><b>대칭축</b> — 여러 개일 수 있다</td><td><b>대칭의 중심</b> — 언제나 1개</td></tr>
+    <tr><th>대응점의 규칙</th><td>이은 선분이 축과 <b>수직</b>, 축이 <b>반으로</b></td><td>이은 선분이 <b>중심을 지나고</b>, 중심이 <b>반으로</b></td></tr>
+  </table>
+  <div class="row grow" style="margin-top:14px;gap:16px;align-items:stretch" data-step="1">
+    ${[['선대칭만','#dcfce7','#10b981','이등변삼각형 · 정삼각형<br>사다리꼴(등변) · 하트'],
+       ['둘 다','#fef3c7','#f59e0b','정사각형 · 직사각형<br>마름모 · 원 · 정육각형'],
+       ['점대칭만','#f3e8ff','#a855f7','평행사변형<br>바람개비 · 태극 문양']]
+      .map(([t,bg,bd,body])=>`
+      <div class="card col center grow" style="background:${bg};border-color:${bd};gap:6px;justify-content:center">
+        <div style="font-size:24px;font-weight:900;color:${bd}">${t}</div>
+        <div style="font-size:20px;line-height:1.5">${body}</div>
+      </div>`).join('')}
+  </div>
+  <div class="act" style="margin-top:12px;font-size:21px" data-step="2">
+    <b>글자로 확인해 보자.</b>　<b class="hg">선대칭</b>: ㅁ ㅂ ㅍ ㅎ · A H T
+    <b class="hp">점대칭</b>: ㅁ ㅇ · H N S Z · 숫자 <b>69</b>
+    <span style="color:#64748b">ㅁ · H · O 는 둘 다 된다. 트럼프 카드가 뒤집어도 같은 것도 점대칭이라서다.</span>
+  </div>
+</section>`,
+
+/* ───────── 15. 스스로 해보기 ───────── */
+`<section class="slide" style="--acc:#dc2626" data-steps="4">
+  <div class="eyebrow">스스로 해보기</div>
+  <h2>세 문제 — 어느 성질을 쓸지부터 정하자</h2>
+  <div class="row grow" style="margin-top:10px;gap:16px;align-items:stretch">
+    <div class="card col grow" style="gap:5px">
+      <div style="font-size:21px;font-weight:900"><span class="num">1</span>합동</div>
+      <div class="grow center" style="display:flex;width:100%">
+      ${(()=>{
+        /* 오른쪽 삼각형은 왼쪽을 뒤집어 옮긴 것 — 대응은 ㄱ↔ㄹ · ㄴ↔ㅁ · ㄷ↔ㅂ */
+        const t=[[26,128],[168,128],[132,36]];
+        const t2=ALL(t,p=>MOV(MIRX(p,97),232,0));
+        let o=poly(t,'#fff',C.navy,3.4)+poly(t2,'#fff',C.navy,3.4);
+        o+=arc(t[0],t[1],t[2],24,C.gold,3)+txt([60,116],'40°',C.ink,19);
+        o+=arc(t[1],t[0],t[2],24,C.blue,3)+txt([138,116],'75°',C.ink,19);
+        o+=arc(t2[2],t2[0],t2[1],24,C.red,3.4)+txt([262,74],'?',C.red,28,'middle',900);
+        o+=vlab(t,['ㄱ','ㄴ','ㄷ'],C.muted,19,21)+vlab(t2,['ㄹ','ㅁ','ㅂ'],C.muted,19,21);
+        return SVGB(t.concat(t2),34,o,'max-height:176px');
+      })()}
+      </div>
+      <div style="font-size:19px;color:#334155">두 삼각형은 서로 합동. <b>각 ㅂ</b>은 몇 도?</div>
+      <div class="term" style="font-size:19px;padding:8px 13px;border-left-color:var(--red)" data-step="1">
+        각 ㅂ의 짝은 <b>각 ㄷ</b>. 한쪽 삼각형에서 먼저 구한다 →
+        180 − 40 − 75 = <b class="hl">65°</b></div>
+    </div>
+    <div class="card col grow" style="gap:5px">
+      <div style="font-size:21px;font-weight:900"><span class="num" style="background:#10b981">2</span>선대칭</div>
+      <div class="grow center" style="display:flex;width:100%">
+      ${(()=>{
+        /* 도형을 먼저 칠하고 대칭축을 그 위에 긋는다 —
+           순서를 바꾸면 채운 색이 축을 덮어 축이 사라진다. */
+        const s=LSYM;
+        let o=poly(s,'#f0fdf4',C.green,3.4);
+        o+=seg([AX,s[0][1]-26],[AX,s[3][1]+26],C.red,2.8,'stroke-dasharray="9 6"');
+        o+=txt([(s[0][0]+s[1][0])/2+46,(s[0][1]+s[1][1])/2-10],'7 cm',C.ink,20);
+        o+=txt([(s[0][0]+s[5][0])/2-44,(s[0][1]+s[5][1])/2-8],'?',C.red,28,'middle',900);
+        o+=arc(s[2],s[1],s[3],24,C.gold,3.2)+txt([s[2][0]+44,s[2][1]+6],'110°',C.ink,20);
+        o+=arc(s[4],s[3],s[5],24,C.red,3.2)+txt([s[4][0]-40,s[4][1]+8],'?',C.red,28,'middle',900);
+        o+=vlab(s,LNAME,C.muted,18,23,null,{0:[-24,-14],3:[-24,22]});
+        return SVGB(s,52,o,'max-height:176px');
+      })()}
+      </div>
+      <div style="font-size:19px;color:#334155">선대칭도형이다. <b>?</b> 두 곳은?</div>
+      <div class="term" style="font-size:19px;padding:8px 13px;border-left-color:var(--green)" data-step="2">
+        대칭축 건너 짝을 찾아 <b class="hg">그대로 옮겨 적기</b> → <b class="hl">7 cm · 110°</b>.
+        선대칭 문제의 8할이 이것이다.</div>
+    </div>
+    <div class="card col grow" style="gap:5px">
+      <div style="font-size:21px;font-weight:900"><span class="num" style="background:#a855f7">3</span>점대칭</div>
+      <div class="grow center" style="display:flex;width:100%">
+      ${(()=>{
+        const s=PSYM;
+        let o=poly(s,'#faf5ff',C.purple,3.4);
+        o+=seg(s[0],s[3],C.blue,2.6,'stroke-dasharray="6 5"');
+        o+=tick(s[0],O,1,C.blue)+tick(O,s[3],1,C.blue);
+        o+=dot(O,C.purple,8.5)+dot(s[0],C.red,7.5)+dot(s[3],C.red,7.5);
+        o+=vlab(s,['ㄱ','','','ㄹ','',''],C.ink,20,26,O);
+        o+=txt([O[0]+8,O[1]+34],'ㅇ',C.purple,21);
+        o+=txt([(s[0][0]+O[0])/2-30,(s[0][1]+O[1])/2-16],'6 cm',C.blue,20);
+        return SVGB(s,40,o,'max-height:176px');
+      })()}
+      </div>
+      <div style="font-size:19px;color:#334155">점대칭도형. 선분 ㄱㅇ이 6 cm면 <b>선분 ㄱㄹ</b>은?</div>
+      <div class="term" style="font-size:19px;padding:8px 13px;border-left-color:#a855f7" data-step="3">
+        중심이 선분을 <b class="hp">반으로</b> 나누니 ㅇㄹ도 6 cm →
+        <b class="hl">12 cm</b>. 거꾸로 묻는 문제가 꼭 나온다.</div>
+    </div>
+  </div>
+  <div class="act" style="margin-top:12px;font-size:22px" data-step="4">
+    <b>문제를 만나면 순서는 늘 같다.</b>
+    ① 짝을 찾는다 → ② 아는 수를 짝에게 <b class="hl">옮겨 적는다</b> → ③ 그래도 모르면
+    <b class="hn">180° · 360° · 「반으로」</b> 셋 중 하나를 쓴다.
+  </div>
+</section>`
+];
+
+/* ══════════════════════════════════════════════
+   재생기 — 03 · 06 과 같은 조작
+   ══════════════════════════════════════════════ */
+const stage=document.getElementById('stage');
+stage.innerHTML=SLIDES.join('');
+const slides=[...document.querySelectorAll('.slide')];
+let cur=0, step=0;
+
+function maxStep(i){ return parseInt(slides[i].dataset.steps||'0',10); }
+
+/* 그리기 슬라이드(10 · 13)는 SVG 그룹도 단계에 맞춰 여닫는다 */
+function svgSteps(){
+  const s=slides[cur];
+  ['g1','g2','g3'].forEach((cls,i)=>{
+    s.querySelectorAll('.'+cls).forEach(g=>{
+      g.style.opacity = (step>=i+1) ? 1 : 0;
+      g.style.transition='opacity .38s ease';
+    });
+  });
+}
+
+function render(){
+  slides.forEach((s,i)=>s.classList.toggle('on',i===cur));
+  slides[cur].querySelectorAll('[data-step]').forEach(el=>{
+    const n=parseInt(el.dataset.step,10);
+    el.classList.toggle('vis', n<=step);
+  });
+  svgSteps();
+  document.getElementById('cnt').textContent=`${cur+1} / ${slides.length}`;
+  history.replaceState(null,'','#'+(cur+1));
+}
+
+function go(d){
+  if(d>0){
+    if(step<maxStep(cur)){ step++; render(); return; }
+    if(cur<slides.length-1){ cur++; step=0; render(); }
+  }else{
+    if(step>0){ step--; render(); return; }
+    if(cur>0){ cur--; step=maxStep(cur); render(); }
+  }
+}
+function jump(i){ cur=Math.max(0,Math.min(slides.length-1,i)); step=0; render(); }
+
+document.addEventListener('keydown',e=>{
+  const k=e.key;
+  if(k==='ArrowRight'||k===' '||k==='PageDown'){ e.preventDefault(); go(1); }
+  else if(k==='ArrowLeft'||k==='PageUp'){ e.preventDefault(); go(-1); }
+  else if(k==='ArrowDown'){ e.preventDefault(); jump(cur+1); }
+  else if(k==='ArrowUp'){ e.preventDefault(); jump(cur-1); }
+  else if(k==='Home'){ jump(0); }
+  else if(k==='End'){ jump(slides.length-1); }
+  else if(k==='f'||k==='F'){ fs(); }
+});
+
+let sx=0,sy=0;
+document.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY},{passive:true});
+document.addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy;
+  if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)) go(dx<0?1:-1);
+},{passive:true});
+
+document.getElementById('wrap').addEventListener('click',()=>go(1));
+
+function fs(){
+  if(!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+  else document.exitFullscreen?.();
+}
+
+function fit(){
+  const s=Math.min(window.innerWidth/1280,(window.innerHeight-46)/720);
+  stage.style.transform=`scale(${s})`;
+}
+window.addEventListener('resize',fit);
+
+/* 해시로 슬라이드 지정(#7 → 7번) — 수업 중에도, 검증에도 쓴다 */
+const h=parseInt((location.hash||'').slice(1),10);
+if(h>=1&&h<=SLIDES.length) cur=h-1;
+
+fit(); render();
+</script>
+</body>
+</html>

@@ -137,9 +137,11 @@ body{
     </div>
 
     <div style="margin-top:16px">
-      <div class="step"><span class="n">1</span>도형을 보고 네 칸 중 하나를 고른다.</div>
-      <div class="step"><span class="n">2</span>틀리면 <b>접어 보고 돌려 보고</b> 나서 그 도형이 다시 나온다(+5초).</div>
-      <div class="step"><span class="n">3</span>18개를 다 맞히면 끝! 걸린 시간이 기록으로 남는다.</div>
+      <!-- .step 은 flex 라 글줄을 <span> 하나로 묶어야 한다.
+           안 묶으면 <b> 가 따로 칸을 차지해 문장이 조각난다. -->
+      <div class="step"><span class="n">1</span><span>도형을 보고 네 칸 중 하나를 고른다.</span></div>
+      <div class="step"><span class="n">2</span><span>틀리면 <b>접어 보고 돌려 보고</b> 나서 그 도형이 다시 나온다(+5초).</span></div>
+      <div class="step"><span class="n">3</span><span>18개를 다 맞히면 끝! 걸린 시간이 기록으로 남는다.</span></div>
     </div>
 
     <button class="btn" onclick="start()">시작하기</button>

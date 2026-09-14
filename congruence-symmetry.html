@@ -87,7 +87,7 @@ svg.gv{display:block;width:100%;height:auto}
 
 <div class="bar no-print">
   <button onclick="go(-1)">◀ 이전</button>
-  <span id="cnt">1 / 15</span>
+  <span id="cnt">1 / 17</span>
   <button onclick="go(1)">다음 ▶</button>
   <button onclick="fs()">전체화면</button>
 </div>
@@ -784,7 +784,7 @@ const SLIDES=[
   <div class="row grow" style="margin-top:14px;gap:16px;align-items:stretch" data-step="1">
     ${[['선대칭만','#dcfce7','#10b981','이등변삼각형 · 정삼각형<br>사다리꼴(등변) · 하트'],
        ['둘 다','#fef3c7','#f59e0b','정사각형 · 직사각형<br>마름모 · 원 · 정육각형'],
-       ['점대칭만','#f3e8ff','#a855f7','평행사변형<br>바람개비 · 태극 문양']]
+       ['점대칭만','#f3e8ff','#a855f7','평행사변형<br>바람개비 · Z 모양']]
       .map(([t,bg,bd,body])=>`
       <div class="card col center grow" style="background:${bg};border-color:${bd};gap:6px;justify-content:center">
         <div style="font-size:24px;font-weight:900;color:${bd}">${t}</div>
@@ -798,7 +798,145 @@ const SLIDES=[
   </div>
 </section>`,
 
-/* ───────── 15. 스스로 해보기 ───────── */
+/* ───────── 15. 돌리지 않고 가려내기 ① — 두 질문과 도구 셋 ─────────
+   문제지는 접지도 돌리지도 못한다. 그래서 「반 바퀴 짝」을 눈으로
+   확인하는 도구를 준다. ①③은 ✕를 걸러내고 ②가 ○를 확정한다.
+   (마주 보는 변이 짝마다 평행·같은 길이면 점대칭 — 변 벡터가
+   v(i+n) = −v(i) 이면 대응점 선분의 중점이 모두 한 점이 된다.) */
+`<section class="slide" style="--acc:#f59e0b" data-steps="3">
+  <div class="eyebrow">돌리지 않고 가려내기 ①</div>
+  <h2>문제지는 못 돌린다 — 대신 <b class="hl">두 번</b> 묻는다</h2>
+  <div class="row grow" style="margin-top:10px;gap:20px;align-items:stretch">
+    <div class="col" style="flex:0 0 468px;gap:9px">
+      <div class="card" style="font-size:21px;border-color:#86efac;padding:9px 14px">
+        <b style="color:#047857">질문 1</b>　<b>접는 선</b>을 하나라도 그을 수 있나?<br>
+        <span style="font-size:18px;color:#64748b;margin-left:66px">가로 · 세로만 보지 말고 비스듬한 선까지</span></div>
+      <div class="card" style="font-size:21px;border-color:#d8b4fe;padding:9px 14px">
+        <b style="color:#7e22ce">질문 2</b>　<b>반 바퀴 짝</b>이 있나? <span style="color:#64748b">→ 오른쪽 도구로</span></div>
+      <table style="font-size:21px">
+        <tr><th style="width:118px;background:#fff;border-color:transparent"></th>
+            <th style="color:#7e22ce">짝 ○</th><th style="color:#7e22ce">짝 ✕</th></tr>
+        <tr><th style="color:#047857">접는 선 ○</th>
+            <td style="height:74px;background:#fef3c7;font-weight:900;color:#b45309;font-size:24px">둘 다</td>
+            <td style="background:#dcfce7;font-weight:900;color:#047857;font-size:24px">선대칭만</td></tr>
+        <tr><th style="color:#047857">접는 선 ✕</th>
+            <td style="height:74px;background:#f3e8ff;font-weight:900;color:#7e22ce;font-size:24px">점대칭만</td>
+            <td style="background:#f1f5f9;font-weight:900;color:#475569;font-size:24px">아무것도 아님</td></tr>
+      </table>
+      <div class="act" style="font-size:19px;padding:9px 14px" data-step="3">
+        <b>도구 1 · 3은 「아니다」를 빨리 걸러내고, 도구 2가 「맞다」를 확정한다.</b>
+        걸러지지 않았다고 점대칭인 건 아니다 — 사다리꼴도 꼭짓점이 4개다.
+      </div>
+    </div>
+    <div class="col grow" style="gap:10px">
+      <div class="card row grow" style="gap:16px;align-items:center;padding:8px 16px;border-color:#fca5a5" data-step="1">
+        <div style="flex:0 0 186px">
+        ${SVG(200,126,(()=>{
+          const t=[[12,100],[88,100],[50,24]];
+          const p=[0,72,144,216,288].map(a=>ROT([150,20],[150,62],a));
+          return poly(t,'#fee2e2',C.red,3.2)+poly(p,'#fee2e2',C.red,3.2)
+            +dots(t,[C.red],6)+dots(p,[C.red],6)
+            +txt([50,122],'3개',C.red,19,'middle',900)+txt([150,122],'5개',C.red,19,'middle',900);
+        })(),'max-height:128px')}
+        </div>
+        <div style="font-size:20px;line-height:1.5">
+          <span class="num">1</span><b>꼭짓점을 센다</b> — <b class="hl">홀수면 곧바로 ✕</b><br>
+          <span style="font-size:18px;color:#475569">꼭짓점은 중심 건너편의 꼭짓점과 <b>둘씩 짝</b>을 지어야 해서 짝수여야 한다.
+          삼각형 · 오각형은 볼 것도 없다.</span></div>
+      </div>
+      <div class="card row grow" style="gap:16px;align-items:center;padding:8px 16px;border-color:#d8b4fe" data-step="2">
+        <div style="flex:0 0 186px">
+        ${(()=>{
+          const s=PSYM, col=[C.red,C.green,C.blue];
+          let o=poly(s,'#faf5ff','none');
+          for(let i=0;i<6;i++) o+=seg(s[i],s[(i+1)%6],col[i%3],6);
+          o+=tick(s[0],s[1],1,C.ink)+tick(s[3],s[4],1,C.ink)
+            +tick(s[1],s[2],2,C.ink)+tick(s[4],s[5],2,C.ink)
+            +tick(s[2],s[3],3,C.ink)+tick(s[5],s[0],3,C.ink);
+          return SVGB(s,16,o,'max-height:128px');
+        })()}
+        </div>
+        <div style="font-size:20px;line-height:1.5">
+          <span class="num">2</span><b>마주 보는 변</b>을 짝 짓는다 — 짝마다<br>
+          <b class="hp">평행하고 길이가 같으면 ○</b><br>
+          <span style="font-size:18px;color:#475569">마주 보는 변 = 변을 세어 <b>절반만큼 건너간</b> 변.
+          사각형은 두 쌍, 육각형은 세 쌍 <b>전부</b> 맞아야 한다.</span></div>
+      </div>
+      <div class="card row grow" style="gap:16px;align-items:center;padding:8px 16px;border-color:#fcd34d" data-step="3">
+        <div style="flex:0 0 186px">
+        ${SVG(230,134,
+          `<path d="M60,112 C22,84 8,60 16,40 C24,20 50,20 60,42 C70,20 96,20 104,40 C112,60 98,84 60,112 Z"
+             fill="#fef3c7" stroke="${C.gold}" stroke-width="3.2" stroke-linejoin="round"/>`
+          +poly([[140,24],[220,24],[220,42],[189,42],[189,114],[171,114],[171,42],[140,42]],'#fef3c7',C.gold,3.2)
+          +txt([60,14],'위: 둥글다',C.blue,16)+txt([60,132],'아래: 뾰족',C.red,16)
+          +txt([180,14],'위: 넓다',C.blue,16)+txt([180,132],'아래: 가늘다',C.red,16),
+          'max-height:132px')}
+        </div>
+        <div style="font-size:20px;line-height:1.5">
+          <span class="num">3</span><b>끝과 끝을 맞대 본다</b> <span style="font-size:18px;color:#64748b">(곡선 · 글자)</span><br>
+          맨 위 ↔ 맨 아래, 맨 왼쪽 ↔ 맨 오른쪽이 <b class="hp">거꾸로 놓인 같은 모양</b>이어야 한다<br>
+          <span style="font-size:18px;color:#475569">하트 · T 는 위아래가 달라서 ✕ — S · Z · N 은 위아래가 거꾸로 같다</span></div>
+      </div>
+    </div>
+  </div>
+</section>`,
+
+/* ───────── 16. 돌리지 않고 가려내기 ② — 이름으로 가르기 ───────── */
+`<section class="slide" style="--acc:#f59e0b" data-steps="2">
+  <div class="eyebrow">돌리지 않고 가려내기 ②</div>
+  <h2>자주 나오는 도형은 <b class="hn">이름</b>만 보고 가른다</h2>
+  <div class="row" style="margin-top:10px;gap:12px;align-items:stretch">
+    ${(()=>{
+      const reg=(n,r,c,start)=>Array.from({length:n},(_,i)=>ROT([c[0],c[1]-r],c,start+i*360/n));
+      const TH=(name,inner,vb)=>`<div class="col center" style="gap:1px">
+        <svg viewBox="${vb||'0 0 120 92'}" style="width:112px;height:70px">${inner}</svg>
+        <div style="font-size:16px;font-weight:700;line-height:1.25">${name}</div></div>`;
+      const P=(ps,col,bg)=>poly(ps,bg,col,3);
+      const cols=[
+        ['둘 다','#fef3c7','#f59e0b',[
+          TH('정사각형',P([[25,11],[95,11],[95,81],[25,81]],C.gold,'#fff')),
+          TH('직사각형',P([[8,22],[112,22],[112,74],[8,74]],C.gold,'#fff')),
+          TH('마름모',P([[60,4],[102,46],[60,88],[18,46]],C.gold,'#fff')),
+          TH('정육각형',P(reg(6,42,[60,46],30),C.gold,'#fff')),
+          TH('원',`<circle cx="60" cy="46" r="40" fill="#fff" stroke="${C.gold}" stroke-width="3"/>`)]],
+        ['선대칭만','#dcfce7','#10b981',[
+          TH('정삼각형',P(reg(3,48,[60,56],0),C.green,'#fff')),
+          TH('이등변삼각형',P([[60,4],[92,88],[28,88]],C.green,'#fff')),
+          TH('정오각형',P(reg(5,44,[60,50],0),C.green,'#fff')),
+          TH('등변사다리꼴',P([[36,14],[84,14],[112,80],[8,80]],C.green,'#fff')),
+          TH('연 모양',P([[60,4],[94,32],[60,88],[26,32]],C.green,'#fff'))]],
+        ['점대칭만','#f3e8ff','#a855f7',[
+          TH('평행사변형',P([[32,14],[114,14],[88,78],[6,78]],C.purple,'#fff')),
+          TH('Z 모양',P([[10,6],[110,6],[110,24],[42,68],[110,68],[110,86],[10,86],[10,68],[78,24],[10,24]],C.purple,'#fff')),
+          TH('점대칭 육각형',poly(PSYM,'#fff',C.purple,5.5),VB(PSYM,10).join(' '))]],
+        ['아무것도 아님','#f1f5f9','#64748b',[
+          TH('보통 삼각형',P([[12,82],[108,70],[40,8]],C.muted,'#fff')),
+          TH('사다리꼴',P([[26,14],[80,14],[112,80],[8,80]],C.muted,'#fff')),
+          TH('보통 사각형',P([[14,22],[96,8],[112,82],[30,70]],C.muted,'#fff'))]]
+      ];
+      return cols.map(([t,bg,bd,items])=>`
+        <div class="card col grow" style="flex:1 1 0;background:${bg};border-color:${bd};padding:8px 8px 10px;gap:4px">
+          <div style="font-size:23px;font-weight:900;color:${bd};text-align:center">${t}</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 2px;justify-items:center">${items.join('')}</div>
+        </div>`).join('');
+    })()}
+  </div>
+  <div class="row" style="margin-top:12px;gap:12px;align-items:stretch" data-step="1">
+    <div class="card grow" style="flex:1 1 0;font-size:19px;line-height:1.5;border-left:7px solid var(--red)">
+      <b>삼각형</b>은 꼭짓점이 3개 →<br>점대칭은 <b class="hl">절대 아니다</b></div>
+    <div class="card grow" style="flex:1.45 1 0;font-size:19px;line-height:1.5;border-left:7px solid #a855f7">
+      마주 보는 변이 <b>두 쌍 다 평행</b>한 사각형은<br>
+      <b class="hp">전부 점대칭</b> — 그중 <b>평행사변형만</b> 접히지 않는다</div>
+    <div class="card grow" style="flex:1.1 1 0;font-size:19px;line-height:1.5;border-left:7px solid #f59e0b">
+      <b>정다각형</b>은 변이 <b>짝수</b>면 둘 다,<br><b>홀수</b>면 선대칭만</div>
+  </div>
+  <div class="warn" style="margin-top:10px;font-size:19px;padding:9px 16px" data-step="2">
+    <b class="hl">이름에 속지 말 것.</b> 그냥 「사다리꼴」은 아무것도 아니지만 <b>양옆 길이가 같으면</b> 선대칭이다.
+    이름이 없는 도형은 앞 장의 두 질문으로 돌아간다.
+  </div>
+</section>`,
+
+/* ───────── 17. 스스로 해보기 ───────── */
 `<section class="slide" style="--acc:#dc2626" data-steps="4">
   <div class="eyebrow">스스로 해보기</div>
   <h2>세 문제 — 어느 성질을 쓸지부터 정하자</h2>

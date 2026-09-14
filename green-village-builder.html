@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>초록 마을 건설단</title>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#2f3a2c; --muted:#6e7a68; --paper:#fbfaf3; --card:#ffffff; --line:#dfe3d2;
+  --green:#3f9b4f; --green-d:#2e7a3b; --leaf:#e6f3dc; --red:#d9534f; --gold:#c98a12;
+  --sky:#e8f4f6; --grass:#bfe0a0; --grass2:#b5d995; --river:#8fcbe8; --hill:#cfc29a;
+}
+html,body{height:100%; overflow:hidden; background:#dfe9d8}
+body{font-family:'Noto Sans KR',sans-serif; color:var(--ink); touch-action:manipulation; -webkit-tap-highlight-color:transparent; user-select:none; -webkit-user-select:none}
+button{font-family:inherit; color:inherit; border:none; background:none; cursor:pointer}
+[hidden]{display:none !important}
+#wrap{position:fixed; inset:0; display:flex; align-items:center; justify-content:center}
+#stage{position:relative; width:1280px; height:720px; background:var(--paper); transform-origin:center; overflow:hidden; flex:0 0 auto}
+.jua{font-family:'Jua','Noto Sans KR',sans-serif; font-weight:400}
+
+/* ---------- 위 칸 ---------- */
+#top{position:absolute; left:0; top:0; width:1280px; height:72px; display:flex; align-items:center; gap:10px; padding:0 20px; background:#fff; border-bottom:2px solid var(--line)}
+#vname{font-size:30px; flex:0 1 auto; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:300px}
+.stat{display:flex; align-items:center; gap:6px; background:var(--paper); border:1.5px solid var(--line); border-radius:999px; padding:6px 14px; font-size:19px; white-space:nowrap}
+.stat b{font-weight:900}
+.stat small{font-size:14px; color:var(--muted)}
+#sCoin b{color:var(--gold)}
+#sEnergy.bad{border-color:#f1b5b3; background:#fdeeee}
+#sEnergy.bad b{color:var(--red)}
+.spacer{flex:1}
+.ibtn{width:52px; height:52px; border-radius:14px; background:var(--paper); border:1.5px solid var(--line); font-size:24px}
+#lvl{font-size:16px; padding:6px 12px; border-radius:999px; background:var(--leaf); color:var(--green-d); font-weight:700; white-space:nowrap}
+
+/* ---------- 지도 ---------- */
+#map{position:absolute; left:20px; top:90px; width:800px; height:600px; border-radius:18px; overflow:hidden; box-shadow:0 0 0 4px #fff, 0 6px 18px rgba(40,60,30,.15); transition:filter .8s}
+#map.smog{filter:saturate(.55) brightness(.94)}
+.tile{position:absolute; width:100px; height:100px; background:var(--grass)}
+.tile.g2{background:var(--grass2)}
+.tile.river{background:var(--river)}
+.tile.river::before{content:'〰️'; position:absolute; left:24px; top:30px; font-size:26px; opacity:.45}
+.tile.hill{background:var(--hill)}
+.tile .hillmk{position:absolute; left:6px; bottom:4px; font-size:20px; opacity:.8}
+.tile .flower{position:absolute; font-size:16px; opacity:.7}
+.tile.fog::after{content:''; position:absolute; inset:0; background:rgba(245,248,240,.62)}
+.tile.can{cursor:pointer}
+.tile.can::after{content:''; position:absolute; inset:8px; border:3px dashed var(--green); border-radius:16px; background:rgba(63,155,79,.12); animation:blink 1.1s ease-in-out infinite}
+@keyframes blink{50%{opacity:.45}}
+.bld{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:56px}
+.bld .badges{position:absolute; left:4px; top:3px; font-size:15px; letter-spacing:-2px}
+.bld.cons{font-size:44px}
+.bar{position:absolute; left:10px; right:10px; bottom:10px; height:12px; border-radius:6px; background:rgba(0,0,0,.18); overflow:hidden}
+.bar i{display:block; height:100%; background:#f0a53a; width:0}
+.left{position:absolute; left:0; right:0; bottom:22px; text-align:center; font-size:15px; font-weight:900; color:#5a4214; text-shadow:0 0 3px #fff, 0 0 3px #fff}
+.evb{position:absolute; right:2px; top:0; width:44px; height:44px; border-radius:50%; background:#fff; border:3px solid #f0a53a; display:flex; align-items:center; justify-content:center; font-size:24px; animation:bob 1.2s ease-in-out infinite; box-shadow:0 3px 8px rgba(0,0,0,.2)}
+@keyframes bob{50%{transform:translateY(-6px)}}
+#fogMsg{position:absolute; left:500px; top:250px; width:300px; text-align:center; font-size:19px; font-weight:700; color:#3d5a6b; background:rgba(255,255,255,.9); border-radius:14px; padding:10px; pointer-events:none}
+.turb{width:62px; height:78px}
+.turb .blades{transform-origin:31px 26px; animation:spin 2.2s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ---------- 오른쪽 칸 ---------- */
+#panel{position:absolute; left:840px; top:90px; width:420px; height:610px; display:flex; flex-direction:column; gap:10px}
+#goal{background:#fff; border:2px solid var(--line); border-radius:16px; padding:12px 16px}
+#goal .gh{font-size:15px; color:var(--muted); font-weight:700}
+#goal .gt{font-size:20px; font-weight:900; margin-top:2px; line-height:1.35}
+#goal .gp{font-size:15px; color:var(--green-d); margin-top:3px}
+.tabs{display:flex; gap:6px}
+.tabs button{flex:1; min-height:50px; border-radius:12px; background:#fff; border:2px solid var(--line); font-size:18px; font-weight:700; color:var(--muted); position:relative}
+.tabs button.on{background:var(--green); border-color:var(--green); color:#fff}
+.tabs .cnt{position:absolute; top:-8px; right:-4px; min-width:26px; height:26px; border-radius:13px; background:#f0a53a; color:#fff; font-size:15px; line-height:26px; padding:0 6px}
+#pbody{flex:1; min-height:0; overflow-y:auto; background:#fff; border:2px solid var(--line); border-radius:16px; padding:8px 10px}
+.card{display:flex; align-items:center; gap:10px; width:100%; text-align:left; padding:9px 6px; border-bottom:1px solid var(--line)}
+.card:last-child{border-bottom:none}
+.card .ce{width:54px; height:54px; flex:0 0 54px; border-radius:14px; background:var(--leaf); display:flex; align-items:center; justify-content:center; font-size:32px}
+.card .ct{flex:1; min-width:0}
+.card .ct b{display:block; font-size:18px}
+.card .ct small{display:block; font-size:14px; color:var(--muted); line-height:1.4; word-break:keep-all}
+.card .cc{font-size:17px; font-weight:900; color:var(--gold); white-space:nowrap; text-align:right}
+.card .cc small{display:block; font-size:13px; color:var(--muted); font-weight:500}
+.card.off{opacity:.45}
+.card.lock .cc{color:var(--muted); font-size:14px; font-weight:500; white-space:normal; width:92px}
+.todo{display:flex; align-items:center; gap:12px; padding:12px 6px; border-bottom:1px solid var(--line)}
+.todo .te{font-size:34px}
+.todo .tt{flex:1; font-size:17px; line-height:1.4}
+.todo .tt small{display:block; font-size:14px; color:var(--muted)}
+.gbtn{min-height:50px; padding:0 18px; border-radius:12px; background:var(--green); color:#fff; font-size:18px; font-weight:700}
+.gbtn:disabled{background:#cfd6c7; color:#fff}
+.gbtn.ghost{background:#fff; color:var(--ink); border:2px solid var(--line)}
+.gbtn.red{background:var(--red)}
+.empty{padding:26px 10px; text-align:center; color:var(--muted); font-size:17px; line-height:1.6}
+.rule{padding:10px 6px; font-size:16px; line-height:1.6; border-bottom:1px solid var(--line)}
+.rule b{font-size:18px}
+.rule .ok{color:var(--green-d)} .rule .no{color:#9aa391}
+#placing{position:absolute; left:20px; top:90px; width:800px; display:flex; justify-content:center; pointer-events:none; z-index:40}
+#placing div{margin-top:10px; pointer-events:auto; background:var(--ink); color:#fff; border-radius:999px; padding:8px 8px 8px 20px; display:flex; align-items:center; gap:12px; font-size:18px; box-shadow:0 4px 12px rgba(0,0,0,.25)}
+#placing button{background:rgba(255,255,255,.2); color:#fff; border-radius:999px; min-height:40px; padding:0 16px; font-size:16px; font-weight:700}
+
+/* ---------- 창 ---------- */
+#modal{position:absolute; inset:0; background:rgba(30,40,25,.45); z-index:100; display:flex; align-items:center; justify-content:center}
+#mbox{width:1000px; max-height:680px; overflow-y:auto; background:#fff; border-radius:24px; padding:26px 30px; box-shadow:0 12px 40px rgba(0,0,0,.3); position:relative; animation:pop .2s ease-out}
+@keyframes pop{from{transform:scale(.94); opacity:.4}}
+#mbox h2{font-size:32px; font-weight:400; font-family:'Jua','Noto Sans KR',sans-serif}
+#mbox .sub{font-size:18px; color:var(--muted); margin-top:4px; line-height:1.55}
+.row{display:flex; gap:12px; align-items:center}
+.foot{display:flex; gap:12px; align-items:center; justify-content:flex-end; margin-top:20px}
+.foot .grow{flex:1; font-size:18px; line-height:1.5}
+.big2{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:20px}
+.pick{border:3px solid var(--line); border-radius:18px; padding:20px; text-align:left; background:#fff; min-height:130px}
+.pick b{display:block; font-size:26px; font-family:'Jua','Noto Sans KR',sans-serif; font-weight:400}
+.pick span{display:block; font-size:17px; color:var(--muted); margin-top:6px; line-height:1.5}
+.cols{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:16px}
+.col{background:var(--paper); border:2px solid var(--line); border-radius:18px; padding:12px}
+.col h3{font-size:22px; font-weight:400; font-family:'Jua','Noto Sans KR',sans-serif}
+.col h3 small{font-family:'Noto Sans KR'; font-size:14px; color:var(--muted); margin-left:4px}
+.col.na{opacity:.35}
+.opt{display:block; width:100%; text-align:left; margin-top:8px; border:2.5px solid var(--line); background:#fff; border-radius:14px; padding:9px 12px; min-height:64px}
+.opt b{font-size:18px}
+.opt span{display:block; font-size:14px; color:var(--muted); line-height:1.4; word-break:keep-all}
+.opt.on{border-color:var(--green); background:var(--leaf)}
+.opt .pr{float:right; font-size:14px; color:var(--gold); font-weight:700}
+.msg{margin-top:14px; border-radius:14px; padding:12px 16px; font-size:18px; line-height:1.55}
+.msg.bad{background:#fdeeee; color:#9b2c29}
+.msg.good{background:var(--leaf); color:var(--green-d)}
+.msg.info{background:var(--sky); color:#2f5563}
+.stamp{position:absolute; right:60px; top:40px; font-family:'Jua','Noto Sans KR',sans-serif; font-size:56px; padding:4px 22px; border:6px solid; border-radius:16px; transform:rotate(-12deg); animation:stamp .35s ease-out}
+.stamp.ok{color:var(--green); border-color:var(--green)}
+.stamp.no{color:var(--red); border-color:var(--red)}
+@keyframes stamp{from{transform:rotate(-12deg) scale(2.2); opacity:0}}
+.rej{margin-top:16px}
+.rej div{display:flex; gap:12px; font-size:19px; line-height:1.55; padding:10px 0; border-bottom:1px solid var(--line)}
+.rej b{flex:0 0 100px; color:var(--red)}
+
+/* 미니 게임 */
+.item{display:flex; align-items:center; gap:18px; margin-top:16px; background:var(--paper); border-radius:18px; padding:14px 20px}
+.item .ie{font-size:72px}
+.item .in{font-size:28px; font-weight:900}
+.item .in small{display:block; font-size:16px; color:var(--muted); font-weight:500}
+.bins{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:14px}
+.bin{min-height:86px; border-radius:16px; border:3px solid var(--line); background:#fff; font-size:18px; font-weight:700}
+.bin span{display:block; font-size:30px}
+.rooms{display:grid; grid-template-columns:repeat(3,150px); gap:12px; justify-content:center; margin-top:16px; background:#8a8f99; padding:16px; border-radius:18px}
+.room{height:110px; border-radius:10px; font-size:44px; display:flex; align-items:center; justify-content:center; background:#3b4150}
+.room.lit{background:#ffe9a3; box-shadow:inset 0 0 20px rgba(255,190,60,.8)}
+.devs{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:16px}
+.dev{border:3px solid var(--line); border-radius:18px; padding:12px; text-align:center; background:#fff}
+.dev .de{font-size:52px}
+.dev .dn{font-size:17px; font-weight:700; min-height:48px; line-height:1.4; word-break:keep-all}
+.sw{margin-top:8px; width:100%; min-height:54px; border-radius:999px; font-size:19px; font-weight:900; background:#39a14e; color:#fff}
+.sw.off{background:#9aa391}
+.thermo{display:flex; align-items:center; justify-content:center; gap:30px; margin-top:18px}
+.thermo .tv{font-size:90px; font-family:'Jua','Noto Sans KR',sans-serif; min-width:220px; text-align:center}
+.thermo button{width:96px; height:96px; border-radius:50%; font-size:44px; background:var(--paper); border:3px solid var(--line)}
+
+#toast{position:absolute; left:50%; top:84px; transform:translate(-50%,-10px); z-index:200; background:var(--ink); color:#fff; font-size:20px; padding:12px 24px; border-radius:999px; opacity:0; transition:all .25s; pointer-events:none; white-space:nowrap}
+#toast.on{opacity:1; transform:translate(-50%,0)}
+
+/* 시작 화면 */
+#start{position:absolute; inset:0; z-index:300; background:linear-gradient(#e8f4f6,#dff0cf); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px}
+#start h1{font-family:'Jua','Noto Sans KR',sans-serif; font-weight:400; font-size:76px; color:var(--green-d)}
+#start .sub{font-size:22px; color:var(--muted); text-align:center; line-height:1.6}
+#start input{font-family:inherit; font-size:30px; text-align:center; width:420px; padding:12px; border-radius:16px; border:3px solid var(--line); margin-top:10px}
+#start .gbtn{min-height:70px; font-size:28px; padding:0 50px; border-radius:18px; margin-top:8px}
+#qrBox{position:absolute; right:24px; bottom:22px; width:230px; word-break:keep-all; text-align:center; font-size:15px; color:var(--muted); line-height:1.4}
+#qr{width:190px; margin:0 auto 6px; background:#fff; border-radius:14px; padding:8px; box-shadow:0 2px 8px rgba(0,0,0,.08)}
+#qr svg{display:block; width:100%; height:auto}
+#start .scene{font-size:64px; letter-spacing:8px}
+.cert{text-align:center; padding:10px 0}
+.cert .ce{font-size:90px}
+.cert h2{font-size:48px !important; color:var(--green-d)}
+.cert p{font-size:21px; line-height:1.7; margin-top:10px}
+</style>
+</head>
+<body>
+<div id="wrap"><div id="stage">
+  <div id="top">
+    <div id="vname" class="jua">초록 마을</div>
+    <div class="stat" id="sCoin">🪙 <b id="vCoin">0</b><small id="vRate"></small></div>
+    <div class="stat">👥 <b id="vRes">0</b><small id="vJobs"></small></div>
+    <div class="stat" id="sEnergy">⚡ <b id="vEnergy">0</b><small id="vEnergySub"></small></div>
+    <div class="stat">🌱 <b id="vActs">0</b></div>
+    <div class="spacer"></div>
+    <div id="lvl"></div>
+    <button class="ibtn" id="bSet">⚙️</button>
+  </div>
+  <div id="map"></div>
+  <div id="placing" hidden><div><span id="placeTxt"></span><button data-act="cancelPlace">그만</button></div></div>
+  <div id="panel">
+    <div id="goal"></div>
+    <div class="tabs">
+      <button data-tab="build" class="on">🏗️ 짓기</button>
+      <button data-tab="todo">🌱 할 일<span class="cnt" id="todoCnt" hidden>0</span></button>
+      <button data-tab="rule">📋 기준</button>
+    </div>
+    <div id="pbody"></div>
+  </div>
+  <div id="modal" hidden><div id="mbox"></div></div>
+  <div id="toast"></div>
+  <div id="start">
+    <div class="scene">🏠🌳☀️🏫🌉</div>
+    <h1>초록 마을 건설단</h1>
+    <div class="sub" id="startSub">친환경 건물을 설계해 허가를 받고, 짓고, 주민과 함께 마을을 키워요.</div>
+    <input id="nameIn" maxlength="10" placeholder="우리 마을 이름">
+    <button class="gbtn" id="bStart">시작하기</button>
+    <div id="qrBox"><div id="qr"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 39 39" shape-rendering="crispEdges"><path fill="#ffffff" d="M0 0h39v39H0z"/><path stroke="#000000" d="M1 1.5h7m1 0h1m2 0h1m1 0h1m1 0h3m1 0h2m5 0h3m1 0h7M1 2.5h1m5 0h1m2 0h1m6 0h2m1 0h1m2 0h4m4 0h1m5 0h1M1 3.5h1m1 0h3m1 0h1m2 0h1m2 0h1m2 0h4m2 0h2m1 0h1m1 0h2m2 0h1m1 0h3m1 0h1M1 4.5h1m1 0h3m1 0h1m1 0h7m1 0h1m1 0h1m5 0h3m1 0h1m1 0h1m1 0h3m1 0h1M1 5.5h1m1 0h3m1 0h1m1 0h1m2 0h1m5 0h2m4 0h1m1 0h1m1 0h1m2 0h1m1 0h3m1 0h1M1 6.5h1m5 0h1m1 0h1m1 0h1m6 0h1m1 0h2m4 0h1m4 0h1m5 0h1M1 7.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M9 8.5h9m3 0h2m1 0h1m3 0h2M1 9.5h1m3 0h1m1 0h3m2 0h1m4 0h1m2 0h2m2 0h2m2 0h1m1 0h5m2 0h1M6 10.5h1m1 0h4m1 0h2m3 0h3m1 0h2m1 0h5m3 0h4M1 11.5h1m1 0h3m1 0h1m2 0h1m1 0h1m1 0h1m1 0h1m2 0h2m1 0h3m3 0h1m2 0h2m1 0h1M1 12.5h1m2 0h2m5 0h2m1 0h12m2 0h3m3 0h3M1 13.5h1m3 0h3m3 0h1m1 0h1m3 0h2m3 0h4m2 0h5m2 0h3M1 14.5h2m1 0h2m2 0h10m1 0h1m2 0h3m1 0h4m3 0h2M2 15.5h3m2 0h7m1 0h2m1 0h1m2 0h1m2 0h2m1 0h2m3 0h4M1 16.5h1m3 0h1m2 0h1m1 0h2m3 0h1m2 0h4m1 0h1m1 0h1m1 0h3m1 0h3m1 0h1M2 17.5h7m1 0h4m1 0h1m3 0h1m3 0h1m1 0h1m2 0h1m1 0h3m1 0h4M2 18.5h1m2 0h2m2 0h2m1 0h4m1 0h2m1 0h2m2 0h1m3 0h2m3 0h4M4 19.5h1m2 0h1m1 0h1m1 0h1m3 0h1m1 0h3m1 0h2m1 0h2m2 0h1m6 0h1M1 20.5h1m2 0h1m1 0h1m1 0h3m1 0h3m3 0h1m3 0h1m1 0h2m1 0h2m3 0h2m1 0h2M1 21.5h1m2 0h5m4 0h2m1 0h1m1 0h1m1 0h6m4 0h3m1 0h2M1 22.5h1m2 0h3m2 0h1m2 0h2m2 0h4m1 0h1m2 0h1m1 0h1m1 0h2m2 0h2M6 23.5h7m1 0h3m2 0h1m1 0h4m1 0h1m1 0h2m2 0h4M1 24.5h2m1 0h2m5 0h2m1 0h1m5 0h3m2 0h1m2 0h1m3 0h2m1 0h1M1 25.5h2m2 0h1m1 0h2m1 0h1m3 0h1m1 0h2m3 0h1m2 0h2m1 0h3m1 0h2m1 0h4M1 26.5h3m1 0h2m1 0h2m3 0h1m5 0h2m2 0h2m2 0h3m3 0h2M4 27.5h1m2 0h1m2 0h1m2 0h1m2 0h1m3 0h1m2 0h2m3 0h4m2 0h1M3 28.5h4m1 0h3m2 0h1m2 0h3m1 0h6m3 0h1m2 0h2m1 0h3M1 29.5h3m1 0h4m2 0h3m4 0h1m2 0h2m2 0h1m3 0h5m1 0h1m1 0h1M9 30.5h2m1 0h1m1 0h3m2 0h1m2 0h1m1 0h2m1 0h1m1 0h1m3 0h1M1 31.5h7m1 0h2m1 0h3m1 0h3m2 0h1m2 0h1m1 0h2m1 0h1m1 0h1m1 0h1M1 32.5h1m5 0h1m3 0h2m3 0h4m3 0h3m3 0h1m3 0h5M1 33.5h1m1 0h3m1 0h1m1 0h1m6 0h1m2 0h1m3 0h2m4 0h7m1 0h1M1 34.5h1m1 0h3m1 0h1m3 0h1m3 0h1m1 0h2m1 0h3m1 0h1m1 0h2m2 0h3m2 0h1m1 0h1M1 35.5h1m1 0h3m1 0h1m3 0h2m1 0h1m2 0h1m1 0h1m1 0h1m2 0h1m2 0h2m2 0h1m3 0h1M1 36.5h1m5 0h1m3 0h3m1 0h1m2 0h2m2 0h3m2 0h2m2 0h1m1 0h1m1 0h2M1 37.5h7m1 0h2m2 0h6m1 0h6m2 0h1m1 0h3m2 0h3"/></svg></div><div>📱 태블릿 카메라로 찍어서 열기</div></div>
+  </div>
+</div></div>
+
+<script>
+'use strict';
+/* =====================================================================
+   데이터 — 교과서 74~77쪽
+   ===================================================================== */
+const COLS = 8, ROWS = 6, RIVER = 4;
+const HILLS = new Set([6, 7, 15, 40]);         // 바람이 센 언덕 — 풍력 발전기가 두 배
+const FLOWERS = { 1: 20, 10: 60, 19: 40, 26: 70, 33: 20, 44: 55, 13: 30, 30: 65, 37: 15 };
+
+// kind: bld = 건축(세 단계 설계) / civ = 토목·발전(지을 때만)
+const ST = {
+  house:   { e: '🏠', n: '주택', cat: '건축', kind: 'bld', cost: 120, time: 45, res: 4, use: 3,
+             desc: '주민 4명이 살아요 · 에너지 3', catWhy: '주택은 사람이 그 안에서 먹고 자며 사는 곳이에요. 사람이 거주하는 공간은 어느 쪽이었죠?' },
+  shop:    { e: '🏪', n: '마을 가게', cat: '건축', kind: 'bld', cost: 150, time: 60, jobs: 5, use: 3,
+             desc: '일자리 5개 · 에너지 3', catWhy: '가게는 사람들이 안에 들어가 일하고 물건을 사는 공간이에요.' },
+  bridge:  { e: '🌉', n: '다리', cat: '토목', kind: 'civ', cost: 250, time: 90, on: 'river',
+             desc: '강 위에만 · 강 건너 땅이 열려요', catWhy: '다리 안에서 사는 사람은 없어요. 강이라는 자연환경을 넘어 모두가 지나다니게 만든 것이에요.' },
+  school:  { e: '🏫', n: '학교', cat: '건축', kind: 'bld', cost: 550, time: 180, jobs: 3, use: 4, bonus: .3, need: { house: 2 },
+             desc: '마을 수입 +30% · 일자리 3 · 에너지 4', catWhy: '학교는 학생과 선생님이 그 안에서 배우고 생활하는 공간이에요.' },
+  bike:    { e: '🚲', n: '자전거 도로', cat: '토목', kind: 'civ', cost: 150, time: 40, save: 2, need: { house: 1 },
+             desc: '차 대신 자전거 · 마을 에너지 -2', catWhy: '도로는 그 안에서 지내는 곳이 아니라, 땅을 고르게 다져 모두가 오가게 만든 길이에요.' },
+  recycle: { e: '♻️', n: '재활용 센터', cat: '건축', kind: 'bld', cost: 450, time: 120, jobs: 4, use: 3, need: { shop: 1 },
+             desc: '일자리 4 · 분리배출 보상 두 배 · 에너지 3', catWhy: '재활용 센터는 사람들이 건물 안에서 일하는 공간이에요.' },
+  wind:    { e: '', n: '풍력 발전기', cat: null, kind: 'civ', cost: 350, time: 60, prod: 5, need: { house: 1 },
+             desc: '에너지 +5 · 언덕에 세우면 +10' },
+  dam:     { e: '💧', n: '작은 수력 발전 둑', cat: '토목', kind: 'civ', cost: 450, time: 120, prod: 6, on: 'river', need: { school: 1 },
+             desc: '강 위에만 · 흐르는 물로 에너지 +6', catWhy: '둑은 사람이 사는 곳이 아니라 흐르는 강물(자연환경)을 고쳐 모두를 위해 쓰는 구조물이에요.' },
+  library: { e: '🏛️', n: '도서관', cat: '건축', kind: 'bld', cost: 600, time: 180, jobs: 2, use: 3, bonus: .2, need: { school: 1 },
+             desc: '마을 수입 +20% · 일자리 2 · 에너지 3', catWhy: '도서관은 사람들이 그 안에 머물며 책을 읽는 공간이에요.' },
+  apt:     { e: '🏢', n: '아파트', cat: '건축', kind: 'bld', cost: 750, time: 240, res: 12, use: 8, need: { school: 1 },
+             desc: '주민 12명이 살아요 · 에너지 8', catWhy: '아파트는 여러 가족이 그 안에서 사는 곳이에요.' },
+};
+const ORDER = ['house', 'shop', 'bridge', 'bike', 'wind', 'school', 'recycle', 'dam', 'library', 'apt'];
+
+const OPT = {
+  build: [
+    { k: 'concrete', e: '🧱', n: '새 콘크리트', eco: false, rate: 0, say: '튼튼하지만 시멘트를 만들 때 이산화 탄소가 많이 나와요' },
+    { k: 'rebrick', e: '♻️', n: '재활용 벽돌·골재', eco: true, rate: .15, say: '헌 건물에서 나온 재료를 다시 써요' },
+    { k: 'wood', e: '🪵', n: '친환경 목재', eco: true, rate: .25, use: -1, say: '열을 잘 막아 에너지 -1 · 다 쓰면 다시 쓸 수 있어요', bldOnly: true },
+  ],
+  use: [
+    { k: 'solar', e: '☀️', n: '태양광 지붕', eco: true, add: 60, prod: 3, say: '햇빛을 전기로 바꿔요 · 에너지 +3' },
+    { k: 'garden', e: '🌿', n: '옥상 정원', eco: true, add: 40, use: -1, say: '여름 열을 막고 공기를 깨끗하게 · 에너지 -1' },
+    { k: 'insul', e: '🪟', n: '단열창·단열재', eco: true, add: 50, use: -2, say: '여름엔 더위를, 겨울엔 나가는 열을 막아요 · 에너지 -2' },
+  ],
+  end: [
+    { k: 'smash', e: '💥', n: '통째로 부수기', eco: false, rate: 0, say: '허물 때 쓰레기가 한꺼번에 나와요' },
+    { k: 'prefab', e: '🔩', n: '조립식으로 짓기', eco: true, rate: .1, say: '허물 때 풀어서 재료를 다시 써요' },
+  ],
+};
+const OPTM = {}; for (const c in OPT) for (const o of OPT[c]) OPTM[o.k] = o;
+
+const GOALS = [
+  { t: '첫 건축 허가 받기', hint: '짓기에서 🏠 주택을 골라 설계해 봐요', done: () => S.permits >= 1, pay: 60 },
+  { t: '주택을 완공해 주민 맞이하기', hint: '공사가 끝나면 주민이 이사 와요', done: t => t.res >= 4, pay: 60 },
+  { t: '마을 가게로 일자리 만들기', hint: '주민이 일해야 돈이 들어와요', done: t => t.jobs >= 1, pay: 80 },
+  { t: '친환경 행동 3번 하기', hint: '🌱 할 일에 쌓인 일을 해결해요', done: () => S.acts >= 3, pay: 80 },
+  { t: '다리를 놓아 강 건너 땅 열기', hint: '🌉 다리는 강 위에만 지을 수 있어요', done: () => bridgeDone(), pay: 120 },
+  { t: '학교 짓기', hint: '주택이 2채 있어야 지을 수 있어요', done: () => countDone('school') >= 1, pay: 150 },
+  { t: '에너지 자립: 만드는 에너지 ≥ 쓰는 에너지', hint: '태양광·풍력·단열로 맞춰 봐요 (건물 4개 이상)', done: t => t.built >= 4 && t.prod >= t.use, pay: 150 },
+  { t: '주민 24명', hint: '🏢 아파트는 12명이 살아요', done: t => t.res >= 24, pay: 200 },
+  { t: '친환경 행동 15번', hint: '할 일은 조금씩 계속 생겨요', done: () => S.acts >= 15, pay: 200 },
+  { t: '🏆 제로에너지 마을 인증', hint: '주민 48명 · 에너지 자립 · 구조물 15개', done: t => t.res >= 48 && t.prod >= t.use && t.built >= 15, pay: 0 },
+];
+
+/* 친환경 행동 */
+const BINS = [
+  { k: 'paper', e: '📄', n: '종이' }, { k: 'pack', e: '🧃', n: '종이팩' }, { k: 'plastic', e: '🧴', n: '플라스틱' }, { k: 'can', e: '🥫', n: '캔·고철' },
+  { k: 'glass', e: '🍾', n: '유리병' }, { k: 'vinyl', e: '🛍️', n: '비닐' }, { k: 'food', e: '🍎', n: '음식물' }, { k: 'trash', e: '🗑️', n: '일반 쓰레기' },
+];
+const BINM = Object.fromEntries(BINS.map(b => [b.k, b]));
+const ITEMS = [
+  { e: '📰', n: '다 읽은 신문지', bin: 'paper', tip: '물에 젖지 않게 모아서 묶어 내요.', hint: '무엇으로 만들었는지 떠올려 봐요.',
+    why: { pack: '종이팩은 우유팩처럼 안쪽에 막이 입혀진 것만 모아요.' } },
+  { e: '🥛', n: '다 마신 우유팩', bin: 'pack', tip: '헹궈서 펼치고 말려서 내요.', hint: '종이처럼 보이지만 안쪽이 반들반들해요.',
+    why: { paper: '우유팩은 안쪽에 물이 새지 않게 막이 입혀져 있어서 신문지 같은 종이와 따로 모아요.' } },
+  { e: '🥫', n: '음료수 캔', bin: 'can', tip: '안을 비우고 헹궈서 내요.', hint: '두드리면 땡땡 소리가 나는 재료예요.' },
+  { e: '🫙', n: '다 먹은 잼 유리병', bin: 'glass', tip: '뚜껑은 떼고 안을 헹궈서 내요.', hint: '투명하고 떨어뜨리면 깨지는 재료예요.' },
+  { e: '🧴', n: '다 쓴 샴푸 통', bin: 'plastic', tip: '안을 헹구고 펌프는 떼어 내요.', hint: '가볍고 말랑하게 눌리는 통이에요.' },
+  { e: '🍿', n: '과자 봉지', bin: 'vinyl', tip: '안의 부스러기를 털고 내요.', hint: '바스락거리는 얇은 포장재예요.',
+    why: { trash: '과자 봉지도 비닐로 모아 다시 쓸 수 있어요.', paper: '종이가 아니라 반짝이는 얇은 막이에요.' } },
+  { e: '🍊', n: '귤껍질', bin: 'food', tip: '물기를 빼고 내요.', hint: '먹고 남은 음식에서 나온 거예요.' },
+  { e: '🍗', n: '치킨 뼈', bin: 'trash', tip: '딱딱한 뼈는 일반 쓰레기예요.', hint: '음식에서 나왔지만 동물 먹이가 될 수 있을까요?',
+    why: { food: '음식물 쓰레기는 동물 먹이나 거름으로 쓰는데, 딱딱한 뼈는 쓸 수 없어요.' } },
+  { e: '🥚', n: '달걀 껍데기', bin: 'trash', tip: '딱딱한 껍데기는 일반 쓰레기예요.', hint: '음식에서 나왔지만 아주 딱딱해요.',
+    why: { food: '달걀 껍데기는 딱딱해서 먹이나 거름으로 쓰기 어려워 일반 쓰레기로 내요.' } },
+  { e: '🧻', n: '코 푼 휴지', bin: 'trash', tip: '쓴 휴지는 일반 쓰레기예요.', hint: '다시 종이로 만들 수 있을 만큼 깨끗할까요?',
+    why: { paper: '휴지는 물에 쉽게 풀리게 만든 데다 더러워져서 종이로 다시 만들 수 없어요.' } },
+  { e: '📦', n: '택배 상자', bin: 'paper', tip: '테이프와 운송장을 떼고 접어서 내요.', hint: '두꺼운 종이로 만든 상자예요.',
+    why: { pack: '종이팩은 우유팩처럼 안쪽에 막이 입혀진 것만 모아요.' } },
+];
+const DEVICES = [
+  { e: '📺', n: '꺼 둔 TV', keep: false, why: '화면을 꺼도 플러그가 꽂혀 있으면 전기가 조금씩 새요(대기 전력).' },
+  { e: '🔌', n: '충전이 끝난 충전기', keep: false, why: '충전이 끝나도 꽂혀 있으면 전기를 계속 먹어요.' },
+  { e: '🖨️', n: '오늘 안 쓰는 프린터', keep: false, why: '쓰지 않는 동안에도 대기 전력이 나가요.' },
+  { e: '🎮', n: '대기 중인 게임기', keep: false, why: '대기 상태도 전기를 써요. 다 했으면 꺼요.' },
+  { e: '🖥️', n: '다 쓴 컴퓨터', keep: false, why: '다 쓴 컴퓨터는 멀티탭 스위치까지 꺼요.' },
+  { e: '🧊', n: '냉장고', keep: true, why: '냉장고를 끄면 음식이 상해요. 꼭 켜 둬야 하는 것도 있어요.' },
+  { e: '🐠', n: '어항 산소 공급기', keep: true, why: '끄면 물고기가 숨을 못 쉬어요. 필요한 건 켜 둬요.' },
+];
+const EV = {
+  sort:  { e: '🗑️', n: '쓰레기가 모였어요', sub: '분리배출해 주세요', on: ['house', 'apt', 'school', 'shop'] },
+  light: { e: '💡', n: '빈 방에 불이 켜져 있어요', sub: '필요 없는 불을 꺼요', on: ['school', 'library', 'shop', 'apt', 'recycle'] },
+  plug:  { e: '🔌', n: '멀티탭이 켜져 있어요', sub: '대기 전력을 막아요', on: ['house', 'apt', 'school', 'library'] },
+  temp:  { e: '🌡️', n: '냉난방 온도를 맞춰요', sub: '알맞은 실내 온도로', on: ['school', 'library', 'shop', 'apt', 'house'] },
+};
+const EV_EVERY = 35000, EV_MAX = 3;
+
+/* =====================================================================
+   저장
+   ===================================================================== */
+const KEY = 'gv.state';
+function fresh() {
+  return { v: 1, name: '', coins: 400, map: Array(COLS * ROWS).fill(null), permits: 0, acts: 0, level: 1,
+           goal: 0, catKnown: {}, events: [], nextEv: 0, last: Date.now(), snd: true, seenLv: 1, cert: false };
+}
+function loadS() {
+  try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.v === 1 && Array.isArray(s.map) && s.map.length === COLS * ROWS) return Object.assign(fresh(), s); } catch (e) { }
+  return fresh();
+}
+let S = loadS(), wiping = false;
+function save() { if (wiping) return; try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { } }
+
+/* =====================================================================
+   소리 (NOTES-escape-room.md 의 SND)
+   ===================================================================== */
+const SND = {
+  ctx: null, vol: .55,
+  init() { if (this.ctx) return; try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { } },
+  tone(f, dur, type, vol, delay, slide) {
+    if (!this.ctx || !S.snd) return;
+    try {
+      const t0 = this.ctx.currentTime + (delay || 0), o = this.ctx.createOscillator(), g = this.ctx.createGain();
+      o.type = type || 'square'; o.frequency.setValueAtTime(f, t0);
+      if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(40, slide), t0 + dur);
+      g.gain.setValueAtTime(.0001, t0);
+      g.gain.exponentialRampToValueAtTime((vol ?? .16) * this.vol, t0 + .012);
+      g.gain.exponentialRampToValueAtTime(.0001, t0 + dur);
+      o.connect(g); g.connect(this.ctx.destination); o.start(t0); o.stop(t0 + dur + .05);
+    } catch (e) { }
+  },
+  click() { this.tone(680, .06, 'square', .08); },
+  ok() { [523, 659, 784, 1047].forEach((f, i) => this.tone(f, .16, 'triangle', .15, i * .075)); },
+  bad() { this.tone(220, .22, 'sawtooth', .12, 0, 110); this.tone(160, .26, 'square', .07, .06, 90); },
+  get() { [784, 1047, 1319].forEach((f, i) => this.tone(f, .14, 'sine', .18, i * .06)); },
+  stamp() { this.tone(110, .18, 'square', .18, 0, 60); },
+  ding() { this.tone(1318, .5, 'sine', .16); this.tone(1976, .4, 'sine', .07, .02); },
+};
+
+/* =====================================================================
+   도구
+   ===================================================================== */
+const $ = id => document.getElementById(id);
+const fmt = n => Math.floor(n).toLocaleString('ko-KR');
+const isRiver = i => i % COLS === RIVER;
+const isEast = i => i % COLS > RIVER;
+function josa(w, a, b) { const c = w.charCodeAt(w.length - 1) - 0xAC00; return c >= 0 && c <= 11171 && c % 28 ? a : b; }
+function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+const countDone = k => S.map.filter(b => b && b.k === k && b.done).length;
+const countAll = k => S.map.filter(b => b && b.k === k).length;
+const bridgeDone = () => countDone('bridge') > 0;
+const mmss = s => { s = Math.max(0, Math.ceil(s)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+
+function effOf(b, i) {
+  const s = ST[b.k];
+  let use = s.use || 0, prod = s.prod || 0;
+  if (b.k === 'wind' && HILLS.has(i)) prod *= 2;
+  if (b.d) {
+    if (b.d.build && OPTM[b.d.build].use) use += OPTM[b.d.build].use;
+    for (const u of b.d.use || []) { use += OPTM[u].use || 0; prod += OPTM[u].prod || 0; }
+  }
+  return { use: Math.max(0, use), prod, res: s.res || 0, jobs: s.jobs || 0, bonus: s.bonus || 0, save: s.save || 0 };
+}
+function town() {
+  const t = { use: 0, prod: 0, res: 0, jobs: 0, bonus: 0, save: 0, built: 0 };
+  S.map.forEach((b, i) => { if (!b || !b.done) return; const e = effOf(b, i); for (const k in e) t[k] += e[k]; t.built++; });
+  t.use = Math.max(0, t.use - t.save);
+  t.workers = Math.min(t.res, t.jobs);
+  t.deficit = Math.max(0, t.use - t.prod);
+  t.income = 10 + t.workers * 5 * (1 + t.bonus);
+  t.buy = t.deficit * 2;                       // 모자란 에너지는 화력 발전소에서 사 온다
+  t.net = Math.max(0, t.income - t.buy);       // 돈이 줄지는 않는다 — 벌이 아니다
+  return t;
+}
+function priceOf(k, d) {
+  const s = ST[k]; let p = s.cost;
+  if (d) {
+    if (d.build) p += s.cost * OPTM[d.build].rate;
+    if (d.end) p += s.cost * OPTM[d.end].rate;
+    for (const u of d.use || []) p += OPTM[u].add;
+  }
+  return Math.round(p);
+}
+function lockReason(k) {
+  const need = ST[k].need;
+  if (need) for (const n in need) if (countDone(n) < need[n]) return `${ST[n].n} ${need[n]}개가 완공돼야 해요`;
+  return '';
+}
+function canBuildAt(k, i) {
+  if (S.map[i]) return false;
+  if (ST[k].on === 'river') return isRiver(i);
+  if (isRiver(i)) return false;
+  if (isEast(i) && !bridgeDone()) return false;
+  return true;
+}
+function icon(k, big) {
+  if (k !== 'wind') return ST[k].e;
+  const w = big ? 62 : 40, h = big ? 78 : 50;
+  return `<svg class="turb" viewBox="0 0 62 78" style="width:${w}px;height:${h}px"><rect x="29" y="26" width="4" height="50" rx="2" fill="#8a949c"/><g class="blades"><path d="M31 26 L28 2 Q31 0 34 2 Z" fill="#fff" stroke="#9aa5ad"/><path d="M31 26 L52 38 Q52 42 49 43 Z" fill="#fff" stroke="#9aa5ad"/><path d="M31 26 L12 40 Q9 38 10 35 Z" fill="#fff" stroke="#9aa5ad"/><circle cx="31" cy="26" r="3.5" fill="#6b757c"/></g></svg>`;
+}
+
+let toT = null;
+function toast(m, ms) { const t = $('toast'); t.textContent = m; t.classList.add('on'); clearTimeout(toT); toT = setTimeout(() => t.classList.remove('on'), ms || 3000); }
+
+/* =====================================================================
+   그리기
+   ===================================================================== */
+let placing = null, tab = 'build';
+
+function renderMap() {
+  const t = town();
+  let h = '';
+  for (let i = 0; i < COLS * ROWS; i++) {
+    const r = Math.floor(i / COLS), c = i % COLS, b = S.map[i];
+    let cls = 'tile';
+    if (isRiver(i)) cls += ' river'; else if (HILLS.has(i)) cls += ' hill'; else if ((r + c) % 2) cls += ' g2';
+    if (isEast(i) && !bridgeDone()) cls += ' fog';
+    if (placing && canBuildAt(placing, i)) cls += ' can';
+    let inner = '';
+    if (HILLS.has(i) && !b) inner += '<span class="hillmk">⛰️</span>';
+    if (!b && FLOWERS[i] && !isRiver(i)) inner += `<span class="flower" style="left:${FLOWERS[i]}px;top:${(FLOWERS[i] * 7) % 60 + 10}px">🌼</span>`;
+    if (b) {
+      if (!b.done) {
+        inner += `<div class="bld cons">🏗️<div class="left" data-left="${i}"></div><div class="bar"><i data-bar="${i}"></i></div></div>`;
+      } else {
+        const badges = b.d ? [b.d.build, ...(b.d.use || []), b.d.end].filter(k => k && OPTM[k].eco).map(k => OPTM[k].e).join('') : '';
+        inner += `<div class="bld">${icon(b.k)}<span class="badges">${badges}</span></div>`;
+      }
+    }
+    const ev = S.events.find(e => e.at === i);
+    if (ev) inner += `<div class="evb">${EV[ev.type].e}</div>`;
+    h += `<div class="${cls}" data-i="${i}" style="left:${c * 100}px;top:${r * 100}px">${inner}</div>`;
+  }
+  if (!bridgeDone()) h += `<div id="fogMsg">🌉 강에 다리를 놓으면<br>건너편 땅을 쓸 수 있어요</div>`;
+  $('map').innerHTML = h;
+  $('map').classList.toggle('smog', t.deficit > 0 && t.built > 0);
+  updateBars();
+}
+function updateBars() {
+  const now = Date.now();
+  S.map.forEach((b, i) => {
+    if (!b || b.done) return;
+    const bar = document.querySelector(`[data-bar="${i}"]`), left = document.querySelector(`[data-left="${i}"]`);
+    const total = ST[b.k].time * 1000, p = 1 - (b.endAt - now) / total;
+    if (bar) bar.style.width = Math.min(100, Math.max(0, p * 100)) + '%';
+    if (left) left.textContent = mmss((b.endAt - now) / 1000);
+  });
+}
+function renderTop() {
+  const t = town();
+  $('vname').textContent = S.name || '초록 마을';
+  $('vCoin').textContent = fmt(S.coins);
+  $('vRate').textContent = `분당 +${fmt(t.net)}`;
+  $('vRes').textContent = t.res;
+  $('vJobs').textContent = `일자리 ${t.jobs}`;
+  $('vEnergy').textContent = t.prod - t.use >= 0 ? '+' + (t.prod - t.use) : (t.prod - t.use);
+  $('vEnergySub').textContent = `만듦 ${t.prod} · 씀 ${t.use}`;
+  $('sEnergy').classList.toggle('bad', t.deficit > 0);
+  $('vActs').textContent = S.acts;
+  $('lvl').textContent = ['', '허가 기준 1단계', '허가 기준 2단계', '허가 기준 3단계'][S.level];
+  const n = S.events.length, c = $('todoCnt');
+  c.hidden = !n; c.textContent = n;
+  document.querySelectorAll('[data-cost]').forEach(el => { el.classList.toggle('off', S.coins < +el.dataset.cost); });
+}
+function renderGoal() {
+  const t = town(), g = GOALS[S.goal];
+  if (!g) { $('goal').innerHTML = `<div class="gh">목표</div><div class="gt">🏆 제로에너지 마을 인증을 받았어요!</div><div class="gp">이제 마음껏 마을을 가꿔요.</div>`; return; }
+  $('goal').innerHTML = `<div class="gh">목표 ${S.goal + 1} / ${GOALS.length}${g.pay ? ` · 보상 🪙${g.pay}` : ''}</div><div class="gt">${g.t}</div><div class="gp">${g.hint}</div>`;
+}
+function renderPanel() {
+  document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
+  let h = '';
+  if (tab === 'build') {
+    for (const k of ORDER) {
+      const s = ST[k], lock = lockReason(k);
+      if (lock) h += `<div class="card lock"><div class="ce">${icon(k)}</div><div class="ct"><b>${s.n}</b><small>${s.desc}</small></div><div class="cc">🔒 ${lock}</div></div>`;
+      else h += `<button class="card" data-act="pick" data-k="${k}" data-cost="${s.cost}"><div class="ce">${icon(k)}</div><div class="ct"><b>${s.n}</b><small>${s.desc}</small></div><div class="cc">🪙${s.cost}~<small>⏱ ${mmss(s.time)}</small></div></button>`;
+    }
+  } else if (tab === 'todo') {
+    if (!S.events.length) h = `<div class="empty">지금은 할 일이 없어요.<br>마을이 돌아가면 조금씩 생겨요.<br><small>(한 번에 ${EV_MAX}개까지 쌓여요)</small></div>`;
+    for (const ev of S.events) {
+      const b = S.map[ev.at], d = EV[ev.type];
+      h += `<div class="todo"><div class="te">${d.e}</div><div class="tt">${b ? ST[b.k].n : ''} — ${d.n}<small>${d.sub} · 보상 🪙${reward(ev.type)}</small></div><button class="gbtn" data-act="event" data-id="${ev.id}">하러 가기</button></div>`;
+    }
+  } else {
+    const L = S.level;
+    h += `<div class="rule"><b>친환경 건설 구조물이란?</b><br>지을 때, 이용할 때, 허물 때 <b>모든 과정에서</b> 환경에 주는 피해를 줄이도록 만든 구조물이에요.</div>`;
+    h += `<div class="rule"><b class="${L >= 1 ? 'ok' : 'no'}">① 이용할 때 ${L >= 1 ? '✅ 지금 기준' : ''}</b><br>에너지를 만들거나 아끼는 장치가 하나 이상 (태양광 · 옥상 정원 · 단열)</div>`;
+    h += `<div class="rule"><b class="${L >= 2 ? 'ok' : 'no'}">② 지을 때 ${L >= 2 ? '✅ 지금 기준' : '🔒 구조물 3개 완공 뒤'}</b><br>환경 피해가 적은 재료 (재활용 재료 · 친환경 목재)</div>`;
+    h += `<div class="rule"><b class="${L >= 3 ? 'ok' : 'no'}">③ 허물 때 ${L >= 3 ? '✅ 지금 기준' : '🔒 구조물 6개 완공 뒤'}</b><br>나중에 풀어서 다시 쓸 수 있게 (조립식)</div>`;
+    h += `<div class="rule" style="border:none;color:var(--muted)">🌉 다리 · 🚲 자전거 도로 같은 토목 구조물과 발전 시설은 <b>지을 때</b>만 봐요.</div>`;
+  }
+  $('pbody').innerHTML = h;
+  renderTop();
+}
+function renderAll() { renderMap(); renderPanel(); renderGoal(); renderTop(); }
+
+/* =====================================================================
+   창
+   ===================================================================== */
+let M = null;   // 지금 열린 창의 상태
+function openModal(state) { M = state; $('modal').hidden = false; drawModal(); }
+function closeModal() { M = null; $('modal').hidden = true; $('mbox').innerHTML = ''; }
+function drawModal() { if (M) $('mbox').innerHTML = VIEWS[M.view](M); }
+
+const VIEWS = {
+  /* ---- 허가 신청 ① 무슨 구조물인가 ---- */
+  cat(m) {
+    const s = ST[m.k];
+    return `<h2>건축 허가 신청서 — ${s.e} ${s.n}</h2>
+      <div class="sub">먼저, ${s.n}${josa(s.n, '은', '는')} 어떤 구조물인가요?</div>
+      <div class="big2">
+        <button class="pick" data-act="cat" data-v="건축"><b>🏠 건축 구조물</b><span>아파트·학교처럼 사람들이 거주하거나 생활하는 데 필요한 공간을 갖춘 구조물</span></button>
+        <button class="pick" data-act="cat" data-v="토목"><b>🛣️ 토목 구조물</b><span>도로·터널처럼 자연환경을 고쳐 모두를 위한 목적으로 쓰는 구조물</span></button>
+      </div>
+      ${m.msg ? `<div class="msg bad">${m.msg}</div>` : ''}
+      <div class="foot"><button class="gbtn ghost" data-act="close">취소</button></div>`;
+  },
+  /* ---- 허가 신청 ② 설계 ---- */
+  design(m) {
+    const s = ST[m.k], d = m.d, bld = s.kind === 'bld';
+    const col = (key, title, sub, multi) => {
+      if (!bld && key !== 'build') return `<div class="col na"><h3>${title}</h3><div class="sub" style="font-size:15px">${s.n}에는 해당하지 않아요</div></div>`;
+      const opts = OPT[key].filter(o => bld || !o.bldOnly).map(o => {
+        const on = multi ? d.use.includes(o.k) : d[key] === o.k;
+        const pr = o.add ? `+🪙${o.add}` : o.rate ? `+🪙${Math.round(s.cost * o.rate)}` : '';
+        return `<button class="opt${on ? ' on' : ''}" data-act="opt" data-col="${key}" data-k="${o.k}"><span class="pr">${pr}</span><b>${o.e} ${o.n}</b><span>${o.say}</span></button>`;
+      }).join('');
+      return `<div class="col"><h3>${title}<small>${sub}</small></h3>${opts}</div>`;
+    };
+    const p = priceOf(m.k, d), e = effOf({ k: m.k, d }, m.i);
+    const energy = bld || s.prod ? `이 구조물: 에너지 만듦 ${e.prod} · 씀 ${e.use}` : (s.save ? `마을 에너지 사용 -${s.save}` : '');
+    return `<h2>건축 허가 신청서 — ${icon(m.k)} ${s.n}</h2>
+      <div class="sub">세 단계마다 어떻게 할지 골라요. 허가 기준은 📋 기준 칸에 있어요. (지금: <b>${S.level}단계</b>)</div>
+      <div class="cols">${col('build', '🔨 지을 때', '재료')}${col('use', '💡 이용할 때', '여러 개 골라도 돼요', true)}${col('end', '🧹 허물 때', '나중에')}</div>
+      <div class="foot"><div class="grow">💰 공사비 <b style="color:var(--gold)">🪙${fmt(p)}</b> (가진 돈 🪙${fmt(S.coins)}) · ⏱ ${mmss(s.time)}<br><span style="color:var(--muted)">${energy}</span></div>
+        <button class="gbtn ghost" data-act="close">취소</button>
+        <button class="gbtn" data-act="submit"${S.coins < p ? ' disabled' : ''}>${S.coins < p ? `🪙${fmt(p - S.coins)} 모자라요` : '📨 허가 신청'}</button></div>`;
+  },
+  /* ---- 허가 신청 ③ 심사 결과 ---- */
+  result(m) {
+    const s = ST[m.k];
+    if (m.rej.length) return `<h2>허가 심사 결과 — ${icon(m.k)} ${s.n}</h2><div class="stamp no">반려</div>
+      <div class="sub">친환경 건축 기준에 맞지 않아 허가가 나지 않았어요. 돈은 나가지 않았어요.</div>
+      <div class="rej">${m.rej.map(([a, b]) => `<div><b>${a}</b><span>${b}</span></div>`).join('')}</div>
+      <div class="foot"><button class="gbtn ghost" data-act="close">그만두기</button><button class="gbtn" data-act="redesign">✏️ 설계 고치기</button></div>`;
+    return `<h2>허가 심사 결과 — ${icon(m.k)} ${s.n}</h2><div class="stamp ok">승인</div>
+      <div class="sub">친환경 건축 기준을 통과했어요!</div>
+      <div class="msg good">${[m.d.build, ...(m.d.use || []), m.d.end].filter(k => k && OPTM[k].eco).map(k => `${OPTM[k].e} ${OPTM[k].n}`).join(' · ') || '친환경 요소'}</div>
+      <div class="foot"><div class="grow">공사비 🪙${fmt(priceOf(m.k, m.d))} · 공사 기간 ⏱ ${mmss(s.time)}<br><span style="color:var(--muted)">공사는 태블릿을 꺼 둬도 계속돼요.</span></div><button class="gbtn" data-act="startBuild">🏗️ 공사 시작</button></div>`;
+  },
+  /* ---- 구조물 정보 ---- */
+  info(m) {
+    const b = S.map[m.i], s = ST[b.k], e = effOf(b, m.i);
+    const parts = b.d ? [['🔨 지을 때', b.d.build], ['💡 이용할 때', (b.d.use || []).join(',')], ['🧹 허물 때', b.d.end]] : [];
+    const rows = parts.map(([t, v]) => {
+      if (!v) return '';
+      const names = v.split(',').filter(Boolean).map(k => `${OPTM[k].e} ${OPTM[k].n}`).join(' · ') || '없음';
+      return `<div><b style="color:var(--ink);flex-basis:130px">${t}</b><span>${names}</span></div>`;
+    }).join('');
+    const status = b.done ? [e.res && `👥 주민 ${e.res}명`, e.jobs && `💼 일자리 ${e.jobs}`, e.bonus && `📈 수입 +${e.bonus * 100}%`, `⚡ 만듦 ${e.prod} · 씀 ${e.use}`, s.save && `🚲 마을 에너지 -${s.save}`].filter(Boolean).join(' · ')
+                        : `🏗️ 공사 중 — ${mmss((b.endAt - Date.now()) / 1000)} 남았어요`;
+    const refund = b.done ? (b.d && b.d.end === 'prefab' ? Math.round(b.paid / 2) : 0) : b.paid;
+    return `<h2>${icon(b.k, true)} ${s.n}</h2><div class="sub">${status}</div>
+      ${rows ? `<div class="rej">${rows}</div>` : ''}
+      ${m.msg ? `<div class="msg ${m.msgc || 'info'}">${m.msg}</div>` : ''}
+      <div class="foot"><div class="grow"></div>
+        ${m.armed ? `<button class="gbtn red" data-act="demolish">${b.done ? `정말 허물기 (🪙${refund} 돌려받기)` : `공사 취소 (🪙${refund} 돌려받기)`}</button>`
+                  : `<button class="gbtn ghost" data-act="arm">${b.done ? '🧹 허물기' : '공사 취소'}</button>`}
+        <button class="gbtn" data-act="close">닫기</button></div>`;
+  },
+  /* ---- 친환경 행동: 분리배출 ---- */
+  sort(m) {
+    const it = m.items[m.n];
+    return `<h2>🗑️ 분리배출 (${m.n + 1} / ${m.items.length})</h2><div class="sub">알맞은 통을 눌러요.</div>
+      <div class="item"><div class="ie">${it.e}</div><div class="in">${it.n}</div></div>
+      <div class="bins">${BINS.map(b => `<button class="bin" data-act="bin" data-k="${b.k}"${m.lock ? ' disabled' : ''}><span>${b.e}</span>${b.n}</button>`).join('')}</div>
+      ${m.msg ? `<div class="msg ${m.msgc}">${m.msg}</div>` : ''}
+      <div class="foot"><button class="gbtn ghost" data-act="close">나중에</button></div>`;
+  },
+  light(m) {
+    return `<h2>💡 불 끄기</h2><div class="sub">사람이 없는데 켜진 방의 불만 눌러서 꺼요.</div>
+      <div class="rooms">${m.rooms.map((r, i) => `<button class="room${r === 'dark' ? '' : ' lit'}" data-act="room" data-i="${i}">${r === 'people' ? '🧑‍🏫' : ''}</button>`).join('')}</div>
+      ${m.msg ? `<div class="msg ${m.msgc}">${m.msg}</div>` : ''}
+      <div class="foot"><button class="gbtn ghost" data-act="close">나중에</button></div>`;
+  },
+  plug(m) {
+    return `<h2>🔌 멀티탭 정리</h2><div class="sub">안 쓰는 것은 끄고, 꼭 필요한 것은 켜 둬요. 다 했으면 확인!</div>
+      <div class="devs">${m.devs.map((d, i) => `<div class="dev"><div class="de">${d.e}</div><div class="dn">${d.n}</div><button class="sw${m.on[i] ? '' : ' off'}" data-act="sw" data-i="${i}">${m.on[i] ? '켜짐' : '꺼짐'}</button></div>`).join('')}</div>
+      ${m.msg ? `<div class="msg ${m.msgc}">${m.msg}</div>` : ''}
+      <div class="foot"><button class="gbtn ghost" data-act="close">나중에</button><button class="gbtn" data-act="plugCheck">확인</button></div>`;
+  },
+  temp(m) {
+    const summer = m.season === 'summer';
+    return `<h2>🌡️ ${summer ? '☀️ 여름 — 에어컨' : '❄️ 겨울 — 난방'} 온도</h2><div class="sub">${summer ? '더운 여름이에요. 에어컨을 몇 도로 맞출까요?' : '추운 겨울이에요. 난방을 몇 도로 맞출까요?'}</div>
+      <div class="thermo"><button data-act="t" data-v="-1">▼</button><div class="tv">${m.v}°C</div><button data-act="t" data-v="1">▲</button></div>
+      ${m.msg ? `<div class="msg ${m.msgc}">${m.msg}</div>` : ''}
+      <div class="foot"><button class="gbtn ghost" data-act="close">나중에</button><button class="gbtn" data-act="tempCheck">이 온도로</button></div>`;
+  },
+  level(m) {
+    return `<h2>📢 마을 의회 알림</h2><div class="stamp ok" style="font-size:40px">${m.lv}단계</div>
+      <div class="sub" style="font-size:21px;margin-top:14px">마을이 커져서 <b>친환경 건축 기준이 강화</b>되었어요.</div>
+      <div class="msg info">${m.lv === 2 ? '이제 <b>🔨 지을 때</b>도 봐요. 새 콘크리트만 쓰면 허가가 나지 않아요 — 재활용 재료나 친환경 목재를 써요.' : '이제 <b>🧹 허물 때</b>도 봐요. 나중에 풀어서 다시 쓸 수 있게 조립식으로 지어야 해요.'}</div>
+      <div class="msg good">친환경 건설 구조물은 지을 때, 이용할 때, 허물 때 <b>모든 과정</b>에서 환경 피해를 줄여요.</div>
+      <div class="foot"><button class="gbtn" data-act="close">알겠어요</button></div>`;
+  },
+  cert(m) {
+    const t = town();
+    return `<div class="cert"><div class="ce">🏆</div><h2>제로에너지 마을 인증서</h2>
+      <p><b style="font-size:28px">${S.name || '초록 마을'}</b><br>
+      주민 ${t.res}명이 사는 이 마을은 쓰는 에너지(${t.use})보다 만드는 에너지(${t.prod})가 많고,<br>
+      친환경 건축 허가를 ${S.permits}번 받았으며 친환경 행동을 ${S.acts}번 실천했기에<br>제로에너지 마을로 인증합니다.</p></div>
+      <div class="foot"><button class="gbtn" data-act="close">계속 가꾸기</button></div>`;
+  },
+  settings() {
+    return `<h2>⚙️ 설정</h2>
+      <div class="foot" style="justify-content:flex-start"><button class="gbtn ghost" data-act="snd">${S.snd ? '🔊 소리 켜짐' : '🔇 소리 꺼짐'}</button>
+      <button class="gbtn ghost" data-act="${M.armed ? 'wipe' : 'armWipe'}" style="${M.armed ? 'background:#fdeeee;color:#9b2c29' : ''}">${M.armed ? '정말 지워요? 한 번 더 누르면 마을이 사라져요' : '처음부터 다시'}</button></div>
+      <div class="foot"><button class="gbtn" data-act="close">닫기</button></div>`;
+  },
+};
+
+/* =====================================================================
+   허가 · 공사
+   ===================================================================== */
+function review(k, d) {
+  const s = ST[k], r = [];
+  if (s.kind === 'bld' && !(d.use || []).length) r.push(['💡 이용할 때', '에너지를 만들거나 아끼는 장치가 하나도 없어요. 쓰는 동안 에너지를 많이 쓰게 돼요.']);
+  if (S.level >= 2 && !OPTM[d.build].eco) r.push(['🔨 지을 때', '새 콘크리트는 만드는 과정에서 이산화 탄소가 많이 나와요. 다시 쓰는 재료를 찾아봐요.']);
+  if (S.level >= 3 && s.kind === 'bld' && !OPTM[d.end].eco) r.push(['🧹 허물 때', '나중에 허물 때 쓰레기가 한꺼번에 나와요. 다시 쓸 수 있게 짓는 방법이 있어요.']);
+  return r;
+}
+function startPermit(k, i) {
+  const s = ST[k];
+  const d = { build: 'concrete', use: [], end: s.kind === 'bld' ? 'smash' : null };
+  openModal({ view: s.cat && !S.catKnown[k] ? 'cat' : 'design', k, i, d, rej: [] });
+}
+function complete(b, i) {
+  const s = ST[b.k];
+  SND.ding();
+  let m = `${s.e || '🌀'} ${s.n} 완공!`;
+  if (s.res) m += ` 주민 ${s.res}명이 이사 왔어요`;
+  else if (s.jobs) m += ` 일자리 ${s.jobs}개가 생겼어요`;
+  else if (b.k === 'bridge') m += ' 강 건너 땅이 열렸어요';
+  toast(m, 3500);
+}
+
+/* =====================================================================
+   친환경 행동
+   ===================================================================== */
+function reward(type) {
+  const t = town();
+  let r = Math.min(70, 25 + t.res);
+  if (type === 'sort' && countDone('recycle')) r *= 2;
+  return r;
+}
+function spawnEvents(now) {
+  if (!S.nextEv) S.nextEv = now + 20000;
+  while (now >= S.nextEv) {
+    if (S.events.length < EV_MAX) {
+      const types = shuffle(Object.keys(EV));
+      let made = false;
+      for (const ty of types) {
+        const spots = [];
+        S.map.forEach((b, i) => { if (b && b.done && EV[ty].on.includes(b.k) && !S.events.some(e => e.at === i)) spots.push(i); });
+        if (spots.length) { S.events.push({ id: Date.now() + Math.random(), type: ty, at: spots[Math.floor(Math.random() * spots.length)] }); made = true; break; }
+      }
+      if (!made) { S.nextEv = now + EV_EVERY; break; }
+    }
+    S.nextEv += EV_EVERY;
+    if (S.events.length >= EV_MAX) { S.nextEv = Math.max(S.nextEv, now + EV_EVERY); break; }
+  }
+}
+function openEvent(id) {
+  const ev = S.events.find(e => e.id === id); if (!ev) return;
+  const base = { ev: id, wrong: 0, msg: '' };
+  if (ev.type === 'sort') openModal(Object.assign(base, { view: 'sort', items: shuffle(ITEMS.slice()).slice(0, 3), n: 0 }));
+  else if (ev.type === 'light') {
+    const rooms = shuffle(['empty', 'empty', 'empty', 'empty', 'people', 'people', 'dark', 'dark', 'dark']);
+    openModal(Object.assign(base, { view: 'light', rooms }));
+  } else if (ev.type === 'plug') {
+    const keep = shuffle(DEVICES.filter(d => d.keep)).slice(0, 1 + (Math.random() < .4 ? 1 : 0));
+    const devs = shuffle([...keep, ...shuffle(DEVICES.filter(d => !d.keep)).slice(0, 4 - keep.length)]);
+    openModal(Object.assign(base, { view: 'plug', devs, on: devs.map(() => true) }));
+  } else {
+    const season = Math.random() < .5 ? 'summer' : 'winter';
+    openModal(Object.assign(base, { view: 'temp', season, v: season === 'summer' ? 21 : 25 }));
+  }
+}
+function finishEvent(m) {
+  const ev = S.events.find(e => e.id === m.ev); if (!ev) return;
+  const r = Math.max(5, reward(ev.type) - m.wrong * 5);
+  S.events = S.events.filter(e => e.id !== m.ev);
+  S.coins += r; S.acts++;
+  SND.get(); save();
+  setTimeout(() => { closeModal(); toast(`🌱 친환경 행동 완료! 🪙${r}`); renderAll(); }, 1300);
+}
+
+/* =====================================================================
+   흐름
+   ===================================================================== */
+function tick() {
+  const now = Date.now();
+  let changed = false;
+  S.map.forEach((b, i) => { if (b && !b.done && now >= b.endAt) { b.done = true; changed = true; complete(b, i); } });
+  const t = town();
+  const dt = Math.max(0, Math.min((now - S.last) / 1000, 600));   // 꺼 둔 동안은 10분 치까지만
+  S.coins += t.net * dt / 60;
+  S.last = now;
+  const before = S.events.length;
+  spawnEvents(now);
+  if (S.events.length !== before) changed = true;
+  // 허가 기준 강화
+  if (S.level < 3 && t.built >= (S.level === 1 ? 3 : 6)) { S.level++; changed = true; }
+  // 목표
+  const g = GOALS[S.goal];
+  if (g && g.done(t)) {
+    S.goal++; S.coins += g.pay; changed = true;
+    SND.get();
+    if (!GOALS[S.goal]) S.certDue = true;
+    else toast(`🎯 목표 달성: ${g.t}${g.pay ? ` · 🪙${g.pay}` : ''}`, 3500);
+  }
+  if (changed) { renderMap(); renderPanel(); renderGoal(); save(); }
+  else updateBars();
+  renderTop();
+  if (!M) {
+    if (S.seenLv < S.level) { S.seenLv = S.level; save(); SND.stamp(); openModal({ view: 'level', lv: S.level }); }
+    else if (S.certDue && !S.cert) { S.cert = true; S.certDue = false; save(); SND.ok(); openModal({ view: 'cert' }); }
+  } else if (M.view === 'info') {
+    const b = S.map[M.i]; if (b && !b.done && !M.armed) drawModal();
+  }
+}
+
+/* =====================================================================
+   입력 — 한 군데에서 받는다
+   ===================================================================== */
+$('stage').addEventListener('click', e => {
+  SND.init();
+  const tabBtn = e.target.closest('[data-tab]');
+  if (tabBtn) { SND.click(); tab = tabBtn.dataset.tab; renderPanel(); return; }
+  const tile = e.target.closest('.tile');
+  if (tile && !M) { onTile(+tile.dataset.i); return; }
+  const a = e.target.closest('[data-act]');
+  if (!a || a.disabled) return;
+  act(a.dataset.act, a, e);
+});
+function onTile(i) {
+  const b = S.map[i];
+  if (placing) {
+    if (!canBuildAt(placing, i)) {
+      SND.bad();
+      if (isEast(i) && !bridgeDone() && !isRiver(i)) toast('🌉 다리를 먼저 놓아야 건너갈 수 있어요');
+      else if (ST[placing].on === 'river') toast('💧 강 위에만 지을 수 있어요');
+      else if (isRiver(i)) toast('강 위에는 지을 수 없어요');
+      return;
+    }
+    const k = placing; placing = null; $('placing').hidden = true; renderMap();
+    SND.click(); startPermit(k, i); return;
+  }
+  const ev = S.events.find(x => x.at === i);
+  if (ev) { SND.click(); openEvent(ev.id); return; }
+  if (b) { SND.click(); openModal({ view: 'info', i }); return; }
+}
+function act(name, el) {
+  const m = M;
+  switch (name) {
+    case 'close': SND.click(); closeModal(); renderAll(); break;
+    case 'pick': {
+      const k = el.dataset.k;
+      if (S.coins < ST[k].cost) { SND.bad(); toast(`🪙${fmt(ST[k].cost - S.coins)} 더 모이면 지을 수 있어요`); return; }
+      if (!S.map.some((_, i) => canBuildAt(k, i))) { SND.bad(); toast(ST[k].on === 'river' ? '빈 강 칸이 없어요' : (bridgeDone() ? '빈 땅이 없어요' : '빈 땅이 없어요 — 다리를 놓으면 땅이 늘어나요')); return; }
+      SND.click(); placing = k; $('placeTxt').textContent = `${ST[k].e || '🌀'} ${ST[k].n} — 지을 자리를 눌러요`; $('placing').hidden = false; renderMap();
+      break;
+    }
+    case 'cancelPlace': placing = null; $('placing').hidden = true; renderMap(); break;
+    case 'cat': {
+      if (el.dataset.v === ST[m.k].cat) { SND.ok(); S.catKnown[m.k] = true; save(); m.view = 'design'; m.msg = ''; }
+      else { SND.bad(); m.msg = '🤔 ' + ST[m.k].catWhy; }
+      drawModal(); break;
+    }
+    case 'opt': {
+      SND.click();
+      const col = el.dataset.col, k = el.dataset.k;
+      if (col === 'use') m.d.use = m.d.use.includes(k) ? m.d.use.filter(x => x !== k) : [...m.d.use, k];
+      else m.d[col] = k;
+      drawModal(); break;
+    }
+    case 'submit': {
+      const p = priceOf(m.k, m.d);
+      if (S.coins < p) return;
+      m.rej = review(m.k, m.d); m.view = 'result';
+      SND.stamp(); setTimeout(() => m.rej.length ? SND.bad() : SND.ok(), 250);
+      drawModal(); break;
+    }
+    case 'redesign': SND.click(); m.view = 'design'; drawModal(); break;
+    case 'startBuild': {
+      const p = priceOf(m.k, m.d);
+      if (S.coins < p || S.map[m.i]) { closeModal(); renderAll(); return; }
+      S.coins -= p; S.permits++;
+      S.map[m.i] = { k: m.k, d: m.d, paid: p, endAt: Date.now() + ST[m.k].time * 1000, done: false };
+      SND.get(); save(); closeModal(); renderAll();
+      toast(`🏗️ ${ST[m.k].n} 공사를 시작했어요`);
+      break;
+    }
+    case 'arm': SND.click(); m.armed = true; drawModal(); break;
+    case 'demolish': {
+      const b = S.map[m.i]; if (!b) { closeModal(); return; }
+      if (b.k === 'bridge' && b.done && countDone('bridge') === 1 && S.map.some((x, j) => x && isEast(j))) {
+        SND.bad(); m.armed = false; m.msg = '강 건너 마을이 이 다리를 쓰고 있어요. 건너편 구조물을 먼저 허물어야 해요.'; m.msgc = 'bad'; drawModal(); return;
+      }
+      let refund, msg;
+      if (!b.done) { refund = b.paid; msg = `공사를 취소했어요. 🪙${refund}을 돌려받았어요.`; }
+      else if (b.d && b.d.end === 'prefab') { refund = Math.round(b.paid / 2); msg = `🔩 조립식이라 풀어서 재료를 다시 팔았어요. 🪙${refund}을 돌려받았어요.`; }
+      else { refund = 0; msg = b.d ? '💥 통째로 부숴서 쓰레기만 잔뜩 나왔어요. 다시 쓸 수 있는 게 없어요.' : `${ST[b.k].n}을 허물었어요.`; }
+      S.coins += refund; S.map[m.i] = null; S.events = S.events.filter(x => x.at !== m.i);
+      save(); closeModal(); renderAll(); toast(msg, 4000);
+      break;
+    }
+    /* 분리배출 */
+    case 'bin': {
+      if (m.lock) return;
+      const it = m.items[m.n], k = el.dataset.k;
+      if (k === it.bin) {
+        SND.ok(); m.msg = `✅ ${BINM[k].e} ${BINM[k].n}! ${it.tip}`; m.msgc = 'good'; m.lock = true; drawModal();
+        if (m.n + 1 >= m.items.length) finishEvent(m);
+        else setTimeout(() => { if (M === m) { m.n++; m.msg = ''; m.lock = false; drawModal(); } }, 1400);
+      } else {
+        SND.bad(); m.wrong++;
+        m.msg = `🤔 ${BINM[k].n}${josa(BINM[k].n, '이', '가')} 아니에요. ` + ((it.why && it.why[k]) || it.hint); m.msgc = 'bad'; drawModal();
+      }
+      break;
+    }
+    /* 불 끄기 */
+    case 'room': {
+      const i = +el.dataset.i, r = m.rooms[i];
+      if (r === 'empty') { SND.click(); m.rooms[i] = 'dark'; m.msg = ''; }
+      else if (r === 'people') { SND.bad(); m.wrong++; m.msg = '📖 이 방엔 사람이 있어요! 사람이 쓰는 방은 켜 둬요.'; m.msgc = 'bad'; }
+      else { m.msg = '이미 꺼져 있는 방이에요.'; m.msgc = 'info'; }
+      if (!m.rooms.includes('empty')) { m.msg = '✅ 빈 방 불을 다 껐어요! 안 쓰는 불을 끄는 것만으로도 에너지를 아껴요.'; m.msgc = 'good'; drawModal(); finishEvent(m); }
+      else drawModal();
+      break;
+    }
+    /* 멀티탭 */
+    case 'sw': SND.click(); m.on[+el.dataset.i] = !m.on[+el.dataset.i]; m.msg = ''; drawModal(); break;
+    case 'plugCheck': {
+      const bad = m.devs.map((d, i) => ({ d, on: m.on[i] })).filter(x => x.on !== x.d.keep);
+      if (!bad.length) { SND.ok(); m.msg = '✅ 딱 맞아요! 안 쓰는 건 끄고, 필요한 건 켜 뒀어요.'; m.msgc = 'good'; drawModal(); finishEvent(m); }
+      else { SND.bad(); m.wrong++; const x = bad[0]; m.msg = `🤔 ${x.d.e} ${x.d.n}: ${x.d.why}`; m.msgc = 'bad'; drawModal(); }
+      break;
+    }
+    /* 온도 */
+    case 't': SND.click(); m.v = Math.max(14, Math.min(32, m.v + +el.dataset.v)); m.msg = ''; drawModal(); break;
+    case 'tempCheck': {
+      const v = m.v, s = m.season === 'summer';
+      let ok = false, msg;
+      if (s) {
+        if (v >= 26 && v <= 28) { ok = true; msg = `✅ ${v}°C! 여름 실내 온도는 26~28°C가 알맞아요. 선풍기를 같이 틀면 더 시원해요.`; }
+        else if (v < 26) msg = `🥶 ${v}°C는 너무 차가워요. 온도를 낮출수록 전기가 훨씬 많이 들고 감기에도 걸려요.`;
+        else msg = `🥵 ${v}°C는 너무 더워서 공부하기 힘들어요. 조금만 더 낮춰요.`;
+      } else {
+        if (v >= 18 && v <= 20) { ok = true; msg = `✅ ${v}°C! 겨울 실내 온도는 18~20°C가 알맞아요. 내복을 입으면 따뜻해요.`; }
+        else if (v > 20) msg = `🥵 ${v}°C는 너무 더워요. 반팔 입을 만큼 난방하면 에너지가 많이 들어요. 옷을 따뜻하게 입고 낮춰요.`;
+        else msg = `🥶 ${v}°C는 너무 추워서 감기에 걸려요. 조금만 올려요.`;
+      }
+      m.msg = msg; m.msgc = ok ? 'good' : 'bad';
+      if (ok) { SND.ok(); drawModal(); finishEvent(m); } else { SND.bad(); m.wrong++; drawModal(); }
+      break;
+    }
+    case 'event': SND.click(); openEvent(+el.dataset.id); break;
+    case 'snd': S.snd = !S.snd; save(); SND.init(); SND.click(); drawModal(); break;
+    case 'armWipe': m.armed = true; drawModal(); break;
+    case 'wipe': wiping = true; try { localStorage.removeItem(KEY); } catch (e) { } location.reload(); break;
+  }
+}
+$('bSet').addEventListener('click', e => { e.stopPropagation(); SND.init(); SND.click(); openModal({ view: 'settings' }); });
+$('modal').addEventListener('click', e => { if (e.target.id === 'modal' && M && !['result', 'level', 'cert'].includes(M.view)) { closeModal(); renderAll(); } });
+
+/* =====================================================================
+   화면 맞추기 · 시작
+   ===================================================================== */
+function fit() { const s = Math.min(innerWidth / 1280, innerHeight / 720); $('stage').style.transform = `scale(${s})`; }
+addEventListener('resize', fit); fit();
+
+if (S.name) {
+  $('nameIn').hidden = true;
+  $('startSub').innerHTML = `<b style="font-size:30px;color:var(--ink)">${S.name.replace(/[<>&]/g, '')}</b><br>마을이 기다리고 있어요.`;
+  $('bStart').textContent = '이어하기';
+}
+$('bStart').addEventListener('click', e => {
+  e.stopPropagation();
+  SND.init(); SND.ok();
+  if (!S.name) { S.name = ($('nameIn').value || '').trim().replace(/[<>&]/g, '') || '초록 마을'; S.last = Date.now(); }
+  $('start').hidden = true;
+  tick(); renderAll(); save();
+});
+renderAll();
+setInterval(() => { if ($('start').hidden) tick(); }, 1000);
+setInterval(save, 10000);
+document.addEventListener('visibilitychange', () => { if (document.hidden) save(); else if ($('start').hidden) tick(); });
+addEventListener('pagehide', save);
+window.__gv = { get S() { return S; }, town, priceOf, ST, tick, act, onTile, openEvent, VIEWS, get M() { return M; } };
+</script>
+</body>
+</html>

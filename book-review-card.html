@@ -207,7 +207,7 @@
 
     <section class="step">
       <h2><span class="num">4</span>나의 생각과 느낌</h2>
-      <p class="hint">6문장 이상 써요. 느낌만 쓰지 말고 <b>어느 장면·문장 때문에</b> 그렇게 느꼈는지 함께 써요. 막히면 아래 말머리를 눌러 보세요.</p>
+      <p class="hint"><b>300자 이상 600자 이하</b>로 써요(띄어쓰기 포함). 느낌만 쓰지 말고 <b>어느 장면·문장 때문에</b> 그렇게 느꼈는지 함께 써요. 막히면 아래 말머리를 눌러 보세요.</p>
       <div class="chips" id="chips">
         <button class="chip">이 문장이 인상 깊었던 까닭은</button>
         <button class="chip">이 장면을 읽을 때 나는</button>
@@ -216,9 +216,9 @@
         <button class="chip">이 책을 읽고 생각이 바뀐 것은</button>
         <button class="chip">이 책을 추천하고 싶은 사람은</button>
       </div>
-      <textarea id="thoughts" maxlength="550" placeholder="문장이 끝나면 마침표(.)를 찍어요."></textarea>
+      <textarea id="thoughts" maxlength="600" placeholder="생각과 느낌을 써요."></textarea>
       <div class="counter">
-        <span>문장 <b id="sc">0</b> / 6</span>
+        <span><b id="sc">0</b> / 600자 <span class="small">(300자 이상)</span></span>
         <span class="small" id="cc">0자</span>
       </div>
     </section>
@@ -313,13 +313,6 @@ function persist() {
     try { localStorage.setItem(KEY, JSON.stringify(S)); }
     catch (e) { try { localStorage.setItem(KEY, JSON.stringify({ ...S, img:null })); } catch (e2) {} }
   }, 400);
-}
-
-/* ── 문장 세기: 마침표·물음표·느낌표로 끝난 것만 ── */
-function sentences(t) {
-  return t.replace(/([.!?…。]+["'”’)\]]*)/g, '$1\n').split('\n')
-    .map(s => s.trim())
-    .filter(s => /[.!?…。]["'”’)\]]*$/.test(s) && s.replace(/[^가-힣a-zA-Z0-9]/g, '').length >= 4);
 }
 
 /* ── 글자 줄바꿈 (띄어쓰기 단위, 긴 낱말은 글자 단위) ── */
@@ -435,23 +428,23 @@ function draw() {
 
   // 생각과 느낌 — 글자 크기와 그림 높이를 함께 맞춘다
   const TP = 44, TW = CW - TP * 2;
-  const thoughts = S.thoughts.trim() || '나의 생각과 느낌을 6문장 이상 써요.';
+  const thoughts = S.thoughts.trim() || '나의 생각과 느낌을 300자 이상 써요.';
   const GAP = 30;
   const avail = footTop - y - qH - GAP * 3;
   let fs, lines, lh, tH, imgH, found = false;
-  for (const f of [38, 36, 34, 32, 30, 28, 26]) {
+  for (const f of [38, 36, 34, 32, 30, 28, 26, 25, 24]) {
     ctx.font = F.body(f);
     const L = wrap(ctx, thoughts, TW);
     const LH = f * 1.62;
     const th = TP + 40 + 18 + L.length * LH + TP - 12;
-    const minImg = f >= 32 ? 440 : f >= 30 ? 340 : 230;
+    const minImg = f >= 32 ? 440 : f >= 30 ? 340 : f >= 26 ? 230 : 200;
     if (avail - th >= minImg) {
       fs = f; lines = L; lh = LH; tH = th; imgH = Math.min(avail - th, 700); found = true; break;
     }
   }
   if (!found) {
-    fs = 26; ctx.font = F.body(fs); lines = wrap(ctx, thoughts, TW); lh = fs * 1.62;
-    imgH = 230; tH = avail - imgH;
+    fs = 24; ctx.font = F.body(fs); lines = wrap(ctx, thoughts, TW); lh = fs * 1.62;
+    imgH = 200; tH = avail - imgH;
   }
   overflow = !found && !!S.thoughts.trim();
   const extra = Math.max(0, avail - tH - imgH);
@@ -526,21 +519,22 @@ function render(now) {
 }
 
 /* ── 점검표 ── */
+const MIN_LEN = 300, MAX_LEN = 600;
 function checks() {
-  const n = sentences(S.thoughts).length;
+  const n = S.thoughts.trim().length;
   return [
     ['책 제목', !!S.title.trim()],
     ['번호와 이름', !!S.name.trim()],
     ['그림 하나', !!S.img],
     ['인상 깊은 문장', S.quote.trim().length >= 5],
-    [`생각과 느낌 6문장 이상 (지금 ${n}문장)`, n >= 6],
+    [`생각과 느낌 ${MIN_LEN}자 이상 (지금 ${n}자)`, n >= MIN_LEN && n <= MAX_LEN],
   ];
 }
 function updateUI() {
-  const n = sentences(S.thoughts).length;
+  const n = S.thoughts.trim().length;
   $('sc').textContent = n;
-  $('sc').className = n >= 6 ? 'good' : 'bad';
-  $('cc').textContent = S.thoughts.length + ' / 550자';
+  $('sc').className = n >= MIN_LEN && n <= MAX_LEN ? 'good' : 'bad';
+  $('cc').textContent = n >= MIN_LEN ? '충분해요 👍' : `${MIN_LEN - n}자 더 써요`;
   $('check').innerHTML = checks().map(([l, ok]) =>
     `<li class="${ok ? 'ok' : ''}"><span class="d">${ok ? '✓' : ''}</span>${l}</li>`).join('');
   $('imgOpts').hidden = !S.img;

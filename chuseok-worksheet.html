@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>우리 집 한가위 — 추석 학습지</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+@page{ size:A4; margin:0 }
+:root{ --ink:#2a2418; --muted:#7b7263; --line:#c9bfa6; --gold:#c98a2e; --band:#f6efdd; --navy:#2b3c78 }
+html,body{margin:0;padding:0}
+body{ font-family:'Noto Sans KR',sans-serif; background:#6b6f7d; color:var(--ink);
+      -webkit-print-color-adjust:exact; print-color-adjust:exact }
+
+.bar{ position:sticky; top:0; z-index:9; background:#1b2a55; color:#fff; padding:11px 16px;
+      display:flex; align-items:center; gap:12px; flex-wrap:wrap; font-size:15px }
+.bar b{font-size:16px}
+.bar button{ min-height:44px; padding:10px 18px; border:0; border-radius:10px; background:#e8a33d;
+             color:#3a2a08; font-family:inherit; font-size:16px; font-weight:700; cursor:pointer }
+.bar span{opacity:.85}
+
+.page{ width:210mm; height:297mm; background:#fff; margin:16px auto; padding:13mm 13mm 12mm;
+       display:flex; flex-direction:column; overflow:hidden; box-shadow:0 8px 30px #0005; position:relative }
+
+.head{ display:flex; align-items:flex-end; gap:10px; border-bottom:3px solid var(--navy); padding-bottom:7px }
+.head .t{flex:1}
+.head h1{ font-family:'Gaegu',sans-serif; font-size:33px; margin:0; letter-spacing:1px; color:var(--navy) }
+.head .sub{ font-size:13px; color:var(--muted); margin-top:1px }
+.name{ font-size:13px; text-align:right; line-height:2.1; white-space:nowrap }
+.name u{ display:inline-block; min-width:52px; text-decoration:none; border-bottom:1px solid #999 }
+
+.pbody{ flex:1; min-height:0; display:flex; flex-direction:column; justify-content:space-between; gap:9px; padding-top:9px }
+.sec{ display:flex; flex-direction:column; min-height:0 }
+.grow{ flex-grow:var(--g,.5); min-height:0 }
+.sh{ display:flex; align-items:center; gap:7px; margin-bottom:5px }
+.sh .n{ width:22px; height:22px; flex:none; border-radius:50%; background:var(--navy); color:#fff;
+        font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center }
+.sh b{ font-size:16px }
+.sh i{ font-style:normal; font-size:12px; color:var(--muted); margin-left:auto; text-align:right; line-height:1.35 }
+.q{ font-size:13.5px; color:#4a4436; line-height:1.55; margin:0 0 5px }
+.q em{ font-style:normal; background:#fdf3d8; padding:0 3px; font-weight:700 }
+svg.lines{ flex:1 1 0; min-height:0; width:100% ; display:block }
+
+/* ① 낱말 채우기 */
+.word{ background:var(--band); border:1.5px solid var(--line); border-radius:9px; padding:8px 10px;
+       display:flex; gap:9px; align-items:stretch }
+.wcol{ flex:1; font-size:13.5px; line-height:1.85 }
+.wcol .bx{ display:inline-block; min-width:62px; border-bottom:1.6px solid #9a8f74; text-align:center }
+.wbank{ width:118px; flex:none; border-left:1.5px dashed var(--line); padding-left:9px; font-size:12px; color:#5b5341 }
+.wbank b{ display:block; font-size:12px; color:var(--gold); margin-bottom:2px }
+.wbank span{ display:inline-block; background:#fff; border:1px solid var(--line); border-radius:6px;
+             padding:1px 6px; margin:2px 3px 0 0; font-size:12px }
+
+/* ② 인터뷰 */
+.iv{ display:flex; flex-direction:column; gap:5px; flex:1; min-height:0 }
+.ivq{ display:flex; gap:7px; align-items:stretch; flex:1; min-height:0 }
+.ivq .lab{ width:118px; flex:none; background:var(--band); border:1.5px solid var(--line); border-radius:8px;
+           padding:5px 7px; font-size:12px; line-height:1.4; display:flex; align-items:center; font-weight:500 }
+.ivq svg{ flex:1 1 0; min-height:0 }
+
+/* ④ 달 */
+.moonrow{ display:flex; gap:11px; align-items:stretch }
+.moonwrap{ width:150px; flex:none; position:relative; display:flex; align-items:center; justify-content:center }
+.moonwrap svg{ width:150px; height:150px }
+.moontx{ position:absolute; top:44px; left:24px; right:24px; text-align:center;
+         font-size:11.5px; color:#8a7a4e; line-height:1.5 }
+.wishbox{ flex:1; display:flex; flex-direction:column; min-height:0 }
+
+.foot{ border-top:1.5px dashed var(--line); padding-top:6px; font-size:11.5px; color:var(--muted);
+       display:flex; justify-content:space-between; gap:10px }
+.foot b{ color:#5b5341 }
+
+@media print{
+  body{ background:#fff }
+  .no-print{ display:none !important }
+  .page{ margin:0; box-shadow:none; width:210mm; height:297mm; page-break-after:always }
+  .page:last-child{ page-break-after:auto }
+}
+</style>
+</head>
+<body>
+<div class="bar no-print">
+  <b>🌕 우리 집 한가위</b>
+  <span>A4 1장 · 3~6학년 공통 · 앞의 활동앱과 이어집니다</span>
+  <button onclick="window.print()">🖨️ 인쇄하기</button>
+</div>
+
+<div class="page">
+  <div class="head">
+    <div class="t">
+      <h1>우리 집 한가위</h1>
+      <div class="sub">추석 계기교육 · 2026년 한가위는 <b>9월 25일(금)</b>입니다</div>
+    </div>
+    <div class="name">
+      <u>&nbsp;</u>학년 <u>&nbsp;</u>반 <u>&nbsp;</u>번<br>
+      이름 <u>&nbsp;&nbsp;&nbsp;&nbsp;</u>
+    </div>
+  </div>
+
+  <div class="pbody">
+
+    <!-- ① 이름의 뜻 -->
+    <div class="sec">
+      <div class="sh"><div class="n">1</div><b>이름 속에 뜻이 있다</b>
+        <i>3~4학년은 두 칸만 채워도 좋아요</i></div>
+      <div class="word">
+        <div class="wcol">
+          <b>한가위</b> = 한(<span class="bx"></span>) + 가위(<span class="bx"></span>)<br>
+          <b>추석(秋夕)</b> = 秋(<span class="bx"></span>) + 夕(<span class="bx"></span>)<br>
+          그래서 추석은 <span class="bx" style="min-width:96px"></span>의 한가운데,
+          <span class="bx" style="min-width:74px"></span>이 가장 밝은 날입니다.
+        </div>
+        <div class="wbank">
+          <b>낱말 상자</b>
+          <span>크다</span><span>가운데</span><span>가을</span><span>저녁</span><span>달</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ② 어른께 여쭤보기 -->
+    <div class="sec grow" style="--g:.23">
+      <div class="sh"><div class="n">2</div><b>어른께 여쭤보기</b>
+        <i>연휴에 가족 어른께 여쭤보고 적어 옵니다</i></div>
+      <p class="q">할머니·할아버지·엄마·아빠께 <em>어릴 적 추석</em>은 어땠는지 여쭤보세요.
+        들은 말을 그대로 적어도 좋습니다.</p>
+      <div class="iv">
+        <div class="ivq" style="flex:none;height:30px"><div class="lab">여쭤본 분</div><svg class="lines" data-pitch="26" style="min-height:30px"></svg></div>
+        <div class="ivq"><div class="lab">그때 추석에는<br>무엇을 했나요?</div><svg class="lines" data-pitch="26" style="min-height:52px"></svg></div>
+        <div class="ivq"><div class="lab">지금과 가장<br>다른 점은요?</div><svg class="lines" data-pitch="26" style="min-height:52px"></svg></div>
+      </div>
+    </div>
+
+    <!-- ③ 우리 집 한가위 -->
+    <div class="sec grow" style="--g:.41">
+      <div class="sh"><div class="n">3</div><b>올해 우리 집 한가위</b>
+        <i>글로 써도, 그림으로 그려도 됩니다</i></div>
+      <p class="q">올해 추석에 <em>우리 집에서 있을 일</em>을 적어 보세요.
+        누구를 만나는지, 무엇을 먹는지, 어디에 가는지 —
+        <em>5~6학년</em>은 “그때 내 마음이 어떨지”까지 한 줄 더 씁니다.</p>
+      <svg class="lines" data-pitch="30" style="min-height:110px"></svg>
+    </div>
+
+    <!-- ④ 남기고 싶은 것 -->
+    <div class="sec grow" style="--g:.16">
+      <div class="sh"><div class="n">4</div><b>이것만은 남았으면</b>
+        <i>까닭을 꼭 함께 적어요</i></div>
+      <p class="q">추석의 모습은 자꾸 변합니다. 그래도 <em>이것만은 남았으면</em> 하는 것 하나와 그 까닭을 적으세요.</p>
+      <svg class="lines" data-pitch="30" style="min-height:60px"></svg>
+    </div>
+
+    <!-- ⑤ 보름달 소원 -->
+    <div class="sec">
+      <div class="sh"><div class="n">5</div><b>보름달에게</b>
+        <i>달 안에 소원을, 옆 칸에 그 까닭을</i></div>
+      <div class="moonrow">
+        <div class="moonwrap">
+          <svg viewBox="0 0 150 150">
+            <circle cx="75" cy="75" r="70" fill="#fdf6e6" stroke="#e0cf9a" stroke-width="2"/>
+            <circle cx="75" cy="75" r="62" fill="none" stroke="#efe3c0" stroke-width="1" stroke-dasharray="3 4"/>
+            <g fill="#f2e6c4">
+              <ellipse cx="97" cy="46" rx="11" ry="8"/><ellipse cx="50" cy="86" rx="9" ry="12"/>
+              <ellipse cx="103" cy="105" rx="8" ry="6"/>
+            </g>
+            <line x1="26" y1="74" x2="124" y2="74" stroke="#e3d5ad" stroke-width="1"/>
+            <line x1="32" y1="98" x2="118" y2="98" stroke="#e3d5ad" stroke-width="1"/>
+            <text x="75" y="36" text-anchor="middle" font-size="11" fill="#b09a5e" font-family="Noto Sans KR">나의 소원</text>
+          </svg>
+        </div>
+        <div class="wishbox">
+          <p class="q" style="margin-bottom:4px">왜 그런 소원을 빌었나요?</p>
+          <svg class="lines" data-pitch="27" style="min-height:76px"></svg>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="foot">
+    <div><b>더도 말고 덜도 말고 한가위만 같아라</b> — 일 년 내내 오늘만 같았으면 좋겠다는 옛사람들의 바람입니다.</div>
+    <div style="white-space:nowrap">신리초등학교</div>
+  </div>
+</div>
+
+<script>
+/* 줄 수를 고정하지 않는다 — 칸이 커지면 줄이 늘어나고, 줄 간격은 어디서나 같다 */
+function drawLines(){
+  document.querySelectorAll('svg.lines').forEach(el=>{
+    const r=el.getBoundingClientRect(), w=Math.round(r.width), h=Math.round(r.height);
+    if(w<10||h<10) return;
+    const pitch=+el.dataset.pitch||30;
+    const rows=Math.max(1,Math.round(h/pitch));
+    el.setAttribute('viewBox','0 0 '+w+' '+h);
+    el.setAttribute('preserveAspectRatio','none');
+    let s='<rect x="0.75" y="0.75" width="'+(w-1.5)+'" height="'+(h-1.5)+'" rx="7" fill="#fff" stroke="#c9bfa6" stroke-width="1.5"/>';
+    for(let i=1;i<rows;i++){
+      const y=(h*i/rows).toFixed(1);
+      s+='<line x1="9" y1="'+y+'" x2="'+(w-9)+'" y2="'+y+'" stroke="#e2dac6" stroke-width="1"/>';
+    }
+    el.innerHTML=s;
+  });
+}
+window.addEventListener('load',drawLines);
+window.addEventListener('resize',drawLines);
+window.addEventListener('beforeprint',drawLines);
+if(document.fonts&&document.fonts.ready) document.fonts.ready.then(drawLines);
+drawLines();
+</script>
+</body>
+</html>

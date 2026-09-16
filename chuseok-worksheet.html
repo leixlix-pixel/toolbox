@@ -30,22 +30,22 @@ body{ font-family:'Noto Sans KR',sans-serif; background:#6b6f7d; color:var(--ink
 .name{ font-size:13px; text-align:right; line-height:2.1; white-space:nowrap }
 .name u{ display:inline-block; min-width:52px; text-decoration:none; border-bottom:1px solid #999 }
 
-.pbody{ flex:1; min-height:0; display:flex; flex-direction:column; justify-content:space-between; gap:9px; padding-top:9px }
+.pbody{ flex:1; min-height:0; display:flex; flex-direction:column; justify-content:space-between; gap:8px; padding-top:8px }
 .sec{ display:flex; flex-direction:column; min-height:0 }
 .grow{ flex-grow:var(--g,.5); min-height:0 }
-.sh{ display:flex; align-items:center; gap:7px; margin-bottom:5px }
+.sh{ display:flex; align-items:center; gap:7px; margin-bottom:4px }
 .sh .n{ width:22px; height:22px; flex:none; border-radius:50%; background:var(--navy); color:#fff;
         font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center }
 .sh b{ font-size:16px }
 .sh i{ font-style:normal; font-size:12px; color:var(--muted); margin-left:auto; text-align:right; line-height:1.35 }
-.q{ font-size:13.5px; color:#4a4436; line-height:1.55; margin:0 0 5px }
+.q{ font-size:13px; color:#4a4436; line-height:1.5; margin:0 0 4px }
 .q em{ font-style:normal; background:#fdf3d8; padding:0 3px; font-weight:700 }
 svg.lines{ flex:1 1 0; min-height:0; width:100% ; display:block }
 
 /* ① 낱말 채우기 */
-.word{ background:var(--band); border:1.5px solid var(--line); border-radius:9px; padding:8px 10px;
+.word{ background:var(--band); border:1.5px solid var(--line); border-radius:9px; padding:6px 10px;
        display:flex; gap:9px; align-items:stretch }
-.wcol{ flex:1; font-size:13.5px; line-height:1.85 }
+.wcol{ flex:1; font-size:13.5px; line-height:1.62 }
 .wcol .bx{ display:inline-block; min-width:62px; border-bottom:1.6px solid #9a8f74; text-align:center }
 .wbank{ width:118px; flex:none; border-left:1.5px dashed var(--line); padding-left:9px; font-size:12px; color:#5b5341 }
 .wbank b{ display:block; font-size:12px; color:var(--gold); margin-bottom:2px }
@@ -67,7 +67,7 @@ svg.lines{ flex:1 1 0; min-height:0; width:100% ; display:block }
          font-size:11.5px; color:#8a7a4e; line-height:1.5 }
 .wishbox{ flex:1; display:flex; flex-direction:column; min-height:0 }
 
-.foot{ border-top:1.5px dashed var(--line); padding-top:6px; font-size:11.5px; color:var(--muted);
+.foot{ border-top:1.5px dashed var(--line); padding-top:5px; font-size:11px; color:var(--muted);
        display:flex; justify-content:space-between; gap:10px }
 .foot b{ color:#5b5341 }
 
@@ -119,34 +119,31 @@ svg.lines{ flex:1 1 0; min-height:0; width:100% ; display:block }
     </div>
 
     <!-- ② 어른께 여쭤보기 -->
-    <div class="sec grow" style="--g:.23">
+    <div class="sec grow" style="--g:.19">
       <div class="sh"><div class="n">2</div><b>어른께 여쭤보기</b>
         <i>연휴에 가족 어른께 여쭤보고 적어 옵니다</i></div>
-      <p class="q">할머니·할아버지·엄마·아빠께 <em>어릴 적 추석</em>은 어땠는지 여쭤보세요.
-        들은 말을 그대로 적어도 좋습니다.</p>
+      <p class="q">가족 어른께 <em>어릴 적 추석</em>은 어땠는지 여쭤보고, 들은 말을 그대로 적어도 좋습니다.</p>
       <div class="iv">
-        <div class="ivq" style="flex:none;height:30px"><div class="lab">여쭤본 분</div><svg class="lines" data-pitch="26" style="min-height:30px"></svg></div>
-        <div class="ivq"><div class="lab">그때 추석에는<br>무엇을 했나요?</div><svg class="lines" data-pitch="26" style="min-height:52px"></svg></div>
-        <div class="ivq"><div class="lab">지금과 가장<br>다른 점은요?</div><svg class="lines" data-pitch="26" style="min-height:52px"></svg></div>
+        <div class="ivq" style="flex:none;height:30px"><div class="lab">여쭤본 분</div><svg class="lines" data-pitch="34" style="min-height:30px"></svg></div>
+        <div class="ivq"><div class="lab">그때 추석에는<br>무엇을 했나요?</div><svg class="lines" data-pitch="34" style="min-height:52px"></svg></div>
+        <div class="ivq"><div class="lab">지금과 가장<br>다른 점은요?</div><svg class="lines" data-pitch="34" style="min-height:52px"></svg></div>
       </div>
     </div>
 
     <!-- ③ 우리 집 한가위 -->
-    <div class="sec grow" style="--g:.41">
+    <div class="sec grow" style="--g:.46">
       <div class="sh"><div class="n">3</div><b>올해 우리 집 한가위</b>
         <i>글로 써도, 그림으로 그려도 됩니다</i></div>
-      <p class="q">올해 추석에 <em>우리 집에서 있을 일</em>을 적어 보세요.
-        누구를 만나는지, 무엇을 먹는지, 어디에 가는지 —
-        <em>5~6학년</em>은 “그때 내 마음이 어떨지”까지 한 줄 더 씁니다.</p>
-      <svg class="lines" data-pitch="30" style="min-height:110px"></svg>
+      <p class="q">누구를 만나고, 무엇을 먹고, 어디에 가는지. <em>5~6학년</em>은 그때 내 마음까지.</p>
+      <svg class="lines" data-pitch="38" style="min-height:132px"></svg>
     </div>
 
     <!-- ④ 남기고 싶은 것 -->
-    <div class="sec grow" style="--g:.16">
+    <div class="sec grow" style="--g:.20">
       <div class="sh"><div class="n">4</div><b>이것만은 남았으면</b>
         <i>까닭을 꼭 함께 적어요</i></div>
-      <p class="q">추석의 모습은 자꾸 변합니다. 그래도 <em>이것만은 남았으면</em> 하는 것 하나와 그 까닭을 적으세요.</p>
-      <svg class="lines" data-pitch="30" style="min-height:60px"></svg>
+      <p class="q">추석의 모습은 자꾸 변합니다. <em>이것만은 남았으면</em> 하는 것 하나와 그 까닭을.</p>
+      <svg class="lines" data-pitch="37" style="min-height:74px"></svg>
     </div>
 
     <!-- ⑤ 보름달 소원 -->
@@ -169,7 +166,7 @@ svg.lines{ flex:1 1 0; min-height:0; width:100% ; display:block }
         </div>
         <div class="wishbox">
           <p class="q" style="margin-bottom:4px">왜 그런 소원을 빌었나요?</p>
-          <svg class="lines" data-pitch="27" style="min-height:76px"></svg>
+          <svg class="lines" data-pitch="34" style="min-height:76px"></svg>
         </div>
       </div>
     </div>

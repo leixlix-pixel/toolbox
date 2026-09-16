@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>119 소방학교 — 불이 나면, 땅이 흔들리면</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1523; --bg2:#121d31; --card:#1a2740; --card2:#243352; --line:#31456d;
+  --ink:#eaf1fc; --muted:#93a6c7;
+  --red:#ff5a4d; --amber:#ffb224; --green:#3ddc84; --blue:#4da3ff;
+}
+html,body{background:var(--bg);color:var(--ink)}
+body{
+  font-family:'Noto Sans KR',sans-serif; font-size:17px; line-height:1.6;
+  touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+  user-select:none; -webkit-user-select:none;
+  min-height:100vh;
+  background:
+    radial-gradient(1200px 500px at 50% -10%, #1d2c49 0%, transparent 60%),
+    var(--bg);
+}
+button{font-family:inherit;font-size:inherit;color:inherit;border:none;background:none;cursor:pointer}
+#app{max-width:820px;margin:0 auto;padding:0 14px 40px}
+
+/* ── 머리 ── */
+header{
+  display:flex;align-items:center;gap:8px;
+  padding:12px 2px 10px; position:sticky;top:0;z-index:40;
+  background:linear-gradient(180deg,var(--bg) 70%,transparent);
+}
+.brand{font-weight:900;font-size:17px;letter-spacing:-.5px;display:flex;align-items:center;gap:7px}
+.brand .dot{width:11px;height:11px;border-radius:50%;background:var(--red);box-shadow:0 0 12px var(--red);animation:bl 1.6s infinite}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.25}}
+.hspace{flex:1}
+.rankchip{
+  font-size:13px;font-weight:700;padding:5px 11px;border-radius:999px;
+  background:var(--card2);border:1px solid var(--line);color:var(--amber);
+  min-height:32px;display:flex;align-items:center
+}
+.iconbtn{
+  width:38px;height:38px;border-radius:11px;background:var(--card);
+  border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:17px
+}
+
+/* ── 공통 ── */
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px}
+.big{font-size:27px;font-weight:900;line-height:1.3;letter-spacing:-1px}
+.sub{color:var(--muted);font-size:15px}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:2px;color:var(--amber);text-transform:uppercase}
+.btn{
+  display:block;width:100%;min-height:52px;padding:13px 18px;border-radius:14px;
+  background:var(--card2);border:1.5px solid var(--line);
+  font-weight:500;text-align:left;line-height:1.45;
+  transition:transform .08s, border-color .15s, background .15s;
+}
+.btn:active{transform:scale(.985)}
+.btn.primary{background:var(--red);border-color:#ff8a80;color:#fff;font-weight:700;text-align:center}
+.btn.go{background:var(--green);border-color:#8ff0bb;color:#07281a;font-weight:700;text-align:center}
+.btn.ghost{background:transparent;color:var(--muted);font-weight:500;text-align:center;min-height:46px}
+.stack{display:flex;flex-direction:column;gap:9px}
+
+/* ── 시작 화면 ── */
+.hero{text-align:center;padding:26px 6px 8px}
+.hero h1{font-size:34px;font-weight:900;line-height:1.2;letter-spacing:-1.4px;margin:10px 0 8px}
+.hero h1 em{font-style:normal;color:var(--red)}
+.siren{font-size:56px;line-height:1;filter:drop-shadow(0 0 22px rgba(255,90,77,.55))}
+.rankpick{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+.rankopt{
+  display:flex;align-items:center;gap:13px;width:100%;
+  padding:14px 15px;border-radius:15px;background:var(--card);
+  border:1.5px solid var(--line);text-align:left
+}
+.rankopt .ic{font-size:26px;width:34px;text-align:center;flex:none}
+.rankopt b{display:block;font-size:17px;font-weight:700}
+.rankopt span{display:block;font-size:13.5px;color:var(--muted);line-height:1.45}
+.rankopt.sel{border-color:var(--amber);background:#2a2415;box-shadow:0 0 0 3px rgba(255,178,36,.13)}
+
+/* ── QR ── */
+.qrwrap{text-align:center;margin-top:26px}
+.qrbtn{position:relative;background:#fff;border-radius:14px;padding:9px;line-height:0;border:3px solid var(--card2)}
+.qrbtn svg{width:132px;height:132px;display:block}
+.qrbadge{
+  position:absolute;right:-8px;bottom:-9px;background:var(--amber);color:#2a1c00;
+  font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;line-height:1.5
+}
+.qrov{position:fixed;inset:0;background:rgba(6,10,18,.93);z-index:90;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;padding:20px}
+.qrov .in{background:#fff;padding:16px;border-radius:20px;line-height:0}
+.qrov svg{width:min(78vw,440px);height:min(78vw,440px);display:block}
+
+/* ── 홈: 출동 준비도 ── */
+.readybox{
+  display:flex;gap:16px;align-items:center;
+  background:linear-gradient(135deg,#16233c,#1d2c49);
+  border:1px solid var(--line);border-radius:20px;padding:16px 18px;margin-bottom:14px
+}
+.readybox svg{width:104px;height:150px;flex:none}
+.readytx{flex:1;min-width:0}
+.gauge{height:11px;border-radius:99px;background:#0d1626;overflow:hidden;margin:9px 0 7px;border:1px solid var(--line)}
+.gauge i{display:block;height:100%;background:linear-gradient(90deg,var(--amber),var(--red));border-radius:99px;transition:width .5s}
+.mlist{display:flex;flex-direction:column;gap:10px}
+.mrow{
+  display:flex;align-items:center;gap:13px;width:100%;
+  padding:14px 15px;border-radius:16px;background:var(--card);
+  border:1.5px solid var(--line);text-align:left
+}
+.mrow .num{
+  width:34px;height:34px;border-radius:11px;flex:none;
+  background:var(--card2);display:flex;align-items:center;justify-content:center;
+  font-weight:900;font-size:16px;color:var(--muted)
+}
+.mrow .tx{flex:1;min-width:0}
+.mrow .tx b{display:block;font-size:17px;font-weight:700}
+.mrow .tx span{display:block;font-size:13.5px;color:var(--muted)}
+.mrow .st{font-size:22px;flex:none}
+.mrow.ok{border-color:#2f6b4c;background:#16281f}
+.mrow.ok .num{background:var(--green);color:#07281a}
+
+/* ── 미션 화면 ── */
+.mhead{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.mhead .back{font-size:15px;color:var(--muted);padding:8px 10px;margin-left:-10px}
+.mhead .ttl{font-weight:900;font-size:19px;letter-spacing:-.6px}
+.steps{display:flex;gap:5px;margin-bottom:14px}
+.steps i{flex:1;height:5px;border-radius:99px;background:var(--card2)}
+.steps i.on{background:var(--amber)}
+.steps i.done{background:var(--green)}
+.scene{
+  background:var(--bg2);border:1px solid var(--line);border-left:4px solid var(--amber);
+  border-radius:0 14px 14px 0;padding:13px 15px;margin-bottom:14px;
+  font-size:16px;color:#cfdcf2;line-height:1.55
+}
+.scene b{color:var(--amber);font-weight:700}
+.qq{font-size:20px;font-weight:700;line-height:1.4;margin-bottom:13px;letter-spacing:-.5px}
+.opt{position:relative;padding-left:46px}
+.opt .mk{
+  position:absolute;left:14px;top:50%;transform:translateY(-50%);
+  width:23px;height:23px;border-radius:50%;border:2px solid var(--line);
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--muted)
+}
+.opt.bad{border-color:#7a3b36;background:#2a1a18;opacity:.75}
+.opt.bad .mk{border-color:var(--red);color:var(--red)}
+.opt.good{border-color:#2f6b4c;background:#16281f}
+.opt.good .mk{border-color:var(--green);color:var(--green);background:var(--green);color:#07281a}
+.fb{
+  border-radius:14px;padding:14px 16px;margin-top:12px;font-size:16px;line-height:1.6;
+  animation:pop .22s ease-out
+}
+@keyframes pop{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+.fb.bad{background:#2a1a18;border:1px solid #7a3b36}
+.fb.good{background:#16281f;border:1px solid #2f6b4c}
+.fb .lead{font-weight:700;display:block;margin-bottom:3px}
+.fb.bad .lead{color:var(--red)}
+.fb.good .lead{color:var(--green)}
+.fb b{color:#fff}
+
+/* 순서 맞히기 */
+.slots{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.slot{
+  display:flex;align-items:center;gap:11px;min-height:50px;padding:10px 14px;
+  border-radius:13px;border:1.5px dashed var(--line);background:#0f1a2c;color:var(--muted);font-size:15px
+}
+.slot.f{border-style:solid;background:var(--card2);color:var(--ink);font-weight:500}
+.slot .n{width:24px;height:24px;border-radius:50%;background:var(--card2);flex:none;
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+.slot.f .n{background:var(--amber);color:#2a1c00}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{
+  padding:11px 15px;border-radius:13px;background:var(--card2);
+  border:1.5px solid var(--line);font-size:15px;font-weight:500;min-height:46px
+}
+.chip.used{opacity:.25}
+
+/* 위험 찾기 */
+.findwrap{background:var(--bg2);border:1px solid var(--line);border-radius:16px;padding:10px;margin-bottom:12px}
+.findwrap svg{width:100%;height:auto;display:block}
+.hot{cursor:pointer;pointer-events:all}
+.hot rect{fill:transparent}
+.hot.found rect{fill:rgba(61,220,132,.16);stroke:var(--green);stroke-width:2.5;rx:8}
+.hot.miss rect{fill:rgba(77,163,255,.12);stroke:var(--blue);stroke-width:2;rx:8}
+.aura{animation:au 1.9s infinite}
+@keyframes au{0%,100%{opacity:.18}50%{opacity:.55}}
+.findcount{display:flex;gap:6px;justify-content:center;margin-bottom:10px}
+.findcount i{width:26px;height:8px;border-radius:99px;background:var(--card2)}
+.findcount i.on{background:var(--green)}
+
+/* 분류 */
+.sortcard{
+  background:linear-gradient(135deg,#1e2d4a,#16223a);border:1.5px solid var(--line);
+  border-radius:18px;padding:22px 18px;text-align:center;font-size:19px;font-weight:700;
+  line-height:1.45;min-height:120px;display:flex;align-items:center;justify-content:center;
+  margin-bottom:14px;letter-spacing:-.4px
+}
+.sortbtns{display:flex;gap:10px}
+.sortbtns .btn{text-align:center;min-height:76px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2px;font-weight:700}
+.sortbtns .btn small{font-size:12.5px;font-weight:400;color:var(--muted)}
+.sortbtns .btn.fire{background:#2e1a16;border-color:#7a3b36}
+.sortbtns .btn.quake{background:#1a2438;border-color:#3d5480}
+.sortprog{display:flex;gap:5px;justify-content:center;margin-bottom:12px}
+.sortprog i{width:22px;height:6px;border-radius:99px;background:var(--card2)}
+.sortprog i.on{background:var(--amber)}
+
+/* 정리 */
+.wrapup{background:linear-gradient(135deg,#1d2c49,#16233c);border:1px solid var(--line);border-radius:18px;padding:20px}
+.wrapup h3{font-size:20px;font-weight:900;margin-bottom:10px;letter-spacing:-.5px}
+.rule{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+.rule:last-child{border:none}
+.rule .ic{font-size:26px;flex:none;width:32px;text-align:center}
+.rule .tx{flex:1;font-size:16px;line-height:1.55}
+.rule .tx b{color:var(--amber)}
+
+/* 흔들림 */
+.shake{animation:sh .42s infinite}
+@keyframes sh{
+  0%{transform:translate(0,0)}15%{transform:translate(-5px,2px)}30%{transform:translate(4px,-3px)}
+  45%{transform:translate(-4px,-2px)}60%{transform:translate(5px,3px)}75%{transform:translate(-3px,2px)}100%{transform:translate(0,0)}
+}
+.smoke{
+  position:fixed;left:0;right:0;top:0;z-index:5;pointer-events:none;
+  background:linear-gradient(180deg,rgba(60,58,56,.92),rgba(70,68,66,.6) 70%,transparent);
+  transition:height .6s
+}
+.countdown{font-size:46px;font-weight:900;text-align:center;color:var(--red);letter-spacing:2px;margin:6px 0 10px;
+  text-shadow:0 0 26px rgba(255,90,77,.6)}
+
+/* 수료증 */
+.certwrap{text-align:center}
+.certwrap canvas{width:100%;max-width:560px;border-radius:14px;border:1px solid var(--line);margin:12px 0}
+.nameinput{
+  width:100%;min-height:52px;padding:13px 16px;border-radius:14px;background:var(--card2);
+  border:1.5px solid var(--line);color:var(--ink);font-family:inherit;font-size:17px;text-align:center
+}
+.toast{
+  position:fixed;left:50%;bottom:26px;transform:translateX(-50%);
+  background:#0a1220;border:1px solid var(--line);border-radius:999px;
+  padding:11px 20px;font-size:15px;z-index:95;box-shadow:0 10px 30px rgba(0,0,0,.5);
+  animation:pop .2s
+}
+.note{font-size:13.5px;color:var(--muted);line-height:1.55;text-align:center;margin-top:14px}
+.teach{
+  border:1px dashed var(--line);border-radius:14px;padding:13px 15px;margin-top:16px;
+  font-size:13.5px;color:var(--muted);line-height:1.6
+}
+.teach b{color:var(--amber)}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="brand"><span class="dot"></span>119 소방학교</div>
+    <div class="hspace"></div>
+    <button class="rankchip" id="rankBtn" onclick="pickRank()"></button>
+    <button class="iconbtn" id="sndBtn" onclick="toggleSnd()">🔊</button>
+    <button class="iconbtn" onclick="resetAll()">↺</button>
+  </header>
+  <main id="view"></main>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════
+   119 소방학교 — 3~6학년 공통 재난 대피 훈련
+   미션 6개를 통과하면 출동 장비가 하나씩 채워진다.
+   ═══════════════════════════════════════════════ */
+
+const QR = { main:'' };/*QR_INJECT*/
+
+/* ── 소리: 파일 없이 Web Audio ── */
+const SND = {
+  ctx:null, vol:.55,
+  init(){ if(this.ctx) return; try{ this.ctx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} },
+  tone(f,dur,type,vol,delay,slide){
+    if(!this.ctx||this.vol<=0) return;
+    const t0=this.ctx.currentTime+(delay||0);
+    const o=this.ctx.createOscillator(), g=this.ctx.createGain();
+    o.type=type||'square'; o.frequency.setValueAtTime(f,t0);
+    if(slide) o.frequency.exponentialRampToValueAtTime(Math.max(40,slide),t0+dur);
+    g.gain.setValueAtTime(.0001,t0);
+    g.gain.exponentialRampToValueAtTime((vol==null?.16:vol)*this.vol,t0+.012);
+    g.gain.exponentialRampToValueAtTime(.0001,t0+dur);
+    o.connect(g); g.connect(this.ctx.destination); o.start(t0); o.stop(t0+dur+.05);
+  },
+  noise(dur,vol,delay,freq){
+    if(!this.ctx||this.vol<=0) return;
+    const t0=this.ctx.currentTime+(delay||0);
+    const len=Math.floor(this.ctx.sampleRate*dur);
+    const buf=this.ctx.createBuffer(1,len,this.ctx.sampleRate), d=buf.getChannelData(0);
+    for(let i=0;i<len;i++) d[i]=(Math.random()*2-1)*(1-i/len);
+    const src=this.ctx.createBufferSource(); src.buffer=buf;
+    const g=this.ctx.createGain(); g.gain.value=(vol==null?.12:vol)*this.vol;
+    const f=this.ctx.createBiquadFilter(); f.type='bandpass'; f.frequency.value=freq||1200;
+    src.connect(f); f.connect(g); g.connect(this.ctx.destination); src.start(t0);
+  },
+  click(){ this.tone(680,.06,'square',.10); },
+  ok(){ [523,659,784,1047].forEach((f,i)=>this.tone(f,.16,'triangle',.15,i*.075)); },
+  bad(){ this.tone(220,.22,'sawtooth',.13,0,110); this.tone(160,.26,'square',.08,.06,90); },
+  get(){ [784,1047,1319].forEach((f,i)=>this.tone(f,.14,'sine',.18,i*.06)); },
+  siren(){ for(let i=0;i<3;i++){ this.tone(740,.28,'sine',.13,i*.56,1040); this.tone(1040,.28,'sine',.13,i*.56+.28,740); } },
+  bell(){ for(let i=0;i<6;i++) this.tone(2200,.09,'square',.08,i*.14); },
+  rumble(){ this.noise(1.6,.20,0,180); this.tone(48,1.5,'sine',.22,0,36); },
+  spray(){ this.noise(.9,.16,0,2400); },
+  fanfare(){ [523,659,784,1047,1319].forEach((f,i)=>this.tone(f,.26,'triangle',.17,i*.11)); }
+};
+
+/* ── 상태 ── */
+const KEY='safety-academy-v1';
+let S = { rank:null, done:{}, name:'', sound:true };
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} }
+function load(){
+  try{ const r=localStorage.getItem(KEY); if(r) S=Object.assign(S,JSON.parse(r)); }catch(e){}
+  SND.vol = S.sound===false ? 0 : .55;
+}
+
+/* 계급: 1=훈련생 2=대원 3=대장 — step.lv 가 이 값보다 크면 건너뛴다 */
+const RANKS = {
+  train:{ lv:1, name:'훈련생', ic:'🧢', desc:'기본 훈련만 합니다. 처음이라면 여기부터.' },
+  crew :{ lv:2, name:'대원',   ic:'⛑️', desc:'기본 훈련에 되물음이 하나씩 더 붙습니다.' },
+  chief:{ lv:3, name:'대장',   ic:'🎖️', desc:'심화 판단까지 전부. 어려운 쪽을 원한다면.' }
+};
+function lv(){ return S.rank ? RANKS[S.rank].lv : 1; }
+
+/* ═══════════ 훈련 과목 ═══════════ */
+const MISSIONS = [
+{ id:'m1', gear:'radio', ic:'📞', title:'신고 훈련',   sum:'119에 무엇부터 말하나',
+  intro:'3층 복도에서 매캐한 냄새가 난다. 연기도 조금 보인다.',
+  steps:[
+  { scene:'복도 끝에서 <b>매캐한 냄새</b>가 난다. 천장 쪽으로 옅은 연기가 보인다.',
+    q:'가장 먼저 할 일은?',
+    opts:[
+      {t:'큰 소리로 "불이야!" 외치고 비상벨을 누른다', ok:true,
+       fb:'맞아. 알리는 것이 먼저야. 한 번 외치면 <b>이 층 전체가 동시에</b> 알게 돼. 비상벨은 다른 층까지 알려 주고.'},
+      {t:'혼자 조용히 119에 전화한다',
+       fb:'신고는 꼭 필요해. 그런데 <b>너만 알고 있는 동안</b> 옆 반은 아무것도 모른 채 수업을 하고 있어. 먼저 알리고, 신고는 바로 이어서 하면 돼.'},
+      {t:'선생님을 찾으러 교실을 돌아다닌다',
+       fb:'찾아다니는 동안 연기가 퍼져. 그리고 <b>연기가 있는 쪽으로 다시 가는 것</b>이 돼. 소리치면 선생님도 같이 들어.'}
+    ]},
+  { scene:'📞 <b>"119입니다. 위치가 어디죠?"</b>',
+    q:'뭐라고 답할까?',
+    opts:[
+      {t:'"신리초등학교 3층 복도예요"', ok:true,
+       fb:'정확해. <b>이름과 층</b>까지 말하면 소방차가 바로 출발할 수 있어. 위치는 늘 첫 번째로 말한다.'},
+      {t:'"학교에 불이 났어요!"',
+       fb:'학교는 전국에 <b>만 곳이 넘어</b>. 어느 학교인지 모르면 차가 출발을 못 해. 학교 이름을 꼭 말해야 해.'},
+      {t:'"빨리 와주세요! 큰일 났어요!"',
+       fb:'급한 마음은 알아. 그런데 <b>어디로 갈지</b>를 모르면 아무리 빨라도 못 와. 장소가 언제나 먼저야.'}
+    ]},
+  { scene:'📞 <b>"무슨 일이 있나요?"</b>',
+    q:'본 대로 말해 보자.',
+    opts:[
+      {t:'"복도 천장 쪽에 연기가 나고 타는 냄새가 나요"', ok:true,
+       fb:'좋아. <b>연기인지 불꽃인지</b>에 따라 소방관이 챙기는 장비가 달라져. 본 것을 그대로 말하면 돼.'},
+      {t:'"몰라요, 그냥 빨리 와주세요"',
+       fb:'모르는 걸 지어낼 필요는 없어. 그래도 <b>네가 본 것</b>은 말할 수 있잖아 — 냄새가 나는지, 연기가 보이는지. 그게 큰 정보야.'},
+      {t:'"불이요"',
+       fb:'한 글자보다 한 줄이 나아. 연기인지 불꽃인지, 어디서 나는지를 붙이면 <b>준비해서 올 수 있어</b>.'}
+    ]},
+  { scene:'📞 <b>"다친 사람이나 안에 남은 사람이 있나요?"</b>',
+    q:'',
+    opts:[
+      {t:'"잘 모르겠어요. 3층에 아직 사람이 있을 수도 있어요"', ok:true,
+       fb:'이게 가장 정확한 답이야. <b>모르면 모른다고 한다.</b> 그래야 구조대가 사람을 찾을 준비를 해.'},
+      {t:'"없어요"',
+       fb:'확인하지 않고 없다고 하면 구조대가 <b>사람을 안 찾아</b>. 모르는 걸 없다고 말하는 게 가장 위험해.'},
+      {t:'"제가 확인하고 다시 전화할게요"', lv:2,
+       fb:'확인하러 <b>다시 들어가면 안 돼.</b> 그건 소방관이 하는 일이야. 너는 나가는 게 네 몫이고, 그게 소방관을 돕는 거야.'}
+    ]},
+  { lv:2, scene:'📞 신고할 내용을 다 말했다.',
+    q:'전화를 끊어도 될까?',
+    opts:[
+      {t:'상황실에서 끊어도 된다고 할 때까지 기다린다', ok:true,
+       fb:'맞아. 상황실이 <b>가는 길을 더 묻거나</b>, 지금 무엇을 해야 하는지 알려 줄 수도 있어. 먼저 끊지 않는다.'},
+      {t:'할 말을 다 했으니 끊는다',
+       fb:'상황실은 아직 물어볼 게 남아 있을 수 있어. 정문이 어느 쪽인지, 지금 어디로 대피하는지. <b>끊으면 다시 걸기 어려워.</b>'}
+    ]},
+  { lv:3, scene:'📞 신고를 마치고 밖으로 나왔다. 그런데 아까 말한 층이 <b>3층이 아니라 4층</b>이었던 것 같다.',
+    q:'어떻게 할까?',
+    opts:[
+      {t:'다시 119에 전화해서 바로잡는다', ok:true,
+       fb:'바로 그거야. <b>틀린 걸 알았으면 고쳐 말한다.</b> 혼날까 봐 가만히 있으면 소방관이 엉뚱한 층을 먼저 뒤져. 그 몇 분이 사람을 살려.'},
+      {t:'이미 소방차가 출발했으니 그냥 둔다',
+       fb:'출발한 뒤에도 무전으로 바꿔 줄 수 있어. <b>도착 전에 알려 주면 바로 반영돼.</b> 늦었다고 생각할 때가 가장 빠를 때야.'}
+    ]}
+  ],
+  wrap:{ title:'신고는 순서가 있다', rules:[
+    ['📍','<b>어디</b> — 학교 이름과 층까지. 이게 없으면 출발을 못 한다.'],
+    ['🔥','<b>무슨 일</b> — 본 대로. 연기인지 불꽃인지.'],
+    ['🙋','<b>사람</b> — 모르면 "모르겠어요"가 정답.'],
+    ['📞','먼저 끊지 않는다. 틀렸으면 다시 걸어 바로잡는다.']
+  ]}
+},
+
+{ id:'m2', gear:'mask', ic:'💨', title:'연기 속 탈출', sum:'복도를 빠져나가는 길',
+  intro:'비상벨이 울렸다. 교실 문 앞이다.',
+  smoke:true,
+  steps:[
+  { scene:'교실 문 앞이다. 문 너머가 어떤지 보이지 않는다.',
+    q:'문을 열기 전에 무엇을 할까?',
+    opts:[
+      {t:'손등으로 문과 손잡이를 살짝 만져 본다', ok:true,
+       fb:'정확해. 뜨거우면 <b>문 너머가 불바다</b>라는 뜻이야. 그때는 열지 않고 다른 길을 찾는다.<br>왜 손등일까 — 손바닥을 데면 <b>손을 못 쥐게 돼</b>. 손잡이도 난간도 못 잡아.'},
+      {t:'손바닥으로 손잡이를 꽉 잡아 본다',
+       fb:'확인하려는 건 맞았어. 그런데 <b>손바닥을 데면 손을 못 쥔다</b>. 계단 난간도 못 잡고 문도 못 열어. 그래서 손등으로 대 보는 거야.'},
+      {t:'시간이 없으니 그냥 연다',
+       fb:'문 너머에 불이 있으면 <b>열자마자 불길이 밀려 들어와</b>. 만져 보는 데는 1초면 돼. 그 1초가 제일 값싸.'}
+    ]},
+  { scene:'문은 뜨겁지 않았다. 열었더니 <b>복도 위쪽에 연기가 자욱</b>하다. 아래쪽은 아직 보인다.',
+    q:'어떤 자세로 갈까?',
+    opts:[
+      {t:'허리를 숙인 낮은 자세로 빠르게 걷는다', ok:true,
+       fb:'맞아. 연기는 뜨거워서 <b>천장부터 쌓여</b>. 허리만 숙여도 맑은 공기 층으로 갈 수 있어. 그리고 빨리 갈 수 있지.'},
+      {t:'배를 바닥에 붙이고 기어간다',
+       fb:'연기를 피하는 방향은 맞았어. 그런데 <b>기어가면 너무 느려</b>. 연기가 퍼지는 속도가 훨씬 빨라서, 낮게 가다가 늦게 나가면 소용이 없어. 허리를 숙이는 정도면 충분해.'},
+      {t:'똑바로 서서 뛴다',
+       fb:'가장 빠른 자세지만, 연기가 있는 <b>바로 그 높이에 머리를 넣는 것</b>이 돼. 연기를 두세 번 들이마시면 정신을 잃어.'}
+    ]},
+  { scene:'연기 냄새가 매캐하다.',
+    q:'코와 입은 어떻게 할까?',
+    opts:[
+      {t:'입고 있는 옷소매나 가진 수건으로 막는다', ok:true,
+       fb:'좋아. 젖은 수건이면 더 좋지만, <b>지금 가진 것으로 막고 바로 나가는 게 먼저야.</b>'},
+      {t:'화장실에 가서 수건을 적셔 온다',
+       fb:'젖은 수건이 더 좋은 건 맞아. 그런데 <b>물을 찾으러 되돌아가는 동안</b> 연기가 복도를 다 채워. 지금 가진 걸로 막고 나가는 쪽이 훨씬 안전해.'},
+      {t:'숨을 참고 뛴다',
+       fb:'3층에서 운동장까지 <b>숨을 참고 갈 수는 없어</b>. 그리고 참다가 크게 들이마시면 뜨거운 연기가 한꺼번에 들어와서 더 위험해.'}
+    ]},
+  { scene:'계단 앞에 왔다. 마침 <b>엘리베이터 문이 열려 있다</b>.',
+    q:'어디로 내려갈까?',
+    opts:[
+      {t:'계단으로 내려간다', ok:true,
+       fb:'언제나 계단이야. 엘리베이터는 <b>불이 나면 전기가 끊겨</b>서 그 안에 갇혀. 그리고 엘리베이터 통로는 굴뚝처럼 생겨서 <b>연기가 가장 먼저 차올라</b>.'},
+      {t:'엘리베이터가 빠르니까 탄다',
+       fb:'빠른 건 맞지만, 불이 나면 <b>전기가 끊겨서 그 안에 갇혀</b>. 갇히면 아무도 못 꺼내. 통로에 연기가 차서 문이 열려도 못 나와.<br>불이든 지진이든 <b>엘리베이터는 안 된다</b>.'}
+    ]},
+  { scene:'운동장으로 나왔다. 그런데 <b>필통을 교실에 두고 왔다</b>. 아직 아무도 안 보고 있다.',
+    q:'',
+    opts:[
+      {t:'그냥 둔다', ok:true,
+       fb:'맞아. <b>한 번 나온 곳에는 다시 들어가지 않는다.</b> 예외가 없는 규칙이야. 물건은 다시 살 수 있어.'},
+      {t:'금방이니까 얼른 가져온다',
+       fb:'이게 실제로 사람이 가장 많이 다치는 순간이야. 1분 사이에 연기가 층 전체를 채우고, 무엇보다 <b>소방관이 너를 찾으러 다시 들어가야 해.</b> 한 사람이 두 사람을 위험하게 만드는 거야.'}
+    ]},
+  { lv:2, scene:'운동장에 반 아이들이 모였다. 그런데 친한 친구가 안 보인다.',
+    q:'어떻게 할까?',
+    opts:[
+      {t:'우리 반 줄에 서서 선생님께 "○○이가 안 보여요"라고 말한다', ok:true,
+       fb:'맞아. <b>제자리에 서 있는 것이 돕는 것</b>이야. 인원 확인이 끝나야 소방관이 "안에 몇 명 남았다"를 알 수 있어. 네가 찾으러 돌아다니면 <b>너까지 실종자가 돼</b>.'},
+      {t:'친구를 찾으러 운동장을 돌아다닌다',
+       fb:'마음은 알겠어. 그런데 줄에서 빠지면 선생님은 <b>너도 안 나온 줄 알아</b>. 소방관 두 명이 없는 사람 둘을 찾으러 건물로 들어가게 돼. 말로 알리는 게 훨씬 빨라.'}
+    ]},
+  { lv:3, scene:'계단으로 내려가는데, <b>아래층에서 연기가 올라오고 있다</b>. 내려가는 길이 막혔다.',
+    q:'',
+    opts:[
+      {t:'옥상 쪽으로 올라간다', ok:true,
+       fb:'맞아. <b>내려갈 수 없으면 올라간다.</b> 연기는 위로 가지만 옥상은 열린 곳이라 숨을 쉴 수 있고, 헬기와 소방관이 옥상으로 와. 학교 옥상 문이 어디인지 평소에 봐 두면 좋아.'},
+      {t:'연기를 뚫고 그냥 내려간다',
+       fb:'연기 속을 몇 층이나 뚫고 갈 수는 없어. <b>연기 두세 모금이면 정신을 잃어.</b> 아래가 막혔다는 걸 알았으면 방향을 바꿔야 해 — 위로.'},
+      {t:'교실로 돌아가 문을 닫고 기다린다',
+       fb:'이것도 아주 나쁜 선택은 아니야. 정말 <b>어디로도 못 가면</b> 창이 있는 방에 들어가 문틈을 막고 창가에서 알리는 방법이 있어. 다만 지금은 <b>옥상이라는 길이 남아 있으니</b> 그쪽이 먼저야.'}
+    ]}
+  ],
+  wrap:{ title:'불이 나면 — 나가는 것이 전부다', rules:[
+    ['✋','문은 <b>손등</b>으로 만져 본다. 뜨거우면 열지 않는다.'],
+    ['🙇','<b>허리를 숙이고 빠르게.</b> 기어가지 않는다.'],
+    ['🚫','<b>엘리베이터는 절대 안 된다.</b> 계단으로.'],
+    ['↩️','<b>다시 들어가지 않는다.</b> 예외 없음.'],
+    ['🧍','밖에서는 <b>제자리에</b>. 인원 확인이 구조의 시작이다.']
+  ]}
+},
+
+{ id:'m3', gear:'helmet', ic:'🌏', title:'흔들리는 교실', sum:'지진은 반대로 움직인다',
+  intro:'수업 중이다. 갑자기 책상이 덜컹거린다.',
+  shake:true,
+  steps:[
+  { scene:'수업 중인데 <b>책상이 덜컹덜컹 흔들린다</b>. 천장 전등도 좌우로 흔들린다.', count:3,
+    q:'3초 안에! 무엇부터 할까?',
+    opts:[
+      {t:'책상 아래로 들어가 머리를 감싼다', ok:true,
+       fb:'맞아! 지진은 불과 <b>정반대</b>야.<br>불 → 지금 나간다. 지진 → <b>먼저 숨는다.</b><br>지진에서 다치는 사람 대부분은 무너져서가 아니라 <b>떨어지는 것에 맞아서</b> 다쳐. 책상 하나면 막을 수 있어.'},
+      {t:'바로 복도로 뛰어나간다',
+       fb:'여기가 이 훈련에서 가장 중요한 자리야. 흔들리는 동안 뛰면 <b>넘어지고</b>, 천장에서 전등·시계·에어컨이 <b>떨어져</b>. 불이 나면 바로 나가지만, <b>지진은 반대로 먼저 숨는다.</b>'},
+      {t:'창가로 가서 밖을 확인한다',
+       fb:'창가는 지진 때 <b>가장 위험한 자리</b>야. 유리가 깨져서 쏟아지거든. 확인할 필요도 없어 — 흔들리면 그게 지진이야. 책상 아래로.'}
+    ]},
+  { scene:'책상 아래로 들어갔다. 책상도 같이 덜덜 떨린다.',
+    q:'이제 무엇을 할까?',
+    opts:[
+      {t:'책상 다리를 두 손으로 꼭 잡는다', ok:true,
+       fb:'좋아. 흔들리면 <b>책상이 미끄러져 나가</b>. 놓치면 나만 남게 돼. 다리를 잡고 있으면 책상이 나를 따라와.'},
+      {t:'눈을 감고 가만히 웅크린다',
+       fb:'몸을 낮춘 건 맞아. 그런데 <b>책상이 미끄러져 나가면</b> 머리 위가 텅 비어. 다리를 두 손으로 잡아서 책상을 붙들고 있어야 해.'}
+    ]},
+  { scene:'흔들림이 <b>멈췄다</b>. 조용하다.',
+    q:'이제 어떻게 할까?',
+    opts:[
+      {t:'선생님 안내에 따라 밖으로 나간다', ok:true,
+       fb:'맞아. <b>멈췄을 때가 나갈 때야.</b> 여진이 올 수 있지만, 건물 안에 계속 있는 쪽이 더 위험해. 지진 대피는 언제나 이 순서야 — <b>숨는다 → 멈춘다 → 나간다.</b>'},
+      {t:'여진이 올 수 있으니 계속 책상 아래에 있는다',
+       fb:'조심하려는 마음은 좋아. 그런데 건물은 첫 흔들림에 이미 금이 갔을 수 있어서, <b>여진에 더 잘 무너져</b>. 멈춘 그 사이가 나갈 시간이야.'}
+    ]},
+  { scene:'복도로 나간다.',
+    q:'머리와 길은 어떻게?',
+    opts:[
+      {t:'가방이나 방석으로 머리를 감싸고 계단으로', ok:true,
+       fb:'정확해. 나가는 길에도 <b>천장이나 벽에서 뭔가 떨어져</b>. 그리고 지진에도 엘리베이터는 안 돼 — 갇히면 못 나와.'},
+      {t:'빠르게 엘리베이터를 탄다',
+       fb:'지진에도 <b>엘리베이터는 안 된다</b>. 정전되면 그 안에 갇히고, 통로가 뒤틀리면 문이 안 열려. 불이든 지진이든 계단이야.'},
+      {t:'맨머리로 계단을 뛰어 내려간다', lv:2,
+       fb:'계단은 맞았어. 그런데 <b>머리를 안 가렸어</b>. 지진 때 다치는 가장 흔한 이유가 떨어지는 물건에 맞는 거야. 가방 하나면 막을 수 있는데 아깝잖아.'}
+    ]},
+  { scene:'운동장으로 나왔다.',
+    q:'어디에 설까?',
+    opts:[
+      {t:'건물·담장·전봇대에서 멀리 떨어진 운동장 가운데', ok:true,
+       fb:'맞아. <b>위에서 떨어질 것이 없는 곳</b>이 안전한 곳이야. 운동장 가운데, 하늘이 트인 자리.'},
+      {t:'햇볕이 뜨거우니 건물 그늘에 선다',
+       fb:'건물 가까이가 <b>가장 위험해</b>. 유리창·간판·외벽 타일이 위에서 떨어져. 조금 더워도 가운데로.'},
+      {t:'담장 옆에 줄을 선다',
+       fb:'담장은 지진에 <b>잘 넘어져</b>. 벽돌이나 블록 담이면 더 그래. 담장에서 멀어져야 해.'}
+    ]},
+  { lv:2, scene:'이번엔 학교가 아니라 <b>집</b>이다. 저녁을 하는 중에 흔들리기 시작했다.',
+    q:'먼저 할 일은?',
+    opts:[
+      {t:'식탁 아래로 들어가 머리를 보호한다', ok:true,
+       fb:'맞아. <b>순서는 어디서나 같아</b> — 몸을 보호하는 게 언제나 첫 번째.<br>가스는 <b>흔들림이 멈춘 뒤</b>에 잠근다.'},
+      {t:'가스 밸브부터 잠근다',
+       fb:'가스를 잠그는 건 꼭 필요해. 그런데 <b>순서가 뒤바뀌었어</b>. 흔들리는 동안 일어나서 움직이면 넘어지고, 뜨거운 냄비가 쏟아져. 순서는 <b>몸 보호 → 멈춤 → 가스 차단 → 대피</b>야.'},
+      {t:'현관문을 열어 둔다', lv:3,
+       fb:'문이 뒤틀려서 안 열릴까 봐 그러는 거지? 예전에 많이 하던 말인데, <b>지금은 몸 보호가 먼저</b>라고 알려. 흔들리는 동안 현관까지 걸어가는 것 자체가 위험하거든. 문은 멈춘 뒤에 열어도 돼.'}
+    ]},
+  { lv:3, scene:'대피해서 운동장에 있는데, 누군가 <b>"집에 가스 불을 켜 두고 왔어!"</b> 하고 건물 쪽으로 뛰어가려 한다.',
+    q:'',
+    opts:[
+      {t:'붙잡고 어른에게 알린다', ok:true,
+       fb:'맞아. <b>들어가는 것은 언제나 안 된다.</b> 가스는 소방관이 밖에서 잠글 수 있어. 알리는 게 훨씬 빠르고 안전해.'},
+      {t:'같이 가서 도와준다',
+       fb:'같이 들어가면 <b>위험한 사람이 둘</b>이 돼. 여진이 오면 둘 다 못 나와. 도우려면 붙잡고 어른에게 알리는 쪽이야.'}
+    ]}
+  ],
+  wrap:{ title:'지진은 순서가 반대다', rules:[
+    ['🛡️','<b>흔들리면 먼저 숨는다.</b> 책상 아래, 다리를 꼭 잡고.'],
+    ['⏸️','<b>멈추면 나간다.</b> 그 사이가 나갈 시간이다.'],
+    ['🎒','가방으로 머리를 가리고 <b>계단</b>으로. 엘리베이터는 지진에도 안 된다.'],
+    ['🏟️','건물·담장에서 <b>멀리</b>. 위에서 떨어질 것이 없는 곳.'],
+    ['🔥','<b>불은 반대다</b> — 연기가 보이면 숨지 않고 바로 나간다.']
+  ]}
+},
+
+{ id:'m4', gear:'glove', ic:'🧯', title:'소화기 훈련', sum:'쓰는 법과, 쓰지 않을 때',
+  intro:'교실 뒤 쓰레기통에서 불이 났다. 불길이 무릎 높이다.',
+  steps:[
+  { type:'order', scene:'교실 뒤 쓰레기통에서 불이 났다. 불길이 <b>무릎 높이</b>다. 소화기를 가져왔다.',
+    q:'소화기 사용 순서대로 눌러 보자.',
+    items:[
+      '안전핀을 뽑는다',
+      '노즐(호스)을 잡고 불 쪽으로 향한다',
+      '손잡이를 힘껏 움켜쥔다',
+      '빗자루로 쓸듯이 좌우로 뿌린다'
+    ],
+    hints:[
+      '핀을 안 뽑으면 손잡이가 눌리지 않아. 그래서 이게 맨 처음이야.',
+      '호스를 잡기 전에 손잡이를 쥐면 호스가 춤춰서 엉뚱한 데로 날아가.',
+      '움켜쥐면 약이 나와. 이제 뿌리기만 하면 돼.',
+      '한 곳에 붓지 말고 빗자루질하듯 좌우로.'
+    ],
+    okfb:'좋아! <b>뽑고 · 잡고 · 쥐고 · 쓸고</b>. 네 글자로 외워 두면 돼.'},
+  { scene:'약이 나온다. 어디를 향해 뿌릴까?',
+    q:'',
+    opts:[
+      {t:'불의 아래쪽, 타고 있는 물건을 향해', ok:true,
+       fb:'맞아. 불꽃은 <b>결과</b>고, 타는 물건이 <b>원인</b>이야. 원인을 덮어야 꺼져.'},
+      {t:'불꽃 맨 위쪽을 향해',
+       fb:'불꽃은 붙잡을 게 없어서 아무리 뿌려도 다시 올라와. <b>불이 나오는 밑동</b>을 덮어야 꺼져.'},
+      {t:'연기가 나는 곳을 향해',
+       fb:'연기는 결과야. 연기에 아무리 뿌려도 <b>불은 그대로</b> 타고 있어. 타는 물건을 봐야 해.'}
+    ]},
+  { scene:'이번엔 운동장이다. <b>바람이 제법 분다.</b>',
+    q:'어디에 서서 뿌릴까?',
+    opts:[
+      {t:'바람을 등지고 선다', ok:true,
+       fb:'좋아. 바람이 <b>약을 불 쪽으로 밀어 줘</b>. 반대로 서면 약도 연기도 내 얼굴로 날아와.'},
+      {t:'바람을 마주 보고 선다',
+       fb:'약이 <b>내 얼굴로 되돌아오고</b> 불길도 나한테 와. 바람을 등지는 게 원칙이야.'}
+    ]},
+  { scene:'불길이 커졌다. 이제 <b>내 키보다 높다.</b>',
+    q:'',
+    opts:[
+      {t:'소화기를 놓고 바로 대피한다', ok:true,
+       fb:'정확해. 소화기 한 대로 끌 수 있는 건 <b>사람 키 정도까지</b>야. 그보다 크면 끄는 게 아니라 나가는 거야.<br>불은 <b>30초마다 두 배</b>로 커져. 망설일 시간이 없어.'},
+      {t:'소화기를 하나 더 가져와서 끈다',
+       fb:'가지러 가는 동안 불은 <b>두 배, 네 배</b>로 커져. 키를 넘으면 소화기의 몫이 아니야. 소방관이 물로 끌 일이야. 너는 나가야 해.'},
+      {t:'물을 부어서 끈다', lv:2,
+       fb:'무엇이 타느냐에 따라 달라. 종이라면 물도 되지만, <b>기름이나 전기</b>에 물을 부으면 불이 더 퍼지거나 감전돼. 그리고 지금은 이미 <b>키를 넘었어</b> — 뭘로 끄느냐가 아니라 나갈 때야.'}
+    ]},
+  { lv:2, scene:'복도 소화기 앞에 섰다. 압력계 바늘이 <b>왼쪽 빨간 칸</b>을 가리키고 있다.',
+    q:'',
+    opts:[
+      {t:'쓸 수 없다. 다른 소화기를 찾는다', ok:true,
+       fb:'맞아. 바늘이 <b>가운데 초록 칸</b>에 있어야 약이 나와. 빨간 칸이면 눌러도 안 나와.<br>평소에 바늘을 봐 두는 것, 그게 진짜 훈련이야.'},
+      {t:'흔들어서 쓴다',
+       fb:'흔든다고 압력이 생기지는 않아. 바늘이 <b>초록 칸</b>이어야 쓸 수 있어. 빨간 칸이면 그 소화기는 고쳐야 하는 거야.'}
+    ]},
+  { lv:3, scene:'소화기를 쓰기 전, 한 가지를 먼저 확인해야 한다.',
+    q:'무엇일까?',
+    opts:[
+      {t:'내 뒤에 나갈 길이 있는지', ok:true,
+       fb:'이걸 아는 사람은 많지 않아. <b>불을 등지고 서면 안 돼.</b> 늘 나가는 문을 등지고 불을 마주 봐야, 못 끄겠다 싶을 때 바로 돌아 나갈 수 있어.'},
+      {t:'소화기 제조 회사',
+       fb:'그건 급하지 않아. 진짜 중요한 건 <b>내 뒤에 나갈 길이 있는가</b>야. 불을 끄다가 길이 막히면 소화기를 든 채로 갇혀.'},
+      {t:'주변에 사람이 있는지',
+       fb:'살피는 건 좋은 습관이야. 그런데 무엇보다 먼저 볼 것은 <b>내가 나갈 길</b>이야. 나가는 문을 등지고 불을 마주 본다 — 이게 소방관이 배우는 첫 자세야.'}
+    ]}
+  ],
+  wrap:{ title:'소화기 — 쓰는 법보다 안 쓸 때가 중요하다', rules:[
+    ['1️⃣','<b>뽑고 · 잡고 · 쥐고 · 쓸고</b>'],
+    ['🔥','<b>불의 밑동</b>을 향해. 불꽃이나 연기가 아니라.'],
+    ['🌬️','바람을 <b>등지고</b> 선다.'],
+    ['🚪','나갈 문을 <b>등지고</b> 불을 마주 본다.'],
+    ['🙅','불길이 <b>내 키를 넘으면</b> 끄지 않는다. 나간다.']
+  ]}
+},
+
+{ id:'m5', gear:'boot', ic:'🏠', title:'우리 집 점검', sum:'불씨는 미리 보인다',
+  intro:'불은 갑자기 나는 것 같지만, 대부분 미리 신호가 있다.',
+  steps:[
+  { type:'find', scene:'우리 집이다. 이 그림에서 <b>위험한 곳 다섯 군데</b>를 찾아보자. 안전한 것을 눌러도 알려 준다.',
+    q:'',
+    need:5,
+    okfb:'다 찾았어! 이 다섯 가지는 <b>실제로 집에서 불이 나는 가장 흔한 이유</b>야. 오늘 집에 가서 진짜로 있는지 봐 줘.'}
+  ],
+  wrap:{ title:'집에서 오늘 확인할 것', rules:[
+    ['🔌','멀티탭에 <b>문어발</b>로 꽂혀 있지 않은가.'],
+    ['🧯','소화기가 <b>어디 있는지</b> 아는가. (없으면 어른께 말하기)'],
+    ['🚪','베란다 <b>경량칸막이</b> 앞에 짐이 쌓여 있지 않은가.'],
+    ['🔔','천장 <b>감지기</b>가 붙어 있는가.'],
+    ['👨‍👩‍👧','불이 나면 <b>가족이 어디서 만날지</b> 정해 두었는가.']
+  ]}
+},
+
+{ id:'m6', gear:'coat', ic:'🎯', title:'최종 시험', sum:'나갈 때와 숨을 때',
+  intro:'마지막이다. 상황을 보고 판단한다.',
+  steps:[
+  { type:'sort', scene:'상황 카드를 읽고 <b>지금 할 일</b>을 고르자.',
+    cards:[
+      { t:'복도에서 타는 냄새가 나고 연기가 보인다', a:'fire',
+        fb:'연기가 보이면 <b>바로 나간다</b>. 망설이는 시간이 가장 위험해.',
+        bad:'연기에는 숨을 곳이 없어. 연기는 <b>어디든 따라와</b>. 불이 나면 답은 언제나 나가는 거야.'},
+      { t:'책상이 덜컹거리고 전등이 좌우로 흔들린다', a:'quake',
+        fb:'흔들리면 <b>먼저 숨는다</b>. 책상 아래로.',
+        bad:'흔들리는 동안 뛰면 넘어지고, 천장에서 물건이 떨어져. <b>지진은 반대</b>야 — 먼저 숨고, 멈추면 나간다.'},
+      { t:'비상벨이 울리고 방송에서 "화재가 발생했습니다"', a:'fire',
+        fb:'화재 방송이면 <b>바로 대피</b>. 확인하러 가지 않는다.',
+        bad:'화재는 기다릴수록 나빠져. 숨어 있으면 연기가 먼저 찾아와. <b>바로 나간다</b>.'},
+      { t:'발밑이 울리면서 몸이 휘청인다', a:'quake',
+        fb:'지진이야. <b>몸을 낮추고 머리부터 보호</b>한다.',
+        bad:'서 있기도 힘든데 뛰면 넘어져. 흔들릴 때는 <b>먼저 숨는다</b>.'},
+      { t:'옆 교실 문틈에서 연기가 새어 나온다', a:'fire',
+        fb:'연기 = 불. <b>알리고 나간다.</b> 문을 열어 확인하지 않는다.',
+        bad:'연기가 보이는데 숨으면 그 연기가 내 쪽으로 와. <b>나가면서 알린다</b>.'},
+      { t:'천장에 매달린 것들이 흔들리고 유리창이 덜컹거린다', a:'quake',
+        fb:'맞아. <b>떨어지는 것</b>이 가장 위험해. 책상 아래로.',
+        bad:'지금 복도로 나가면 <b>떨어지는 물건</b> 아래를 지나게 돼. 흔들릴 땐 숨는다.'},
+      { lv:2, t:'흔들림이 멈췄다. 방송에서 "운동장으로 대피하세요"', a:'fire',
+        fb:'잘했어. 지진이었지만 <b>지금은 나갈 때</b>야. 멈췄으면 나간다 — 가방으로 머리를 가리고 계단으로.',
+        bad:'헷갈릴 만해. 지진이었지만 <b>흔들림이 멈췄잖아</b>. 멈춘 그 사이가 나가는 시간이야. 계속 숨어 있으면 여진에 더 위험해.'},
+      { lv:3, t:'지진으로 흔들리다 멈췄는데, 부엌에서 불이 났다', a:'fire',
+        fb:'정확해. <b>불이 나면 언제나 나간다.</b> 지진 뒤라도 마찬가지야. 불 앞에서는 숨는 선택이 없어.',
+        bad:'지진 상황이라 헷갈렸지? 그런데 <b>불이 보이는 순간부터는 화재</b>야. 불이 나면 답은 언제나 나가는 것.'}
+    ]}
+  ],
+  wrap:{ title:'딱 두 줄만 기억한다', rules:[
+    ['🔥','<b>연기가 보이면 — 지금 나간다.</b> 다시 들어가지 않는다.'],
+    ['🌏','<b>흔들리면 — 먼저 숨는다.</b> 멈추면 나간다.'],
+    ['🚫','불이든 지진이든 <b>엘리베이터는 안 된다.</b>'],
+    ['📞','119에는 <b>어디 → 무슨 일 → 사람</b> 순서로.']
+  ]}
+}
+];
+
+/* 위험 찾기 항목 */
+const FIND = {
+  danger:[
+    { id:'plug', x:38, y:262, w:96, h:54, label:'문어발 멀티탭',
+      fb:'한 멀티탭에 <b>여러 개를 꽂으면</b> 전선이 감당 못 할 만큼 뜨거워져. 그게 불이 돼. 안 쓰는 건 뽑아 두자.'},
+    { id:'towel', x:246, y:126, w:78, h:46, label:'가스레인지 옆 행주',
+      fb:'불꽃이 조금만 튀어도 <b>바로 붙어</b>. 레인지 둘레에는 타는 것을 두지 않는다. 종이·비닐·행주 전부.'},
+    { id:'veranda', x:406, y:238, w:84, h:78, label:'베란다에 쌓인 짐',
+      fb:'저 뒤에 <b>경량칸막이</b>가 있어. 옆집으로 넘어가는 얇은 벽이야. 짐으로 막아 두면 <b>나갈 길이 하나 사라져</b>.'},
+    { id:'mat', x:60, y:150, w:74, h:44, label:'접어서 넣어 둔 전기장판',
+      fb:'접힌 자리에서 <b>안쪽 전선이 끊어져</b>. 거기서 열이 나서 불이 붙어. 전기장판은 <b>말아서</b> 보관한다.'},
+    { id:'candle', x:270, y:268, w:60, h:48, label:'켜 둔 향초',
+      fb:'불붙은 것을 켜 두고 <b>자리를 뜨지 않는다.</b> 커튼이나 종이가 가까이 있으면 더 위험해.'}
+  ],
+  safe:[
+    { id:'ext', x:170, y:258, w:48, h:60, label:'소화기',
+      fb:'잘 있네! 소화기는 <b>어디 있는지 아는 것</b>이 절반이야. 우리 집 소화기 자리를 기억해 두자.'},
+    { id:'alarm', x:190, y:60, w:52, h:36, label:'천장 화재감지기',
+      fb:'연기를 맡으면 <b>먼저 울려 줘</b>. 자는 사이에 불이 나도 깨워 주는 게 이거야. 건전지는 1년에 한 번 확인.'},
+    { id:'window', x:400, y:120, w:80, h:60, label:'창문',
+      fb:'창문은 괜찮아. 다만 알아 둘 것 — 불이 나면 <b>창문으로 뛰어내리지 않는다.</b> 손을 흔들어 알리고 구조를 기다려.'}
+  ]
+};
+
+/* ═══════════ 화면 ═══════════ */
+let V = { screen:'intro', mid:null, si:0, picked:null, ans:null, order:[], found:[], sortI:0, sortAns:null, wrap:false, ticking:null };
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+
+function steps(m){ return m.steps.filter(s => !s.lv || s.lv <= lv()); }
+function opts(st){ return st.opts.filter(o => !o.lv || o.lv <= lv()); }
+function cards(st){ return st.cards.filter(c => !c.lv || c.lv <= lv()); }
+function doneCount(){ return MISSIONS.filter(m => S.done[m.id]).length; }
+
+function render(){
+  const v = $('view');
+  $('rankBtn').textContent = S.rank ? RANKS[S.rank].ic + ' ' + RANKS[S.rank].name : '계급 선택';
+  $('rankBtn').style.display = V.screen==='intro' ? 'none' : 'flex';
+  $('sndBtn').textContent = S.sound===false ? '🔇' : '🔊';
+  clearShake(); clearSmoke();
+  if(V.screen==='intro')   v.innerHTML = viewIntro();
+  else if(V.screen==='home') v.innerHTML = viewHome();
+  else if(V.screen==='mission') v.innerHTML = viewMission();
+  else if(V.screen==='cert') { v.innerHTML = viewCert(); drawCert(); }
+  window.scrollTo(0,0);
+  save();
+}
+
+/* ── 시작 ── */
+function viewIntro(){
+  return `
+  <div class="hero">
+    <div class="siren">🚒</div>
+    <h1>119 <em>소방학교</em></h1>
+    <p class="sub">불이 나면 어떻게 할까.<br>땅이 흔들리면 어떻게 할까.<br><b style="color:var(--amber)">그 둘은 정반대다.</b></p>
+  </div>
+  <div class="card" style="margin-top:20px">
+    <div class="eyebrow">입학 · 계급 고르기</div>
+    <p class="sub" style="margin:8px 0 14px">고른 계급에 따라 <b style="color:var(--ink)">훈련 내용이 달라집니다.</b> 중간에 바꿔도 됩니다.</p>
+    <div class="rankpick">
+      ${Object.keys(RANKS).map(k=>`
+        <button class="rankopt ${S.rank===k?'sel':''}" onclick="setRank('${k}')">
+          <span class="ic">${RANKS[k].ic}</span>
+          <span style="flex:1"><b>${RANKS[k].name}</b><span>${RANKS[k].desc}</span></span>
+        </button>`).join('')}
+    </div>
+    <button class="btn primary" style="margin-top:14px" onclick="startAll()">훈련 시작</button>
+  </div>
+  <div class="qrwrap">
+    ${QR.main ? `<button class="qrbtn" onclick="showQR()">${QR.main}<span class="qrbadge">🔍 크게</span></button>
+    <div class="note">태블릿에서 바로 열기</div>` : ''}
+  </div>
+  <div class="teach">
+    <b>선생님께</b> — 3~6학년 공통 자료입니다. 한 차시(40분) 분량이고, 미션 6개를 순서대로 풀면 됩니다.
+    학년으로 나누지 않고 <b>계급</b>으로 난이도를 고르게 했습니다. 진행은 이 태블릿에 저장되니,
+    다음 아이가 쓰기 전에 머리의 <b>↺</b>를 눌러 초기화해 주세요.
+  </div>`;
+}
+function setRank(k){ SND.init(); SND.click(); S.rank=k; save(); render(); }
+function pickRank(){ SND.click(); V.screen='intro'; render(); }
+function startAll(){
+  SND.init();
+  if(!S.rank){ toast('계급을 먼저 골라 주세요'); return; }
+  SND.siren(); V.screen='home'; render();
+}
+
+/* ── 홈: 출동 준비도 ── */
+function gearSvg(){
+  const on = k => S.done[MISSIONS.find(m=>m.gear===k).id];
+  const c = k => on(k) ? 1 : .30;
+  const f = k => on(k) ? '#ffb224' : '#4d6690';
+  return `<svg viewBox="0 0 120 172" aria-hidden="true">
+    <ellipse cx="60" cy="166" rx="34" ry="5" fill="#0a1220"/>
+    <!-- 방화복(몸통) -->
+    <g opacity="${c('coat')}"><path d="M36 62 q24-10 48 0 l6 52 q-30 8 -60 0z" fill="${f('coat')}" opacity=".85"/>
+      <rect x="34" y="96" width="52" height="7" rx="3" fill="#fff" opacity=".65"/></g>
+    <!-- 부츠(다리) -->
+    <g opacity="${c('boot')}"><rect x="42" y="114" width="15" height="42" rx="5" fill="${f('boot')}"/>
+      <rect x="63" y="114" width="15" height="42" rx="5" fill="${f('boot')}"/>
+      <rect x="40" y="146" width="19" height="12" rx="4" fill="#0f1a2c"/><rect x="61" y="146" width="19" height="12" rx="4" fill="#0f1a2c"/></g>
+    <!-- 장갑 -->
+    <g opacity="${c('glove')}"><circle cx="26" cy="106" r="9" fill="${f('glove')}"/><circle cx="94" cy="106" r="9" fill="${f('glove')}"/>
+      <rect x="27" y="66" width="10" height="38" rx="5" fill="${f('glove')}" opacity=".55" transform="rotate(12 32 85)"/>
+      <rect x="83" y="66" width="10" height="38" rx="5" fill="${f('glove')}" opacity=".55" transform="rotate(-12 88 85)"/></g>
+    <!-- 마스크(얼굴) -->
+    <g opacity="${c('mask')}"><circle cx="60" cy="44" r="17" fill="${f('mask')}" opacity=".9"/>
+      <circle cx="60" cy="46" r="10" fill="#0d1523" opacity=".55"/></g>
+    <!-- 헬멧 -->
+    <g opacity="${c('helmet')}"><path d="M38 40 q22-30 44 0 q4 6 -2 7 h-40 q-6-1 -2-7z" fill="${f('helmet')}"/>
+      <path d="M34 45 h52 q4 0 2 5 h-56 q-2-5 2-5z" fill="${f('helmet')}" opacity=".7"/>
+      <circle cx="60" cy="27" r="5" fill="#fff" opacity=".8"/></g>
+    <!-- 무전기 -->
+    <g opacity="${c('radio')}"><rect x="86" y="70" width="14" height="22" rx="4" fill="${f('radio')}"/>
+      <rect x="91" y="60" width="3" height="12" rx="1.5" fill="${f('radio')}"/>
+      <circle cx="93" cy="58" r="3" fill="${f('radio')}"/></g>
+  </svg>`;
+}
+function viewHome(){
+  const n = doneCount(), all = n===MISSIONS.length;
+  return `
+  <div class="readybox">
+    ${gearSvg()}
+    <div class="readytx">
+      <div class="eyebrow">출동 준비도</div>
+      <div class="big" style="font-size:24px;margin-top:3px">${n} / ${MISSIONS.length}</div>
+      <div class="gauge"><i style="width:${n/MISSIONS.length*100}%"></i></div>
+      <div class="sub" style="font-size:14px">${
+        all ? '장비를 모두 갖췄다. <b style="color:var(--green)">출동 준비 완료.</b>'
+            : n===0 ? '아직 장비가 없다. 첫 훈련부터 시작하자.'
+            : '훈련을 마칠 때마다 장비가 하나씩 채워진다.'}</div>
+    </div>
+  </div>
+  <div class="mlist">
+    ${MISSIONS.map((m,i)=>`
+      <button class="mrow ${S.done[m.id]?'ok':''}" onclick="openM('${m.id}')">
+        <span class="num">${S.done[m.id]?'✓':i+1}</span>
+        <span class="tx"><b>${m.ic} ${m.title}</b><span>${m.sum}</span></span>
+        <span class="st">${S.done[m.id]?'🟢':'▶'}</span>
+      </button>`).join('')}
+  </div>
+  ${all ? `<button class="btn go" style="margin-top:16px" onclick="goCert()">🎖️ 수료증 받기</button>`
+        : `<div class="note">여섯 가지를 모두 마치면 수료증이 열립니다.</div>`}
+  <div class="teach">
+    <b>지금 계급은 ${RANKS[S.rank].ic} ${RANKS[S.rank].name}</b> — ${RANKS[S.rank].desc}
+    위의 계급 단추를 누르면 언제든 바꿀 수 있습니다.
+  </div>`;
+}
+function openM(id){ SND.init(); SND.click(); V.screen='mission'; V.mid=id; V.si=0; V.wrap=false; resetStep(); render(); afterRender(); }
+function resetStep(){ V.picked=null; V.ans=null; V.order=[]; V.found=[]; V.sortI=0; V.sortAns=null; }
+
+/* ── 미션 ── */
+function viewMission(){
+  const m = MISSIONS.find(x=>x.id===V.mid);
+  const ss = steps(m);
+  if(V.wrap) return viewWrap(m);
+  const st = ss[V.si];
+  let body='';
+  if(st.type==='order') body = bodyOrder(st);
+  else if(st.type==='find') body = bodyFind(st);
+  else if(st.type==='sort') body = bodySort(st);
+  else body = bodyChoice(st);
+  return `
+  <div class="mhead">
+    <button class="back" onclick="home()">‹ 상황실</button>
+    <div class="ttl">${m.ic} ${m.title}</div>
+  </div>
+  <div class="steps">${ss.map((s,i)=>`<i class="${i<V.si?'done':i===V.si?'on':''}"></i>`).join('')}</div>
+  ${body}`;
+}
+function home(){ SND.click(); V.screen='home'; V.wrap=false; render(); }
+
+/* 선택형 */
+function bodyChoice(st){
+  const os = opts(st);
+  const chosen = V.picked!=null ? os[V.picked] : null;
+  return `
+  ${st.scene?`<div class="scene">${st.scene}</div>`:''}
+  ${st.count && V.picked==null ? `<div class="countdown" id="cd">3</div>`:''}
+  ${st.q?`<div class="qq">${st.q}</div>`:''}
+  <div class="stack">
+    ${os.map((o,i)=>{
+      let cls='btn opt';
+      if(V.picked===i) cls += o.ok?' good':' bad';
+      return `<button class="${cls}" onclick="pick(${i})">
+        <span class="mk">${V.picked===i?(o.ok?'✓':'✕'):String.fromCharCode(9312+i)}</span>${esc(o.t)}</button>`;
+    }).join('')}
+  </div>
+  ${chosen?`<div class="fb ${chosen.ok?'good':'bad'}">
+      <span class="lead">${chosen.ok?'맞았어':'다시 생각해 보자'}</span>${chosen.fb}
+      ${chosen.ok?`<button class="btn go" style="margin-top:12px" onclick="next()">다 읽었어 · 다음</button>`
+                 :`<button class="btn ghost" style="margin-top:10px" onclick="again()">다시 고르기</button>`}
+    </div>`:''}`;
+}
+function pick(i){
+  const m = MISSIONS.find(x=>x.id===V.mid), st = steps(m)[V.si], o = opts(st)[i];
+  SND.init(); V.picked=i;
+  if(o.ok) SND.ok(); else SND.bad();
+  if(V.ticking){ clearInterval(V.ticking); V.ticking=null; }
+  render();
+  if(!o.ok && m.shake) doShake(700);
+}
+function again(){ SND.click(); V.picked=null; render(); if(MISSIONS.find(x=>x.id===V.mid).shake) startCount(); }
+function next(){
+  const m = MISSIONS.find(x=>x.id===V.mid), ss = steps(m);
+  SND.click();
+  if(V.si < ss.length-1){ V.si++; resetStep(); render(); afterRender(); }
+  else { V.wrap=true; SND.get(); render(); }
+}
+
+/* 순서형 */
+function bodyOrder(st){
+  const filled = V.order.length===st.items.length;
+  return `
+  ${st.scene?`<div class="scene">${st.scene}</div>`:''}
+  <div class="qq">${st.q}</div>
+  <div class="slots">
+    ${st.items.map((_,i)=>{
+      const v = V.order[i];
+      return `<div class="slot ${v!=null?'f':''}"><span class="n">${i+1}</span>${v!=null?esc(st.items[v]):'여기에 들어갈 것은?'}</div>`;
+    }).join('')}
+  </div>
+  <div class="chips">
+    ${st.items.map((t,i)=>`<button class="chip ${V.order.includes(i)?'used':''}" onclick="putOrder(${i})" ${V.order.includes(i)?'disabled':''}>${esc(t)}</button>`).join('')}
+  </div>
+  ${V.ans?`<div class="fb ${V.ans.ok?'good':'bad'}">
+      <span class="lead">${V.ans.ok?'맞았어':'순서가 달라'}</span>${V.ans.msg}
+      ${V.ans.ok?`<button class="btn go" style="margin-top:12px" onclick="next()">다 읽었어 · 다음</button>`
+                :`<button class="btn ghost" style="margin-top:10px" onclick="clearOrder()">다시 해 보기</button>`}
+    </div>`: filled?'':`<div class="note">순서대로 눌러 주세요.</div>`}`;
+}
+function putOrder(i){
+  const m = MISSIONS.find(x=>x.id===V.mid), st = steps(m)[V.si];
+  if(V.ans) return;
+  SND.init(); SND.click();
+  const pos = V.order.length;
+  V.order.push(i);
+  if(i!==pos){
+    SND.bad();
+    V.ans = { ok:false, msg:`<b>${pos+1}번째</b>에는 「${esc(st.items[pos])}」가 와야 해.<br>${st.hints[pos]}` };
+  } else if(V.order.length===st.items.length){
+    SND.ok(); SND.spray();
+    V.ans = { ok:true, msg:st.okfb };
+  }
+  render();
+}
+function clearOrder(){ SND.click(); V.order=[]; V.ans=null; render(); }
+
+/* 찾기형 */
+function bodyFind(st){
+  const found = V.found.filter(id => FIND.danger.some(d=>d.id===id));
+  const last = V.ans;
+  return `
+  ${st.scene?`<div class="scene">${st.scene}</div>`:''}
+  <div class="findcount">${FIND.danger.map((_,i)=>`<i class="${i<found.length?'on':''}"></i>`).join('')}</div>
+  <div class="findwrap">${roomSvg()}</div>
+  ${last?`<div class="fb ${last.ok?'bad':'good'}">
+      <span class="lead" style="color:${last.ok?'var(--red)':'var(--blue)'}">${last.ok?'⚠️ '+last.label:'✔ '+last.label}</span>${last.fb}
+    </div>`:''}
+  ${found.length>=st.need?`<div class="fb good"><span class="lead">다 찾았어</span>${st.okfb}
+      <button class="btn go" style="margin-top:12px" onclick="next()">다 읽었어 · 다음</button></div>`:''}`;
+}
+function roomSvg(){
+  const hot = (o,kind)=>{
+    const got = V.found.includes(o.id);
+    return `<g class="hot ${got?(kind==='d'?'found':'miss'):''}" onclick="findHit('${o.id}','${kind}')">
+      <rect x="${o.x}" y="${o.y}" width="${o.w}" height="${o.h}" rx="8"/>
+      ${got?`<text x="${o.x+o.w/2}" y="${o.y+o.h+13}" font-size="11" fill="${kind==='d'?'#3ddc84':'#4da3ff'}" text-anchor="middle" font-weight="700">${o.label}</text>`:''}
+    </g>`;
+  };
+  return `<svg viewBox="0 0 520 340">
+    <defs><linearGradient id="wall" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#25344f"/><stop offset="1" stop-color="#1a2740"/></linearGradient></defs>
+    <rect x="0" y="0" width="520" height="340" rx="10" fill="url(#wall)"/>
+    <!-- 방 구획 -->
+    <line x1="230" y1="30" x2="230" y2="230" stroke="#31456d" stroke-width="3"/>
+    <line x1="390" y1="30" x2="390" y2="330" stroke="#31456d" stroke-width="3"/>
+    <line x1="0" y1="230" x2="390" y2="230" stroke="#31456d" stroke-width="3"/>
+    <rect x="0" y="322" width="520" height="18" fill="#0f1a2c"/>
+    <text x="14" y="26" font-size="12" fill="#93a6c7" font-weight="700">안방</text>
+    <text x="244" y="26" font-size="12" fill="#93a6c7" font-weight="700">부엌</text>
+    <text x="404" y="26" font-size="12" fill="#93a6c7" font-weight="700">베란다</text>
+    <text x="14" y="250" font-size="12" fill="#93a6c7" font-weight="700">거실</text>
+
+    <!-- 안방: 전기장판 접힘 -->
+    <rect x="66" y="156" width="62" height="32" rx="4" fill="#3d5480"/>
+    <path d="M78 156 v32 M96 156 v32 M114 156 v32" stroke="#25344f" stroke-width="2"/>
+    <text x="97" y="205" font-size="10" fill="#6d82a8" text-anchor="middle">전기장판</text>
+    <rect x="40" y="60" width="150" height="56" rx="8" fill="#243352"/>
+    <text x="115" y="93" font-size="11" fill="#6d82a8" text-anchor="middle">침대</text>
+
+    <!-- 천장 감지기 -->
+    <circle cx="216" cy="78" r="13" fill="#243352" stroke="#3d5480" stroke-width="2"/>
+    <circle cx="216" cy="78" r="4" fill="#3ddc84"/>
+
+    <!-- 부엌: 레인지 + 행주 -->
+    <rect x="248" y="86" width="120" height="34" rx="5" fill="#243352"/>
+    <circle cx="272" cy="103" r="9" fill="#ff5a4d" opacity=".7"/><circle cx="300" cy="103" r="9" fill="#3d5480"/>
+    <rect x="252" y="134" width="66" height="30" rx="5" fill="#c9d6ec" opacity=".55"/>
+    <text x="285" y="153" font-size="10" fill="#0f1a2c" text-anchor="middle" font-weight="700">행주</text>
+
+    <!-- 부엌: 향초 -->
+    <rect x="282" y="284" width="30" height="26" rx="4" fill="#243352"/>
+    <path d="M297 268 q7 10 0 16 q-7-6 0-16z" fill="#ffb224"/>
+    <text x="297" y="320" font-size="10" fill="#6d82a8" text-anchor="middle">향초</text>
+
+    <!-- 거실: 문어발 멀티탭 -->
+    <rect x="46" y="278" width="80" height="22" rx="5" fill="#243352"/>
+    ${[0,1,2,3,4,5].map(i=>`<rect x="${52+i*12}" y="${268}" width="7" height="12" rx="2" fill="#ff5a4d"/>`).join('')}
+    <text x="86" y="314" font-size="10" fill="#6d82a8" text-anchor="middle">멀티탭</text>
+
+    <!-- 거실: 소화기 -->
+    <rect x="182" y="272" width="24" height="42" rx="6" fill="#ff5a4d"/>
+    <rect x="188" y="264" width="12" height="10" rx="3" fill="#243352"/>
+    <text x="194" y="326" font-size="10" fill="#6d82a8" text-anchor="middle">소화기</text>
+
+    <!-- 베란다: 창문 -->
+    <rect x="408" y="126" width="72" height="52" rx="4" fill="#0f1a2c" stroke="#3d5480" stroke-width="2"/>
+    <line x1="444" y1="126" x2="444" y2="178" stroke="#3d5480" stroke-width="2"/>
+
+    <!-- 베란다: 쌓인 짐 + 칸막이 -->
+    <rect x="414" y="248" width="68" height="26" rx="3" fill="#3d5480"/>
+    <rect x="420" y="276" width="58" height="24" rx="3" fill="#2f4267"/>
+    <rect x="416" y="300" width="66" height="22" rx="3" fill="#3d5480"/>
+    <line x1="500" y1="236" x2="500" y2="322" stroke="#93a6c7" stroke-width="3" stroke-dasharray="6 5"/>
+    <text x="448" y="234" font-size="10" fill="#6d82a8" text-anchor="middle">쌓아 둔 짐</text>
+
+    ${FIND.danger.map(o=>hot(o,'d')).join('')}
+    ${FIND.safe.map(o=>hot(o,'s')).join('')}
+  </svg>`;
+}
+function findHit(id,kind){
+  if(V.found.includes(id)) return;
+  SND.init();
+  const list = kind==='d'?FIND.danger:FIND.safe;
+  const o = list.find(x=>x.id===id);
+  V.found.push(id);
+  if(kind==='d'){ SND.bad(); } else { SND.click(); }
+  V.ans = { ok:kind==='d', label:o.label, fb:o.fb };
+  const found = V.found.filter(x=>FIND.danger.some(d=>d.id===x));
+  if(found.length>=5) SND.ok();
+  render();
+}
+
+/* 분류형 */
+function bodySort(st){
+  const cs = cards(st);
+  const c = cs[V.sortI];
+  if(!c) return '';
+  const a = V.sortAns;
+  return `
+  ${st.scene?`<div class="scene">${st.scene}</div>`:''}
+  <div class="sortprog">${cs.map((_,i)=>`<i class="${i<V.sortI?'on':''}"></i>`).join('')}</div>
+  <div class="sortcard">${esc(c.t)}</div>
+  ${a?`<div class="fb ${a.ok?'good':'bad'}">
+      <span class="lead">${a.ok?'맞았어':'다시 생각해 보자'}</span>${a.ok?c.fb:c.bad}
+      <button class="btn ${a.ok?'go':'ghost'}" style="margin-top:12px" onclick="${a.ok?'sortNext()':'sortAgain()'}">${a.ok?'다 읽었어 · 다음 상황':'다시 고르기'}</button>
+    </div>`:`
+  <div class="sortbtns">
+    <button class="btn fire" onclick="sortPick('fire')">🏃 지금 나간다<small>불 · 연기</small></button>
+    <button class="btn quake" onclick="sortPick('quake')">🛡️ 먼저 숨는다<small>흔들림</small></button>
+  </div>`}`;
+}
+function sortPick(v){
+  const m = MISSIONS.find(x=>x.id===V.mid), st = steps(m)[V.si], c = cards(st)[V.sortI];
+  SND.init();
+  const ok = c.a===v;
+  V.sortAns = { ok };
+  if(ok) SND.ok(); else SND.bad();
+  render();
+}
+function sortAgain(){ SND.click(); V.sortAns=null; render(); }
+function sortNext(){
+  const m = MISSIONS.find(x=>x.id===V.mid), st = steps(m)[V.si], cs = cards(st);
+  SND.click(); V.sortAns=null;
+  if(V.sortI < cs.length-1){ V.sortI++; render(); }
+  else next();
+}
+
+/* 정리 */
+function viewWrap(m){
+  const first = !S.done[m.id];
+  return `
+  <div class="mhead"><div class="ttl">${m.ic} ${m.title} — 정리</div></div>
+  <div class="wrapup">
+    <h3>${m.wrap.title}</h3>
+    ${m.wrap.rules.map(r=>`<div class="rule"><span class="ic">${r[0]}</span><span class="tx">${r[1]}</span></div>`).join('')}
+  </div>
+  <button class="btn go" style="margin-top:16px" onclick="finishM()">
+    ${first?'✓ 훈련 완료 · 장비 받기':'상황실로 돌아가기'}
+  </button>`;
+}
+function finishM(){
+  const m = MISSIONS.find(x=>x.id===V.mid);
+  const first = !S.done[m.id];
+  S.done[m.id]=true; save();
+  if(first){ SND.get(); toast('장비를 받았다 — 출동 준비도 ' + doneCount() + '/' + MISSIONS.length); }
+  else SND.click();
+  V.screen='home'; V.wrap=false; render();
+  if(doneCount()===MISSIONS.length && first) setTimeout(()=>SND.fanfare(), 700);
+}
+
+/* ── 연출 ── */
+function afterRender(){
+  const m = MISSIONS.find(x=>x.id===V.mid);
+  if(!m) return;
+  const st = steps(m)[V.si];
+  if(m.smoke) setSmoke((V.si+1)/steps(m).length);
+  if(st && st.count) startCount();
+}
+function startCount(){
+  const el = $('cd'); if(!el) return;
+  let n = 3; el.textContent = n;
+  SND.rumble(); doShake(3400);
+  if(V.ticking) clearInterval(V.ticking);
+  V.ticking = setInterval(()=>{
+    n--; const e=$('cd'); if(!e){ clearInterval(V.ticking); V.ticking=null; return; }
+    if(n<=0){ e.textContent='지금!'; e.style.fontSize='34px'; clearInterval(V.ticking); V.ticking=null; }
+    else { e.textContent=n; SND.tone(300,.1,'square',.1); }
+  },1000);
+}
+function doShake(ms){
+  const a=$('app'); if(!a) return;
+  a.classList.add('shake');
+  setTimeout(()=>a.classList.remove('shake'), ms||600);
+}
+function clearShake(){ const a=$('app'); if(a) a.classList.remove('shake'); }
+function setSmoke(p){
+  let el = document.querySelector('.smoke');
+  if(!el){ el=document.createElement('div'); el.className='smoke'; document.body.appendChild(el); }
+  el.style.height = Math.round(14 + p*30) + 'vh';
+}
+function clearSmoke(){
+  const m = MISSIONS.find(x=>x.id===V.mid);
+  if(V.screen!=='mission' || !m || !m.smoke || V.wrap){
+    const el=document.querySelector('.smoke'); if(el) el.remove();
+  }
+}
+
+/* ── 수료증 ── */
+function goCert(){ SND.click(); SND.fanfare(); V.screen='cert'; render(); }
+function viewCert(){
+  return `
+  <div class="mhead"><button class="back" onclick="home()">‹ 상황실</button><div class="ttl">🎖️ 수료증</div></div>
+  <div class="certwrap">
+    <input class="nameinput" id="nm" placeholder="이름을 적어 주세요" value="${esc(S.name||'')}"
+      oninput="S.name=this.value;save();drawCert()" maxlength="12">
+    <canvas id="cv" width="1000" height="700"></canvas>
+    <div class="stack">
+      <button class="btn go" onclick="saveCert()">📥 이미지로 저장하기</button>
+      <button class="btn ghost" onclick="home()">상황실로</button>
+    </div>
+    <div class="note">저장한 그림은 사진첩에 들어갑니다.<br>태블릿을 돌려 쓴다면 <b>다음 친구가 쓰기 전에</b> 저장해 두세요.</div>
+  </div>`;
+}
+function drawCert(){
+  const cv = $('cv'); if(!cv) return;
+  const x = cv.getContext('2d'), W=1000, H=700;
+  const g = x.createLinearGradient(0,0,W,H);
+  g.addColorStop(0,'#14203a'); g.addColorStop(1,'#0d1523');
+  x.fillStyle=g; x.fillRect(0,0,W,H);
+  x.strokeStyle='#ffb224'; x.lineWidth=5; x.strokeRect(26,26,W-52,H-52);
+  x.strokeStyle='#31456d'; x.lineWidth=2; x.strokeRect(42,42,W-84,H-84);
+  x.textAlign='center';
+  x.fillStyle='#ffb224'; x.font='700 22px "Noto Sans KR",sans-serif';
+  x.fillText('1 1 9   소 방 학 교', W/2, 108);
+  x.fillStyle='#eaf1fc'; x.font='900 54px "Noto Sans KR",sans-serif';
+  x.fillText('훈 련 수 료 증', W/2, 176);
+  x.strokeStyle='#ffb224'; x.lineWidth=3; x.beginPath(); x.moveTo(W/2-90,198); x.lineTo(W/2+90,198); x.stroke();
+
+  const nm = (S.name||'').trim() || '○ ○ ○';
+  x.fillStyle='#fff'; x.font='900 62px "Noto Sans KR",sans-serif';
+  x.fillText(nm, W/2, 288);
+  const r = RANKS[S.rank] || RANKS.train;
+  x.fillStyle='#ffb224'; x.font='700 26px "Noto Sans KR",sans-serif';
+  x.fillText(r.ic + '  ' + r.name + ' 과정', W/2, 330);
+
+  x.fillStyle='#cfdcf2'; x.font='400 25px "Noto Sans KR",sans-serif';
+  x.fillText('위 사람은 119 소방학교의 훈련 여섯 과정을', W/2, 396);
+  x.fillText('모두 마쳤으므로 이 증서를 줍니다.', W/2, 434);
+
+  x.fillStyle='#0f1a2c'; roundRect(x,120,470,760,112,16); x.fill();
+  x.strokeStyle='#31456d'; x.lineWidth=2; roundRect(x,120,470,760,112,16); x.stroke();
+  x.fillStyle='#ff8a80'; x.font='700 27px "Noto Sans KR",sans-serif'; x.textAlign='left';
+  x.fillText('🔥  연기가 보이면 —  지금 나간다', 156, 512);
+  x.fillStyle='#8fc4ff';
+  x.fillText('🌏  흔들리면 —  먼저 숨는다', 156, 556);
+
+  x.textAlign='center'; x.fillStyle='#93a6c7'; x.font='400 21px "Noto Sans KR",sans-serif';
+  const d = new Date();
+  x.fillText(d.getFullYear()+'년 '+(d.getMonth()+1)+'월 '+d.getDate()+'일', W/2, 622);
+  x.fillStyle='#eaf1fc'; x.font='700 25px "Noto Sans KR",sans-serif';
+  x.fillText('1 1 9   소 방 학 교 장', W/2, 662);
+}
+function roundRect(x,rx,ry,w,h,r){
+  x.beginPath(); x.moveTo(rx+r,ry);
+  x.arcTo(rx+w,ry,rx+w,ry+h,r); x.arcTo(rx+w,ry+h,rx,ry+h,r);
+  x.arcTo(rx,ry+h,rx,ry,r); x.arcTo(rx,ry,rx+w,ry,r); x.closePath();
+}
+function saveCert(){
+  const cv=$('cv'); if(!cv) return;
+  SND.ok();
+  try{
+    const a=document.createElement('a');
+    a.download='119소방학교_수료증.png'; a.href=cv.toDataURL('image/png'); a.click();
+    toast('사진첩에 저장했어요');
+  }catch(e){ toast('저장이 막혀 있어요. 화면을 캡처해 주세요'); }
+}
+
+/* ── 잡다 ── */
+function toast(t){
+  const old=document.querySelector('.toast'); if(old) old.remove();
+  const d=document.createElement('div'); d.className='toast'; d.textContent=t;
+  document.body.appendChild(d); setTimeout(()=>d.remove(),2600);
+}
+function toggleSnd(){
+  S.sound = S.sound===false;
+  SND.vol = S.sound?.55:0; save();
+  $('sndBtn').textContent = S.sound?'🔊':'🔇';
+  if(S.sound){ SND.init(); SND.click(); }
+}
+let resetArm=false;
+function resetAll(){
+  if(!resetArm){ resetArm=true; toast('한 번 더 누르면 처음부터 다시 시작합니다'); setTimeout(()=>resetArm=false,3200); return; }
+  resetArm=false;
+  S={ rank:null, done:{}, name:'', sound:S.sound };
+  save(); V={ screen:'intro', mid:null, si:0, picked:null, ans:null, order:[], found:[], sortI:0, sortAns:null, wrap:false, ticking:null };
+  render(); toast('처음으로 되돌렸습니다');
+}
+function showQR(){
+  if(!QR.main) return;
+  SND.click();
+  const d=document.createElement('div'); d.className='qrov';
+  d.innerHTML=`<div class="in">${QR.main}</div><div style="color:var(--muted);font-size:14px">화면을 누르면 닫힙니다</div>`;
+  d.onclick=()=>d.remove();
+  document.body.appendChild(d);
+  const k=e=>{ if(e.key==='Escape'){ d.remove(); document.removeEventListener('keydown',k); } };
+  document.addEventListener('keydown',k);
+}
+
+load();
+render();
+afterRender();
+if(document.fonts&&document.fonts.ready) document.fonts.ready.then(()=>{ if(V.screen==='cert') drawCert(); });
+</script>
+</body>
+</html>

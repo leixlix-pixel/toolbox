@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>대피 계획 학습지 — 119 소방학교</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+@page{ size:A4; margin:0 }
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Noto Sans KR',sans-serif; background:#4a5568; color:#16202e;
+  -webkit-print-color-adjust:exact; print-color-adjust:exact;
+}
+.bar{
+  position:sticky;top:0;z-index:10;background:#16202e;color:#fff;
+  padding:12px 16px;display:flex;align-items:center;gap:12px;font-size:14px
+}
+.bar b{font-size:15px}
+.bar button{
+  margin-left:auto;background:#e8402f;color:#fff;border:none;border-radius:9px;
+  padding:10px 18px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer
+}
+.page{
+  width:210mm; height:297mm; background:#fff; margin:14px auto;
+  padding:13mm 13mm 12mm; overflow:hidden; position:relative;
+  display:flex; flex-direction:column;
+  box-shadow:0 6px 26px rgba(0,0,0,.35)
+}
+.head{display:flex;align-items:flex-end;gap:10px;border-bottom:3px solid #16202e;padding-bottom:7px;flex:none}
+.head .ttl{flex:1}
+.head .eyebrow{font-size:10.5pt;font-weight:700;color:#e8402f;letter-spacing:1.5px}
+.head h1{font-size:19pt;font-weight:900;letter-spacing:-1px;line-height:1.15;margin-top:1px}
+.head .who{font-size:10.5pt;color:#3a4657;white-space:nowrap;padding-bottom:3px}
+.pbody{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:space-between;gap:9px;padding-top:9px}
+.sec{display:flex;flex-direction:column;min-height:0}
+.grow{flex-grow:var(--g,.5);min-height:0}
+.sh{display:flex;align-items:baseline;gap:7px;margin-bottom:5px;flex:none}
+.sh .n{
+  background:#16202e;color:#fff;font-size:9.5pt;font-weight:900;
+  width:19px;height:19px;border-radius:5px;display:inline-flex;
+  align-items:center;justify-content:center;flex:none;transform:translateY(2px)
+}
+.sh h2{font-size:12.5pt;font-weight:900;letter-spacing:-.5px}
+.sh .hint{font-size:9pt;color:#6b7790;font-weight:400;margin-left:auto;text-align:right;line-height:1.35}
+.lead{font-size:10.5pt;color:#2b3648;line-height:1.5;margin-bottom:6px;flex:none}
+.lead b{color:#e8402f}
+.gridbox{flex:1 1 0;min-height:0;position:relative}
+.gridbox svg{position:absolute;inset:0;width:100%;height:100%}
+.qrow{display:flex;gap:8px;align-items:flex-end;margin-bottom:7px;font-size:10.5pt;flex:none}
+.qrow .lb{white-space:nowrap;font-weight:500}
+.fill{flex:1;position:relative;height:22px}
+.fill svg{position:absolute;inset:0;width:100%;height:100%}
+.chk{font-size:10.5pt;line-height:1.95}
+.chk div{display:flex;gap:7px;align-items:baseline}
+.chk .bx{font-size:13pt;line-height:1;color:#16202e}
+.two{display:flex;gap:10px;flex:1;min-height:0}
+.two>*{flex:1;min-width:0;display:flex;flex-direction:column}
+.tip{
+  background:#fdf2ee;border-left:4px solid #e8402f;padding:8px 11px;
+  font-size:9.5pt;line-height:1.55;color:#4a2a22;border-radius:0 7px 7px 0;flex:none
+}
+.tip b{color:#c02d1d}
+.twoline{display:flex;gap:9px;flex:none}
+.twoline>div{
+  flex:1;border:2px solid #16202e;border-radius:9px;padding:9px 11px;
+  font-size:10.5pt;line-height:1.5
+}
+.twoline .cap{font-size:9.5pt;font-weight:900;color:#e8402f;margin-bottom:3px}
+.twoline.q>div:last-child{border-color:#2f5da8}
+.twoline.q>div:last-child .cap{color:#2f5da8}
+.foot{
+  flex:none;border-top:1.5px solid #c3cbd8;padding-top:6px;margin-top:2px;
+  font-size:8.5pt;color:#75809a;display:flex;justify-content:space-between
+}
+.sign{
+  border:2px dashed #9aa5ba;border-radius:9px;padding:8px 11px;
+  font-size:10pt;display:flex;align-items:center;gap:10px;flex:none
+}
+.sign .box{flex:1;position:relative;height:26px}
+.sign .box svg{position:absolute;inset:0;width:100%;height:100%}
+.legend{display:flex;gap:12px;font-size:9pt;color:#4a5568;margin-bottom:5px;flex:none;flex-wrap:wrap}
+.legend span{display:flex;align-items:center;gap:4px}
+.legend i{width:15px;height:11px;border-radius:2px;display:inline-block}
+@media print{
+  body{background:#fff}
+  .no-print{display:none}
+  .page{margin:0;box-shadow:none;page-break-after:always}
+  .page:last-child{page-break-after:auto}
+}
+</style>
+</head>
+<body>
+<div class="bar no-print">
+  <b>🚒 대피 계획 학습지</b>
+  <span>A4 2장 · 3~6학년 공통 · 1쪽은 학교에서, 2쪽은 집에서</span>
+  <button onclick="window.print()">🖨️ 인쇄하기</button>
+</div>
+
+<!-- ══════════ 1쪽 : 학교 ══════════ -->
+<div class="page">
+  <div class="head">
+    <div class="ttl">
+      <div class="eyebrow">119 소방학교 · 현장 실습 ①</div>
+      <h1>우리 학교에서 나가는 길</h1>
+    </div>
+    <div class="who">____학년 ____반 이름 ____________</div>
+  </div>
+
+  <div class="pbody">
+
+    <div class="sec">
+      <div class="sh"><span class="n">1</span><h2>먼저, 아는 것부터 적어 보자</h2>
+        <span class="hint">머리로 아는 것과<br>몸이 아는 것은 다르다</span></div>
+      <div class="qrow"><span class="lb">우리 교실은</span><span class="fill" data-line></span><span class="lb">층</span>
+        <span class="lb" style="margin-left:10px">교실 문을 나가서 가장 가까운 계단은</span><span class="fill" data-line></span><span class="lb">쪽</span></div>
+      <div class="qrow"><span class="lb">운동장에서 우리 반이 서는 자리는</span><span class="fill" data-line></span></div>
+      <div class="qrow"><span class="lb">우리 층 소화기가 있는 곳은</span><span class="fill" data-line></span></div>
+    </div>
+
+    <div class="sec grow" style="--g:.52">
+      <div class="sh"><span class="n">2</span><h2>교실에서 운동장까지, 가는 길을 그리자</h2>
+        <span class="hint">그림을 잘 그릴 필요는 없다.<br>길만 알아보면 된다</span></div>
+      <div class="legend">
+        <span><i style="background:#16202e"></i>교실 · 복도</span>
+        <span><i style="background:#2f5da8"></i>계단</span>
+        <span><i style="background:#e8402f"></i>내가 가는 길 (화살표로)</span>
+        <span><i style="background:#2a8a5f"></i>운동장 우리 반 자리 (★)</span>
+      </div>
+      <div class="gridbox"><svg data-grid="dot"></svg></div>
+    </div>
+
+    <div class="sec">
+      <div class="tip">
+        <b>그리다 막히면</b> — 교실 문이 어느 쪽에 있지? 복도로 나가면 왼쪽인가 오른쪽인가?
+        계단은 몇 개나 지나야 하지? 1층에 내려가면 어느 문으로 나가지?
+        <b>모르는 곳이 나왔다면 그게 오늘 알아 둘 것</b>이다.
+      </div>
+    </div>
+
+    <div class="sec grow" style="--g:.30">
+      <div class="sh"><span class="n">3</span><h2>10월 7일, 소방훈련을 하고 나서</h2>
+        <span class="hint">훈련이 끝난 뒤에 적는 칸</span></div>
+      <div class="qrow"><span class="lb">교실에서 운동장까지 걸린 시간</span><span class="fill" data-line style="max-width:70px"></span>
+        <span class="lb">분</span><span class="fill" data-line style="max-width:70px"></span><span class="lb">초</span>
+        <span class="lb" style="margin-left:14px">그때 나는 몇 번째로 나왔나</span><span class="fill" data-line style="max-width:90px"></span></div>
+      <div class="lead" style="margin-bottom:3px">가장 느려졌던 곳은 어디였고, 왜 그랬을까?</div>
+      <div class="gridbox"><svg data-grid="line" data-pitch="36"></svg></div>
+    </div>
+
+  </div>
+
+  <div class="foot"><span>119 소방학교 · 대피 계획 학습지 (1/2)</span><span>2026. 10.</span></div>
+</div>
+
+<!-- ══════════ 2쪽 : 집 ══════════ -->
+<div class="page">
+  <div class="head">
+    <div class="ttl">
+      <div class="eyebrow">119 소방학교 · 현장 실습 ② · 집에서 하는 숙제</div>
+      <h1>우리 집 대피 계획 세우기</h1>
+    </div>
+    <div class="who">____학년 ____반 이름 ____________</div>
+  </div>
+
+  <div class="pbody">
+
+    <div class="sec">
+      <div class="sh"><span class="n">4</span><h2>119에 말할 우리 집 주소</h2>
+        <span class="hint">이걸 못 말하면<br>소방차가 못 온다</span></div>
+      <div class="lead">신고 훈련에서 배웠다 — <b>어디</b>가 언제나 먼저다. 어른께 여쭤보고, 보지 않고도 말할 수 있게 적어 두자.</div>
+      <div class="qrow"><span class="lb">주소</span><span class="fill" data-line></span></div>
+      <div class="qrow"><span class="lb">동 · 호수</span><span class="fill" data-line style="max-width:140px"></span>
+        <span class="lb" style="margin-left:10px">우리 집은</span><span class="fill" data-line style="max-width:60px"></span><span class="lb">층</span>
+        <span class="lb" style="margin-left:10px">보호자 전화</span><span class="fill" data-line></span></div>
+    </div>
+
+    <div class="sec grow" style="--g:.20">
+      <div class="sh"><span class="n">5</span><h2>가족이 만날 곳을 정하자</h2>
+        <span class="hint">불이 나면 각자 나온다.<br>만날 곳이 없으면 서로 찾으러 들어간다</span></div>
+      <div class="qrow"><span class="lb">우리 가족이 만날 곳 (집 밖, 건물에서 떨어진 곳)</span><span class="fill" data-line></span></div>
+      <div class="qrow"><span class="lb">왜 그곳으로 정했나</span><span class="fill" data-line></span></div>
+    </div>
+
+    <div class="sec grow" style="--g:.24">
+      <div class="sh"><span class="n">6</span><h2>집에 가서 직접 확인하고 표시하기</h2>
+        <span class="hint">눈으로 보고 표시할 것<br>한 칸이라도 ✗ 면 어른께 말하기</span></div>
+      <div class="two">
+        <div class="chk">
+          <div><span class="bx">□</span><span>우리 집 <b>소화기</b>가 어디 있는지 안다</span></div>
+          <div><span class="bx">□</span><span>천장에 <b>화재감지기</b>가 붙어 있다</span></div>
+          <div><span class="bx">□</span><span>멀티탭에 <b>문어발</b>로 꽂혀 있지 않다</span></div>
+        </div>
+        <div class="chk">
+          <div><span class="bx">□</span><span>베란다 <b>경량칸막이</b> 앞이 비어 있다</span></div>
+          <div><span class="bx">□</span><span>전기장판을 <b>접지 않고</b> 말아서 둔다</span></div>
+          <div><span class="bx">□</span><span>현관 앞에 <b>걸리는 물건</b>이 없다</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec grow" style="--g:.34">
+      <div class="sh"><span class="n">7</span><h2>어른께 여쭤보기</h2>
+        <span class="hint">가족 중 누구에게 여쭤봐도 좋다</span></div>
+      <div class="lead" style="margin-bottom:3px">"불이 나거나 땅이 흔들린 적이 있었어요?" — 들은 이야기를 적어 보자.</div>
+      <div class="gridbox"><svg data-grid="line" data-pitch="36"></svg></div>
+    </div>
+
+    <div class="sec">
+      <div class="twoline q">
+        <div><div class="cap">🔥 불이 나면</div>연기가 보이면 ________________________.<br>그리고 ____________ 들어가지 않는다.</div>
+        <div><div class="cap">🌏 땅이 흔들리면</div>먼저 ________________________.<br>흔들림이 ____________ 나간다.</div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sign">
+        <span>이 학습지를 가족과 함께 보았습니다.</span>
+        <span>보호자</span><span class="box" data-line></span><span>(서명)</span>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="foot"><span>119 소방학교 · 대피 계획 학습지 (2/2)</span><span>2026. 10.</span></div>
+</div>
+
+<script>
+/* 줄·모눈은 CSS 테두리가 아니라 SVG 선으로 긋는다.
+   — 인쇄하면 빈 칸의 선이 사라지는 사고가 났었다.
+   줄 수를 고정하지 않고 실제 높이를 재서 pitch 로 나눈다. */
+function drawAll(){
+  document.querySelectorAll('[data-line]').forEach(function(el){
+    var w = el.clientWidth, h = el.clientHeight;
+    if(!w) return;
+    var s = el.querySelector('svg');
+    if(!s){ s = document.createElementNS('http://www.w3.org/2000/svg','svg'); el.appendChild(s); }
+    s.setAttribute('viewBox','0 0 '+w+' '+h);
+    s.innerHTML = '<line x1="0" y1="'+(h-3)+'" x2="'+w+'" y2="'+(h-3)+'" stroke="#9aa5ba" stroke-width="1.2"/>';
+  });
+  document.querySelectorAll('svg[data-grid]').forEach(function(s){
+    var b = s.parentNode.getBoundingClientRect();
+    var w = Math.round(b.width), h = Math.round(b.height);
+    if(!w || !h) return;
+    s.setAttribute('viewBox','0 0 '+w+' '+h);
+    var o = '';
+    if(s.dataset.grid === 'dot'){
+      var p = 26;
+      o += '<rect x="0.6" y="0.6" width="'+(w-1.2)+'" height="'+(h-1.2)+'" rx="8" fill="none" stroke="#16202e" stroke-width="1.6"/>';
+      for(var y=p; y<h-4; y+=p)
+        for(var x=p; x<w-4; x+=p)
+          o += '<circle cx="'+x+'" cy="'+y+'" r="1.05" fill="#c3cbd8"/>';
+    } else {
+      var pitch = +(s.dataset.pitch || 36);
+      var rows = Math.max(1, Math.round(h / pitch));
+      var gap = h / rows;
+      for(var i=1; i<=rows; i++){
+        var yy = Math.round(gap*i) - 3;
+        if(yy > h-1) break;
+        o += '<line x1="0" y1="'+yy+'" x2="'+w+'" y2="'+yy+'" stroke="#c3cbd8" stroke-width="1.1"/>';
+      }
+    }
+    s.innerHTML = o;
+  });
+}
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(drawAll);
+window.addEventListener('load', drawAll);
+window.addEventListener('resize', drawAll);
+window.addEventListener('beforeprint', drawAll);
+drawAll();
+</script>
+</body>
+</html>

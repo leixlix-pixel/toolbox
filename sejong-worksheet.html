@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>세종의 통역 수첩 — 학습지</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Gaegu:wght@400;700&display=swap" rel="stylesheet">
+<style>
+@page{ size:A4; margin:0 }
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans KR',sans-serif;background:#4a4458;color:#1a1a1a;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.bar{
+  position:sticky;top:0;z-index:9;background:#241b33;color:#f3edff;
+  padding:11px 16px;display:flex;align-items:center;gap:12px;font-size:14px
+}
+.bar b{font-weight:700}
+.bar button{
+  margin-left:auto;background:#f0c060;color:#39280a;border:none;border-radius:9px;
+  padding:9px 18px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer
+}
+.page{
+  width:210mm;height:297mm;background:#fff;margin:14px auto;
+  padding:13mm 13mm 12mm;overflow:hidden;position:relative;
+  display:flex;flex-direction:column;box-shadow:0 6px 26px rgba(0,0,0,.3)
+}
+.head{display:flex;align-items:flex-end;gap:10px;border-bottom:2.5px solid #2b2140;padding-bottom:8px;flex:none}
+.head .ttl{flex:1;min-width:0}
+.head .eyebrow{font-size:10.5pt;font-weight:700;color:#7a5da8;letter-spacing:1px}
+.head h1{font-size:19pt;font-weight:900;letter-spacing:-1px;line-height:1.2;margin-top:1px}
+.head .name{font-size:9.5pt;color:#444;text-align:right;line-height:2.1;flex:none}
+.head .name u{display:inline-block;min-width:52px;border-bottom:1px solid #999;text-decoration:none}
+
+.pbody{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:space-between;gap:9px;padding-top:10px}
+.sec{display:flex;flex-direction:column;min-height:0}
+.grow{flex-grow:var(--g,.5);min-height:0}
+.sh{display:flex;align-items:baseline;gap:7px;margin-bottom:6px;flex:none}
+.sh .no{
+  width:19px;height:19px;border-radius:50%;background:#2b2140;color:#fff;
+  font-size:10pt;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex:none
+}
+.sh b{font-size:12pt;font-weight:700;letter-spacing:-.4px}
+.sh span{font-size:9pt;color:#666;font-weight:400}
+.sh .lv{margin-left:auto;font-size:8.5pt;color:#7a5da8;font-weight:500;flex:none;text-align:right;line-height:1.35}
+
+.wordbank{
+  background:#f4f0fa;border:1.2px solid #d5cae8;border-radius:8px;
+  padding:7px 10px;font-size:10pt;line-height:1.75;margin-bottom:7px;flex:none
+}
+.wordbank b{color:#5b3f8f;font-size:9pt;font-weight:700;margin-right:5px}
+
+.three{display:flex;gap:7px;flex:1;min-height:0}
+.bin{flex:1;display:flex;flex-direction:column;border:1.4px solid #bbb;border-radius:8px;overflow:hidden;min-height:0}
+.bin .bt{background:#efeaf7;border-bottom:1.2px solid #bbb;padding:5px 7px;font-size:9.5pt;font-weight:700;text-align:center;line-height:1.3;flex:none}
+.bin .bt s{display:block;font-size:8pt;font-weight:400;color:#666;text-decoration:none}
+.bin svg{flex:1 1 0;width:100%;min-height:34px}
+
+.four{display:flex;gap:6px;flex:1;min-height:0}
+.slot{flex:1;display:flex;flex-direction:column;border:1.4px solid #bbb;border-radius:8px;overflow:hidden;min-height:0}
+.slot .st{background:#efeaf7;border-bottom:1.2px solid #bbb;padding:4px 5px;font-size:9pt;font-weight:700;text-align:center;flex:none}
+.slot .sv{flex:1;display:flex;align-items:center;justify-content:center;min-height:26px}
+
+.lines{border:1.4px solid #bbb;border-radius:8px;flex:1 1 0;min-height:0;overflow:hidden}
+.lines svg{width:100%;height:100%;display:block}
+
+.oneline{
+  border:2.2px solid #2b2140;border-radius:9px;background:#faf7ff;
+  padding:9px 11px;display:flex;align-items:center;gap:9px;flex:none
+}
+.oneline .lb{font-size:9.5pt;font-weight:700;color:#5b3f8f;flex:none}
+.oneline .ln{flex:1;border-bottom:1.5px solid #9c8ec0;height:20px}
+
+.foot{
+  flex:none;margin-top:8px;border-top:1.5px dashed #b9aed2;padding-top:7px;
+  display:flex;align-items:center;gap:10px
+}
+.foot .q{font-family:'Gaegu',sans-serif;font-size:13pt;color:#4a3820;line-height:1.35;flex:1}
+.foot .q b{color:#8a4a20}
+.foot .src{font-size:8pt;color:#888;text-align:right;line-height:1.5;flex:none}
+
+@media print{
+  body{background:#fff}
+  .no-print{display:none}
+  .page{margin:0;box-shadow:none}
+}
+</style>
+</head>
+<body>
+<div class="bar no-print">
+  <b>세종의 통역 수첩</b> — 언어문화개선교육 학습지 (5~6학년) · A4 1장
+  <button onclick="window.print()">🖨 인쇄하기</button>
+</div>
+
+<div class="page">
+  <div class="head">
+    <div class="ttl">
+      <div class="eyebrow">👑 언어문화개선교육 · 2026.10.06</div>
+      <h1>세종의 통역 수첩</h1>
+    </div>
+    <div class="name">
+      <u></u>학년 <u></u>반<br>
+      이름 <u style="min-width:74px"></u>
+    </div>
+  </div>
+
+  <div class="pbody">
+
+    <!-- ① 세 갈래 -->
+    <div class="sec grow" style="--g:.18">
+      <div class="sh"><span class="no">1</span><b>세 갈래로 나누어 보자</b>
+        <span>세종은 이 말들이 「같은 종류가 아니다」라고 했다.</span>
+        <span class="lv">5학년 각 2개씩<br>6학년 각 3개씩</span></div>
+      <div class="wordbank"><b>보기</b>
+        갑분싸 · 핵꿀잼 · ㅅㅂ · 급식충 · 어쩔티비 · ㅈㄴ○○ · 진지충 · 요린이 · ㄹㅇ · 틀딱 · 개-(개맛있다) · 인싸
+      </div>
+      <div class="three">
+        <div class="bin"><div class="bt">새로 지은 말<s>줄여 쓰거나 새로 만든 말</s></div><svg class="g"></svg></div>
+        <div class="bin"><div class="bt">뜻 없이 붙는 말<s>습관으로 나오는 말</s></div><svg class="g"></svg></div>
+        <div class="bin"><div class="bt">사람을 내리는 말<s>사람을 묶어 낮추는 말</s></div><svg class="g"></svg></div>
+      </div>
+    </div>
+
+    <!-- ② 내 말 네 마디 -->
+    <div class="sec grow" style="--g:.08">
+      <div class="sh"><span class="no">2</span><b>내 말 네 마디</b>
+        <span>네 자리에 <u>서로 다른 말</u>을 하나씩. 같은 말을 두 번 쓰지 않기.</span></div>
+      <div class="four">
+        <div class="slot"><div class="st">놀랐을 때</div><div class="sv"></div></div>
+        <div class="slot"><div class="st">아플 때</div><div class="sv"></div></div>
+        <div class="slot"><div class="st">신날 때</div><div class="sv"></div></div>
+        <div class="slot"><div class="st">화날 때</div><div class="sv"></div></div>
+      </div>
+    </div>
+
+    <!-- ③ 뜻을 펴지 못한 사람 -->
+    <div class="sec grow" style="--g:.32">
+      <div class="sh"><span class="no">3</span><b>제 뜻을 펴지 못한 사람</b>
+        <span>말 때문에 하고 싶은 말을 못 한 사람을 본 적 있나? 내가 그랬던 적은?</span>
+        <span class="lv">6학년은 그때<br>내 마음까지 한 줄 더</span></div>
+      <div class="lines"><svg class="g"></svg></div>
+    </div>
+
+    <!-- ④ 없어졌으면 하는 말 -->
+    <div class="sec grow" style="--g:.27">
+      <div class="sh"><span class="no">4</span><b>우리 반에서 없어졌으면 하는 말</b>
+        <span>한 가지와 그 까닭. 이 칸은 모아서 <u>학급 약속</u>이 된다.</span></div>
+      <div class="lines"><svg class="g"></svg></div>
+    </div>
+
+    <!-- ⑤ 나의 한 줄 -->
+    <div class="sec">
+      <div class="sh"><span class="no">5</span><b>수첩의 마지막 줄</b>
+        <span>내일 교실에서 <u>하지 않을 말</u>, 또는 <u>할 말</u>을 한 줄로.</span></div>
+      <div class="oneline"><span class="lb">나는</span><span class="ln"></span></div>
+    </div>
+
+  </div>
+
+  <div class="foot">
+    <div class="q">“제 뜨들 시러 펴디 몯할 노미 하니라”<br>
+      — 하고 싶은 말이 있어도 끝내 <b>제 뜻을 펴지 못하는 사람이 많다.</b></div>
+    <div class="src">훈민정음 서문(1446)<br>옛 글자를 지금 자판으로 옮겨 적음</div>
+  </div>
+</div>
+
+<script>
+/* 칸이 flex 로 늘어나므로 줄 수를 고정하지 않는다.
+   그려진 높이를 재서 pitch 로 나눠 줄 수를 정한다 (NOTES-lessons.md). */
+function drawLines(){
+  document.querySelectorAll('svg.g').forEach(sv=>{
+    const r=sv.getBoundingClientRect();
+    const w=r.width, h=r.height;
+    if(w<4||h<4) return;
+    const pitch=36;                       /* 줄 간격 — 34~38px */
+    const rows=Math.max(1,Math.round((h-10)/pitch));
+    const gap=(h-10)/rows;
+    let s='';
+    for(let i=1;i<=rows;i++){
+      const y=(5+gap*i).toFixed(1);
+      s+='<line x1="10" y1="'+y+'" x2="'+(w-10).toFixed(1)+'" y2="'+y+'" stroke="#d2d2d2" stroke-width="1"/>';
+    }
+    sv.setAttribute('viewBox','0 0 '+w.toFixed(1)+' '+h.toFixed(1));
+    sv.setAttribute('preserveAspectRatio','none');
+    sv.innerHTML=s;
+  });
+}
+if(document.fonts&&document.fonts.ready) document.fonts.ready.then(drawLines);
+window.addEventListener('load',drawLines);
+window.addEventListener('resize',drawLines);
+window.addEventListener('beforeprint',drawLines);
+drawLines();
+</script>
+</body>
+</html>

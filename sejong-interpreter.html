@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>세종, 말을 배우러 오다 — 통역관이 되어</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Gaegu:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#140f1c; --bg2:#1c1527; --card:#241b33; --card2:#302444; --line:#443458;
+  --ink:#f3edff; --muted:#a798c2;
+  --gold:#f0c060; --jade:#4dd2a8; --red:#ff6b7a; --blue:#79a6ff; --ink2:#c9b8e8;
+}
+html,body{background:var(--bg);color:var(--ink)}
+body{
+  font-family:'Noto Sans KR',sans-serif; font-size:17px; line-height:1.6;
+  touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+  user-select:none; -webkit-user-select:none; min-height:100vh;
+  background:
+    radial-gradient(1100px 460px at 50% -8%, #2b2040 0%, transparent 62%),
+    var(--bg);
+}
+button{font-family:inherit;font-size:inherit;color:inherit;border:none;background:none;cursor:pointer}
+input,textarea{font-family:inherit}
+#app{max-width:820px;margin:0 auto;padding:0 14px 44px}
+
+/* ── 머리 ── */
+header{
+  display:flex;align-items:center;gap:8px;
+  padding:12px 2px 10px;position:sticky;top:0;z-index:40;
+  background:linear-gradient(180deg,var(--bg) 70%,transparent);
+}
+.brand{font-weight:900;font-size:15px;letter-spacing:-.7px;display:flex;align-items:center;gap:6px;white-space:nowrap;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.brand .dot{width:10px;height:10px;border-radius:50%;background:var(--gold);box-shadow:0 0 12px var(--gold);animation:bl 2.2s infinite}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.3}}
+.hspace{flex:1}
+.iconbtn{width:36px;height:36px;flex:none;border-radius:11px;background:var(--card);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:17px}
+.cnt{font-size:12.5px;font-weight:700;padding:5px 9px;flex:none;white-space:nowrap;border-radius:999px;background:var(--card2);border:1px solid var(--line);color:var(--gold);min-height:32px;display:flex;align-items:center}
+
+/* ── 공통 ── */
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px}
+.big{font-size:26px;font-weight:900;line-height:1.32;letter-spacing:-1px}
+.sub{color:var(--muted);font-size:15px}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:2px;color:var(--gold)}
+.btn{
+  display:block;width:100%;min-height:52px;padding:13px 17px;border-radius:14px;
+  background:var(--card2);border:1.5px solid var(--line);
+  font-weight:500;text-align:left;line-height:1.45;
+  transition:transform .08s,border-color .15s,background .15s;
+}
+.btn:active{transform:scale(.985)}
+.btn.primary{background:var(--gold);border-color:#ffe0a0;color:#39280a;font-weight:700;text-align:center}
+.btn.go{background:var(--jade);border-color:#9df0d6;color:#05301f;font-weight:700;text-align:center}
+.btn.ghost{background:transparent;color:var(--muted);font-weight:500;text-align:center;min-height:46px}
+.btn.sel{border-color:var(--gold);background:#352a16}
+.btn.ok{border-color:#2f7a5c;background:#153026}
+.btn.no{border-color:#7a3340;background:#331820;opacity:.72}
+.stack{display:flex;flex-direction:column;gap:9px}
+.mt{margin-top:14px}
+
+/* ── 시작 화면 ── */
+.hero{text-align:center;padding:22px 6px 8px}
+.hero h1{font-size:33px;font-weight:900;line-height:1.22;letter-spacing:-1.4px;margin:12px 0 8px}
+.hero h1 em{font-style:normal;color:var(--gold)}
+.heroic{font-size:54px;line-height:1;filter:drop-shadow(0 0 24px rgba(240,192,96,.45))}
+.quotebox{
+  background:linear-gradient(135deg,#1f1830,#2a2040);border:1px solid var(--line);
+  border-radius:18px;padding:17px 18px;margin-top:16px;text-align:left
+}
+.quotebox .old{font-family:'Gaegu',serif;font-size:21px;line-height:1.85;color:var(--gold);letter-spacing:.3px}
+.quotebox .now{font-size:14.5px;color:var(--muted);margin-top:10px;line-height:1.6}
+
+/* ── QR ── */
+.qrwrap{text-align:center;margin-top:24px}
+.qrbtn{position:relative;background:#fff;border-radius:14px;padding:9px;line-height:0;border:3px solid var(--card2)}
+.qrbtn svg{width:128px;height:128px;display:block}
+.qrbadge{position:absolute;right:-8px;bottom:-9px;background:var(--gold);color:#39280a;font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;line-height:1.5}
+.qrov{position:fixed;inset:0;background:rgba(10,7,16,.94);z-index:90;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;padding:20px}
+.qrov .in{background:#fff;padding:16px;border-radius:20px;line-height:0}
+.qrov svg{width:min(78vw,440px);height:min(78vw,440px);display:block}
+
+/* ── 홈: 통역 수첩 ── */
+.bookbox{
+  display:flex;gap:15px;align-items:center;
+  background:linear-gradient(135deg,#1e1730,#2a2042);
+  border:1px solid var(--line);border-radius:20px;padding:15px 17px;margin-bottom:14px
+}
+.bookbox svg{width:112px;height:140px;flex:none}
+.booktx{flex:1;min-width:0}
+.gauge{height:10px;border-radius:99px;background:#140e20;overflow:hidden;margin:9px 0 7px;border:1px solid var(--line)}
+.gauge i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--jade));border-radius:99px;transition:width .5s}
+.mlist{display:flex;flex-direction:column;gap:10px}
+.mrow{display:flex;align-items:center;gap:13px;width:100%;padding:14px 15px;border-radius:16px;background:var(--card);border:1.5px solid var(--line);text-align:left}
+.mrow .num{width:34px;height:34px;border-radius:11px;flex:none;background:var(--card2);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;color:var(--muted)}
+.mrow .tx{flex:1;min-width:0}
+.mrow .tx b{display:block;font-size:16.5px;font-weight:700}
+.mrow .tx span{display:block;font-size:13.5px;color:var(--muted);line-height:1.45}
+.mrow .st{font-size:21px;flex:none}
+.mrow.ok{border-color:#2f7a5c;background:#152b22}
+.mrow.ok .num{background:var(--jade);color:#05301f}
+
+/* ── 세종 말풍선 ── */
+.saying{display:flex;gap:11px;align-items:flex-start;margin:4px 0 14px}
+.saying .face{
+  width:44px;height:44px;border-radius:50%;flex:none;
+  background:linear-gradient(160deg,#3b2c56,#241b33);border:1.5px solid var(--gold);
+  display:flex;align-items:center;justify-content:center;font-size:23px
+}
+.saying .bub{
+  flex:1;background:var(--card2);border:1.5px solid var(--line);border-radius:4px 16px 16px 16px;
+  padding:12px 15px;font-size:16.5px;line-height:1.62
+}
+.saying .bub b{color:var(--gold);font-weight:700}
+.saying.me{flex-direction:row-reverse}
+.saying.me .face{border-color:var(--blue);font-size:21px}
+.saying.me .bub{border-radius:16px 4px 16px 16px;background:#1c2540;border-color:#3c5285}
+
+/* ── 교실 대화 ── */
+.chat{display:flex;flex-direction:column;gap:10px}
+.line{display:flex;gap:9px;align-items:flex-start}
+.line .who{
+  font-size:13px;font-weight:700;color:var(--muted);flex:none;width:36px;text-align:right;padding-top:11px
+}
+.line .say{
+  flex:1;background:var(--card2);border:1.5px solid var(--line);border-radius:14px;
+  padding:10px 13px;font-size:16.5px;line-height:1.7
+}
+.tok{
+  display:inline-block;padding:1px 5px;margin:0 1px;border-radius:7px;
+  background:#3a2d52;border:1.5px dashed #6b568e;color:var(--ink);
+  transition:background .15s,border-color .15s
+}
+.tok:active{transform:scale(.96)}
+.tok.got{background:#3d3316;border:1.5px solid var(--gold);color:var(--gold);font-weight:700;border-style:solid}
+
+/* ── 분류 통 ── */
+.bins{display:flex;flex-direction:column;gap:9px;margin-top:12px}
+.bin{display:flex;align-items:center;gap:12px;width:100%;padding:13px 14px;border-radius:15px;background:var(--card2);border:1.5px solid var(--line);text-align:left}
+.bin .bic{font-size:23px;flex:none;width:30px;text-align:center}
+.bin b{display:block;font-size:16px;font-weight:700}
+.bin span{display:block;font-size:13px;color:var(--muted);line-height:1.4}
+
+/* ── 낱말 카드 ── */
+.wordcard{
+  background:linear-gradient(135deg,#2c2142,#1f1830);border:2px solid var(--line);
+  border-radius:18px;padding:22px 18px;text-align:center;margin:10px 0 4px
+}
+.wordcard .w{font-size:34px;font-weight:900;letter-spacing:-1px;line-height:1.25;color:var(--gold)}
+.wordcard .ctx{font-size:14.5px;color:var(--muted);margin-top:9px;line-height:1.55}
+.progdots{display:flex;gap:6px;justify-content:center;margin-top:12px}
+.progdots i{width:8px;height:8px;border-radius:50%;background:var(--line);display:block}
+.progdots i.on{background:var(--gold)}
+.progdots i.dn{background:var(--jade)}
+
+/* ── 피드백 ── */
+.fb{border-radius:15px;padding:14px 16px;margin-top:12px;font-size:16px;line-height:1.66;border:1.5px solid}
+.fb.good{background:#152b22;border-color:#2f7a5c}
+.fb.bad{background:#2e1a20;border-color:#7a3340}
+.fb.note{background:#1f2540;border-color:#3c5285}
+.fb b{font-weight:700}
+.fb .ft{display:block;font-weight:700;margin-bottom:5px;font-size:15px}
+.fb.good .ft{color:var(--jade)}
+.fb.bad .ft{color:var(--red)}
+.fb.note .ft{color:var(--blue)}
+
+/* ── 거울 ── */
+.mirror{
+  background:linear-gradient(160deg,#28203c,#191325);border:2px solid var(--line);
+  border-radius:100px/40px;padding:20px 18px;text-align:center;margin:12px 0;
+  box-shadow:inset 0 0 30px rgba(121,166,255,.10)
+}
+.mirror .mw{font-size:27px;font-weight:900;color:var(--blue);letter-spacing:-.5px}
+.mirror .ms{font-size:14px;color:var(--muted);margin-top:7px}
+
+/* ── 마음 두 겹 ── */
+.twomind{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.mind{border-radius:15px;padding:13px 15px;border:1.5px solid var(--line);background:var(--card2)}
+.mind .ml{font-size:12.5px;font-weight:700;letter-spacing:1px;color:var(--muted);margin-bottom:5px}
+.mind .mt2{font-size:16.5px;line-height:1.6}
+.mind.said{border-color:#3c5285;background:#1c2540}
+.mind.heard{border-color:#7a3340;background:#2e1a20}
+
+/* ── 입력칸 ── */
+.inbox{
+  width:100%;min-height:52px;padding:13px 15px;border-radius:14px;
+  background:#170f24;border:1.5px solid var(--line);color:var(--ink);
+  font-size:17px;line-height:1.5;resize:none;user-select:text;-webkit-user-select:text
+}
+.inbox:focus{outline:none;border-color:var(--gold)}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
+.chip{padding:8px 13px;border-radius:999px;background:var(--card2);border:1.5px solid var(--line);font-size:14.5px;min-height:38px;display:flex;align-items:center}
+.chip.sel{border-color:var(--gold);background:#352a16;color:var(--gold);font-weight:700}
+
+/* ── 수첩 ── */
+.notepage{
+  background:linear-gradient(135deg,#f6efdd,#eee3c9);color:#2f2415;
+  border-radius:18px;padding:20px 20px 16px;margin-top:6px;
+  box-shadow:0 10px 28px rgba(0,0,0,.4)
+}
+.notepage h3{font-family:'Gaegu',sans-serif;font-size:25px;font-weight:700;letter-spacing:-.5px;margin-bottom:12px;color:#4a3820;text-align:center}
+.noteline{
+  display:flex;gap:9px;align-items:flex-start;padding:9px 0;border-bottom:1.5px dashed #c8b894;
+  font-family:'Gaegu',sans-serif;font-size:19px;line-height:1.55
+}
+.noteline:last-child{border-bottom:none}
+.noteline .nn{font-weight:700;color:#8a6f3e;flex:none}
+.noteline.empty{color:#a89b7e}
+
+/* ── 서문 카드 ── */
+.seomun{
+  background:linear-gradient(135deg,#f6efdd,#e9dcc0);color:#2f2415;
+  border-radius:16px;padding:20px 18px;margin:12px 0
+}
+.seomun .old{font-family:'Gaegu',sans-serif;font-size:21px;line-height:1.95;color:#4a3820;letter-spacing:.2px}
+.seomun .now{font-size:15px;line-height:1.7;color:#5d4a2d;margin-top:12px;padding-top:12px;border-top:1.5px dashed #c8b894}
+.seomun .now b{color:#8a4a20;font-weight:700}
+.seomun .src{font-size:12px;color:#8a7c5e;margin-top:10px;line-height:1.5}
+
+/* ── 토스트 ── */
+#toast{
+  position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);
+  background:#0e0a16;border:1.5px solid var(--gold);color:var(--ink);
+  padding:11px 18px;border-radius:999px;font-size:15px;font-weight:500;
+  opacity:0;transition:opacity .25s,transform .25s;z-index:80;pointer-events:none;max-width:90vw;text-align:center
+}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── 완료 오버레이 ── */
+.ovl{position:fixed;inset:0;background:rgba(10,7,16,.93);z-index:70;display:flex;align-items:center;justify-content:center;padding:20px}
+.ovl .in{background:var(--card);border:1.5px solid var(--gold);border-radius:22px;padding:26px 22px;max-width:420px;width:100%;text-align:center}
+.ovl .ic{font-size:50px;line-height:1;margin-bottom:10px}
+.ovl h2{font-size:23px;font-weight:900;margin-bottom:8px;letter-spacing:-.6px}
+.ovl p{color:var(--muted);font-size:15.5px;line-height:1.65;margin-bottom:16px}
+
+.foot{text-align:center;color:var(--muted);font-size:12.5px;margin-top:24px;line-height:1.6}
+.warn{font-size:13px;color:var(--muted);line-height:1.6;background:#1f1830;border:1px solid var(--line);border-radius:12px;padding:11px 13px;margin-top:12px}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="brand"><span class="dot"></span><span>세종, 말을 배우러 오다</span></div>
+    <div class="hspace"></div>
+    <div class="cnt" id="cnt">수첩 0/6</div>
+    <button class="iconbtn" onclick="toggleSound()" id="sbtn" title="소리">🔊</button>
+    <button class="iconbtn" onclick="resetAll()" title="처음부터">↺</button>
+  </header>
+  <div id="view"></div>
+</div>
+<div id="toast"></div>
+<div id="ovlwrap"></div>
+<script>
+/* ══════════════════════════════════════════════════════════
+   세종, 말을 배우러 오다 — 언어문화개선교육 (5~6학년)
+   2026-10-06 언어문화개선교육 / 단일 파일 · 외부 의존 없음
+   ══════════════════════════════════════════════════════════ */
+
+const QR = { main:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 39 39" shape-rendering="crispEdges"><path fill="#ffffff" d="M0 0h39v39H0z"/><path stroke="#000000" d="M1 1.5h7m2 0h1m3 0h1m2 0h3m1 0h3m1 0h2m4 0h7M1 2.5h1m5 0h1m2 0h2m1 0h1m1 0h4m1 0h1m1 0h2m3 0h2m2 0h1m5 0h1M1 3.5h1m1 0h3m1 0h1m1 0h4m1 0h1m1 0h1m3 0h3m2 0h1m1 0h1m3 0h1m1 0h3m1 0h1M1 4.5h1m1 0h3m1 0h1m1 0h2m2 0h2m1 0h3m1 0h1m2 0h1m2 0h3m2 0h1m1 0h3m1 0h1M1 5.5h1m1 0h3m1 0h1m1 0h2m1 0h1m3 0h2m1 0h3m2 0h1m1 0h2m3 0h1m1 0h3m1 0h1M1 6.5h1m5 0h1m1 0h1m1 0h1m1 0h2m1 0h2m1 0h1m3 0h1m2 0h3m2 0h1m5 0h1M1 7.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M9 8.5h5m2 0h2m3 0h1m3 0h1m2 0h1M1 9.5h1m1 0h5m5 0h1m1 0h2m2 0h1m1 0h7m1 0h1m1 0h5M1 10.5h3m1 0h1m2 0h1m1 0h1m1 0h7m10 0h2m1 0h1m2 0h2M3 11.5h1m3 0h5m6 0h1m2 0h2m1 0h2m2 0h3m1 0h1m1 0h4M1 12.5h1m1 0h1m6 0h2m5 0h1m4 0h1m1 0h1m3 0h2m1 0h2m4 0h1M2 13.5h3m1 0h4m8 0h1m2 0h1m1 0h9m1 0h5M2 14.5h3m1 0h1m3 0h1m6 0h8m1 0h1m2 0h1m2 0h1M1 15.5h1m1 0h1m1 0h1m1 0h2m7 0h3m2 0h2m5 0h2m1 0h4m1 0h2M1 16.5h1m1 0h1m1 0h2m1 0h1m1 0h1m2 0h1m4 0h7m3 0h1m3 0h2m2 0h1M2 17.5h4m1 0h1m1 0h2m3 0h4m2 0h1m1 0h1m3 0h2m2 0h2m1 0h1m1 0h2M1 18.5h3m1 0h1m2 0h4m2 0h3m1 0h2m1 0h3m1 0h3m1 0h2m1 0h1m3 0h1M2 19.5h3m2 0h2m1 0h4m2 0h2m2 0h1m1 0h2m4 0h1m1 0h2m3 0h3M2 20.5h1m2 0h2m2 0h5m2 0h1m2 0h5m1 0h1m1 0h6m1 0h1m2 0h1M4 21.5h4m2 0h4m2 0h3m1 0h1m2 0h1m1 0h4m1 0h2m1 0h3M2 22.5h1m2 0h1m2 0h2m2 0h1m1 0h2m1 0h1m1 0h2m3 0h1m2 0h1m1 0h1m4 0h1M2 23.5h2m1 0h1m1 0h1m1 0h2m3 0h4m1 0h1m1 0h1m1 0h1m1 0h1m1 0h2m2 0h4m1 0h2M3 24.5h2m1 0h1m1 0h7m2 0h1m2 0h2m2 0h1m3 0h2m1 0h3M2 25.5h1m1 0h4m5 0h1m5 0h9m1 0h5m1 0h1M1 26.5h2m3 0h1m1 0h1m1 0h1m5 0h2m4 0h1m3 0h1m2 0h2m1 0h1m2 0h1M1 27.5h1m1 0h3m1 0h3m1 0h4m3 0h2m1 0h1m2 0h2m2 0h2m3 0h1m2 0h2M1 28.5h1m4 0h1m1 0h4m1 0h3m1 0h1m1 0h1m2 0h1m1 0h1m3 0h6m2 0h1M1 29.5h1m2 0h1m1 0h3m1 0h1m3 0h1m3 0h1m5 0h13M9 30.5h1m4 0h1m3 0h5m1 0h3m1 0h2m3 0h2M1 31.5h7m2 0h1m1 0h2m1 0h2m1 0h1m2 0h2m2 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h3M1 32.5h1m5 0h1m1 0h2m1 0h1m1 0h1m1 0h1m1 0h2m2 0h2m3 0h1m1 0h1m3 0h2m1 0h2M1 33.5h1m1 0h3m1 0h1m1 0h1m7 0h1m2 0h1m1 0h1m1 0h10m1 0h3M1 34.5h1m1 0h3m1 0h1m1 0h1m1 0h1m2 0h1m1 0h1m1 0h2m1 0h1m1 0h1m1 0h1m2 0h1m1 0h2m1 0h4M1 35.5h1m1 0h3m1 0h1m1 0h1m1 0h3m2 0h3m1 0h1m2 0h1m1 0h1m1 0h4m6 0h1M1 36.5h1m5 0h1m3 0h2m1 0h1m1 0h1m3 0h3m4 0h3m1 0h1m1 0h1m3 0h1M1 37.5h7m1 0h1m1 0h1m3 0h4m1 0h1m2 0h5m5 0h5"/></svg>' };/*QR_INJECT*/
+
+/* ── 소리 (파일 없이 Web Audio) ── */
+const SND = {
+  ctx:null, vol:.55,
+  init(){ if(this.ctx) return; try{ this.ctx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} },
+  tone(f,dur,type,vol,delay,slide){
+    if(!this.ctx||this.vol<=0) return;
+    const t0=this.ctx.currentTime+(delay||0);
+    const o=this.ctx.createOscillator(), g=this.ctx.createGain();
+    o.type=type||'square';
+    o.frequency.setValueAtTime(f,t0);
+    if(slide) o.frequency.exponentialRampToValueAtTime(Math.max(40,slide),t0+dur);
+    g.gain.setValueAtTime(.0001,t0);
+    g.gain.exponentialRampToValueAtTime((vol==null?.16:vol)*this.vol,t0+.012);
+    g.gain.exponentialRampToValueAtTime(.0001,t0+dur);
+    o.connect(g); g.connect(this.ctx.destination);
+    o.start(t0); o.stop(t0+dur+.05);
+  },
+  noise(dur,vol,delay,freq){
+    if(!this.ctx||this.vol<=0) return;
+    const t0=this.ctx.currentTime+(delay||0);
+    const len=Math.floor(this.ctx.sampleRate*dur);
+    const buf=this.ctx.createBuffer(1,len,this.ctx.sampleRate);
+    const d=buf.getChannelData(0);
+    for(let i=0;i<len;i++) d[i]=(Math.random()*2-1)*(1-i/len);
+    const src=this.ctx.createBufferSource(); src.buffer=buf;
+    const g=this.ctx.createGain(); g.gain.value=(vol==null?.12:vol)*this.vol;
+    const f=this.ctx.createBiquadFilter(); f.type='bandpass'; f.frequency.value=freq||1200;
+    src.connect(f); f.connect(g); g.connect(this.ctx.destination); src.start(t0);
+  },
+  click(){ this.tone(680,.06,'square',.10); },
+  tap(){ this.tone(440,.05,'triangle',.09); },
+  ok(){ [523,659,784,1047].forEach((f,i)=>this.tone(f,.16,'triangle',.15,i*.075)); },
+  bad(){ this.tone(220,.22,'sawtooth',.13,0,110); this.tone(160,.26,'square',.08,.06,90); },
+  get(){ [784,1047,1319].forEach((f,i)=>this.tone(f,.14,'sine',.18,i*.06)); },
+  /* 붓질 — 수첩에 한 줄 적힐 때 */
+  brush(){ this.noise(.42,.09,0,850); this.tone(300,.3,'sine',.06,0,210); },
+  /* 종 — 세종이 무언가 깨달을 때 */
+  bell(){ this.tone(1318,.62,'sine',.15); this.tone(1976,.5,'sine',.06,.03); },
+  /* 거울 — 말이 나에게 되비칠 때 */
+  mirror(){ [1047,1319,1568].forEach((f,i)=>this.tone(f,.5,'sine',.10,i*.05)); this.noise(.5,.05,0,3200); },
+  fanfare(){ [523,659,784,1047,1319].forEach((f,i)=>this.tone(f,.28,'triangle',.17,i*.12)); }
+};
+
+/* ── 상태 ── */
+const KEY='sejong-interpreter-v1';
+let S = { done:{}, lines:{}, name:'', last:'', sound:true };
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} }
+function load(){
+  try{ const r=localStorage.getItem(KEY); if(r) S=Object.assign(S,JSON.parse(r)); }catch(e){}
+  SND.vol = S.sound===false ? 0 : .55;
+}
+
+/* ══════════════════════════════════════════════════════════
+   미션 데이터
+   step.type : talk | pick | choice | fill | multi | sign
+   ══════════════════════════════════════════════════════════ */
+
+const MISSIONS = [
+/* ─────────────────────────── 1 ─────────────────────────── */
+{
+  id:'m1', ic:'👂', title:'알 수 없는 말', sub:'세종이 교실 뒷문에 섰다',
+  note:'말에는 세 갈래가 있다 — 새로 지은 말, 뜻 없이 붙는 말, 사람을 내리는 말.',
+  steps:[
+    { type:'talk', lines:[
+      ['s','여기가 어디냐. …옷차림이 괴이하고 벽에 그림이 움직이는구나.'],
+      ['s','허나 저 아이들이 하는 말이 <b>우리말인 듯한데</b>, 반은 알아들을 수가 없다.'],
+      ['s','너는 알아듣느냐? 그럼 네가 나의 <b>통역관</b>이 되어다오.'],
+      ['m','(2026년 교실에 세종대왕이 서 있다. …일단 통역관이 되기로 했다.)']
+    ]},
+    { type:'pick', q:'세종이 알아듣지 못하는 말을 <b>하나씩 짚어</b> 알려 주자. (4개)',
+      chat:[
+        { who:'유담', segs:[{t:'야 이거 봤냐? '},{t:'ㄹㅇ',id:'a'},{t:' '},{t:'핵꿀잼',id:'b'}] },
+        { who:'진하', segs:[{t:'',},{t:'ㅅㅂ',id:'c'},{t:' 깜짝이야. 갑자기 왜 소리질러'}] },
+        { who:'유담', segs:[{t:'ㅋㅋ 미안 나 '},{t:'급식충',id:'d'},{t:'이라 배고파서 예민함'}] }
+      ],
+      fbs:{
+        a:['s','「ㄹㅇ」… 이것은 글자냐? 소리를 적은 것도 아니고 뜻을 담은 것도 아니로구나. <b>「리을 이응」</b>이라 읽으면 되느냐?'],
+        b:['s','「핵」 「꿀」 「잼」 — 세 낱말을 이어 붙였구나. 핵은 큰 것, 꿀은 단 것, 잼은 <b>재미</b>를 줄인 것이냐? 뜻은 짐작이 간다.'],
+        c:['s','…이것은 무슨 뜻이냐. 저 아이는 <b>그저 놀랐을 뿐인데</b>, 왜 이 말이 나오느냐?'],
+        d:['s','충(蟲)이라 하였느냐. <b>벌레</b>라는 뜻이다. 사람을 벌레라 부르느냐? 그것도 <b>제 스스로를</b>?']
+      },
+      after:['s','네 가지를 다 들었다. 헌데 이상하구나 — 이것들이 <b>같은 종류의 말이 아닌 듯하다.</b>']
+    },
+    { type:'choice', q:'세종: "이 말들은 무엇이 다르냐?"',
+      opts:[
+        { t:'그냥 다 요즘 말이에요', ok:false,
+          fb:'허면 「핵꿀잼」과 「급식충」이 같은 말이냐? 하나는 <b>즐겁다</b>는 말이고, 하나는 <b>사람을 벌레라</b> 하는 말인데. 같은 그릇에 담을 수 있겠느냐.' },
+        { t:'새로 지은 말 / 뜻 없이 붙는 말 / 사람을 내리는 말', ok:true,
+          fb:'그렇구나. <b>셋은 서로 다른 것이다.</b> 하나씩 배워 보자. 먼저 새로 지은 말부터.' },
+        { t:'다 나쁜 말이에요', ok:false,
+          fb:'「핵꿀잼」이 나쁜 말이냐? <b>새 말을 지은 것이 어찌 허물이냐.</b> 나도 없던 글자를 스물여덟 자 지었다. 그때도 「없던 것을 만든다」 하여 반대가 많았느니라.' },
+        { t:'어른들이 싫어하는 말이에요', ok:false,
+          fb:'누가 싫어하느냐로 말을 가르면, <b>어른이 없는 자리에서는 무슨 말을 해도 되겠구나.</b> 말의 옳고 그름을 어른이 정하느냐?' }
+      ]}
+  ]
+},
+/* ─────────────────────────── 2 ─────────────────────────── */
+{
+  id:'m2', ic:'✨', title:'새로 지은 말', sub:'줄임말·신조어 — 세종의 판정',
+  note:'새 말을 짓는 것은 허물이 아니다. 다만 곁의 사람을 세워 두지 말 것.',
+  steps:[
+    { type:'talk', lines:[
+      ['s','먼저 <b>새로 지은 말</b>부터 배우자. 통역관아, 「갑분싸」가 무엇이냐?']
+    ]},
+    { type:'choice', q:'「갑분싸」의 뜻은?',
+      opts:[
+        { t:'갑자기 분위기가 싸해진다', ok:true,
+          fb:'갑·분·싸 — <b>네 낱말의 첫 소리만 따왔구나.</b> 소리를 자르고 이어 붙여 새 말을 만들었다. …영리하다.' },
+        { t:'갑자기 분노가 쌓인다', ok:false,
+          fb:'허허, 그럴듯하구나. 첫 소리만 보면 그리 읽을 수도 있겠다. 허나 아니라 하니 다시 일러다오.' },
+        { t:'갑옷을 분실한 사건', ok:false,
+          fb:'…과인은 그 말이 더 그럴듯한데. 갑옷을 잃으면 큰일이 아니냐. 허나 아니라 하니 다시.' }
+      ]},
+    { type:'choice', q:'세종: "또 하나 묻자. 「어쩔티비」는 무엇이냐?"',
+      opts:[
+        { t:'"어쩌라고" 하면서 상대 말을 자르는 말', ok:true,
+          fb:'…이것은 뜻이 있구나. 다만 그 뜻이 <b>「네 말을 더 듣지 않겠다」</b> 이구나. 말로 말을 막는 말이다. 새 말 중에도 이런 것이 있느냐.' },
+        { t:'텔레비전을 고치자는 말', ok:false,
+          fb:'티비가 그 「그림 움직이는 상자」를 이르는 말은 맞다. 허나 고치자는 뜻은 아니라 하는구나.' },
+        { t:'어쩌다 텔레비전을 샀다는 말', ok:false,
+          fb:'어쩌다 산 물건 이야기가 아니라 하는구나. 다시 일러다오.' }
+      ]},
+    { type:'talk', lines:[
+      ['s','자, 통역관아. 이제 <b>내 뜻을 밝히마.</b>'],
+      ['s','새 말을 짓는 것은 <b>허물이 아니다.</b> 말은 본디 새로 생기고 사라진다. 내가 지은 스물여덟 자도 그때는 새것이었다.'],
+      ['s','「어리다」는 내 시절에 <b>「어리석다」</b>는 뜻이었다. 지금은 나이가 적다는 뜻이라지? 오백 년 사이에 그리 되었구나.'],
+      ['s','허니 <b>줄여 쓴다고 나무랄 일이 아니다.</b> 다만 하나만 묻자.']
+    ]},
+    { type:'choice', q:'세종: "그 말을 모르는 사람이 곁에 있으면, 그이는 어찌 되느냐?"',
+      opts:[
+        { t:'못 알아들어서 그 자리에 끼지 못한다', ok:true,
+          fb:'그렇구나. 말이 사람을 <b>잇기도 하고 가르기도 한다.</b> 새 말이 나쁜 것이 아니라, <b>누구를 세워 두고 하느냐</b>가 문제로다.' },
+        { t:'모르면 배우면 되죠', ok:false,
+          fb:'배우려면 물어야 하고, 물으려면 <b>「나는 모른다」고 말해야 한다.</b> …모른다고 말하기가 쉬우냐? 너는 모르는 것을 그 자리에서 물을 수 있느냐?' },
+        { t:'상관없어요, 아는 사람끼리 쓰면 되니까', ok:false,
+          fb:'그럼 그 말은 <b>담이 되는구나.</b> 나는 담을 허물려고 글자를 만들었다. 양반만 아는 글자가 있어 백성이 제 뜻을 못 폈기 때문이다.' }
+      ]}
+  ]
+},
+/* ─────────────────────────── 3 ─────────────────────────── */
+{
+  id:'m3', ic:'🫙', title:'뜻 없는 말', sub:'빈 그릇을 왜 자꾸 드느냐',
+  note:'한 말로 네 마음을 다 말하면, 정작 아플 때 쓸 말이 없다.',
+  steps:[
+    { type:'talk', lines:[
+      ['s','다음은 <b>뜻 없이 붙는 말</b>이다.'],
+      ['s','아까 진하라는 아이가 놀라며 한 말, 「ㅅㅂ」 말이다. …무슨 뜻이냐?']
+    ]},
+    { type:'choice', q:'세종에게 뭐라고 통역할까?', poll:true,
+      opts:[
+        { t:'뜻 없어요. 그냥 나와요', ok:true,
+          fb:'<b>뜻이 없다?</b> 글자는 뜻을 담는 그릇이다. 그릇이 비었는데 어찌 매번 드느냐. …습관이 된 말은 <b>제가 말을 하는 것이 아니라 말이 저를 쓰는 것</b>이다.' },
+        { t:'욕이에요', ok:true,
+          fb:'욕이라면 <b>누구를 향한 욕이냐?</b> 저 아이는 혼자 놀랐을 뿐이다. 욕이 향할 곳을 잃고 허공에 떠 있구나.' },
+        { t:'놀랐다는 뜻이에요', ok:true,
+          fb:'놀랐다는 뜻이면 <b>기쁠 때는 무슨 말을 쓰느냐?</b> …같은 말을 쓴다고? 아플 때는? 화날 때는? 한 말이 어찌 다 되겠느냐.' }
+      ],
+      after:['s','좋다. 그럼 이리 해 보자. <b>네 자리에 쓸 말을 각각 지어 보아라.</b>']
+    },
+    { type:'fill', q:'네 자리에 <b>서로 다른 말</b>을 하나씩 채워라',
+      hint:'아래 낱말을 눌러 넣거나, 칸을 눌러 직접 써도 된다. <b>같은 말을 두 번 쓰지 말 것.</b>',
+      slots:[
+        { k:'놀랐을 때', ex:'갑자기 뒤에서 누가 어깨를 쳤다' },
+        { k:'아플 때', ex:'책상 모서리에 새끼발가락을 찧었다' },
+        { k:'신날 때', ex:'게임에서 역전승했다' },
+        { k:'화날 때', ex:'억울하게 혼났다' }
+      ],
+      chips:['헉','앗','아야','으악','와','대박','야호','어우','미치겠다','짜증나','억울해','아 진짜','어이없네','와 진짜'],
+      after:['s','보아라. <b>네 자리에 네 말이 있구나.</b>'],
+      after2:['s','아까 그 아이는 <b>네 자리에 한 말을 썼다.</b> 놀랄 때도, 아플 때도, 신날 때도, 화날 때도.'],
+      after3:['s','…그러면 묻자. 그 아이가 <b>정말로 아플 때</b>, 무슨 말로 아프다 하겠느냐? 쓸 말이 남아 있느냐?']
+    }
+  ]
+},
+/* ─────────────────────────── 4 ─────────────────────────── */
+{
+  id:'m4', ic:'🪞', title:'사람을 묶는 말', sub:'~충 · ~린이 — 거울에 비춰 보기',
+  note:'사람을 묶어 부르는 말은, 그 사람의 다음 말을 막는다.',
+  steps:[
+    { type:'talk', lines:[
+      ['s','마지막 갈래다. <b>사람을 내리는 말.</b>'],
+      ['s','「급식충」 말이다. 충은 벌레다. …누구를 벌레라 하였느냐?']
+    ]},
+    { type:'choice', q:'「급식충」은 누구를 가리키는 말일까?',
+      opts:[
+        { t:'급식을 먹는 학생 전부 (말한 자기 자신까지)', ok:true,
+          fb:'제 스스로를 벌레라 부르는구나. <b>누가 시킨 것도 아닌데.</b> …이런 말은 한 사람을 찌르지 않는다. <b>무리를 통째로 묶어 내린다.</b>' },
+        { t:'특정한 한 사람', ok:false,
+          fb:'아니다. 다시 보아라. 그 아이는 <b>저를 그리 불렀다.</b> 「나 급식충이라」 하지 않았느냐.' },
+        { t:'밥을 많이 먹는 사람', ok:false,
+          fb:'그 말은 <b>밥의 양을 말하지 않는다.</b> 급식을 먹는 이, 곧 학생을 통째로 가리킨다. 많이 먹든 적게 먹든.' }
+      ]},
+    { type:'choice', q:'세종: "또 하나. 「주식린이」 「요린이」 — 이 <b>「린이」</b>가 무엇이냐?"',
+      opts:[
+        { t:'어린이', ok:true, mirror:'어린이 = 서투른 사람',
+          fb:'…<b>어린이가 서투른 것의 이름이 되었구나.</b><br>요린이는 요리를 못하는 이, 주식린이는 주식을 모르는 이. 못한다는 자리마다 <b>어린이</b>를 데려다 놓았다.' },
+        { t:'사람 이름', ok:false,
+          fb:'이름이 아니다. 다른 말에도 똑같이 붙는 것을 보아라 — 요린이, 주식린이, 헬린이. <b>뒤에 붙는 것은 같은 말</b>이다.' },
+        { t:'작다는 뜻', ok:false,
+          fb:'작다는 뜻이면 「작은 요리사」가 될 터인데, 저들이 이르는 것은 <b>서툰 이</b>다. 작은 것과 못하는 것은 다르지 않느냐.' }
+      ]},
+    { type:'choice', q:'세종: "…너희가 어린이 아니냐. 이 말이 괜찮으냐?"',
+      opts:[
+        { t:'안 괜찮다', ok:true,
+          fb:'말은 <b>쓰는 이가 뜻을 정하지만, 무게는 듣는 이가 진다.</b><br><span style="font-size:14px;color:#a798c2">— 국립국어원도 「~린이」를 어린이를 낮추는 표현으로 보고 다듬어 쓰기를 권한다.</span>' },
+        { t:'괜찮다, 귀엽게 부르는 말이니까', ok:false,
+          fb:'<b>귀엽다 함은 누가 정하느냐.</b> 그 말을 듣는 어린이가 정하느냐, 쓰는 어른이 정하느냐? 네가 모르는 일에 「○○린이」라 불리면 귀엽겠느냐.' },
+        { t:'쓰는 사람이 나쁜 뜻 없으면 괜찮다', ok:false,
+          fb:'나쁜 뜻이 없어도 <b>쌓이면 자리가 생긴다.</b> 백 번 들으면 「어린이 = 못하는 이」가 되는 것이다. 뜻을 담지 않아도 말은 제 뜻을 만든다.' }
+      ]},
+    { type:'choice', q:'세종: "또 이런 말도 있다더구나 — <b>「진지충」.</b> 진지한 것이 벌레냐?"<br><span class="sub">진지하게 말했다가 이 말을 들으면, 그다음에 어찌 될까?</span>',
+      opts:[
+        { t:'다음부터 진지한 말을 안 하게 된다', ok:true, key:true,
+          fb:'…<b>말 한마디로 그 아이의 다음 말을 막았구나.</b><br>때린 것도 아니고 빼앗은 것도 아닌데, 입을 닫게 하였다.<br><br><b>이것은 기억해 두마.</b> 나중에 다시 이야기하자.' },
+        { t:'더 진지해진다', ok:false,
+          fb:'그럴 수도 있겠다만… 정말 그러하냐? 놀림받고도 같은 말을 또 하는 이가 몇이나 되겠느냐.' },
+        { t:'아무 일도 안 일어난다', ok:false,
+          fb:'정말이냐? <b>네가 그 말을 들었다 치자.</b> 다음 시간에도 똑같이 손을 들어 진지하게 말하겠느냐? …한 번 더 생각해 보아라.' }
+      ]}
+  ]
+},
+/* ─────────────────────────── 5 ─────────────────────────── */
+{
+  id:'m5', ic:'💭', title:'장난과 상처', sub:'말이 닿은 자리',
+  note:'말이 닿은 자리는, 말한 이가 정하지 못한다.',
+  steps:[
+    { type:'talk', lines:[
+      ['s','이제 말이 <b>어디에 닿는지</b> 보자. 마침 저기 두 아이가 있구나.']
+    ]},
+    { type:'choice', lead:'쉬는 시간, 두 아이가 이야기하고 있다.',
+      scene:[{who:'채율', say:'야 너 오늘 머리 왜 그래? ㅋㅋ <b>장난이야</b>'}],
+      q:'채율은 <b>어떤 마음으로</b> 말했을까?',
+      opts:[
+        { t:'웃기려고. 나쁜 뜻은 없었다', ok:true,
+          reveal:{ said:'그냥 웃기려고 한 말인데. 친하니까 할 수 있는 말 아닌가?',
+                   heard:'…아침에 엄마랑 싸워서 머리를 못 감았는데. 다들 봤나?' },
+          fb:'말한 이의 마음과 <b>말이 닿은 자리가 다르구나.</b><br>채율은 웃기려 하였고, 나원은 감추고 싶은 것이 들켰다. 둘 다 거짓이 아니다.' },
+        { t:'일부러 놀리려고', ok:true,
+          reveal:{ said:'그냥 웃기려고 한 말인데. 친하니까 할 수 있는 말 아닌가?',
+                   heard:'…아침에 엄마랑 싸워서 머리를 못 감았는데. 다들 봤나?' },
+          fb:'그리 보였느냐? 헌데 채율의 속마음을 보아라 — <b>놀릴 뜻은 없었다.</b><br>뜻이 없어도 닿는다. 그것이 말이다.' }
+      ]},
+    { type:'choice', lead:'나원이 용기를 내어 말했다.',
+      scene:[{who:'나원', say:'그 말 좀 그만해'},{who:'채율', say:'<b>장난인데 왜 진지해~</b>'}],
+      q:'이제 나원은 <b>무엇을 할 수 없게</b> 되었을까?',
+      opts:[
+        { t:'그만하라고 다시 말하기', ok:true, key:true,
+          fb:'아프다고 말하면 <b>「진지한 사람」</b>이 된다. 그래서 입을 닫는구나.<br><br>…통역관아, <b>아까 그 말이 여기 있다.</b> 「진지충」 말이다.<br>말을 막는 말이 어떻게 쓰이는지, 이제 보이느냐.' },
+        { t:'웃기', ok:false,
+          fb:'웃기는 오히려 <b>할 수 있게 되었다</b> — 아니, 해야만 하게 되었지. 웃지 않으면 진지한 사람이 되니까. 다시 골라 보아라.' },
+        { t:'화내기', ok:false,
+          fb:'화를 내면 어찌 되겠느냐? <b>「장난인데 왜 화내」</b>가 돌아온다. …다른 것을 골라 보아라.' }
+      ]},
+    { type:'choice', q:'세종: "허면 마지막으로 묻자."<br><br>말을 한 뒤에 <b>"미안, 장난이었어"</b> 하면 없던 일이 되느냐?',
+      opts:[
+        { t:'안 된다. 들은 말은 지워지지 않는다', ok:true,
+          fb:'내가 글자를 만든 까닭이 무엇이겠느냐. <b>말을 남기기 위함이었다.</b><br>말은 본디 남는 것이다. 좋은 말도, 나쁜 말도. 사과는 <b>다음을 고치는 것</b>이지 <b>앞을 지우는 것</b>이 아니다.' },
+        { t:'된다. 사과했으니까', ok:false,
+          fb:'사과는 귀한 것이다. 허나 <b>사과가 기억을 지우지는 못한다.</b> 네가 들은 아픈 말 중에, 사과받아서 잊은 것이 몇이나 되느냐?' },
+        { t:'반쯤은 된다', ok:false,
+          fb:'반쯤이라… 그 <b>나머지 반은 누가 지느냐?</b> 말한 이는 사과하고 가벼워지는데, 들은 이에게 남은 반은 그대로 있지 않느냐.' }
+      ]}
+  ]
+},
+/* ─────────────────────────── 6 ─────────────────────────── */
+{
+  id:'m6', ic:'📜', title:'제 뜻을 펴지 못하는 사람', sub:'세종이 글자를 만든 까닭',
+  note:null,
+  steps:[
+    { type:'talk', seomun:true, lines:[
+      ['s','통역관아, 이제 <b>내가 왜 글자를 만들었는지</b> 일러 주마.'],
+      ['s','오백 년 전, 내가 이 글을 썼다.']
+    ]},
+    { type:'choice', q:'세종: "내가 글자를 만들었으니, <b>이 일은 끝났느냐?</b>"',
+      opts:[
+        { t:'안 끝났다', ok:true,
+          fb:'…어찌 그리 생각하느냐. 함께 보자.' },
+        { t:'끝났다. 이제 다들 한글을 읽고 쓴다', ok:false,
+          fb:'<b>글자를 안다고 뜻을 펴는 것이냐?</b><br>아까 그 아이 — 나원이라 하였지. 그 아이는 한글을 안다. 읽을 줄도 쓸 줄도 안다.<br>허나 <b>「그만해」 한마디를 끝내 하지 못하였다.</b>' },
+        { t:'모르겠다', ok:false,
+          fb:'모르겠다 함은 정직한 답이다. 그럼 <b>함께 보자.</b> 아래를 보아라.' }
+      ]},
+    { type:'multi', q:'지금 이 교실에서 <b>제 뜻을 펴지 못하는 사람</b>을 모두 골라라',
+      hint:'네 명이다. 고른 뒤 「세종께 보이기」를 누른다.',
+      cards:[
+        { t:'진지하게 말했다가 「진지충」 소리를 들은 뒤로 농담만 하는 아이', ok:true,
+          fb:'그 아이의 진심은 어디로 갔겠느냐. 사라진 것이 아니라 <b>안에 남아 있다.</b> 펴지 못한 채로.' },
+        { t:'아프다고 하면 「장난인데 왜 진지해」가 돌아올까 봐 참는 아이', ok:true,
+          fb:'아프다 말할 수 없으면 <b>아프지 않은 것이 되느냐?</b> 아니다. 아픈 채로 혼자 있는 것이다.' },
+        { t:'줄임말을 몰라 무슨 얘긴지 못 물어보는 아이', ok:true,
+          fb:'모른다고 말하는 것이 부끄러운 자리에서는, <b>아무도 묻지 않는다.</b> 내가 허물려던 담이 바로 이것이다.' },
+        { t:'「급식충」이라 불린 뒤로 손을 들지 않는 아이', ok:true,
+          fb:'손을 들지 않는 아이를 보고 <b>「할 말이 없나 보다」</b> 한다. 할 말이 없는 것이 아니라 <b>할 수 없게 된 것</b>이다.' },
+        { t:'수학 문제를 틀려서 속상한 아이', ok:false,
+          fb:'속상한 것과 <b>말을 못 하는 것은 다르다.</b> 그 아이는 「속상하다」고 말할 수 있지 않느냐. 틀린 것은 마음이 아프지만, 입이 막힌 것은 아니다.' },
+        { t:'숙제를 깜빡하고 안 가져온 아이', ok:false,
+          fb:'그것은 잊은 것이지 <b>막힌 것이 아니다.</b> 그 아이는 「깜빡했어요」라 말할 수 있다.' }
+      ],
+      after:['s','…네 명이로구나.'] },
+    { type:'talk', lines:[
+      ['s','내가 스물여덟 자를 지은 것은, <b>제 뜻을 펴지 못하는 이가 없게 하려 함</b>이었다.'],
+      ['s','글자를 몰라 억울한 일을 당하고도 말하지 못하는 백성이 많았다. 그래서 만들었다.'],
+      ['s','헌데 오백 년이 지나 와 보니 — <b>모두가 글자를 안다.</b> 아이도 어른도 읽고 쓴다. 그것은 참으로 기쁜 일이다.'],
+      ['s','허나 여전히 <b>제 뜻을 펴지 못하는 이가 있구나.</b> 이번에는 글자를 몰라서가 아니라, <b>말이 말을 막아서</b>다.'],
+      ['s','통역관아. <b>글자는 내가 만들었다. 허나 말은 너희가 만든다.</b>'],
+      ['s','내 할 일은 여기까지다. <b>이 일은 이제 너희 일이다.</b>']
+    ]},
+    { type:'sign', q:'세종: "마지막 줄은 <b>네가 적어라.</b>"',
+      hint:'내일 교실에서 <b>하지 않을 말</b>, 또는 <b>할 말</b>을 한 줄로.',
+      chips:['「그만해」라는 말을 들으면 바로 멈추겠다','모르는 말이 나오면 물어보겠다','「~충」이 붙는 말은 쓰지 않겠다','장난이어도 상대가 싫다 하면 그만두겠다','진지하게 말하는 친구를 놀리지 않겠다','놀랐을 때 쓸 내 말을 따로 만들겠다']
+    }
+  ]
+}
+];
+
+/* ══════════════════════════════════════════════════════════
+   화면
+   ══════════════════════════════════════════════════════════ */
+let V = { screen:'intro', mid:null, si:0, ti:1, got:[], pick:null, heard:[], slots:['','','',''], slot:0, sel:[], graded:false, wrapI:0, sign:'', ovl:null };
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const M = id => MISSIONS.find(m=>m.id===id);
+function doneCount(){ return MISSIONS.filter(m=>S.done[m.id]).length; }
+
+function render(){
+  const v=$('view');
+  if(V.screen==='intro')        v.innerHTML=viewIntro();
+  else if(V.screen==='home')    v.innerHTML=viewHome();
+  else if(V.screen==='mission') v.innerHTML=viewMission();
+  else if(V.screen==='final')   v.innerHTML=viewFinal();
+  $('cnt').textContent='📖 '+doneCount()+'/6';
+  $('sbtn').textContent = S.sound===false ? '🔇' : '🔊';
+  $('ovlwrap').innerHTML = V.ovl || '';
+  save();
+}
+
+/* ── 시작 ── */
+function viewIntro(){
+  const has=doneCount()>0;
+  return `
+  <div class="hero">
+    <div class="heroic">👑</div>
+    <h1>세종, <em>말을 배우러</em> 오다</h1>
+    <div class="sub">2026년 어느 교실 · 나는 <b>통역관</b>이 되었다</div>
+  </div>
+  <div class="quotebox">
+    <div class="old">제 뜨들 시러 펴디<br>몯할 노미 하니라</div>
+    <div class="now">— 하고 싶은 말이 있어도, 끝내 <b style="color:#f0c060">제 뜻을 펴지 못하는 사람이 많다.</b><br><span style="font-size:13px">훈민정음 서문 (1446)</span></div>
+  </div>
+  <div class="card mt">
+    <div class="eyebrow">이 수업에서 할 일</div>
+    <div style="font-size:16px;line-height:1.7;margin-top:8px">
+      세종대왕이 지금 우리 교실에 왔다. 그런데 <b>우리 말을 반도 못 알아듣는다.</b><br>
+      통역관이 되어 여섯 가지를 설명해 주자. 설명할 때마다 세종의 <b>통역 수첩</b>에 한 줄씩 적힌다.
+    </div>
+  </div>
+  <div class="stack mt">
+    <button class="btn primary" onclick="start()">${has?'이어서 하기 ('+doneCount()+'/6)':'통역관 되기'}</button>
+    ${has?'<button class="btn ghost" onclick="resetAll()">처음부터 다시</button>':''}
+  </div>
+  ${QR.main?`<div class="qrwrap">
+    <button class="qrbtn" onclick="showQR()">${QR.main}<span class="qrbadge">크게</span></button>
+    <div class="sub" style="font-size:12px;margin-top:8px">📱 태블릿에서 바로 열기</div>
+  </div>`:''}
+  <div class="foot">언어문화개선교육 · 5~6학년 · 한 차시<br>소리가 나옵니다 (오른쪽 위 🔊 로 끌 수 있어요)</div>`;
+}
+function start(){ SND.init(); SND.click(); V.screen='home'; render(); }
+
+/* ── 수첩 그림 ── */
+function bookSvg(){
+  const n=doneCount();
+  let rows='';
+  for(let i=0;i<6;i++){
+    const y=44+i*15, on=i<n;
+    rows+=`<line x1="18" y1="${y}" x2="${on?86:78}" y2="${y}" stroke="${on?'#f0c060':'#443458'}" stroke-width="${on?2.6:1.6}" stroke-linecap="round" opacity="${on?1:.55}"/>`;
+    if(on) rows+=`<circle cx="12" cy="${y}" r="2.6" fill="#4dd2a8"/>`;
+  }
+  return `<svg viewBox="0 0 112 140" aria-hidden="true">
+    <rect x="4" y="16" width="100" height="118" rx="7" fill="#2a2042" stroke="#443458" stroke-width="2"/>
+    <rect x="4" y="16" width="100" height="118" rx="7" fill="none" stroke="#f0c060" stroke-width="1" opacity=".25"/>
+    <line x1="4" y1="30" x2="104" y2="30" stroke="#443458" stroke-width="1.5"/>
+    <text x="54" y="27" text-anchor="middle" font-size="9" fill="#a798c2" font-family="serif">通譯 手帖</text>
+    ${rows}
+    <path d="M86 6 L96 16 L92 20 L82 10 Z" fill="#f0c060" opacity=".9"/>
+    <rect x="78" y="10" width="6" height="4" transform="rotate(45 81 12)" fill="#8a6f3e"/>
+  </svg>`;
+}
+
+/* ── 홈 ── */
+function viewHome(){
+  const n=doneCount();
+  const rows=MISSIONS.map((m,i)=>{
+    const ok=!!S.done[m.id];
+    return `<button class="mrow ${ok?'ok':''}" onclick="openM('${m.id}')">
+      <span class="num">${ok?'✓':i+1}</span>
+      <span class="tx"><b>${m.ic} ${m.title}</b><span>${ok?(S.lines[m.id]||m.sub):m.sub}</span></span>
+      <span class="st">${ok?'📖':'›'}</span>
+    </button>`;
+  }).join('');
+  return `
+  <div class="bookbox">
+    ${bookSvg()}
+    <div class="booktx">
+      <div class="eyebrow">세종의 통역 수첩</div>
+      <div style="font-size:19px;font-weight:900;margin-top:3px">${n}/6 줄 채움</div>
+      <div class="gauge"><i style="width:${n/6*100}%"></i></div>
+      <div class="sub" style="font-size:13.5px">${n===0?'아직 한 줄도 적지 못했다.':n<6?'여섯 줄을 다 채우면 세종이 돌아간다.':'수첩이 다 찼다. 마지막으로 세종을 만나자.'}</div>
+    </div>
+  </div>
+  ${n===6?`<button class="btn go" style="margin-bottom:14px" onclick="goFinal()">📜 완성된 수첩 보기</button>`:''}
+  <div class="mlist">${rows}</div>
+  <div class="foot">아무 데나 먼저 해도 되지만, <b>1번부터 차례로</b> 하면 이야기가 이어집니다.</div>`;
+}
+function openM(id){
+  SND.init(); SND.click();
+  V.screen='mission'; V.mid=id; V.si=0; resetStep(); render();
+}
+function resetStep(){ V.ti=1; V.got=[]; V.pick=null; V.heard=[]; V.slots=['','','','']; V.slot=0; V.sel=[]; V.graded=false; V.wrapI=0; }
+function home(){ SND.click(); V.screen='home'; render(); }
+function goFinal(){ SND.click(); V.screen='final'; render(); }
+
+/* ── 미션 화면 ── */
+function viewMission(){
+  const m=M(V.mid), st=m.steps[V.si];
+  let body='';
+  if(st.type==='talk')        body=bodyTalk(m,st);
+  else if(st.type==='pick')   body=bodyPick(m,st);
+  else if(st.type==='choice') body=bodyChoice(m,st);
+  else if(st.type==='fill')   body=bodyFill(m,st);
+  else if(st.type==='multi')  body=bodyMulti(m,st);
+  else if(st.type==='sign')   body=bodySign(m,st);
+  const dots=m.steps.map((_,i)=>`<i class="${i<V.si?'dn':i===V.si?'on':''}"></i>`).join('');
+  return `
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+    <button class="iconbtn" onclick="home()">‹</button>
+    <div style="flex:1;min-width:0">
+      <div class="eyebrow">${m.ic} ${m.title}</div>
+      <div class="sub" style="font-size:13px">${m.sub}</div>
+    </div>
+  </div>
+  <div class="progdots" style="margin:0 0 14px">${dots}</div>
+  ${body}`;
+}
+
+function sayS(html){ return `<div class="saying"><div class="face">👑</div><div class="bub">${html}</div></div>`; }
+function sayM(html){ return `<div class="saying me"><div class="face">🙋</div><div class="bub">${html}</div></div>`; }
+function line(l){ return l[0]==='s' ? sayS(l[1]) : sayM(l[1]); }
+
+/* ── 서문 카드 ── */
+function seomunCard(){
+  return `<div class="seomun">
+    <div class="old">나랏말싸미 듕귁에 달아<br>문자와로 서르 사맛디 아니할쎄<br>이런 전차로 <b style="color:#8a4a20">어린</b> 백성이<br>니르고져 홀 빼 이셔도<br>마참내 제 뜨들 시러<br>펴디 몯할 노미 하니라</div>
+    <div class="now">우리말이 중국말과 달라 글자로 서로 통하지 아니한다.<br>이런 까닭에 <b>어리석은</b> 백성이 말하고 싶은 것이 있어도<br>끝내 <b>제 뜻을 펴지 못하는 사람이 많다.</b>
+      <div style="margin-top:10px;font-size:13.5px;background:#e3d5b5;border-radius:9px;padding:9px 11px;line-height:1.6">
+        💡 여기서 <b>「어린」</b>은 지금의 「나이가 적은」이 아니라 <b>「어리석은」</b>, 곧 <b>글을 모르는</b> 이라는 뜻이었다.<br>
+        <span style="color:#7a6642">— 말의 뜻은 오백 년 사이에 이렇게 바뀐다.</span>
+      </div>
+    </div>
+    <div class="src">훈민정음 언해본 서문(1446). 옛 글자를 지금 자판으로 옮겨 적은 것이라 원문과 모양이 조금 다릅니다.</div>
+  </div>`;
+}
+
+/* ── talk ── */
+function bodyTalk(m,st){
+  const ls=st.lines, shown=Math.min(V.ti,ls.length), last=shown>=ls.length;
+  let h='';
+  if(st.seomun && shown>=2) h+=seomunCard();
+  const body=ls.slice(0,shown).map(line).join('');
+  return `<div class="card">
+    ${st.seomun&&shown>=2?ls.slice(0,1).map(line).join('')+seomunCard()+ls.slice(1,shown).map(line).join(''):body}
+    ${!last?`<button class="btn mt" onclick="moreTalk()" style="text-align:center;color:#a798c2">… 계속 듣기</button>`
+           :`<button class="btn go mt" onclick="nextStep()">다 들었어요</button>`}
+  </div>`;
+}
+function moreTalk(){ SND.tap(); V.ti++; render(); }
+
+/* ── pick : 대화에서 말 짚기 ── */
+function bodyPick(m,st){
+  const ids=[]; st.chat.forEach(c=>c.segs.forEach(s=>{ if(s.id) ids.push(s.id); }));
+  const all=V.got.length>=ids.length;
+  const chat=st.chat.map(c=>`<div class="line"><span class="who">${c.who}</span><span class="say">${
+    c.segs.map(s=>{
+      if(!s.id) return esc(s.t);
+      const got=V.got.includes(s.id);
+      return `<button class="tok ${got?'got':''}" onclick="pickTok('${s.id}')">${esc(s.t)}</button>`;
+    }).join('')
+  }</span></div>`).join('');
+  const lastId=V.got[V.got.length-1];
+  return `<div class="card">
+    ${sayS(st.q)}
+    <div class="chat mt">${chat}</div>
+    <div class="sub" style="text-align:center;margin-top:12px;font-size:13.5px">${V.got.length} / ${ids.length} 짚음</div>
+    ${lastId?`<div style="margin-top:12px">${line(st.fbs[lastId])}</div>`:''}
+    ${all?`<div style="margin-top:6px">${line(st.after)}</div><button class="btn go mt" onclick="nextStep()">다음</button>`:''}
+  </div>`;
+}
+function pickTok(id){
+  if(V.got.includes(id)){ SND.tap(); return; }
+  V.got.push(id); SND.get(); render();
+}
+
+/* ── choice ── */
+function bodyChoice(m,st){
+  const picked=V.pick!=null, o=picked?st.opts[V.pick]:null;
+  const opts=st.opts.map((op,i)=>{
+    let cls='btn';
+    if(picked){
+      if(i===V.pick) cls+= (op.ok?' ok':' no');
+      else if(op.ok && !st.poll) cls+=' ok';
+      else cls+=' no';
+    }
+    return `<button class="${cls}" onclick="pickOpt(${i})" ${picked?'disabled':''}>${op.t}</button>`;
+  }).join('');
+  let extra='';
+  if(picked && o.mirror){
+    extra+=`<div class="mirror"><div class="mw">${o.mirror}</div><div class="ms">— 거울에 비친 그 말</div></div>`;
+  }
+  if(picked && o.reveal){
+    extra+=`<div class="twomind">
+      <div class="mind said"><div class="ml">말한 사람의 마음</div><div class="mt2">${o.reveal.said}</div></div>
+      <div class="mind heard"><div class="ml">들은 사람의 마음</div><div class="mt2">${o.reveal.heard}</div></div>
+    </div>`;
+  }
+  let foot='';
+  if(picked){
+    if(o.ok||st.poll){
+      const more = st.poll && V.heard.length<st.opts.length;
+      foot=`${more?`<button class="btn mt" onclick="hearMore()" style="text-align:center">다른 답은 뭐라고 하실까? (${V.heard.length}/${st.opts.length})</button>`:''}
+            <button class="btn go mt" onclick="nextStep()">${st.after&&V.heard.length>=st.opts.length?'다음':'다음'}</button>`;
+    } else {
+      foot=`<button class="btn primary mt" onclick="againOpt()">다시 생각해 보기</button>`;
+    }
+  }
+  const scene = st.scene
+    ? `<div class="chat" style="margin-bottom:13px">`
+      + st.scene.map(s => `<div class="line"><span class="who">${s.who}</span><span class="say">${s.say}</span></div>`).join('')
+      + `</div>`
+    : '';
+  return `<div class="card">
+    ${st.lead?`<div class="sub" style="margin-bottom:9px;font-size:14.5px">${st.lead}</div>`:''}
+    ${scene}
+    ${sayS(st.q)}
+    <div class="stack mt">${opts}</div>
+    ${picked?`<div class="fb ${o.ok||st.poll?'good':'bad'}"><span class="ft">${o.ok||st.poll?'👑 세종':'👑 세종이 고개를 젓는다'}</span>${o.fb}</div>`:''}
+    ${extra}
+    ${picked&&(o.ok||st.poll)&&st.after?`<div style="margin-top:12px">${line(st.after)}</div>`:''}
+    ${foot}
+  </div>`;
+}
+function pickOpt(i){
+  const st=M(V.mid).steps[V.si], o=st.opts[i];
+  V.pick=i;
+  if(!V.heard.includes(i)) V.heard.push(i);
+  if(o.mirror) SND.mirror();
+  else if(o.key) SND.bell();
+  else if(o.ok||st.poll) SND.ok();
+  else SND.bad();
+  render();
+}
+function againOpt(){ SND.click(); V.pick=null; render(); }
+function hearMore(){
+  const st=M(V.mid).steps[V.si];
+  for(let i=0;i<st.opts.length;i++) if(!V.heard.includes(i)){ V.pick=i; V.heard.push(i); SND.ok(); render(); return; }
+}
+
+/* ── fill : 네 자리에 다른 말 채우기 ── */
+function bodyFill(m,st){
+  if(V.wrapI>0) return wrapFill(m,st);
+  const used=V.slots.map(s=>s.trim()).filter(Boolean);
+  const dup=used.length!==new Set(used).size;
+  const full=V.slots.every(s=>s.trim());
+  const done=full&&!dup;
+  const slots=st.slots.map((sl,i)=>{
+    const sel=V.slot===i;
+    return `<div style="margin-bottom:11px">
+      <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:5px">
+        <b style="font-size:16px;color:${sel?'#f0c060':'#f3edff'}">${sl.k}</b>
+        <span class="sub" style="font-size:12.5px">${sl.ex}</span>
+      </div>
+      <input class="inbox" style="${sel?'border-color:#f0c060':''}" value="${esc(V.slots[i])}"
+        placeholder="여기에 쓸 말은?" onfocus="selSlot(${i})" oninput="setSlot(${i},this.value)" maxlength="12">
+    </div>`;
+  }).join('');
+  const chips=st.chips.map(c=>`<button class="chip ${V.slots.includes(c)?'sel':''}" onclick="putChip('${esc(c)}')">${c}</button>`).join('');
+  return `<div class="card">
+    ${sayS(st.q)}
+    <div class="sub mt" style="font-size:14px">${st.hint}</div>
+    <div class="mt">${slots}</div>
+    <div class="sub" style="font-size:13px;margin-top:14px">고르기 — 먼저 위 칸을 누르고 낱말을 고르세요</div>
+    <div class="chips">${chips}</div>
+    ${dup?`<div class="fb bad" style="margin-top:14px"><span class="ft">👑 세종</span>같은 말이 두 번 있구나. <b>자리마다 다른 말이라야</b> 이 일의 뜻이 있다.</div>`:''}
+    ${done?`<button class="btn go mt" onclick="fillDone()">세종께 보이기</button>`
+          :`<div class="sub" style="text-align:center;margin-top:14px;font-size:13.5px">${used.length}/4 칸 채움</div>`}
+  </div>`;
+}
+function selSlot(i){ V.slot=i; }
+function setSlot(i,v){ V.slots[i]=v; }
+function putChip(c){
+  SND.tap();
+  const i=V.slots.findIndex((s,k)=>k===V.slot);
+  V.slots[V.slot]=c;
+  if(V.slot<3) V.slot++;
+  render();
+}
+function fillDone(){ SND.ok(); V.wrapI=1; render(); window.scrollTo(0,0); }
+function wrapFill(m,st){
+  const words=V.slots.map(s=>s.trim()), n=V.wrapI;
+  const rows=st.slots.map((sl,i)=>`<div style="display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px dashed #443458">
+      <span class="sub" style="width:80px;flex:none;font-size:14px">${sl.k}</span>
+      <b style="font-size:19px;color:#f0c060">${esc(words[i])}</b>
+    </div>`).join('');
+  return `<div class="card">
+    <div class="eyebrow">내가 지은 네 마디</div>
+    <div style="margin:10px 0 16px">${rows}</div>
+    ${n>=1?line(st.after):''}
+    ${n>=2?line(st.after2):''}
+    ${n>=3?`<div class="fb note"><span class="ft">👑 세종이 조용히 묻는다</span>${st.after3[1]}</div>`:''}
+    ${n<3?`<button class="btn mt" onclick="fillMore()" style="text-align:center;color:#a798c2">… 계속 듣기</button>`
+         :`<button class="btn go mt" onclick="finishM()">수첩에 적기</button>`}
+  </div>`;
+}
+function fillMore(){ SND.tap(); V.wrapI++; if(V.wrapI===3) SND.bell(); render(); }
+
+/* ── multi : 여럿 고르기 ── */
+function bodyMulti(m,st){
+  const cards=st.cards.map((c,i)=>{
+    const on=V.sel.includes(i);
+    let cls='btn'+(on?' sel':'');
+    if(V.graded){ cls='btn'+(c.ok?(on?' ok':' no'):(on?' no':'')); }
+    return `<button class="${cls}" onclick="togMulti(${i})">${V.graded?(c.ok?'✓ ':(on?'✗ ':'　')):''}${c.t}</button>`;
+  }).join('');
+  let fbs='';
+  if(V.graded){
+    const wrongPick=st.cards.map((c,i)=>({c,i})).filter(x=>V.sel.includes(x.i)&&!x.c.ok);
+    const missed=st.cards.map((c,i)=>({c,i})).filter(x=>!V.sel.includes(x.i)&&x.c.ok);
+    const right=st.cards.map((c,i)=>({c,i})).filter(x=>V.sel.includes(x.i)&&x.c.ok);
+    fbs=right.map(x=>`<div class="fb good"><span class="ft">👑 세종</span>${x.c.fb}</div>`).join('');
+    fbs+=wrongPick.map(x=>`<div class="fb bad"><span class="ft">👑 세종이 고개를 젓는다</span>${x.c.fb}</div>`).join('');
+    if(missed.length) fbs+=`<div class="fb note"><span class="ft">👑 세종</span>아직 <b>${missed.length}명</b>이 더 있다. 다시 보아라.</div>`;
+  }
+  const perfect=V.graded&&st.cards.every((c,i)=>c.ok===V.sel.includes(i));
+  return `<div class="card">
+    ${sayS(st.q)}
+    <div class="sub mt" style="font-size:14px">${st.hint}</div>
+    <div class="stack mt">${cards}</div>
+    ${fbs}
+    ${!V.graded?`<button class="btn primary mt" onclick="gradeMulti()">세종께 보이기 (${V.sel.length}명 고름)</button>`
+      :perfect?`<div style="margin-top:12px">${line(st.after)}</div><button class="btn go mt" onclick="nextStep()">다음</button>`
+      :`<button class="btn primary mt" onclick="regrade()">다시 골라 보기</button>`}
+  </div>`;
+}
+function togMulti(i){
+  if(V.graded) return;
+  SND.tap();
+  const k=V.sel.indexOf(i);
+  if(k<0) V.sel.push(i); else V.sel.splice(k,1);
+  render();
+}
+function gradeMulti(){
+  const st=M(V.mid).steps[V.si];
+  if(!V.sel.length){ toast('한 명도 고르지 않았어요'); return; }
+  V.graded=true;
+  const perfect=st.cards.every((c,i)=>c.ok===V.sel.includes(i));
+  if(perfect) SND.bell(); else SND.bad();
+  render();
+}
+function regrade(){ SND.click(); V.graded=false; render(); }
+
+/* ── sign : 마지막 줄 쓰기 ── */
+function bodySign(m,st){
+  const ok=V.sign.trim().length>=2;
+  const chips=st.chips.map(c=>`<button class="chip ${V.sign===c?'sel':''}" onclick="putSign('${esc(c)}')">${c}</button>`).join('');
+  return `<div class="card">
+    ${sayS(st.q)}
+    <div class="sub mt" style="font-size:14.5px">${st.hint}</div>
+    <textarea class="inbox mt" rows="2" placeholder="예) 「그만해」라는 말을 들으면 바로 멈추겠다"
+      oninput="setSign(this.value)" maxlength="60">${esc(V.sign)}</textarea>
+    <div class="sub" style="font-size:13px;margin-top:12px">골라서 넣어도 되고, 고친 뒤 써도 된다</div>
+    <div class="chips">${chips}</div>
+    <div class="mt">
+      <div class="sub" style="font-size:13px;margin-bottom:6px">이름 (수첩에 남습니다)</div>
+      <input class="inbox" value="${esc(S.name)}" placeholder="이름" oninput="setName(this.value)" maxlength="10">
+    </div>
+    ${ok?`<button class="btn go mt" onclick="finishM()">수첩에 적기</button>`
+        :`<div class="sub" style="text-align:center;margin-top:14px;font-size:13.5px">한 줄을 적으면 수첩이 완성된다</div>`}
+  </div>`;
+}
+function setSign(v){ V.sign=v; }
+function setName(v){ S.name=v; save(); }
+function putSign(c){ SND.tap(); V.sign=c; render(); }
+
+/* ── 단계 이동 ── */
+function nextStep(){
+  SND.click();
+  const m=M(V.mid);
+  if(V.si<m.steps.length-1){ V.si++; resetStep(); render(); window.scrollTo(0,0); }
+  else finishM();
+}
+
+/* ── 미션 완료 ── */
+function finishM(){
+  const m=M(V.mid);
+  if(m.id==='m6' && V.sign.trim().length<2){ toast('한 줄을 적어 주세요'); return; }
+  const first=!S.done[m.id];
+  S.done[m.id]=true;
+  S.lines[m.id]= m.id==='m6' ? V.sign.trim() : m.note;
+  save();
+  SND.brush();
+  const n=doneCount();
+  V.ovl=`<div class="ovl">
+    <div class="in">
+      <div class="ic">🖌️</div>
+      <h2>수첩에 한 줄이 적혔다</h2>
+      <div class="notepage" style="text-align:left;margin-bottom:16px">
+        <div class="noteline" style="border-bottom:none">
+          <span class="nn">${MISSIONS.findIndex(x=>x.id===m.id)+1}.</span>
+          <span>${esc(S.lines[m.id])}</span>
+        </div>
+      </div>
+      <p>${n<6?'수첩 <b>'+n+'/6</b> 줄 — 아직 '+(6-n)+'줄이 남았다.':'<b>여섯 줄이 다 찼다.</b> 세종이 돌아갈 때가 되었다.'}</p>
+      ${n<6?`<button class="btn go" onclick="closeOvl()">계속하기</button>`
+           :`<button class="btn go" onclick="closeOvl(1)">📜 완성된 수첩 보기</button>`}
+    </div></div>`;
+  V.screen='home'; render();
+  if(n===6) setTimeout(()=>SND.fanfare(),800);
+}
+function closeOvl(toFinal){
+  SND.click(); V.ovl=null;
+  if(toFinal){ V.screen='final'; }
+  render(); window.scrollTo(0,0);
+}
+
+/* ── 마지막 화면 ── */
+function viewFinal(){
+  const rows=MISSIONS.map((m,i)=>{
+    const t=S.lines[m.id];
+    return `<div class="noteline ${t?'':'empty'}"><span class="nn">${i+1}.</span><span>${t?esc(t):'(아직 비어 있다)'}</span></div>`;
+  }).join('');
+  return `
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+    <button class="iconbtn" onclick="home()">‹</button>
+    <div style="flex:1"><div class="eyebrow">마지막</div><div class="sub" style="font-size:13px">세종이 돌아간다</div></div>
+  </div>
+  <div class="card">
+    ${sayS('통역관아, 수고하였다. 여섯 줄을 다 채웠구나.')}
+    ${sayS('이 수첩은 <b>내가 배운 것</b>이 아니라 <b>네가 가르쳐 준 것</b>이다. 그러니 이것은 네 것이기도 하다.')}
+    ${sayS('내 할 일은 여기까지다. <b>글자는 내가 만들었고, 말은 너희가 만든다.</b>')}
+    ${sayS('…부디 <b>제 뜻을 펴지 못하는 이</b>가 네 곁에 없기를.')}
+    <div class="notepage mt">
+      <h3>세종의 통역 수첩</h3>
+      ${rows}
+      <div style="text-align:right;font-family:'Gaegu',sans-serif;font-size:17px;color:#6b573a;margin-top:14px">
+        통역관 ${esc(S.name||'　　　')} · 2026년 교실에서
+      </div>
+    </div>
+    <button class="btn go mt" onclick="saveCard()">💾 수첩 이미지로 저장하기</button>
+    <button class="btn ghost" onclick="home()">미션 다시 보기</button>
+  </div>
+  <div class="warn">
+    <b>선생님께</b> — 저장한 이미지를 모아 게시하면 학급 약속판이 됩니다.
+    ${QR.main?'QR은 시작 화면에 있습니다.':''}
+  </div>
+  <div class="foot">언어문화개선교육 · 2026.10.06</div>`;
+}
+
+/* ── 수첩 이미지 저장 ── */
+function saveCard(){
+  SND.click();
+  const W=820, H=1180, c=document.createElement('canvas');
+  c.width=W; c.height=H;
+  const x=c.getContext('2d');
+
+  /* 한지 바탕 */
+  const g=x.createLinearGradient(0,0,W,H);
+  g.addColorStop(0,'#f8f1de'); g.addColorStop(1,'#eadfc3');
+  x.fillStyle=g; x.fillRect(0,0,W,H);
+  /* 결 */
+  x.globalAlpha=.05; x.strokeStyle='#8a6f3e';
+  for(let i=0;i<70;i++){ x.beginPath(); x.moveTo(0,i*17+((i*37)%13)); x.lineTo(W,i*17+((i*53)%19)); x.stroke(); }
+  x.globalAlpha=1;
+  /* 테두리 */
+  x.strokeStyle='#8a6f3e'; x.lineWidth=3; x.strokeRect(26,26,W-52,H-52);
+  x.strokeStyle='#c3ab7a'; x.strokeRect(36,36,W-72,H-72);
+
+  const F=(s,w)=>`${w||400} ${s}px 'Noto Sans KR', sans-serif`;
+  x.textAlign='center'; x.fillStyle='#4a3820';
+  x.font=F(19,700); x.fillText('通 譯 手 帖', W/2, 96);
+  x.font=F(40,900); x.fillStyle='#3a2c16';
+  x.fillText('세종의 통역 수첩', W/2, 150);
+  x.font=F(16,400); x.fillStyle='#7a6642';
+  x.fillText('세종대왕이 2026년 교실에서 배워 간 여섯 가지', W/2, 184);
+
+  x.strokeStyle='#8a6f3e'; x.lineWidth=2;
+  x.beginPath(); x.moveTo(90,206); x.lineTo(W-90,206); x.stroke();
+
+  /* 여섯 줄 */
+  let y=254;
+  MISSIONS.forEach((m,i)=>{
+    const t=S.lines[m.id]||'';
+    x.textAlign='left';
+    x.font=F(25,900); x.fillStyle='#b08832';
+    x.fillText(String(i+1)+'.', 78, y);
+    x.font=F(20,500); x.fillStyle='#33291a';
+    /* 줄바꿈 */
+    const maxw=W-190; let lineTxt='', yy=y;
+    for(const ch of t){
+      if(x.measureText(lineTxt+ch).width>maxw){ x.fillText(lineTxt,124,yy); lineTxt=ch; yy+=32; }
+      else lineTxt+=ch;
+    }
+    x.fillText(lineTxt,124,yy);
+    /* 미션 이름 */
+    x.font=F(13,400); x.fillStyle='#9a8256';
+    x.fillText(m.title, 124, yy+24);
+    y=yy+68;
+    x.strokeStyle='#cbb98f'; x.lineWidth=1; x.setLineDash([5,5]);
+    x.beginPath(); x.moveTo(78,y-30); x.lineTo(W-78,y-30); x.stroke(); x.setLineDash([]);
+  });
+
+  /* 서문 */
+  x.textAlign='center';
+  x.font=F(19,700); x.fillStyle='#8a4a20';
+  x.fillText('제 뜻을 펴지 못하는 사람이 많다', W/2, H-176);
+  x.font=F(14,400); x.fillStyle='#9a8256';
+  x.fillText('훈민정음 서문 (1446)', W/2, H-150);
+
+  x.font=F(22,700); x.fillStyle='#4a3820';
+  x.fillText('통역관  '+(S.name||'　　　'), W/2, H-100);
+  x.font=F(13,400); x.fillStyle='#9a8256';
+  x.fillText('2026년 10월 · 언어문화개선교육', W/2, H-72);
+
+  try{
+    const a=document.createElement('a');
+    a.download='세종의_통역수첩_'+(S.name||'통역관')+'.png';
+    a.href=c.toDataURL('image/png');
+    a.click();
+    SND.get(); toast('수첩을 저장했어요');
+  }catch(e){ toast('저장이 막혀 있어요 — 화면을 캡처해 주세요'); }
+}
+
+/* ── 잡다 ── */
+let toastT=null;
+function toast(msg){
+  const t=$('toast'); t.innerHTML=msg; t.classList.add('on');
+  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('on'),2300);
+}
+function toggleSound(){
+  S.sound = S.sound===false;
+  SND.vol = S.sound ? .55 : 0;
+  save(); render();
+  if(S.sound){ SND.init(); SND.ok(); }
+}
+let resetArm=false, resetT=null;
+function resetAll(){
+  if(!resetArm){
+    resetArm=true; SND.bad();
+    toast('정말 처음부터? <b>한 번 더</b> 누르면 수첩이 지워집니다');
+    clearTimeout(resetT); resetT=setTimeout(()=>{resetArm=false;},3500);
+    return;
+  }
+  resetArm=false;
+  S={ done:{}, lines:{}, name:'', last:'', sound:S.sound };
+  save();
+  V={ screen:'intro', mid:null, si:0, ti:1, got:[], pick:null, heard:[], slots:['','','',''], slot:0, sel:[], graded:false, wrapI:0, sign:'', ovl:null };
+  render(); window.scrollTo(0,0);
+  toast('수첩을 비웠습니다');
+}
+function showQR(){
+  SND.click();
+  V.ovl=`<div class="qrov" onclick="hideQR()"><div class="in">${QR.main}</div>
+    <div style="color:#a798c2;font-size:14px;text-align:center">태블릿 카메라로 찍으세요<br>아무 데나 누르면 닫힙니다</div></div>`;
+  render();
+}
+function hideQR(){ SND.click(); V.ovl=null; render(); }
+
+/* ── 부팅 ── */
+load();
+render();
+window.addEventListener('keydown',e=>{ if(e.key==='Escape'&&V.ovl){ V.ovl=null; render(); } });
+</script>
+</body>
+</html>

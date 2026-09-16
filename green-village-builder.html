@@ -153,6 +153,35 @@ button{font-family:inherit; color:inherit; border:none; background:none; cursor:
 .thermo .tv{font-size:90px; font-family:'Jua','Noto Sans KR',sans-serif; min-width:220px; text-align:center}
 .thermo button{width:96px; height:96px; border-radius:50%; font-size:44px; background:var(--paper); border:3px solid var(--line)}
 
+/* 재난 · 수리 · 고르기 */
+#nowDis{font-size:16px; font-weight:700; color:#9b2c29; background:#fdeeee; border:1.5px solid #f1b5b3; border-radius:999px; padding:6px 14px; white-space:nowrap}
+#map.dark{filter:brightness(.62) saturate(.7)}
+.tile.hurt{background:#e8d9c9}
+.tile.hurt .bld{filter:grayscale(.85) brightness(.9); transform:rotate(-4deg)}
+.tile .hurtmk{position:absolute; left:3px; bottom:2px; font-size:22px; z-index:2; filter:drop-shadow(0 1px 2px #fff)}
+.tile.hurt::after{content:''; position:absolute; inset:0; background:repeating-linear-gradient(45deg,rgba(217,83,79,.13) 0 10px,transparent 10px 20px)}
+.evb.fix{border-color:var(--red); animation:shake .5s ease-in-out infinite}
+@keyframes shake{25%{transform:rotate(-9deg)}75%{transform:rotate(9deg)}}
+.todo.fix{background:#fdf2f1; border-radius:12px}
+.dishd{display:flex; align-items:center; gap:20px; margin-bottom:6px}
+.dishd .dise{font-size:74px; flex:0 0 auto; animation:wob 1.6s ease-in-out infinite}
+@keyframes wob{25%{transform:rotate(-7deg) scale(1.06)}75%{transform:rotate(7deg) scale(1.06)}}
+.disask{margin-top:16px; font-size:23px; font-weight:700; line-height:1.5; background:var(--sky); color:#2f5563; border-radius:14px; padding:14px 18px; word-break:keep-all}
+.disopts{display:flex; flex-direction:column; gap:10px; margin-top:14px}
+.disopt{text-align:left; border:3px solid var(--line); border-radius:16px; background:#fff; padding:15px 18px; font-size:20px; line-height:1.45; word-break:keep-all; min-height:64px}
+.disopt.no{border-color:#f1b5b3; background:#fdeeee; color:#9b2c29; opacity:.65}
+.qopts{display:flex; flex-direction:column; gap:10px; margin-top:14px}
+.qopt{display:flex; align-items:center; gap:16px; text-align:left; border:3px solid var(--line); border-radius:16px; background:#fff; padding:12px 16px; min-height:74px}
+.qopt .qe{font-size:40px; flex:0 0 auto}
+.qopt b{font-size:20px; font-weight:700; line-height:1.45; word-break:keep-all}
+.qopt.no{border-color:#f1b5b3; background:#fdeeee; opacity:.6}
+.pick.fix{min-height:120px}
+.pick.fix.on{border-color:var(--green); background:var(--leaf)}
+.pick:disabled{opacity:.45}
+.panelg{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:16px; background:#2f3d4a; padding:12px; border-radius:16px}
+.pcell{height:84px; border-radius:8px; background:#4a7fa5; border:2px solid #395f7c; box-shadow:inset 0 0 12px rgba(255,255,255,.25)}
+.pcell.dirty{background:#8d7f63; border-color:#6f6350; box-shadow:inset 0 0 14px rgba(60,48,30,.5)}
+
 #toast{position:absolute; left:50%; top:84px; transform:translate(-50%,-10px); z-index:200; background:var(--ink); color:#fff; font-size:20px; padding:12px 24px; border-radius:999px; opacity:0; transition:all .25s; pointer-events:none; white-space:nowrap}
 #toast.on{opacity:1; transform:translate(-50%,0)}
 
@@ -181,6 +210,7 @@ button{font-family:inherit; color:inherit; border:none; background:none; cursor:
     <div class="stat" id="sEnergy">⚡ <b id="vEnergy">0</b><small id="vEnergySub"></small></div>
     <div class="stat">🌱 <b id="vActs">0</b></div>
     <div class="spacer"></div>
+    <div id="nowDis" hidden></div>
     <div id="lvl"></div>
     <button class="ibtn" id="bSet">⚙️</button>
   </div>
@@ -307,13 +337,218 @@ const DEVICES = [
   { e: '🧊', n: '냉장고', keep: true, why: '냉장고를 끄면 음식이 상해요. 꼭 켜 둬야 하는 것도 있어요.' },
   { e: '🐠', n: '어항 산소 공급기', keep: true, why: '끄면 물고기가 숨을 못 쉬어요. 필요한 건 켜 둬요.' },
 ];
+/* ---------------------------------------------------------------------
+   할 일 — 친환경 행동 · 점검과 정비
+   view: sort/light/plug/temp 는 전용 화면, quiz 는 고르기, tap 은 문질러 닦기
+   okAt 이 있으면 그것으로 자리를 고른다(없으면 on 의 구조물 종류로)
+   --------------------------------------------------------------------- */
 const EV = {
-  sort:  { e: '🗑️', n: '쓰레기가 모였어요', sub: '분리배출해 주세요', on: ['house', 'apt', 'school', 'shop'] },
-  light: { e: '💡', n: '빈 방에 불이 켜져 있어요', sub: '필요 없는 불을 꺼요', on: ['school', 'library', 'shop', 'apt', 'recycle'] },
-  plug:  { e: '🔌', n: '멀티탭이 켜져 있어요', sub: '대기 전력을 막아요', on: ['house', 'apt', 'school', 'library'] },
-  temp:  { e: '🌡️', n: '냉난방 온도를 맞춰요', sub: '알맞은 실내 온도로', on: ['school', 'library', 'shop', 'apt', 'house'] },
+  /* --- 생활 속 친환경 행동 --- */
+  sort:  { e: '🗑️', n: '쓰레기가 모였어요', sub: '분리배출해 주세요', view: 'sort', on: ['house', 'apt', 'school', 'shop'] },
+  light: { e: '💡', n: '빈 방에 불이 켜져 있어요', sub: '필요 없는 불을 꺼요', view: 'light', on: ['school', 'library', 'shop', 'apt', 'recycle'] },
+  plug:  { e: '🔌', n: '멀티탭이 켜져 있어요', sub: '대기 전력을 막아요', view: 'plug', on: ['house', 'apt', 'school', 'library'] },
+  temp:  { e: '🌡️', n: '냉난방 온도를 맞춰요', sub: '알맞은 실내 온도로', view: 'temp', on: ['school', 'library', 'shop', 'apt', 'house'] },
+
+  water: { e: '💧', n: '물이 그냥 흘러가요', sub: '물 쓰는 습관을 살펴봐요', view: 'quiz', on: ['house', 'apt', 'school'], qs: [
+    { q: '이를 닦을 때 물은 어떻게 할까요?', opts: [
+      { e: '🥤', n: '컵에 받아서 쓴다', ok: true, why: '컵 한 컵이면 넉넉해요. 그냥 틀어 두면 3분에 20L 가까이 흘러가요.' },
+      { e: '🚿', n: '틀어 놓은 채로 닦는다', ok: false, why: '3분만 틀어 놔도 큰 물통 열 개가 그냥 하수구로 흘러가요.' },
+      { e: '🫗', n: '세게 틀었다 잠갔다 한다', ok: false, why: '잠그는 건 좋지만 세게 트는 동안 많이 나가요. 컵을 쓰면 확실해요.' } ] },
+    { q: '설거지할 때는요?', opts: [
+      { e: '🪣', n: '통에 물을 받아서 헹군다', ok: true, why: '받아서 헹구면 흐르는 물의 3분의 1만 써요.' },
+      { e: '🚰', n: '수도를 계속 틀어 놓는다', ok: false, why: '틀어 놓은 채로 설거지하면 물이 세 배 넘게 들어요.' } ] },
+    { q: '변기 물통에 넣어 두면 좋은 것은?', opts: [
+      { e: '🧊', n: '물을 채운 페트병', ok: true, why: '그만큼 물이 덜 차서 내릴 때마다 아껴져요.' },
+      { e: '🧼', n: '비누', ok: false, why: '물에 녹아 나가면 강물이 더러워져요.' },
+      { e: '🪨', n: '흙이 묻은 돌', ok: false, why: '흙이 풀려서 관이 막힐 수 있어요.' } ] } ] },
+
+  market: { e: '🛍️', n: '장 보러 가요', sub: '무엇을 고를까요', view: 'quiz', on: ['shop'], qs: [
+    { q: '가게에 갈 때 무엇을 챙길까요?', opts: [
+      { e: '👜', n: '집에 있던 장바구니', ok: true, why: '한 번 만든 것을 여러 번 쓰는 게 가장 좋아요.' },
+      { e: '🛍️', n: '새 비닐봉지를 산다', ok: false, why: '몇 분 쓰고 버리는 봉지 하나가 썩는 데는 수백 년이 걸려요.' },
+      { e: '📦', n: '새 종이가방을 산다', ok: false, why: '종이도 나무를 베어 만들어요. 새로 사는 건 마찬가지예요.' } ] },
+    { q: '같은 사과인데 포장이 달라요. 무엇을 고를까요?', opts: [
+      { e: '🍎', n: '그냥 쌓아 놓고 파는 사과', ok: true, why: '포장이 적을수록 버릴 것도 적어요. 이걸 저포장이라고 해요.' },
+      { e: '🎁', n: '한 알씩 스티로폼에 싼 선물 상자', ok: false, why: '먹는 건 똑같은데 버릴 것만 잔뜩 나와요.' } ] },
+    { q: '오늘 저녁에 마실 우유를 사요. 어느 것을 집을까요?', opts: [
+      { e: '📅', n: '앞쪽에 있는, 기한이 가까운 것', ok: true, why: '바로 먹을 거면 기한이 가까운 것부터 사야 안 팔리고 버려지는 우유가 줄어요.' },
+      { e: '🆕', n: '맨 뒤에 있는 가장 새것', ok: false, why: '다들 새것만 집어 가면 앞의 것은 그대로 버려져요.' } ] } ] },
+
+  meal: { e: '🍚', n: '급식을 남기지 않아요', sub: '음식물 쓰레기를 줄여요', view: 'quiz', on: ['school'], qs: [
+    { q: '오늘은 별로 배가 안 고파요. 배식받을 때는?', opts: [
+      { e: '🙋', n: '먹을 만큼만 덜어 달라고 말한다', ok: true, why: '남기기 전에 덜 받는 게 가장 쉬운 방법이에요.' },
+      { e: '🍛', n: '일단 다 받고 남긴다', ok: false, why: '남긴 음식은 버리는 데에도 돈과 에너지가 들어요.' },
+      { e: '🚫', n: '아예 안 받는다', ok: false, why: '안 먹으면 오후에 힘이 없어요. 적게 받는 게 맞아요.' } ] },
+    { q: '우리나라에서 하루에 나오는 음식물 쓰레기는 얼마나 될까요?', opts: [
+      { e: '🚚', n: '1만 톤이 넘는다', ok: true, why: '8톤 트럭 1,500대 분량이에요. 처리하는 데만 해마다 1조 원 넘게 들어요.' },
+      { e: '🥡', n: '100톤쯤', ok: false, why: '그보다 훨씬 많아요. 하루에 1만 톤이 넘어요.' } ] } ] },
+
+  paper: { e: '📄', n: '종이를 아껴요', sub: '한 장이라도 덜 쓰는 법', view: 'quiz', on: ['school', 'library', 'shop'], qs: [
+    { q: '한쪽만 쓴 종이가 잔뜩 나왔어요.', opts: [
+      { e: '📝', n: '뒷면을 연습장으로 쓴다', ok: true, why: '다시 쓰는 게 재활용보다 앞서요. 녹여서 새로 만드는 데에도 물과 전기가 들거든요.' },
+      { e: '♻️', n: '바로 재활용함에 넣는다', ok: false, why: '나쁘진 않지만, 뒷면을 쓰고 넣으면 두 배로 쓴 셈이에요.' },
+      { e: '🗑️', n: '쓰레기통에 버린다', ok: false, why: '종이는 다시 종이가 될 수 있어요.' } ] },
+    { q: '종이 1톤을 재활용하면 나무를 몇 그루나 지킬까요?', opts: [
+      { e: '🌳', n: '스무 그루쯤', ok: true, why: '30년 자란 나무 스무 그루예요. 우리 반이 한 학기에 쓰는 종이를 떠올려 봐요.' },
+      { e: '🌱', n: '한 그루', ok: false, why: '훨씬 많아요. 스무 그루쯤 돼요.' } ] } ] },
+
+  move: { e: '🚶', n: '어떻게 갈까요', sub: '가까운 거리 이동 방법', view: 'quiz', on: ['house', 'apt'], qs: [
+    { q: '학교까지 걸어서 10분이에요. 어떻게 갈까요?', opts: [
+      { e: '🚶', n: '걸어간다', ok: true, why: '가까운 거리는 걷는 게 가장 좋아요. 이산화 탄소가 0이에요.' },
+      { e: '🚗', n: '자동차로 데려다 달라고 한다', ok: false, why: '짧은 거리일수록 자동차는 연료를 더 많이 써요. 엔진이 데워지기도 전에 도착하거든요.' } ] },
+    { q: '3층 교실에 올라가요.', opts: [
+      { e: '🪜', n: '계단으로 올라간다', ok: true, why: '엘리베이터 한 번이 전구 하나를 몇 시간 켜는 전기와 맞먹어요.' },
+      { e: '🛗', n: '엘리베이터를 탄다', ok: false, why: '다리가 불편한 사람에게 양보하고, 낮은 층은 계단으로 가요.' } ] } ] },
+
+  /* --- 점검과 정비 — 다 지으면 끝이 아니다 --- */
+  bridgeChk: { e: '🌉', n: '다리 정기 점검 날이에요', sub: '어디를 살펴볼까요', view: 'quiz', on: ['bridge'], qs: [
+    { q: '다리를 점검할 때 가장 먼저 볼 곳은?', opts: [
+      { e: '🔩', n: '바닥판과 기둥이 만나는 이음매', ok: true, why: '힘이 몰리는 곳부터 갈라져요. 다리가 무너질 때는 거의 이음매에서 시작돼요.' },
+      { e: '🎨', n: '난간에 칠한 페인트 색', ok: false, why: '보기엔 중요하지만 다리가 버티는 것과는 상관이 적어요.' },
+      { e: '🪧', n: '다리 이름 표지판', ok: false, why: '표지판이 낡아도 다리는 안 무너져요.' } ] },
+    { q: '점검하다가 기둥에서 가느다란 금을 찾았어요.', opts: [
+      { e: '📏', n: '금의 길이를 재어 적어 두고 다음에 또 잰다', ok: true, why: '금이 자라는지 보는 게 중요해요. 이런 기록을 몇 년씩 모아 무너지기 전에 고쳐요.' },
+      { e: '🎨', n: '시멘트로 덮어 안 보이게 한다', ok: false, why: '덮으면 금이 자라는 걸 못 봐요. 가장 위험한 방법이에요.' },
+      { e: '🤷', n: '작으니까 그냥 둔다', ok: false, why: '작은 금이 자라서 무너진 다리가 실제로 있었어요.' } ] },
+    { q: '다리는 얼마마다 점검할까요?', opts: [
+      { e: '📆', n: '적어도 1년에 한 번, 큰 다리는 더 자주', ok: true, why: '법으로 정해져 있어요. 건설 기술은 다 지은 뒤가 오히려 더 길어요.' },
+      { e: '🏗️', n: '다 지었으면 안 해도 된다', ok: false, why: '다 지으면 끝이 아니에요. 오래 쓰려면 계속 돌봐야 해요.' } ] } ] },
+
+  roadChk: { e: '🚧', n: '자전거 도로가 갈라졌어요', sub: '어떻게 고칠까요', view: 'quiz', on: ['bike'], qs: [
+    { q: '길에 금이 갔어요. 왜 갈라질까요?', opts: [
+      { e: '🧊', n: '틈에 스민 물이 겨울에 얼면서 벌어졌다', ok: true, why: '물이 얼면 부피가 늘어요. 그 힘이 단단한 아스팔트를 쪼개요.' },
+      { e: '☀️', n: '햇빛을 많이 받아서', ok: false, why: '햇빛도 영향을 주지만, 갈라지는 가장 큰 까닭은 얼었다 녹는 물이에요.' } ] },
+    { q: '포장을 다시 할 때 어떤 재료를 쓸까요?', opts: [
+      { e: '♻️', n: '뜯어낸 아스팔트를 녹여 다시 쓴 재생 아스팔트', ok: true, why: '성능이 거의 같은데 새 자갈을 캐지 않아도 돼요. 실제 도로에서 널리 써요.' },
+      { e: '🆕', n: '전부 새 아스팔트', ok: false, why: '멀쩡한 재료를 버리고 산을 깎아 자갈을 새로 캐야 해요.' } ] } ] },
+
+  damChk: { e: '🪵', n: '둑에 나뭇가지가 걸렸어요', sub: '물길을 열어 줘요', view: 'quiz', on: ['dam'], qs: [
+    { q: '물이 지나는 곳에 나뭇가지와 쓰레기가 쌓였어요.', opts: [
+      { e: '🧹', n: '걷어 내서 물이 잘 흐르게 한다', ok: true, why: '막히면 물이 넘치고 발전기 날개도 상해요.' },
+      { e: '💦', n: '물을 더 세게 흘려보내 밀어낸다', ok: false, why: '아래쪽에서 한꺼번에 쏟아져 더 위험해요.' } ] },
+    { q: '수력 발전은 무엇의 힘으로 전기를 만들까요?', opts: [
+      { e: '🌊', n: '높은 곳에서 떨어지는 물이 날개를 돌리는 힘', ok: true, why: '물을 태우는 게 아니라 흐르는 힘만 빌려 써요. 그래서 재생 에너지예요.' },
+      { e: '🔥', n: '물을 끓여서 나오는 김', ok: false, why: '그건 화력이나 원자력이에요. 수력은 물이 떨어지는 힘 그 자체를 써요.' } ] } ] },
+
+  bladeChk: { e: '🔧', n: '풍력 날개를 점검해요', sub: '바람을 잘 받고 있나요', view: 'quiz', on: ['wind'], qs: [
+    { q: '날개 끝에 금이 가 있어요. 왜 바로 고쳐야 할까요?', opts: [
+      { e: '⚠️', n: '금이 자라면 날개가 부러져 멀리 날아갈 수 있어서', ok: true, why: '날개 끝은 시속 300km 로 돌아요. 부러지면 아주 위험해요.' },
+      { e: '🔇', n: '소리가 시끄러워져서', ok: false, why: '소리도 문제지만, 진짜 까닭은 안전이에요.' } ] },
+    { q: '바람이 너무 세게 불면 풍력 발전기는 어떻게 할까요?', opts: [
+      { e: '🛑', n: '일부러 멈춘다', ok: true, why: '태풍처럼 너무 세면 부서지니까 날개 각도를 틀어 멈춰요. 멈추는 것도 기술이에요.' },
+      { e: '⚡', n: '더 빨리 돌려 전기를 많이 만든다', ok: false, why: '너무 빨리 돌면 날개가 부서져요.' } ] } ] },
+
+  sorterChk: { e: '⚙️', n: '선별기가 멈췄어요', sub: '무엇이 들어갔을까요', view: 'quiz', on: ['recycle'], qs: [
+    { q: '선별기에 무엇이 끼었을까요?', opts: [
+      { e: '🛍️', n: '안 뜯은 비닐봉지에 뭉쳐 담긴 쓰레기', ok: true, why: '봉지째 넣으면 기계가 안을 못 봐요. 봉지를 풀어서 내야 해요.' },
+      { e: '🥫', n: '헹군 캔', ok: false, why: '헹군 캔은 기계가 자석으로 잘 골라내요.' } ] },
+    { q: '이런 일이 다시 안 생기게 하려면?', opts: [
+      { e: '📢', n: '마을 사람들에게 봉지를 풀어서 내 달라고 알린다', ok: true, why: '고치는 것보다 안 생기게 하는 게 나아요.' },
+      { e: '💪', n: '더 힘센 기계로 바꾼다', ok: false, why: '돈도 에너지도 더 들고, 여전히 안에 뭐가 있는지는 몰라요.' } ] } ] },
+
+  panelChk: { e: '☀️', n: '태양광 판이 먼지투성이예요', sub: '문질러서 닦아요', view: 'tap',
+    okAt: b => !!(b.d && (b.d.use || []).includes('solar')) },
 };
-const EV_EVERY = 35000, EV_MAX = 3;
+const EV_EVERY = 30000, EV_MAX = 5;
+
+/* ---------------------------------------------------------------------
+   재난 — 갑자기 오지만, 아이가 고르기 전에는 아무 일도 안 일어난다
+   (태블릿을 덮어 두면 재난은 시작되지 않는다)
+   kind  break=구조물이 다침 · check=점검만 · power=잠깐 정전 · heat=냉방 급증 · smog=태양광 절반
+   can   이 구조물이 다칠 수 있나      safe  이 설계면 지켜진다
+   --------------------------------------------------------------------- */
+const DIS = {
+  typhoon: { e: '🌀', n: '태풍', warn: '아주 센 바람과 비가 몰려오고 있어요.',
+    ask: '태풍이 닥치기 전에 무엇을 먼저 할까요?', kind: 'break', hits: 2, need: 3,
+    opts: [
+      { n: '창문을 꼭 닫아 잠그고, 밖에 둔 화분과 간판을 안으로 들인다', ok: true, why: '태풍 때 다치는 일은 날아다니는 물건에 맞아서 생겨요. 창문은 꼭 닫아 잠가요.' },
+      { n: '창문을 조금 열어 바람이 지나가게 한다', ok: false, why: '바람이 안으로 들어오면 지붕을 아래에서 위로 들어 올려요. 지붕이 통째로 날아가는 까닭이에요.' },
+      { n: '밖에 나가서 바람이 얼마나 센지 본다', ok: false, why: '태풍 때는 밖에 나가지 않아요. 간판이나 유리 조각이 날아와요.' } ],
+    can: b => ST[b.k].kind === 'bld' || b.k === 'bridge',
+    safe: b => !!(b.d && (b.d.use || []).includes('insul')),
+    safeSay: '🪟 단열창은 두 겹이라 날아온 물건에도 잘 안 깨졌어요.' },
+
+  flood: { e: '🌊', n: '집중 호우', warn: '한 시간에 70mm 가 넘는 비가 쏟아지고 있어요.',
+    ask: '물이 차오르기 전에 무엇을 할까요?', kind: 'break', hits: 2, need: 4,
+    opts: [
+      { n: '하수구 덮개에 쌓인 낙엽을 걷어 물길을 열어 둔다', ok: true, why: '물난리의 절반은 하수구가 막혀서 나요. 물이 빠질 길부터 열어야 해요.' },
+      { n: '강에 가서 물이 얼마나 찼는지 보고 온다', ok: false, why: '불어난 강물은 어른도 순식간에 휩쓸려요. 절대 가까이 가지 않아요.' },
+      { n: '비가 그칠 때까지 기다린다', ok: false, why: '기다리는 동안 하수구가 막히면 길이 잠겨요. 미리 하는 것이 대비예요.' } ],
+    can: (b, i) => b.k === 'bridge' || b.k === 'dam' || nearRiver(i),
+    safe: b => !!(b.d && b.d.build === 'concrete'),
+    safeSay: '🧱 물에 잠겼지만 콘크리트라 크게 상하지 않았어요.' },
+
+  quake: { e: '🌏', n: '지진', warn: '규모 4.5 의 지진이 마을을 흔들었어요.',
+    ask: '땅이 흔들리는 순간, 교실에서는 어떻게 할까요?', kind: 'check', need: 4,
+    opts: [
+      { n: '책상 밑으로 들어가 다리를 꼭 잡고 기다린다', ok: true, why: '떨어지는 물건에 맞는 것이 가장 위험해요. 흔들림이 멈춘 뒤에 나가요.' },
+      { n: '흔들리는 동안 바로 밖으로 뛰어나간다', ok: false, why: '흔들리는 중에 나가면 떨어지는 유리와 간판에 다쳐요. 멈춘 다음에 나가요.' },
+      { n: '엘리베이터를 타고 빨리 내려간다', ok: false, why: '지진 때 엘리베이터는 멈춰서 갇혀요. 계단으로 내려가요.' } ],
+    checkSay: '무너진 곳은 없어요. 하지만 흔들린 뒤에는 <b>구조물마다 금이 갔는지 꼭 살펴봐야</b> 해요.' },
+
+  blackout: { e: '⚡', n: '정전', warn: '마을 전체에 전기가 끊겼어요.',
+    ask: '가장 먼저 무엇을 할까요?', kind: 'power', need: 3, mins: 2,
+    opts: [
+      { n: '냉장고 문을 열지 않고, 촛불 대신 손전등을 켠다', ok: true, why: '문을 안 열면 냉장고는 몇 시간 차가워요. 촛불은 넘어지면 불이 나니까 손전등을 써요.' },
+      { n: '어두우니까 촛불을 여기저기 켜 둔다', ok: false, why: '정전 때 불이 나는 건 거의 촛불 때문이에요. 손전등이나 휴대전화 불빛을 써요.' },
+      { n: '전기가 언제 들어오나 보려고 스위치를 다 켜 둔다', ok: false, why: '한꺼번에 전기가 들어오면 몰려서 또 끊겨요. 껐다가 하나씩 켜요.' } ] },
+
+  heat: { e: '🥵', n: '폭염', warn: '며칠째 낮 기온이 36℃ 를 넘어요.',
+    ask: '마을은 무엇을 할까요?', kind: 'heat', need: 4, mins: 3,
+    opts: [
+      { n: '그늘막을 치고 무더위 쉼터를 열어 어르신들이 쉬게 한다', ok: true, why: '폭염으로 가장 위험한 건 혼자 계신 어르신이에요. 시원한 곳을 함께 쓰는 게 먼저예요.' },
+      { n: '에어컨을 18℃ 로 세게 튼다', ok: false, why: '마을이 다 같이 세게 틀면 전기가 몰려 정전이 나요. 26~28℃ 가 알맞아요.' },
+      { n: '창문을 활짝 열어 바람을 들인다', ok: false, why: '낮에는 밖이 더 뜨거워요. 낮엔 닫고 해가 진 뒤에 열어요.' } ],
+    safe: b => !!(b.d && ((b.d.use || []).includes('insul') || (b.d.use || []).includes('garden') || b.d.build === 'wood')),
+    safeSay: '단열·옥상 정원·목재로 지은 곳은 안이 시원해서 냉방을 덜 썼어요.' },
+
+  smog: { e: '😷', n: '고농도 미세먼지', warn: '미세먼지 농도가 「매우 나쁨」이에요.',
+    ask: '오늘 학교에서는 어떻게 할까요?', kind: 'smog', need: 3, mins: 3,
+    opts: [
+      { n: '보건용 마스크를 쓰고 운동장 수업을 교실로 옮긴다', ok: true, why: '먼지가 나쁜 날엔 바깥 활동을 줄여요. 일반 마스크 말고 보건용(KF)을 써요.' },
+      { n: '창문을 활짝 열어 환기한다', ok: false, why: '밖 공기가 더 나빠요. 이런 날은 아주 짧게만 환기해요.' },
+      { n: '운동장에 물을 뿌려 먼지를 가라앉힌다', ok: false, why: '운동장 흙먼지가 아니라 멀리서 날아온 아주 작은 먼지예요. 물로는 못 잡아요.' } ] },
+
+  cold: { e: '🥶', n: '한파', warn: '아침 기온이 영하 15℃ 까지 떨어졌어요.',
+    ask: '수도관이 얼지 않게 하려면 어떻게 할까요?', kind: 'break', hits: 1, need: 5,
+    opts: [
+      { n: '수도를 아주 조금 틀어 물이 계속 흐르게 하고 관을 헌 옷으로 감싼다', ok: true, why: '흐르는 물은 잘 안 얼어요. 감싸 두면 찬 공기가 관에 바로 닿지 않아요.' },
+      { n: '수도를 꽉 잠가 둔다', ok: false, why: '멈춘 물이 얼면서 부피가 늘어 관이 터져요. 얼음은 물보다 부피가 커요.' },
+      { n: '펄펄 끓는 물을 부어 녹인다', ok: false, why: '갑자기 뜨거우면 관이 깨져요. 미지근한 물로 천천히 녹여요.' } ],
+    can: b => b.k === 'house' || b.k === 'apt',
+    safe: b => !!(b.d && (b.d.use || []).includes('insul')),
+    safeSay: '🪟 단열이 잘 돼 있어서 관이 얼지 않았어요.' },
+
+  fire: { e: '🔥', n: '화재', warn: '마을 건물 한 곳에서 불이 났어요.',
+    ask: '연기가 가득한 복도에서 어떻게 나갈까요?', kind: 'break', hits: 1, need: 6,
+    opts: [
+      { n: '젖은 수건으로 입을 막고 몸을 낮춰 벽을 짚으며 나간다', ok: true, why: '불보다 연기가 더 무서워요. 연기는 위로 뜨니까 낮은 곳에 숨 쉴 공기가 있어요.' },
+      { n: '가방과 물건을 챙겨서 나간다', ok: false, why: '물건은 다시 살 수 있어요. 사람이 먼저 나가야 해요.' },
+      { n: '엘리베이터로 빨리 내려간다', ok: false, why: '불이 나면 엘리베이터가 멈춰서 갇혀요. 반드시 계단으로 내려가요.' } ],
+    can: b => ST[b.k].kind === 'bld',
+    safe: b => !!(b.d && b.d.build === 'rebrick'),
+    safeSay: '🧱 재활용 벽돌로 쌓은 벽이 불길을 막아 줬어요.' },
+};
+const DIS_FIRST = 150000, DIS_EVERY = 200000;
+
+/* 수리 — 다친 구조물을 직접 고치는 법 */
+const FIX = {
+  break: { n: '부서진 곳 고치기', qs: [
+    { q: '지붕과 벽이 뜯겼어요. 고칠 때 어떤 재료를 쓸까요?', opts: [
+      { e: '♻️', n: '뜯어낸 것 중 쓸 만한 것을 골라 다시 쓴다', ok: true, why: '망가졌다고 다 못 쓰는 건 아니에요. 고를 수 있는 건 골라 쓰는 게 수리의 첫걸음이에요.' },
+      { e: '🗑️', n: '다 버리고 전부 새것으로 바꾼다', ok: false, why: '빠르지만 쓰레기가 한꺼번에 나오고 돈도 더 들어요.' } ] },
+    { q: '고치면서 같이 해 두면 좋은 것은?', opts: [
+      { e: '🔩', n: '다음에 또 떨어지지 않게 더 튼튼히 고정한다', ok: true, why: '같은 곳이 또 부서지지 않게 하는 것을 「보강」이라고 해요.' },
+      { e: '🎨', n: '보기 좋게 색만 새로 칠한다', ok: false, why: '색은 나중에 칠해도 돼요. 안 보이는 곳부터 튼튼히 해야 해요.' } ] } ] },
+  check: { n: '안전 점검하기', qs: [
+    { q: '흔들린 뒤에 가장 먼저 살펴볼 곳은?', opts: [
+      { e: '🏛️', n: '건물을 떠받치는 기둥과 벽', ok: true, why: '무게를 받치는 곳이 상하면 건물이 무너져요. 여기부터 봐요.' },
+      { e: '🪟', n: '창문 유리', ok: false, why: '깨진 유리는 눈에 잘 띄지만, 건물이 서 있는 것과는 상관이 적어요.' } ] },
+    { q: '벽에 금이 보여요. 어떤 금이 더 위험할까요?', opts: [
+      { e: '📐', n: '비스듬히 어긋나게 간 금', ok: true, why: '기둥이나 벽이 옆으로 밀린 자국이에요. 곧게 간 금보다 훨씬 위험해요.' },
+      { e: '➖', n: '곧고 얇게 간 금', ok: false, why: '이것도 봐야 하지만, 비스듬히 어긋난 금이 더 급해요.' } ] } ] },
+};
+
 
 /* =====================================================================
    저장
@@ -321,7 +556,8 @@ const EV_EVERY = 35000, EV_MAX = 3;
 const KEY = 'gv.state';
 function fresh() {
   return { v: 1, name: '', coins: 400, map: Array(COLS * ROWS).fill(null), permits: 0, acts: 0, level: 1,
-           goal: 0, catKnown: {}, events: [], nextEv: 0, last: Date.now(), snd: true, seenLv: 1, cert: false };
+           goal: 0, catKnown: {}, events: [], nextEv: 0, last: Date.now(), snd: true, seenLv: 1, cert: false,
+           nextDis: 0, dis: null, powerOff: 0, heatOff: 0, smogOff: 0, fixes: 0, survived: 0, seenDis: {} };
 }
 function loadS() {
   try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.v === 1 && Array.isArray(s.map) && s.map.length === COLS * ROWS) return Object.assign(fresh(), s); } catch (e) { }
@@ -354,6 +590,8 @@ const SND = {
   get() { [784, 1047, 1319].forEach((f, i) => this.tone(f, .14, 'sine', .18, i * .06)); },
   stamp() { this.tone(110, .18, 'square', .18, 0, 60); },
   ding() { this.tone(1318, .5, 'sine', .16); this.tone(1976, .4, 'sine', .07, .02); },
+  alarm() { for (let i = 0; i < 3; i++) { this.tone(880, .22, 'square', .17, i * .42); this.tone(660, .22, 'square', .17, i * .42 + .21); } },
+  rub() { this.tone(2400, .05, 'sine', .07); this.tone(1800, .06, 'sine', .05, .03); },
 };
 
 /* =====================================================================
@@ -363,6 +601,7 @@ const $ = id => document.getElementById(id);
 const fmt = n => Math.floor(n).toLocaleString('ko-KR');
 const isRiver = i => i % COLS === RIVER;
 const isEast = i => i % COLS > RIVER;
+const nearRiver = i => { const c = i % COLS; return c === RIVER - 1 || c === RIVER + 1; };
 function josa(w, a, b) { const c = w.charCodeAt(w.length - 1) - 0xAC00; return c >= 0 && c <= 11171 && c % 28 ? a : b; }
 function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 const countDone = k => S.map.filter(b => b && b.k === k && b.done).length;
@@ -372,12 +611,19 @@ const mmss = s => { s = Math.max(0, Math.ceil(s)); return Math.floor(s / 60) + '
 
 function effOf(b, i) {
   const s = ST[b.k];
+  // 부서진 구조물은 고칠 때까지 멈춰 있다 — 점검 대기(soft)는 그대로 돌아간다
+  if (b.hurt && !b.hurt.soft) return { use: 0, prod: 0, res: 0, jobs: 0, bonus: 0, save: 0 };
+  const now = Date.now();
   let use = s.use || 0, prod = s.prod || 0;
   if (b.k === 'wind' && HILLS.has(i)) prod *= 2;
   if (b.d) {
     if (b.d.build && OPTM[b.d.build].use) use += OPTM[b.d.build].use;
     for (const u of b.d.use || []) { use += OPTM[u].use || 0; prod += OPTM[u].prod || 0; }
   }
+  // 폭염 — 단열·옥상 정원·목재로 지은 곳은 냉방을 덜 쓴다
+  if (S.heatOff > now && !DIS.heat.safe(b)) use = Math.round(use * 1.6);
+  // 미세먼지 — 판이 더러워져 태양광이 줄어든다
+  if (S.smogOff > now && b.d && (b.d.use || []).includes('solar')) prod = Math.max(0, prod - 2);
   return { use: Math.max(0, use), prod, res: s.res || 0, jobs: s.jobs || 0, bonus: s.bonus || 0, save: s.save || 0 };
 }
 function town() {
@@ -387,6 +633,7 @@ function town() {
   t.workers = Math.min(t.res, t.jobs);
   t.deficit = Math.max(0, t.use - t.prod);
   t.income = 10 + t.workers * 5 * (1 + t.bonus);
+  if (S.powerOff > Date.now()) { t.dark = true; t.income = Math.round(t.income * (t.use ? Math.min(1, t.prod / t.use) : 1)); }
   t.buy = t.deficit * 2;                       // 모자란 에너지는 화력 발전소에서 사 온다
   t.net = Math.max(0, t.income - t.buy);       // 돈이 줄지는 않는다 — 벌이 아니다
   return t;
@@ -446,13 +693,15 @@ function renderMap() {
         inner += `<div class="bld">${icon(b.k)}<span class="badges">${badges}</span></div>`;
       }
     }
+    if (b && b.hurt) { cls += b.hurt.soft ? ' checkq' : ' hurt'; inner += `<div class="hurtmk">${b.hurt.soft ? '🔎' : '🚧'}</div>`; }
     const ev = S.events.find(e => e.at === i);
-    if (ev) inner += `<div class="evb">${EV[ev.type].e}</div>`;
+    if (ev) inner += `<div class="evb${ev.type === 'repair' ? ' fix' : ''}">${ev.type === 'repair' ? '🛠️' : EV[ev.type].e}</div>`;
     h += `<div class="${cls}" data-i="${i}" style="left:${c * 100}px;top:${r * 100}px">${inner}</div>`;
   }
   if (!bridgeDone()) h += `<div id="fogMsg">🌉 강에 다리를 놓으면<br>건너편 땅을 쓸 수 있어요</div>`;
   $('map').innerHTML = h;
-  $('map').classList.toggle('smog', t.deficit > 0 && t.built > 0);
+  $('map').classList.toggle('smog', S.smogOff > Date.now() || (t.deficit > 0 && t.built > 0));
+  $('map').classList.toggle('dark', S.powerOff > Date.now());
   updateBars();
 }
 function updateBars() {
@@ -477,6 +726,13 @@ function renderTop() {
   $('sEnergy').classList.toggle('bad', t.deficit > 0);
   $('vActs').textContent = S.acts;
   $('lvl').textContent = ['', '허가 기준 1단계', '허가 기준 2단계', '허가 기준 3단계'][S.level];
+  const nw = Date.now(), on = [];
+  if (S.powerOff > nw) on.push(['⚡ 정전', S.powerOff]);
+  if (S.heatOff > nw) on.push(['🥵 폭염', S.heatOff]);
+  if (S.smogOff > nw) on.push(['😷 미세먼지', S.smogOff]);
+  const nowEl = $('nowDis');
+  nowEl.hidden = !on.length;
+  if (on.length) nowEl.innerHTML = on.map(([t, e]) => `${t} <b>${mmss((e - nw) / 1000)}</b>`).join(' · ');
   const n = S.events.length, c = $('todoCnt');
   c.hidden = !n; c.textContent = n;
   document.querySelectorAll('[data-cost]').forEach(el => { el.classList.toggle('off', S.coins < +el.dataset.cost); });
@@ -496,9 +752,17 @@ function renderPanel() {
       else h += `<button class="card" data-act="pick" data-k="${k}" data-cost="${s.cost}"><div class="ce">${icon(k)}</div><div class="ct"><b>${s.n}</b><small>${s.desc}</small></div><div class="cc">🪙${s.cost}~<small>⏱ ${mmss(s.time)}</small></div></button>`;
     }
   } else if (tab === 'todo') {
-    if (!S.events.length) h = `<div class="empty">지금은 할 일이 없어요.<br>마을이 돌아가면 조금씩 생겨요.<br><small>(한 번에 ${EV_MAX}개까지 쌓여요)</small></div>`;
-    for (const ev of S.events) {
-      const b = S.map[ev.at], d = EV[ev.type];
+    if (!S.events.length) h = `<div class="empty">지금은 할 일이 없어요.<br>마을이 돌아가면 조금씩 생겨요.<br><small>(한 번에 ${EV_MAX}개까지 쌓여요 · 고칠 일은 따로 쌓여요)</small></div>`;
+    const list = S.events.slice().sort((a, c) => (a.type === 'repair' ? -1 : 0) - (c.type === 'repair' ? -1 : 0));
+    for (const ev of list) {
+      const b = S.map[ev.at];
+      if (ev.type === 'repair') {
+        if (!b || !b.hurt) continue;
+        const soft = b.hurt.soft;
+        h += `<div class="todo fix"><div class="te">${soft ? '🔎' : '🚧'}</div><div class="tt">${ST[b.k].n} — ${soft ? '안전 점검' : '수리'}<small>${soft ? '흔들린 뒤엔 꼭 살펴봐요' : '고칠 때까지 멈춰 있어요'} · 🪙${fmt(b.hurt.cost)} 또는 직접</small></div><button class="gbtn red" data-act="event" data-id="${ev.id}">고치러 가기</button></div>`;
+        continue;
+      }
+      const d = EV[ev.type];
       h += `<div class="todo"><div class="te">${d.e}</div><div class="tt">${b ? ST[b.k].n : ''} — ${d.n}<small>${d.sub} · 보상 🪙${reward(ev.type)}</small></div><button class="gbtn" data-act="event" data-id="${ev.id}">하러 가기</button></div>`;
     }
   } else {
@@ -631,6 +895,65 @@ const VIEWS = {
       친환경 건축 허가를 ${S.permits}번 받았으며 친환경 행동을 ${S.acts}번 실천했기에<br>제로에너지 마을로 인증합니다.</p></div>
       <div class="foot"><button class="gbtn" data-act="close">계속 가꾸기</button></div>`;
   },
+  /* ---- 재난 경보 — 닫을 수 없다. 대응을 골라야 넘어간다 ---- */
+  dis(m) {
+    const k = S.dis.k, d = DIS[k];
+    if (S.dis.phase === 'warn') {
+      return `<div class="dishd"><div class="dise">${d.e}</div><div><h2>${d.n} 경보</h2><div class="sub">${d.warn}</div></div></div>
+        <div class="disask">${d.ask}</div>
+        <div class="disopts">${d.opts.map((o, i) => `<button class="disopt${m.outI === i ? ' no' : ''}" data-act="disPick" data-i="${i}"${m.outI === i ? ' disabled' : ''}>${o.n}</button>`).join('')}</div>
+        ${m.msg ? `<div class="msg bad">🤔 ${m.msg}</div>` : '<div class="sub" style="margin-top:14px">셋 중 하나를 골라야 이야기가 이어져요.</div>'}`;
+    }
+    const rp = S.dis.rp, lines = [];
+    if (rp.hurt.length) {
+      const soft = rp.soft;
+      lines.push(`<div class="msg bad"><b>${soft ? '🔎 살펴봐야 할 곳' : '🚧 다친 곳'} ${rp.hurt.length}곳</b><br>${(rp.names || []).join(' · ')}${soft ? '' : ' — 고칠 때까지 멈춰 있어요.'}</div>`);
+    }
+    if (rp.gone) lines.push(`<div class="msg bad">👥 주민 ${rp.gone}명이 <b>잠시 친척 집으로 갔어요.</b> 집을 고치면 돌아와요.</div>`);
+    if (rp.safed.length) lines.push(`<div class="msg good"><b>🛡️ 멀쩡한 곳 ${rp.safed.length}곳</b><br>${d.safeSay}</div>`);
+    for (const t of rp.notes) lines.push(`<div class="msg info">${t}</div>`);
+    if (d.checkSay) lines.push(`<div class="msg info">${d.checkSay}</div>`);
+    if (!lines.length) lines.push('<div class="msg good">🛡️ 마을이 잘 버텼어요! 다친 곳이 하나도 없어요.</div>');
+    return `<div class="dishd"><div class="dise">${d.e}</div><div><h2>${d.n}이 지나갔어요</h2>
+        <div class="sub">${S.dis.good ? '✅ 대응을 잘해서 피해를 줄였어요.' : '처음 고른 대응이 알맞지 않아 피해가 더 컸어요.'}</div></div></div>
+      ${lines.join('')}
+      ${rp.hurt.length ? '<div class="sub" style="margin-top:14px">🌱 <b>할 일</b> 칸에 고칠 일이 생겼어요. 🪙을 내고 맡기거나, 직접 고칠 수 있어요.</div>' : ''}
+      <div class="foot"><button class="gbtn" data-act="disDone">알겠어요</button></div>`;
+  },
+  /* ---- 수리 — 맡기거나 직접 고치거나 ---- */
+  repair(m) {
+    const b = S.map[m.i]; if (!b || !b.hurt) return '<h2>이미 고쳤어요</h2><div class="foot"><button class="gbtn" data-act="close">닫기</button></div>';
+    const s = ST[b.k], h = b.hurt, d = DIS[h.k], soft = h.soft;
+    return `<div class="dishd"><div class="dise">${soft ? '🔎' : '🚧'}</div><div><h2>${s.e || '🌀'} ${s.n} ${soft ? '안전 점검' : '수리'}</h2>
+        <div class="sub">${d ? d.e + ' ' + d.n : '사고'} 뒤에 ${soft ? '금이 갔는지 살펴봐야 해요.' : '망가진 곳이 생겼어요.'}</div></div></div>
+      <div class="msg ${soft ? 'info' : 'bad'}">${soft ? '점검은 미뤄도 마을은 돌아가요. 하지만 흔들린 뒤에는 꼭 봐야 해요.'
+        : '고칠 때까지 이 구조물은 <b>멈춰 있어요</b>' + (ST[b.k].res ? ' — 살던 주민 ' + ST[b.k].res + '명도 잠시 떠나 있어요.' : '.')}</div>
+      <div class="big2">
+        <button class="pick fix" data-act="payFix"${S.coins < h.cost ? ' disabled' : ''}><b>🪙 ${fmt(h.cost)} 내고 맡기기</b>
+          <span>${S.coins < h.cost ? '돈이 🪙' + fmt(h.cost - S.coins) + ' 모자라요' : '전문 업체가 바로 고쳐 줘요.'}</span></button>
+        <button class="pick fix on" data-act="selfFix"><b>🛠️ 내가 고치기 · 무료</b>
+          <span>어떻게 고칠지 두 가지를 정하면 돼요. 돈이 없어도 할 수 있어요.</span></button>
+      </div>
+      <div class="foot"><button class="gbtn ghost" data-act="close">나중에</button></div>`;
+  },
+  /* ---- 고르기 — 할 일과 수리가 함께 쓴다 ---- */
+  quiz(m) {
+    const q = m.qs[m.n];
+    return `<h2>${m.e} ${m.title}</h2>${m.sub ? `<div class="sub">${m.sub}</div>` : ''}
+      <div class="disask">${m.qs.length > 1 ? (m.n + 1) + '. ' : ''}${q.q}</div>
+      <div class="qopts">${q.opts.map((o, i) => `<button class="qopt${m.outs && m.outs.includes(i) ? ' no' : ''}" data-act="qpick" data-i="${i}"${m.lock || (m.outs && m.outs.includes(i)) ? ' disabled' : ''}><span class="qe">${o.e}</span><b>${o.n}</b></button>`).join('')}</div>
+      ${m.msg ? `<div class="msg ${m.msgc}">${m.msg}</div>` : ''}
+      <div class="foot"><button class="gbtn ghost" data-act="close">나중에</button><div class="grow"></div>
+        <div style="font-size:17px;color:var(--muted)">${m.n + 1} / ${m.qs.length}</div></div>`;
+  },
+  /* ---- 문질러 닦기 ---- */
+  tap(m) {
+    const left = m.cells.filter(Boolean).length;
+    return `<h2>☀️ 태양광 판 닦기</h2><div class="sub">먼지가 앉은 칸을 눌러서 닦아요. 판이 더러우면 전기가 3분의 1까지 줄어요.</div>
+      <div class="panelg">${m.cells.map((c, i) => `<button class="pcell${c ? ' dirty' : ''}" data-act="rub" data-i="${i}"></button>`).join('')}</div>
+      <div class="msg ${left ? 'info' : 'good'}">${left ? '남은 칸 ' + left + '개' : '✅ 다 닦았어요! 판이 깨끗하면 같은 햇빛으로 전기를 더 많이 만들어요.'}</div>
+      <div class="foot"><button class="gbtn ghost" data-act="close">나중에</button></div>`;
+  },
   settings() {
     return `<h2>⚙️ 설정</h2>
       <div class="foot" style="justify-content:flex-start"><button class="gbtn ghost" data-act="snd">${S.snd ? '🔊 소리 켜짐' : '🔇 소리 꺼짐'}</button>
@@ -668,31 +991,38 @@ function complete(b, i) {
    친환경 행동
    ===================================================================== */
 function reward(type) {
+  if (type === 'repair') return 0;
   const t = town();
   let r = Math.min(70, 25 + t.res);
   if (type === 'sort' && countDone('recycle')) r *= 2;
   return r;
 }
+const evFits = (d, b, i) => d.okAt ? d.okAt(b, i) : d.on.includes(b.k);
+const chores = () => S.events.filter(e => e.type !== 'repair').length;
 function spawnEvents(now) {
   if (!S.nextEv) S.nextEv = now + 20000;
   while (now >= S.nextEv) {
-    if (S.events.length < EV_MAX) {
+    if (chores() < EV_MAX) {
       const types = shuffle(Object.keys(EV));
       let made = false;
       for (const ty of types) {
         const spots = [];
-        S.map.forEach((b, i) => { if (b && b.done && EV[ty].on.includes(b.k) && !S.events.some(e => e.at === i)) spots.push(i); });
+        S.map.forEach((b, i) => { if (b && b.done && !b.hurt && evFits(EV[ty], b, i) && !S.events.some(e => e.at === i)) spots.push(i); });
         if (spots.length) { S.events.push({ id: Date.now() + Math.random(), type: ty, at: spots[Math.floor(Math.random() * spots.length)] }); made = true; break; }
       }
       if (!made) { S.nextEv = now + EV_EVERY; break; }
     }
     S.nextEv += EV_EVERY;
-    if (S.events.length >= EV_MAX) { S.nextEv = Math.max(S.nextEv, now + EV_EVERY); break; }
+    if (chores() >= EV_MAX) { S.nextEv = Math.max(S.nextEv, now + EV_EVERY); break; }
   }
 }
 function openEvent(id) {
   const ev = S.events.find(e => e.id === id); if (!ev) return;
   const base = { ev: id, wrong: 0, msg: '' };
+  if (ev.type === 'repair') { openModal({ view: 'repair', i: ev.at, ev: id }); return; }
+  const d = EV[ev.type];
+  if (d.view === 'quiz') { openModal(Object.assign(base, { view: 'quiz', mode: 'ev', e: d.e, title: d.n, sub: d.sub, qs: d.qs, n: 0 })); return; }
+  if (d.view === 'tap') { openModal(Object.assign(base, { view: 'tap', cells: Array(12).fill(0).map(() => Math.random() < .7 ? 1 : 0) })); return; }
   if (ev.type === 'sort') openModal(Object.assign(base, { view: 'sort', items: shuffle(ITEMS.slice()).slice(0, 3), n: 0 }));
   else if (ev.type === 'light') {
     const rooms = shuffle(['empty', 'empty', 'empty', 'empty', 'people', 'people', 'dark', 'dark', 'dark']);
@@ -706,6 +1036,17 @@ function openEvent(id) {
     openModal(Object.assign(base, { view: 'temp', season, v: season === 'summer' ? 21 : 25 }));
   }
 }
+function doneFix(i, evId, how) {
+  const b = S.map[i]; if (!b || !b.hurt) { closeModal(); renderAll(); return; }
+  const back = ST[b.k].res || 0, soft = b.hurt.soft;
+  b.hurt = null; S.fixes++;
+  S.events = S.events.filter(e => e.id !== evId && e.at !== i);
+  SND.get(); save();
+  setTimeout(() => {
+    closeModal(); renderAll();
+    toast(how + (back ? ` · 주민 ${back}명이 돌아왔어요` : (soft ? ' · 이상 없어요' : '')), 4000);
+  }, soft ? 200 : 600);
+}
 function finishEvent(m) {
   const ev = S.events.find(e => e.id === m.ev); if (!ev) return;
   const r = Math.max(5, reward(ev.type) - m.wrong * 5);
@@ -713,6 +1054,88 @@ function finishEvent(m) {
   S.coins += r; S.acts++;
   SND.get(); save();
   setTimeout(() => { closeModal(); toast(`🌱 친환경 행동 완료! 🪙${r}`); renderAll(); }, 1300);
+}
+
+/* =====================================================================
+   재난 — 갑자기 오지만, 고르기 전에는 아무 일도 일어나지 않는다
+   ===================================================================== */
+function disPool() {
+  const t = town();
+  return Object.keys(DIS).filter(k => {
+    const d = DIS[k];
+    if (t.built < d.need) return false;
+    if (d.kind === 'break' && !S.map.some((b, i) => b && b.done && !b.hurt && (!d.can || d.can(b, i)))) return false;
+    if (d.kind === 'check' && !S.map.some(b => b && b.done && !b.hurt)) return false;
+    if (k === 'smog' && !S.map.some(b => b && b.done && b.d && (b.d.use || []).includes('solar'))) return false;
+    if (k === 'heat' && !S.map.some(b => b && b.done && ST[b.k].use)) return false;
+    return true;
+  });
+}
+function startDis(now) {
+  const pool = disPool();
+  if (!pool.length) { S.nextDis = now + 60000; return; }
+  const unseen = pool.filter(k => !S.seenDis[k]);      // 안 겪어 본 재난부터
+  const p = unseen.length ? unseen : pool;
+  const k = p[Math.floor(Math.random() * p.length)];
+  S.seenDis[k] = true;
+  S.dis = { k, phase: 'warn', first: -1 };
+  S.nextDis = now + DIS_EVERY;
+  save(); SND.alarm();
+  openModal({ view: 'dis' });
+}
+/* 고른 대응에 따라 실제로 일어난다. good = 첫 판단이 옳았다 */
+function applyDis(good) {
+  const k = S.dis.k, d = DIS[k], now = Date.now();
+  const rp = { hurt: [], safed: [], notes: [] };
+  const pickable = [];
+  S.map.forEach((b, i) => { if (b && b.done && !b.hurt && (!d.can || d.can(b, i))) pickable.push(i); });
+  shuffle(pickable);
+
+  if (d.kind === 'break') {
+    let left = good ? Math.max(1, d.hits - 1) : d.hits;
+    for (const i of pickable) {
+      if (left <= 0) break;
+      const b = S.map[i];
+      if (d.safe && d.safe(b)) { if (rp.safed.length < 3) rp.safed.push(i); continue; }
+      b.hurt = { k, fix: 'break', cost: Math.round(ST[b.k].cost * .25) };
+      rp.hurt.push(i); left--;
+    }
+  } else if (d.kind === 'check') {
+    for (const i of pickable.slice(0, good ? 1 : 2)) { S.map[i].hurt = { k, fix: 'check', cost: 40, soft: true }; rp.hurt.push(i); }
+  } else if (d.kind === 'power') {
+    const t = town();
+    if (t.prod >= t.use) rp.notes.push('⚡ 우리가 만든 에너지가 쓰는 만큼 되어서 <b>마을이 그대로 돌아갔어요!</b> 스스로 전기를 만드는 마을은 정전에도 버텨요.');
+    else {
+      S.powerOff = now + (good ? d.mins - 1 : d.mins) * 60000;
+      const pct = t.use ? Math.round(t.prod / t.use * 100) : 100;
+      rp.notes.push('전기를 사 오던 만큼이 끊겼어요. 우리가 만드는 에너지가 쓰는 양의 <b>' + pct + '%</b> 라, 그만큼만 돌아가요.');
+      rp.notes.push('☀️ 태양광·풍력·수력을 늘리면 다음 정전 때는 더 잘 버텨요.');
+    }
+  } else if (d.kind === 'heat') {
+    S.heatOff = now + (good ? d.mins - 1 : d.mins) * 60000;
+    const safeN = S.map.filter(b => b && b.done && ST[b.k].use && d.safe(b)).length;
+    rp.notes.push('더위를 식히느라 마을이 쓰는 에너지가 <b>확 늘었어요.</b>');
+    if (safeN) rp.notes.push('🌿 그래도 ' + safeN + '곳은 ' + d.safeSay);
+    else rp.notes.push('🌿 단열창·옥상 정원·친환경 목재로 지은 건물은 이럴 때 냉방을 훨씬 덜 써요.');
+  } else if (d.kind === 'smog') {
+    S.smogOff = now + (good ? d.mins - 1 : d.mins) * 60000;
+    rp.notes.push('☀️ 태양광 판에 먼지가 앉아 <b>전기가 줄었어요.</b> 할 일에 「판 닦기」가 생겼어요.');
+    const dirty = [];
+    S.map.forEach((b, i) => { if (b && b.done && !b.hurt && b.d && (b.d.use || []).includes('solar') && !S.events.some(e => e.at === i)) dirty.push(i); });
+    shuffle(dirty).slice(0, 2).forEach(i => S.events.push({ id: Date.now() + Math.random(), type: 'panelChk', at: i }));
+  }
+
+  // 부서진 곳마다 수리 할 일을 붙인다
+  for (const i of rp.hurt) {
+    S.events = S.events.filter(e => e.at !== i);
+    S.events.push({ id: Date.now() + Math.random(), type: 'repair', at: i });
+  }
+  rp.gone = rp.hurt.reduce((a, i) => a + (ST[S.map[i].k].res || 0), 0);
+  rp.names = rp.hurt.map(i => (ST[S.map[i].k].e || '🌀') + ' ' + ST[S.map[i].k].n);
+  rp.soft = rp.hurt.length ? !!S.map[rp.hurt[0]].hurt.soft : false;
+  S.survived++;
+  S.dis.phase = 'result'; S.dis.rp = rp; S.dis.good = good;
+  save();
 }
 
 /* =====================================================================
@@ -739,12 +1162,20 @@ function tick() {
     if (!GOALS[S.goal]) S.certDue = true;
     else toast(`🎯 목표 달성: ${g.t}${g.pay ? ` · 🪙${g.pay}` : ''}`, 3500);
   }
+  for (const [key, msg] of [['powerOff', '💡 전기가 다시 들어왔어요!'], ['heatOff', '🌤️ 더위가 한풀 꺾였어요.'], ['smogOff', '😮‍💨 공기가 맑아졌어요.']]) {
+    if (S[key] && S[key] <= now) { S[key] = 0; changed = true; toast(msg, 3500); SND.ding(); }
+  }
   if (changed) { renderMap(); renderPanel(); renderGoal(); save(); }
   else updateBars();
   renderTop();
   if (!M) {
     if (S.seenLv < S.level) { S.seenLv = S.level; save(); SND.stamp(); openModal({ view: 'level', lv: S.level }); }
     else if (S.certDue && !S.cert) { S.cert = true; S.certDue = false; save(); SND.ok(); openModal({ view: 'cert' }); }
+    else if (S.dis) { openModal({ view: 'dis' }); }
+    else if (t.built >= 3) {
+      if (!S.nextDis) { S.nextDis = now + DIS_FIRST; save(); }
+      else if (now >= S.nextDis) startDis(now);
+    }
   } else if (M.view === 'info') {
     const b = S.map[M.i]; if (b && !b.done && !M.armed) drawModal();
   }
@@ -885,6 +1316,50 @@ function act(name, el) {
       if (ok) { SND.ok(); drawModal(); finishEvent(m); } else { SND.bad(); m.wrong++; drawModal(); }
       break;
     }
+    /* 재난 */
+    case 'disPick': {
+      const i = +el.dataset.i, o = DIS[S.dis.k].opts[i];
+      if (S.dis.first < 0) S.dis.first = i;
+      if (o.ok) { SND.ok(); applyDis(S.dis.first === i); m.outI = -1; m.msg = ''; drawModal(); renderAll(); }
+      else { SND.bad(); m.outI = i; m.msg = o.why; drawModal(); }
+      break;
+    }
+    case 'disDone': {
+      SND.click(); S.dis = null; save(); closeModal(); renderAll();
+      break;
+    }
+    /* 수리 */
+    case 'payFix': {
+      const b = S.map[m.i]; if (!b || !b.hurt || S.coins < b.hurt.cost) return;
+      S.coins -= b.hurt.cost; doneFix(m.i, m.ev, '🚚 업체가 와서 고쳤어요');
+      break;
+    }
+    case 'selfFix': {
+      const b = S.map[m.i]; if (!b || !b.hurt) return;
+      const f = FIX[b.hurt.fix];
+      SND.click();
+      openModal({ view: 'quiz', mode: 'fix', i: m.i, ev: m.ev, e: b.hurt.soft ? '🔎' : '🛠️', title: f.n, sub: ST[b.k].n, qs: f.qs, n: 0, wrong: 0, outs: [], msg: '' });
+      break;
+    }
+    /* 고르기 */
+    case 'qpick': {
+      if (m.lock) return;
+      const q = m.qs[m.n], o = q.opts[+el.dataset.i];
+      if (!o.ok) { SND.bad(); m.wrong++; (m.outs = m.outs || []).push(+el.dataset.i); m.msg = '🤔 ' + o.why; m.msgc = 'bad'; drawModal(); return; }
+      SND.ok(); m.msg = '✅ ' + o.why; m.msgc = 'good'; m.lock = true; drawModal();
+      if (m.n + 1 >= m.qs.length) {
+        if (m.mode === 'fix') setTimeout(() => { if (M === m) doneFix(m.i, m.ev, '🛠️ 직접 고쳤어요'); }, 1500);
+        else finishEvent(m);
+      } else setTimeout(() => { if (M === m) { m.n++; m.msg = ''; m.lock = false; m.outs = []; drawModal(); } }, 1600);
+      break;
+    }
+    /* 닦기 */
+    case 'rub': {
+      const i = +el.dataset.i; if (!m.cells[i]) return;
+      m.cells[i] = 0; SND.rub(); drawModal();
+      if (!m.cells.some(Boolean)) { SND.ok(); finishEvent(m); }
+      break;
+    }
     case 'event': SND.click(); openEvent(+el.dataset.id); break;
     case 'snd': S.snd = !S.snd; save(); SND.init(); SND.click(); drawModal(); break;
     case 'armWipe': m.armed = true; drawModal(); break;
@@ -892,7 +1367,7 @@ function act(name, el) {
   }
 }
 $('bSet').addEventListener('click', e => { e.stopPropagation(); SND.init(); SND.click(); openModal({ view: 'settings' }); });
-$('modal').addEventListener('click', e => { if (e.target.id === 'modal' && M && !['result', 'level', 'cert'].includes(M.view)) { closeModal(); renderAll(); } });
+$('modal').addEventListener('click', e => { if (e.target.id === 'modal' && M && !['result', 'level', 'cert', 'dis'].includes(M.view)) { closeModal(); renderAll(); } });
 
 /* =====================================================================
    화면 맞추기 · 시작
@@ -917,7 +1392,7 @@ setInterval(() => { if ($('start').hidden) tick(); }, 1000);
 setInterval(save, 10000);
 document.addEventListener('visibilitychange', () => { if (document.hidden) save(); else if ($('start').hidden) tick(); });
 addEventListener('pagehide', save);
-window.__gv = { get S() { return S; }, town, priceOf, ST, tick, act, onTile, openEvent, VIEWS, get M() { return M; } };
+window.__gv = { get S() { return S; }, town, priceOf, ST, EV, DIS, FIX, GOALS, tick, act, onTile, openEvent, openModal, closeModal, startDis, applyDis, disPool, doneFix, effOf, spawnEvents, VIEWS, get M() { return M; } };
 </script>
 </body>
 </html>

@@ -261,6 +261,15 @@ function go(v){ cleanup(); S.view=v; render(); window.scrollTo(0,0); }
 function render(){ document.getElementById('view').innerHTML=V[S.view](); if(V[S.view].after) V[S.view].after(); if(S.view==='home') drawQR(); }
 function $(id){ return document.getElementById(id); }
 function fb(html,kind){ const e=$('fb'); if(!e) return; e.className='fb on '+(kind||'info'); e.innerHTML=html; }
+const PEND={};
+function actBtn(label,action,payload){
+  const e=$('fb'); if(!e) return;
+  const b=document.createElement('button');
+  b.className='btn'; b.style.cssText='width:100%;margin-top:12px';
+  b.innerHTML=label; b.dataset.a=action; if(payload!=null) b.dataset.v=payload;
+  e.parentNode.insertBefore(b,e.nextSibling);
+}
+function doneBtn(n,msg,label){ PEND[n]=msg; actBtn(label||'🌙 다 읽었어 · 달 채우기','finishnow',n); }
 function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('on');
   setTimeout(()=>t.classList.remove('on'),2100); }
 
@@ -370,7 +379,7 @@ function m1pick(kind,val){
          · <b>추석(秋夕)</b> = 가을 + 저녁 → <b>가을 저녁</b>, 달이 가장 밝은 그 저녁<br>
          · <b>중추절(仲秋節)</b> = 가을(秋)의 가운데(仲) 명절<br>
          이름 네 개가 모두 한 곳을 가리켜 — <b>달</b>과 <b>가을 한가운데</b>.`,'info');
-        setTimeout(()=>finish(1,'이름의 뜻을 찾았다. 추석은 「가을 한가운데, 달이 가장 밝은 날」.'),2600);
+        doneBtn(1,'이름의 뜻을 찾았다. 추석은 「가을 한가운데, 달이 가장 밝은 날」.');
       },1500);
     }
   } else {
@@ -465,7 +474,7 @@ function m2ans(v){
       그날 진 편의 한 여자가 일어나 춤추며 <b>“회소(會蘇), 회소…”</b> 하고 탄식했는데, 그 소리가 하도 구슬프고 아름다워
       사람들이 노래로 만들었대. 그게 <b>회소곡</b>이야.<br><br>
       <b>겨루기로 시작해서 잔치로 끝난다.</b> 추석의 첫 모습이 그랬어.`,'good');
-    setTimeout(()=>finish(2,'추석의 시작은 「이긴 편 진 편 없이 다 같이 먹은 잔치」였다.'),3600);
+    doneBtn(2,'추석의 시작은 「이긴 편 진 편 없이 다 같이 먹은 잔치」였다.');
   } else {
     SND.bad();
     document.querySelectorAll('.opt').forEach(o=>{ if(o.dataset.v===v) o.classList.add('wrong'); });
@@ -581,7 +590,7 @@ function m3ox(v){
   if(M3.ox[1]&&M3.ox[2]){
     setTimeout(()=>{
       fb('<b>그럼 차례상에서 정말 중요한 건 뭘까?</b><br>성균관이 간소화 기준을 내놓은 까닭은 “차례를 지내는 마음이 음식 장만에 지쳐 사라지지 않게 하려고”였대. 상 위에 무엇이 몇 개인지보다, <b>올해 잘 지냈다고 함께 인사하는 마음</b>이 차례야.','info');
-      setTimeout(()=>finish(3,'차례상의 규칙보다 중요한 것 — 그해 거둔 것과 감사하는 마음.'),3200);
+      doneBtn(3,'차례상의 규칙보다 중요한 것 — 그해 거둔 것과 감사하는 마음.');
     },900);
   }
 }
@@ -654,11 +663,11 @@ function m4pick(v){
     M4.so=v; SND.ok();
     const w={kkae:'깨와 꿀 — 가장 흔한 소야. 입에서 톡 터지지.',kong:'콩 — 고소하고 든든해. 소금 간을 살짝 해.',bam:'밤 — 가을에 새로 딴 햇밤을 넣으면 최고야.'}[v];
     fb('✓ '+w+' 소는 집집마다 다르니 무엇을 넣어도 정답!','good');
-    setTimeout(()=>{ M4.step=2; render(); },1300); return;
+    setTimeout(()=>{ M4.step=2; render(); },2400); return;
   }
   if(M4.step===2){
     if(v==='half'){ M4.shape='half'; SND.ok(); fb('✓ 반달! 왜 반달인지는 이따 알려 줄게. 이제 쪄 보자.','good');
-      setTimeout(()=>{ M4.step=3; render(); },1300); }
+      setTimeout(()=>{ M4.step=3; render(); },2400); }
     else{
       SND.bad(); M4.shape=v==='full'?'full':'sq';
       const why={full:'보름달 모양도 예쁘긴 해. 그런데 생각해 봐 — <b>꽉 찬 달은 내일부터 어떻게 될까?</b> 기울지. 송편에 담은 마음은 그 반대야.',
@@ -850,7 +859,7 @@ function m6pick(side,id){
     SND.ok(); M6.matched[id]=true; M6.sel=null; render();
     fb(`✓ <b>${p.old}</b> — ${p.oldd}.<br>→ 오늘은 <b>${p.now}</b>. ${p.noww}`,'good');
     if(Object.keys(M6.matched).length===4){
-      setTimeout(()=>{ M6.step='keep'; render(); window.scrollTo(0,0); },2200);
+      actBtn('마지막 물음으로 →','m6next');
     }
   } else {
     SND.bad(); M6.sel=null; render();
@@ -860,7 +869,7 @@ function m6pick(side,id){
 function m6keep(i){
   M6.keep=+i; SND.ok(); render();
   fb('✓ '+M6.keeps[i].w+'<br><br><b>모양은 바뀌어도 남는 것이 있어.</b> 1800년 전 신라 사람들이 한 달 동안 베를 짜고 다 같이 먹은 그 마음 — <b>감사</b>하고 <b>나누고</b> <b>만나는</b> 것. 그게 추석이야.','info');
-  setTimeout(()=>finish(6,'변한 것과 남은 것을 모두 보았다. 이제 달이 꽉 찼어!'),3200);
+  doneBtn(6,'변한 것과 남은 것을 모두 보았다. 이제 달이 꽉 찼어!');
 }
 
 /* ═══════════════ 마무리 — 소원 카드 ═══════════════ */
@@ -991,6 +1000,8 @@ document.addEventListener('click',e=>{
     case 'm6o': m6pick('o',v); break;
     case 'm6n': m6pick('n',v); break;
     case 'm6keep': m6keep(v); break;
+    case 'finishnow': finish(+v, PEND[v]); break;
+    case 'm6next': M6.step='keep'; render(); window.scrollTo(0,0); break;
     case 'makecard': makeCard(); break;
     case 'qrbig':
       document.getElementById('ovlbox').innerHTML='<div style="background:#fff;padding:18px;border-radius:18px">'+

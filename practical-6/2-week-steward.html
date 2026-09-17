@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>일주일 살림꾼</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#fdf6ea; --ink:#31291f; --sub:#7d6f5d; --line:#e6d9c4; --card:#fff;
+  --pri:#e0853a; --pri2:#c96c22;
+  --todo:#dd5b57; --want:#3f93cf; --care:#3ea377; --free:#b3a58f;
+  --heart:#e0698f; --coin:#d9a318; --tidy:#3ea377; --time:#8a7a63;
+}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--ink);
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;
+  font-size:16px;line-height:1.5;overscroll-behavior:none}
+#app{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;
+  background:var(--bg);position:relative}
+button{font-family:inherit;font-size:inherit;color:inherit;border:none;background:none;cursor:pointer}
+
+/* ── 상단 지표 ── */
+#top{position:sticky;top:0;z-index:20;background:var(--bg);
+  border-bottom:2px solid var(--line);padding:8px 10px 7px}
+.dayline{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.daybadge{background:var(--pri);color:#fff;font-weight:900;font-size:14px;
+  padding:3px 10px;border-radius:99px;white-space:nowrap}
+.daysub{font-size:13px;color:var(--sub);font-weight:500;flex:1;min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mini{font-size:12px;color:var(--sub);background:#fff;border:1.5px solid var(--line);
+  border-radius:99px;padding:3px 9px;font-weight:700}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.stat{background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:4px 3px;text-align:center}
+.stat .sv{font-size:15px;font-weight:900;line-height:1.2}
+.stat .sn{font-size:10px;color:var(--sub);font-weight:700;margin-top:1px}
+.bar{height:4px;background:#eee5d6;border-radius:9px;margin-top:3px;overflow:hidden}
+.bar i{display:block;height:100%;border-radius:9px;transition:width .35s}
+
+/* ── 본문 ── */
+#main{flex:1;padding:12px 10px 20px}
+.h2{font-size:17px;font-weight:900;margin:2px 0 8px;display:flex;align-items:center;gap:6px}
+.hint{font-size:13px;color:var(--sub);line-height:1.55;margin-bottom:10px}
+
+/* 시간표 */
+.sched{display:flex;flex-direction:column;gap:4px}
+.slot{display:flex;align-items:center;gap:8px;background:#fff;border:1.5px solid var(--line);
+  border-radius:11px;padding:7px 9px;min-height:48px}
+.slot.fix{background:#f3ece0;border-color:#e2d6c1;color:#8c7f6b}
+.slot.free{border-style:dashed;border-color:#d2c3a8;background:#fffdf8}
+.slot.on{border-width:2px}
+.stime{font-size:12px;font-weight:700;color:var(--sub);width:56px;flex-shrink:0;line-height:1.25}
+.sico{font-size:21px;width:28px;text-align:center;flex-shrink:0}
+.stxt{flex:1;min-width:0;font-size:14px;font-weight:700;line-height:1.3}
+.stxt em{display:block;font-style:normal;font-size:11px;color:var(--sub);font-weight:500;margin-top:1px}
+.sadd{font-size:13px;font-weight:900;color:var(--pri);flex-shrink:0;padding:4px 9px;
+  border:1.5px solid var(--pri);border-radius:8px}
+.sx{font-size:16px;color:#c0b09a;padding:4px 7px;flex-shrink:0}
+.slot.t-todo{border-color:var(--todo);background:#fff6f5}
+.slot.t-want{border-color:var(--want);background:#f3f9fd}
+.slot.t-care{border-color:var(--care);background:#f2fbf6}
+.slot.t-ev{border-color:#9b7cc4;background:#f8f4fd}
+
+/* 할 일 목록 */
+.todos{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 4px}
+.chip{display:flex;align-items:center;gap:4px;font-size:13px;font-weight:700;
+  border:1.5px solid var(--todo);color:var(--todo);background:#fff;border-radius:99px;padding:4px 11px}
+.chip.ok{border-color:var(--care);color:var(--care);background:#f2fbf6}
+.chip.late{border-color:#b07cc4;color:#8b53ab;background:#faf5fd}
+
+/* 버튼 */
+.btn{display:block;width:100%;background:var(--pri);color:#fff;font-weight:900;font-size:17px;
+  padding:14px;border-radius:13px;min-height:52px;box-shadow:0 3px 0 var(--pri2);margin-top:14px}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--pri2)}
+.btn.gray{background:#fff;color:var(--sub);border:2px solid var(--line);box-shadow:0 3px 0 #e6d9c4}
+.btn.sm{font-size:15px;padding:11px;min-height:46px;margin-top:9px}
+
+/* 실행 로그 */
+.logs{display:flex;flex-direction:column;gap:5px}
+.lg{display:flex;gap:8px;align-items:flex-start;background:#fff;border:1.5px solid var(--line);
+  border-radius:10px;padding:8px 10px;animation:pop .22s ease-out}
+@keyframes pop{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.lg .lt{font-size:11px;font-weight:700;color:var(--sub);width:52px;flex-shrink:0;padding-top:2px}
+.lg .li{font-size:18px;width:24px;text-align:center;flex-shrink:0}
+.lg .lx{flex:1;font-size:13.5px;line-height:1.45}
+.lg .lx b{font-weight:900}
+.lg.bad{border-color:#eec3c1;background:#fff8f7}
+.lg.good{border-color:#bfe3cf;background:#f4fbf7}
+.lg.ev{border-color:#d6c3ec;background:#f9f5fd}
+.delta{font-size:11px;font-weight:900;margin-left:5px;white-space:nowrap}
+.up{color:var(--care)} .dn{color:var(--todo)}
+
+/* 평가 카드 */
+.rev{background:#fff;border:2px solid var(--line);border-radius:14px;padding:12px;margin-bottom:9px}
+.rev h4{font-size:14px;font-weight:900;margin-bottom:5px}
+.rev p{font-size:13.5px;color:var(--sub);line-height:1.55}
+.rev p b{color:var(--ink)}
+.quote{background:#fff8ea;border:2px dashed var(--pri);border-radius:14px;padding:12px;
+  font-size:14px;line-height:1.6;margin:10px 0}
+
+/* 용돈 */
+.mrow{display:flex;align-items:center;gap:8px;background:#fff;border:1.5px solid var(--line);
+  border-radius:12px;padding:9px 10px;margin-bottom:7px}
+.mrow .mi{font-size:22px;width:30px;text-align:center}
+.mrow .mn{flex:1;min-width:0}
+.mrow .mn b{font-size:14px;font-weight:900;display:block}
+.mrow .mn em{font-style:normal;font-size:11.5px;color:var(--sub);display:block;line-height:1.35}
+.mstep{display:flex;align-items:center;gap:5px;flex-shrink:0}
+.mstep button{width:32px;height:32px;border-radius:8px;border:1.5px solid var(--line);
+  background:#fff;font-weight:900;font-size:17px;line-height:1}
+.mstep .mv{font-size:13.5px;font-weight:900;width:52px;text-align:right}
+
+/* 성적표 */
+.axis{margin-bottom:9px}
+.axis .ah{display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:3px}
+.abar{height:13px;background:#eee5d6;border-radius:9px;overflow:hidden}
+.abar i{display:block;height:100%;border-radius:9px;transition:width .6s}
+.gradebox{text-align:center;background:#fff;border:3px solid var(--pri);border-radius:18px;
+  padding:16px 12px;margin-bottom:12px}
+.gradebox .gt{font-size:12px;color:var(--sub);font-weight:700}
+.gradebox .gv{font-size:32px;font-weight:900;color:var(--pri2);line-height:1.25;margin:2px 0}
+.gradebox .gd{font-size:13.5px;color:var(--sub);line-height:1.5}
+textarea{width:100%;border:2px solid var(--line);border-radius:11px;padding:10px;font-family:inherit;
+  font-size:15px;line-height:1.5;resize:none;background:#fff;color:var(--ink);user-select:text}
+textarea:focus{outline:none;border-color:var(--pri)}
+
+/* 타이틀 */
+.title{text-align:center;padding:22px 6px 6px}
+.title .tm{font-size:60px;line-height:1}
+.title h1{font-size:30px;font-weight:900;margin:6px 0 4px;letter-spacing:-1px}
+.title .ts{font-size:14px;color:var(--sub);font-weight:700}
+.tcard{background:#fff;border:2px solid var(--line);border-radius:14px;padding:12px 13px;
+  margin-top:13px;font-size:13.5px;line-height:1.6}
+.tcard b{color:var(--pri2)}
+.qr{text-align:center;margin-top:16px}
+.qr svg{width:116px;height:116px;border:3px solid #fff;border-radius:10px;background:#fff;
+  box-shadow:0 2px 8px rgba(0,0,0,.09)}
+.qr div{font-size:11px;color:var(--sub);margin-top:5px;word-break:break-all}
+
+/* 모달 */
+#modal{position:fixed;inset:0;z-index:60;background:rgba(40,32,22,.55);
+  display:flex;align-items:flex-end;justify-content:center;padding:0}
+#modal[hidden]{display:none}
+#mbox{background:var(--bg);width:100%;max-width:480px;max-height:92vh;overflow-y:auto;
+  border-radius:20px 20px 0 0;padding:16px 13px 20px;animation:up .25s ease-out}
+@keyframes up{from{transform:translateY(40px);opacity:.5}to{transform:none;opacity:1}}
+.mtitle{font-size:19px;font-weight:900;margin-bottom:4px;display:flex;align-items:center;gap:7px}
+.mdesc{font-size:14px;color:var(--sub);line-height:1.6;margin-bottom:11px}
+.opt{display:flex;align-items:center;gap:9px;background:#fff;border:2px solid var(--line);
+  border-radius:13px;padding:10px 11px;margin-bottom:7px;width:100%;text-align:left;min-height:56px}
+.opt:active{background:#fff6e9}
+.opt.dis{opacity:.42}
+.opt.wrong{border-color:#eec3c1;background:#fff5f4;opacity:.75}
+.opt .oi{font-size:24px;width:32px;text-align:center;flex-shrink:0}
+.opt .ot{flex:1;min-width:0}
+.opt .ot b{font-size:15px;font-weight:900;display:block;line-height:1.3}
+.opt .ot em{font-style:normal;font-size:12px;color:var(--sub);display:block;line-height:1.4;margin-top:2px}
+.opt .oc{font-size:11px;font-weight:900;color:var(--sub);flex-shrink:0;
+  border:1.5px solid var(--line);border-radius:7px;padding:3px 6px}
+.opt.o-todo{border-color:#f0cbc9} .opt.o-want{border-color:#c6def0} .opt.o-care{border-color:#c2e5d3}
+.grp{font-size:12px;font-weight:900;color:var(--sub);margin:11px 0 5px;display:flex;align-items:center;gap:5px}
+.grp:first-child{margin-top:0}
+.why{background:#fff6e9;border:2px solid var(--pri);border-radius:12px;padding:11px;
+  font-size:13.5px;line-height:1.6;margin:9px 0 2px}
+.why b{color:var(--pri2)}
+
+#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(16px);
+  background:rgba(35,28,20,.94);color:#fff;font-size:14px;font-weight:700;padding:11px 17px;
+  border-radius:99px;opacity:0;pointer-events:none;transition:.24s;z-index:90;max-width:90%;text-align:center}
+#toast.on{opacity:1;transform:translateX(-50%)}
+.foot{text-align:center;font-size:11px;color:#b3a58f;padding:14px 0 4px;line-height:1.6}
+.foot button{text-decoration:underline;font-size:11px;color:#b3a58f}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="top"></div>
+  <div id="main"></div>
+</div>
+<div id="modal" hidden><div id="mbox"></div></div>
+<div id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   일주일 살림꾼 — 실과 5학년 6단원 「나의 생활 자원 관리」(90~107쪽)
+   교과서 94쪽 하루 계획표와 95쪽 용돈 계획서를 "겪는 것"으로 바꾼 앱.
+   설계 근거와 「하지 말 것」은 같은 폴더 PLAN.md.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── 카드 ───────────────────────────────────────────────────── */
+const CARDS = {
+  /* 해야 할 일 — 안 하면 다음 날로 밀린다 */
+  homework: {n:'숙제하기',      t:'todo', c:1, i:'📝', d:'안 하면 내일로 밀려요'},
+  prep:     {n:'준비물 챙기기',  t:'todo', c:1, i:'🎒', d:'미리 챙기면 아침이 편해요'},
+  study:    {n:'공부·학원',      t:'todo', c:1, i:'📚', d:''},
+  errand:   {n:'심부름 하기',    t:'todo', c:1, i:'🛒', d:'추가 용돈 1,500원', money:1500},
+  present:  {n:'발표 연습',      t:'todo', c:1, i:'🎤', d:''},
+  /* 하고 싶은 일 — 마음이 오른다 */
+  play:     {n:'친구와 놀기',    t:'want', c:2, i:'🛝', d:'두 칸이 필요해요', heart:26},
+  game:     {n:'게임하기',       t:'want', c:1, i:'🎮', d:'', heart:13},
+  tube:     {n:'영상 보기',      t:'want', c:1, i:'📺', d:'', heart:9},
+  book:     {n:'책 읽기',        t:'want', c:1, i:'📖', d:'', heart:11},
+  sport:    {n:'운동하기',       t:'want', c:1, i:'⚽', d:'', heart:14},
+  rest:     {n:'그냥 쉬기',      t:'want', c:1, i:'😌', d:'', heart:7},
+  snack:    {n:'군것질 하기',    t:'want', c:1, i:'🍫', d:'1,000원을 써요', heart:11, money:-1000},
+  /* 살림 — 문답이 붙는다 */
+  desk:     {n:'책상·서랍 정리', t:'care', c:1, i:'🗂️', d:'', tidy:13, q:'desk'},
+  cloth:    {n:'옷 정리·보관',   t:'care', c:1, i:'👕', d:'', tidy:13, q:'cloth'},
+  trash:    {n:'분리배출 하기',  t:'care', c:1, i:'♻️', d:'', tidy:11, q:'trash'},
+  digital:  {n:'사진·앱 정리',   t:'care', c:1, i:'📱', d:'', tidy:11, q:'digital'},
+  air:      {n:'환기하기',       t:'care', c:1, i:'🪟', d:'', tidy:7,  q:'air'},
+  clean:    {n:'대청소',         t:'care', c:2, i:'🧹', d:'두 칸이 필요해요', tidy:27, q:'clean'},
+};
+const TNAME = {todo:'해야 할 일', want:'하고 싶은 일', care:'살림 — 자원 관리'};
+const TICO  = {todo:'❗', want:'💛', care:'🧺'};
+
+/* ── 문답 — 교과서 98~103쪽 ────────────────────────────────── */
+const QUIZ = {
+  cloth:{ q:'계절이 지난 옷은 어디에 보관할까?',
+    o:[{t:'옷장 위쪽이나 보관함에', ok:1},
+       {t:'손이 닿기 쉬운 앞쪽에', w:'거기는 <b>자주 입는 옷</b> 자리예요. 지난 계절 옷을 두면 매일 헤집게 돼요.'},
+       {t:'의자에 걸쳐 둔다', w:'의자에 걸치는 건 보관이 아니에요. 다음 날도, 그다음 날도 그대로 쌓여요.'}],
+    tip:'자주 입는 옷은 <b>손이 닿기 쉬운 곳</b>, 지난 계절 옷은 <b>옷장 위쪽이나 보관함</b>에. (98쪽)'},
+  cloth2:{ q:'늘어나기 쉬운 티셔츠는 어떻게 보관할까?',
+    o:[{t:'개어서 보관한다', ok:1},
+       {t:'옷걸이에 건다', w:'옷걸이에 걸면 <b>어깨가 늘어나요.</b> 옷걸이는 겉옷처럼 구김이 잘 가는 옷 몫이에요.'},
+       {t:'돌돌 말아 서랍에 세운다', w:'말아 두면 자리는 덜 먹지만 <b>구김이 남아요.</b> 티셔츠는 개는 쪽이 나아요.'}],
+    tip:'<b>늘어나거나 구김이 덜 가는 옷은 개어서</b>, <b>겉옷처럼 구김이 쉬운 옷은 옷걸이에.</b> (98쪽)'},
+  desk:{ q:'자주 쓰는 학용품은 어디에 둘까?',
+    o:[{t:'손이 쉽게 닿는 위치에', ok:1},
+       {t:'맨 아래 칸에', w:'아래 칸은 <b>무겁거나 가끔 쓰는 물건</b> 자리예요. 자주 쓰는 걸 넣으면 매번 쪼그려 앉아야 해요.'},
+       {t:'상자에 다 같이 담아 둔다', w:'섞어 담으면 쓸 때마다 뒤져야 해요. <b>용도에 맞게 나누고 이름표</b>를 붙여요.'}],
+    tip:'<b>용도에 맞게 분류해 상자에 넣고 이름표</b>를, <b>자주 쓰는 건 가까이</b>, <b>무겁거나 가끔 쓰는 건 아래쪽</b>에. (99쪽)'},
+  digital:{ q:'사진첩이 꽉 찼어요. 무엇부터 할까?',
+    o:[{t:'똑같이 찍힌 사진을 지운다', ok:1},
+       {t:'새 기기를 사 달라고 한다', w:'디지털 자원도 <b>양이 한정</b>돼요. 늘리기 전에 <b>정리</b>가 먼저예요.'},
+       {t:'그냥 둔다. 자리는 저절로 생긴다', w:'저절로 생기지 않아요. <b>용량이 차면 정작 찍어야 할 때 못 찍어요.</b>'}],
+    tip:'안 보는 사진·동영상은 주기적으로 정리하고, 안 쓰는 앱은 지우고, 비슷한 앱끼리 모아요. (99쪽)'},
+  trash:{ q:'다 마신 우유팩은 어디에?',
+    o:[{t:'헹구고 말려서 종이팩으로 따로', ok:1},
+       {t:'그냥 종이류에 넣는다', w:'우유팩은 <b>일반 종이와 재질이 달라요.</b> 따로 모아야 화장지로 다시 태어나요.'},
+       {t:'플라스틱류에 넣는다', w:'겉이 코팅돼 있어도 <b>바탕은 종이</b>예요.'}],
+    tip:'종이팩은 <b>내용물을 비우고 물로 헹군 뒤 말려서</b> 배출해요. (103쪽)'},
+  trash2:{ q:'먹고 남은 닭 뼈는 어디에?',
+    o:[{t:'일반 쓰레기(종량제 봉투)', ok:1},
+       {t:'음식물 쓰레기', w:'뼈·조개껍데기·과일씨는 <b>동물이 못 먹어요.</b> 음식물 쓰레기는 사료나 거름이 되거든요.'},
+       {t:'그냥 싱크대에 버린다', w:'막혀요. 그리고 하수로 흘러가면 치우기가 훨씬 어려워요.'}],
+    tip:'<b>조개껍데기·뼈·과일씨는 일반 쓰레기</b>예요. 음식물 쓰레기는 <b>수분을 뺀 뒤</b> 전용 봉투에. (103쪽)'},
+  air:{ q:'환기는 하루에 얼마나 하면 좋을까?',
+    o:[{t:'하루 3번, 10분 이상', ok:1},
+       {t:'일주일에 한 번, 한 시간', w:'한 번에 오래 하는 것보다 <b>자주 짧게</b>가 나아요. 공기가 고이지 않게요.'},
+       {t:'추우면 안 해도 된다', w:'추워도 해요. 안 하면 <b>곰팡이와 미세 먼지</b>가 그대로 갇혀요.'}],
+    tip:'<b>하루 3번, 10분 이상.</b> 환기하기 좋은 시간은 오전 10시부터 오후 9시까지예요. (102쪽)'},
+  clean:{ q:'청소는 무엇부터 할까?',
+    o:[{t:'창문을 열어 환기부터', ok:1},
+       {t:'바닥을 먼저 쓴다', w:'바닥을 먼저 쓸면 <b>나중에 턴 먼지가 다시 내려앉아</b> 두 번 일하게 돼요.'},
+       {t:'걸레로 닦는 것부터', w:'먼지를 털기 전에 닦으면 <b>흙탕물이 돼요.</b> 마른 먼지를 먼저 치워요.'}],
+    tip:'환기 → 물건 정리 → 먼지 떨기 → 바닥 쓸고 닦기 → <b>청소 도구 정리</b>. 위에서 아래로. (102쪽)'},
+};
+const QUIZ_ALT = {cloth:['cloth','cloth2'], trash:['trash','trash2']};
+
+/* ── 하루 ─────────────────────────────────────────────────── */
+const DAYS = [
+  {d:'화', w:1, todo:['homework','prep'],                  note:'첫날이에요. 천천히 짜 봐요'},
+  {d:'수', w:1, todo:['homework','prep','study'],          note:'할 일이 하나 늘었어요'},
+  {d:'목', w:1, todo:['homework','prep','study'],          note:''},
+  {d:'금', w:1, todo:['homework','prep','errand'],         note:'월요일은 채율이 생일이래요'},
+  {d:'토', w:0, todo:['study','errand'],                   note:'용돈 받는 날 · 시간이 많아요'},
+  {d:'일', w:0, todo:['homework','prep'],                  note:'내일 준비를 해 둘까요'},
+  {d:'월', w:1, todo:['homework','prep','study','present'],note:'채율이 생일 · 발표까지 있는 날'},
+];
+
+/* ── 예상 못한 일 — 교과서 93쪽 「예상치 못한 일이 생기면」 ── */
+const EVENTS = [
+  {k:'call',   i:'📞', n:'친구에게 전화가 왔어요', x:'"지금 놀이터로 나와! 한 시간만 놀자."', heart:16},
+  {k:'longer', i:'😵', n:'숙제가 생각보다 어려워요', x:'한 시간으로는 도저히 안 끝나요.', heart:-4},
+  {k:'guest',  i:'🚪', n:'할머니가 오셨어요', x:'오랜만에 뵈니 반가워요. 같이 있고 싶어요.', heart:14},
+  {k:'sib',    i:'🧒', n:'동생이 도와 달래요', x:'만들기 숙제가 너무 어렵대요.', heart:9},
+  {k:'rain',   i:'🌧️', n:'비가 쏟아져요', x:'빨래를 걷고 우산을 챙겨 둬야 해요.', heart:-3},
+  {k:'dinner', i:'🍚', n:'가족이 같이 저녁을 먹재요', x:'다 같이 먹는 건 오랜만이에요.', heart:13},
+  {k:'head',   i:'🤒', n:'머리가 아파요', x:'조금 누워 있어야 할 것 같아요.', heart:-6},
+  {k:'pet',    i:'🐶', n:'강아지 산책 차례예요', x:'깜빡했어요. 지금 나가야 해요.', heart:6},
+];
+/* 정돈이 낮을 때만 오는 일 — 관리의 값을 몸으로 알려 주는 자리 */
+const EV_LOST = {k:'lost', i:'🔍', n:'준비물이 안 보여요', x:'분명히 어디 뒀는데… 찾다가 시간이 다 갔어요.',
+  heart:-8, money:-2000, note:'정돈이 낮으면 이런 일이 자주 나요'};
+
+/* ── 상태 ─────────────────────────────────────────────────── */
+const KEY = 'ws.state';
+function fresh(){
+  return {day:1, phase:'title', slots:[], heart:62, tidy:58, money:3000,
+    saved:0, gave:0, spentOk:0, todoAll:0, todoDone:0, careCnt:0, quizOk:0, quizAll:0,
+    backlog:[], hearts:[], log:[], hist:[], seenEv:[], usedQ:[], gift:0, wish:'',
+    runI:0, evAt:-1, evUsed:null, pendEv:null, lastRev:null};
+}
+let S, wiping=false;
+try{ S = JSON.parse(localStorage.getItem(KEY)) || fresh(); }catch(e){ S = fresh(); }
+if(!S || typeof S.day !== 'number') S = fresh();
+function save(){ if(wiping) return; try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+
+/* ── 소리 ─────────────────────────────────────────────────── */
+const SND = (()=>{
+  let ac=null;
+  const ctx=()=>{ try{ ac = ac || new (window.AudioContext||window.webkitAudioContext)(); if(ac.state==='suspended') ac.resume(); return ac; }catch(e){ return null; } };
+  function tone(f,t,dur,vol,delay){
+    const a=ctx(); if(!a) return;
+    const o=a.createOscillator(), g=a.createGain(), t0=a.currentTime+(delay||0);
+    o.type=t||'sine'; o.frequency.setValueAtTime(f,t0);
+    g.gain.setValueAtTime(0,t0); g.gain.linearRampToValueAtTime(vol||.15,t0+.012);
+    g.gain.exponentialRampToValueAtTime(.0001,t0+dur);
+    o.connect(g); g.connect(a.destination); o.start(t0); o.stop(t0+dur+.02);
+  }
+  return {
+    tap(){ tone(620,'sine',.07,.09); },
+    put(){ tone(520,'triangle',.09,.11); tone(780,'triangle',.09,.08,.05); },
+    ok(){ tone(660,'sine',.1,.12); tone(880,'sine',.14,.11,.08); tone(1170,'sine',.2,.08,.16); },
+    no(){ tone(300,'sawtooth',.14,.07); tone(220,'sawtooth',.2,.06,.09); },
+    ev(){ tone(880,'square',.1,.06); tone(660,'square',.1,.06,.12); tone(880,'square',.16,.06,.24); },
+    day(){ [523,659,784,1047].forEach((f,i)=>tone(f,'sine',.22,.1,i*.1)); },
+    coin(){ tone(1050,'triangle',.08,.1); tone(1400,'triangle',.14,.08,.06); },
+  };
+})();
+
+/* ── 잡다 ─────────────────────────────────────────────────── */
+const $ = id => document.getElementById(id);
+const fmt = n => Math.floor(n).toLocaleString('ko-KR');
+const clamp = (n,a,b) => Math.max(a, Math.min(b,n));
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+let toT=null;
+function toast(m,ms){ const t=$('toast'); t.innerHTML=m; t.classList.add('on'); clearTimeout(toT); toT=setTimeout(()=>t.classList.remove('on'), ms||2600); }
+function hourTxt(h){ return (h<12? '오전 ':'오후 ') + (h>12? h-12 : h) + '시'; }
+const today = () => DAYS[S.day-1];
+
+/* ── 시간 칸 만들기 ────────────────────────────────────────
+   평일: 7시 아침 · 8~14시 학교 · 18시 저녁 · 22시 잠 이 고정
+   주말: 8시 아침 · 12시 점심 · 18시 저녁 · 22시 잠 이 고정      */
+function buildSlots(){
+  const wd = today().w, out=[];
+  const fix = (h,i,n,span) => out.push({h, fix:1, i, n, span:span||1});
+  const free = h => out.push({h, fix:0, card:null, head:0});
+  if(wd){
+    fix(7,'🌅','일어나기·아침 먹기');
+    fix(8,'🏫','학교에 있는 시간', 7);
+    for(let h=15; h<=17; h++) free(h);
+    fix(18,'🍚','저녁 먹기');
+    for(let h=19; h<=21; h++) free(h);
+    fix(22,'😴','잠자기');
+  }else{
+    fix(8,'🌅','일어나기·아침 먹기');
+    for(let h=9; h<=11; h++) free(h);
+    fix(12,'🍚','점심 먹기');
+    for(let h=13; h<=17; h++) free(h);
+    fix(18,'🍚','저녁 먹기');
+    for(let h=19; h<=21; h++) free(h);
+    fix(22,'😴','잠자기');
+  }
+  return out;
+}
+const freeSlots = () => S.slots.filter(s=>!s.fix);
+const emptySlots = () => S.slots.filter(s=>!s.fix && !s.card && !s.head);
+
+/* 오늘 놓아야 할 해야 할 일 = 오늘 것 + 밀린 것.
+   같은 카드가 두 번 나오지 않게 고유하게 만든다 — 어제 밀린 숙제와 오늘 숙제는
+   시간 칸 하나로 함께 끝낸다(카드 키가 같아서 두 번 놓을 수도 없다). */
+function todoList(){
+  const seen = {}, out = [];
+  today().todo.forEach(k=>{ if(!seen[k]){ seen[k]=1; out.push({k, late:0}); } });
+  S.backlog.forEach(k=>{
+    if(seen[k]){ const f = out.find(x=>x.k===k); if(f) f.late = 1; return; }
+    seen[k]=1; out.push({k, late:1});
+  });
+  return out;
+}
+function placedCount(k){ return S.slots.filter(s=>s.card===k).length ? 1 : 0; }
+function isPlaced(k){ return S.slots.some(s=>s.card===k); }
+
+/* ── 화면 ─────────────────────────────────────────────────── */
+function renderTop(){
+  if(S.phase==='title'){ $('top').innerHTML=''; $('top').style.display='none'; return; }
+  $('top').style.display='';
+  const d = today(), left = emptySlots().length;
+  const bar = (v,c)=>`<div class="bar"><i style="width:${clamp(v,0,100)}%;background:${c}"></i></div>`;
+  $('top').innerHTML =
+    `<div class="dayline">
+       <span class="daybadge">${S.day}일차 ${d.d}요일</span>
+       <span class="daysub">${d.note||''}</span>
+       <button class="mini" onclick="act('menu')">⋯</button>
+     </div>
+     <div class="stats">
+       <div class="stat"><div class="sv" style="color:var(--time)">${left}</div><div class="sn">빈 시간</div></div>
+       <div class="stat"><div class="sv" style="color:var(--heart)">${Math.round(S.heart)}</div><div class="sn">마음</div>${bar(S.heart,'var(--heart)')}</div>
+       <div class="stat"><div class="sv" style="color:var(--coin)">${fmt(S.money)}</div><div class="sn">가진 돈</div></div>
+       <div class="stat"><div class="sv" style="color:var(--tidy)">${Math.round(S.tidy)}</div><div class="sn">정돈</div>${bar(S.tidy,'var(--tidy)')}</div>
+     </div>`;
+}
+
+function renderPlan(){
+  const list = todoList();
+  const chips = list.map(t=>{
+    const c = CARDS[t.k], on = isPlaced(t.k);
+    return `<span class="chip ${on?'ok':(t.late?'late':'')}">${c.i} ${c.n}${t.late?' (밀림)':''}${on?' ✓':''}</span>`;
+  }).join('');
+  const rows = S.slots.map((s,idx)=>{
+    if(s.fix){
+      const t = s.span>1 ? hourTxt(s.h)+'~'+hourTxt(s.h+s.span-1) : hourTxt(s.h);
+      return `<div class="slot fix"><div class="stime">${t}</div><div class="sico">${s.i}</div>
+              <div class="stxt">${s.n}</div></div>`;
+    }
+    if(s.head){ return ''; }   /* 2칸짜리의 뒷 칸은 앞 칸이 함께 그린다 */
+    if(s.card){
+      const c = CARDS[s.card];
+      const span = c.c>1 ? hourTxt(s.h)+'~'+hourTxt(s.h+c.c-1) : hourTxt(s.h);
+      return `<div class="slot on t-${c.t}"><div class="stime">${span}</div><div class="sico">${c.i}</div>
+              <div class="stxt">${c.n}${c.d?`<em>${c.d}</em>`:''}</div>
+              <button class="sx" onclick="act('unset',${idx})">✕</button></div>`;
+    }
+    return `<div class="slot free" onclick="act('pick',${idx})"><div class="stime">${hourTxt(s.h)}</div>
+            <div class="sico">⬜</div><div class="stxt" style="color:#b3a58f;font-weight:500">비어 있어요</div>
+            <div class="sadd">＋ 넣기</div></div>`;
+  }).join('');
+  const notAll = list.filter(t=>!isPlaced(t.k)).length;
+  $('main').innerHTML =
+    `<div class="h2">📋 오늘 해야 할 일</div>
+     <div class="todos">${chips || '<span class="chip ok">오늘은 없어요 ✓</span>'}</div>
+     <div class="h2" style="margin-top:14px">🕐 하루를 짜 봐요</div>
+     <div class="hint">빈 칸을 눌러 할 일을 넣어요. 회색 칸은 바꿀 수 없어요.</div>
+     <div class="sched">${rows}</div>
+     <button class="btn" onclick="act('start')">하루 시작하기 ▶</button>
+     ${notAll? `<div class="hint" style="text-align:center;margin:8px 0 0;color:var(--todo)">
+        해야 할 일 ${notAll}개가 아직 안 들어갔어요. 그대로 시작하면 내일로 밀려요.</div>`:''}
+     <div class="foot">기록은 이 태블릿에만 저장돼요 · 순위 없음<br>
+       <button onclick="act('wipe')">처음부터 다시 하기</button></div>`;
+}
+
+function renderRun(){
+  const rows = S.log.map(l=>
+    `<div class="lg ${l.c||''}"><div class="lt">${l.t||''}</div><div class="li">${l.i}</div>
+     <div class="lx">${l.x}${l.dt||''}</div></div>`).join('');
+  const done = S.runI >= S.slots.length;
+  $('main').innerHTML =
+    `<div class="h2">▶ ${S.day}일차를 살아 봐요</div>
+     <div class="logs">${rows}</div>
+     ${done? `<button class="btn" onclick="act('review')">하루 돌아보기 →</button>`
+            : `<button class="btn gray sm" onclick="act('skipall')">끝까지 건너뛰기 ⏩</button>`}`;
+  window.scrollTo(0, document.body.scrollHeight);
+}
+
+function renderReview(){
+  const r = S.lastRev;
+  const pct = r.todoAll ? Math.round(r.todoDone/r.todoAll*100) : 100;
+  let why = '';
+  if(r.broke) why = `<b>예상 못한 일</b> 때문에 계획을 하나 미뤘어요. 비워 둔 시간이 있었다면 그냥 넣을 수 있었을 거예요.`;
+  else if(r.late) why = `해야 할 일을 시간 칸에 <b>안 넣어서</b> 밀렸어요.`;
+  else if(r.lowHeart) why = `마음이 너무 떨어져서 <b>집중이 안 됐어요.</b> 하고 싶은 일도 하루에 하나는 넣어 줘요.`;
+  else why = `계획한 대로 됐어요.`;
+  const nextTxt = S.day>=7 ? '성적표 보기 →' : (S.day===4 ? '토요일로 →' : '다음 날로 →');
+  $('main').innerHTML =
+    `<div class="h2">🌙 ${S.day}일차 돌아보기</div>
+     <div class="rev"><h4>계획한 대로 실천했나요?</h4>
+       <p>해야 할 일 <b>${r.todoAll}개 중 ${r.todoDone}개</b>를 했어요. (${pct}%)</p></div>
+     <div class="rev"><h4>낭비한 시간은 없었나요?</h4>
+       <p>비워 둔 시간 <b>${r.emptyEnd}칸</b>${
+         !r.emptyEnd ? ' — 하루가 빈틈없이 찼어요.'
+         : (r.freeAll && r.emptyEnd > r.freeAll/2) ? ' — 쓸 수 있는 시간의 절반이 넘게 비었어요. 여유는 좋지만, 이만큼이면 하고 싶었던 일도 못 한 거예요.'
+         : ' — 갑작스러운 일을 받아 낼 여유였어요.'}</p></div>
+     ${r.gift===1? `<div class="rev"><h4>🎂 채율이 생일</h4><p>모아 둔 돈으로 <b>선물을 샀어요.</b> 5,000원을 썼어요.</p></div>`:''}
+     ${r.gift===-1? `<div class="rev"><h4>🎂 채율이 생일</h4><p><b>돈이 모자라 아무것도 못 했어요.</b> 5,000원이 필요했어요.</p></div>`:''}
+     <div class="rev"><h4>계획대로 되지 않았다면 그 까닭은?</h4><p>${why}</p></div>
+     ${r.dHeart||r.dTidy||r.dMoney ? `<div class="rev"><h4>하루 동안 달라진 것</h4><p>${
+        [ r.dHeart && `마음 <b class="${r.dHeart>0?'up':'dn'}">${r.dHeart>0?'+':''}${r.dHeart}</b>`,
+          r.dTidy  && `정돈 <b class="${r.dTidy>0?'up':'dn'}">${r.dTidy>0?'+':''}${r.dTidy}</b>`,
+          r.dMoney && `돈 <b class="${r.dMoney>0?'up':'dn'}">${r.dMoney>0?'+':''}${fmt(r.dMoney)}원</b>`
+        ].filter(Boolean).join(' · ')}</p></div>`:''}
+     ${S.backlog.length? `<div class="quote">😟 <b>내일로 밀린 일이 ${S.backlog.length}개</b> 있어요.
+        ${S.backlog.map(k=>CARDS[k].i+' '+CARDS[k].n).join(' · ')}</div>`:''}
+     <button class="btn" onclick="act('next')">${nextTxt}</button>`;
+}
+
+function renderMoney(){
+  const rows = [
+    {k:'saved', i:'🐷', n:'저축하기', e:'미래에 쓸 일을 위해 모아 둬요'},
+    {k:'gave',  i:'🎁', n:'기부하기', e:'가족·친구·어려운 이웃을 위해'},
+  ].map(r=>`<div class="mrow"><div class="mi">${r.i}</div>
+      <div class="mn"><b>${r.n}</b><em>${r.e}</em></div>
+      <div class="mstep">
+        <button onclick="act('mmin','${r.k}')">－</button>
+        <span class="mv">${fmt(S.tmp[r.k])}원</span>
+        <button onclick="act('mplus','${r.k}')">＋</button>
+      </div></div>`).join('');
+  const rest = S.tmp.total - S.tmp.saved - S.tmp.gave;
+  $('main').innerHTML =
+    `<div class="h2">🪙 용돈을 받았어요</div>
+     <div class="hint">이번 주 용돈 <b>${fmt(S.tmp.total)}원</b>이 들어왔어요.
+       얼마를 모으고, 얼마를 나누고, 얼마를 쓸지 정해요. (500원 단위)</div>
+     ${rows}
+     <div class="mrow" style="border-color:var(--pri);border-width:2px">
+       <div class="mi">👛</div><div class="mn"><b>쓸 돈</b><em>남은 돈은 이번 주에 쓸 수 있어요</em></div>
+       <div class="mstep"><span class="mv" style="color:var(--pri2);font-size:15px">${fmt(rest)}원</span></div>
+     </div>
+     <div class="quote">🎂 월요일은 <b>채율이 생일</b>이에요. 선물을 사려면 <b>5,000원</b>이 필요해요.</div>
+     <button class="btn" onclick="act('mdone')">정했어요 →</button>`;
+}
+
+function renderFinal(){
+  const s = score();
+  const A = [
+    {n:'할 일', v:s.todo,  c:'var(--todo)', d:'해야 할 일을 얼마나 해냈나'},
+    {n:'마음',  v:s.heart, c:'var(--heart)',d:'일주일 동안 마음이 어땠나'},
+    {n:'돈',    v:s.money, c:'var(--coin)', d:'모으고 · 나누고 · 쓸 곳에 썼나'},
+    {n:'정돈',  v:s.tidy,  c:'var(--tidy)', d:'생활 자원을 얼마나 관리했나'},
+  ];
+  const bars = A.map(a=>`<div class="axis"><div class="ah"><span>${a.n} <span style="color:var(--sub);font-weight:500;font-size:11.5px">${a.d}</span></span><span>${a.v}</span></div>
+    <div class="abar"><i style="width:${a.v}%;background:${a.c}"></i></div></div>`).join('');
+  $('main').innerHTML =
+    `<div class="h2">🏅 일주일 성적표</div>
+     <div class="gradebox"><div class="gt">당신은</div><div class="gv">${s.grade}</div>
+       <div class="gd">${s.say}</div></div>
+     ${bars}
+     <div class="quote">${s.msg}</div>
+     <div class="h2" style="margin-top:16px">✍️ 마지막 한 가지</div>
+     <div class="hint">이 일주일을 살아 보고, <b>내 진짜 생활에서 바꾸고 싶은 것</b>을 한 가지만 적어요.</div>
+     <textarea id="wish" rows="3" placeholder="예) 자기 전에 다음 날 준비물을 챙겨 두겠다" oninput="act('wish')">${S.wish||''}</textarea>
+     <button class="btn gray sm" onclick="act('again')">처음부터 다시 하기</button>
+     <div class="foot">실과 5학년 6단원 「나의 생활 자원 관리」 · 교과서 90~107쪽</div>`;
+  const w = $('wish'); if(w) w.value = S.wish||'';
+}
+
+function renderTitle(){
+  $('main').innerHTML =
+    `<div class="title"><div class="tm">🧺</div><h1>일주일 살림꾼</h1>
+       <div class="ts">시간 · 용돈 · 공간을 직접 써 보는 일주일</div></div>
+     <div class="tcard">
+       하루는 <b>16칸</b>뿐이고, 용돈은 <b>정해져 있어요.</b><br>
+       무엇을 넣을지 고르고, <b>고른 대로 살아 봐요.</b><br>
+       화요일부터 다음 월요일까지 <b>7일</b>이에요.
+     </div>
+     <button class="btn" onclick="act('go')">${S.day>1||S.slots.length? '이어서 하기 ▶':'시작하기 ▶'}</button>
+     ${S.day>1||S.slots.length? `<button class="btn gray sm" onclick="act('wipe')">처음부터 다시 하기</button>`:''}
+     ${QR? `<div class="qr"><button id="qrbtn" onclick="act('qrbig')" style="position:relative;display:inline-block">
+        ${QR}<span style="position:absolute;right:-6px;bottom:-4px;background:var(--pri);color:#fff;
+        font-size:10px;font-weight:900;border-radius:99px;padding:2px 7px">🔍 크게</span></button>
+        <div>leixlix-pixel.github.io/toolbox/practical-6/2-week-steward.html</div></div>`:''}`;
+}
+
+function renderAll(){
+  renderTop();
+  const f = {title:renderTitle, plan:renderPlan, run:renderRun,
+             review:renderReview, money:renderMoney, final:renderFinal}[S.phase];
+  (f||renderTitle)();
+}
+
+/* ── 모달 ─────────────────────────────────────────────────── */
+let M=null;
+function openM(st){ M=st; $('modal').hidden=false; drawM(); }
+function closeM(){ M=null; $('modal').hidden=true; $('mbox').innerHTML=''; }
+function drawM(){ if(M) $('mbox').innerHTML = MV[M.v](M); }
+$('modal').addEventListener('click', e=>{
+  if(e.target.id!=='modal') return;
+  if(M && (M.v==='pick'||M.v==='menu')) closeM();   /* 문답·사건·미루기는 배경으로 못 닫는다 */
+});
+
+const MV = {
+  /* 칸에 넣을 카드 고르기 */
+  pick(m){
+    const idx = m.idx, room = roomAt(idx);
+    const list = todoList();
+    const groups = ['todo','want','care'].map(t=>{
+      let keys;
+      /* 같은 일은 하루에 한 번만 — 책상 정리를 하루 세 번 하지는 않는다.
+         이걸 열어 두면 정돈이 높은 카드 하나를 반복해서 지표가 만렙이 된다(실측). */
+      if(t==='todo') keys = list.map(x=>x.k).filter(k=>!isPlaced(k));
+      else keys = Object.keys(CARDS).filter(k=>CARDS[k].t===t && !isPlaced(k));
+      if(!keys.length) return '';
+      const items = keys.map(k=>{
+        const c = CARDS[k], no = c.c>room, poor = c.money<0 && S.money+c.money<0;
+        const late = list.some(x=>x.k===k && x.late);
+        return `<button class="opt o-${t} ${no||poor?'dis':''}" onclick="act('put','${k}',${idx})">
+          <span class="oi">${c.i}</span>
+          <span class="ot"><b>${c.n}${late?' <span style="color:#8b53ab;font-size:12px">(밀린 일)</span>':''}</b>
+          ${c.d||no||poor? `<em>${poor?'돈이 모자라요':(no? '두 칸이 이어져 있어야 해요' : c.d)}</em>`:''}</span>
+          <span class="oc">${c.c}칸</span></button>`;
+      }).join('');
+      return `<div class="grp">${TICO[t]} ${TNAME[t]}</div>${items}`;
+    }).join('');
+    return `<div class="mtitle">${hourTxt(S.slots[idx].h)}에 무엇을 할까요?</div>
+      <div class="mdesc">${room===1? '이 뒤는 다른 일정이 있어서 한 칸만 들어가요.' : `여기서부터 ${room}칸이 비어 있어요.`}</div>
+      ${groups}<button class="btn gray sm" onclick="closeM()">닫기</button>`;
+  },
+  /* 살림 카드 문답 */
+  quiz(m){
+    const q = QUIZ[m.qk];
+    if(m.picked!=null){
+      const o = q.o[m.picked];
+      return `<div class="mtitle">${o.ok? '🎉 맞았어요!' : '🤔 그렇게 생각했군요'}</div>
+        <div class="why">${o.ok? q.tip : o.w + '<br><br>' + q.tip}</div>
+        <button class="btn" onclick="act('qdone')">${o.ok? '잘 정리했어요 →':'알겠어요 →'}</button>`;
+    }
+    return `<div class="mtitle">${CARDS[m.card].i} ${q.q}</div>
+      <div class="mdesc">맞히면 더 잘 정리돼요. 틀려도 넘어가요.</div>
+      ${q.o.map((o,i)=>`<button class="opt" onclick="act('qpick',${i})">
+        <span class="oi">${'①②③'[i]}</span><span class="ot"><b>${o.t}</b></span></button>`).join('')}`;
+  },
+  /* 예상 못한 일 */
+  ev(m){
+    const e = m.e, empty = emptySlots();
+    /* 미룰 것도 비워 둔 시간도 없다 — 하루가 거의 끝난 자리다. 막히지 않게 그냥 지나간다 */
+    const movable = S.slots.some((s,i)=> i>=S.runI && !s.fix && s.card && !s.head);
+    if(!empty.length && !movable){
+      return `<div class="mtitle">${e.i} ${e.n}</div><div class="mdesc">${e.x}</div>
+        <div class="why">하루가 거의 끝나 가요. 이건 <b>내일로 넘기기로</b> 했어요.</div>
+        <button class="btn" onclick="act('evskip')">알겠어요 →</button>`;
+    }
+    if(empty.length){
+      return `<div class="mtitle">${e.i} ${e.n}</div>
+        <div class="mdesc">${e.x}</div>
+        <div class="why">다행히 <b>비워 둔 시간</b>이 ${empty.length}칸 있어요. 그중 한 칸이 여기 쓰여요.</div>
+        <button class="btn" onclick="act('evtake')">그렇게 할게요 →</button>`;
+    }
+    return `<div class="mtitle">${e.i} ${e.n}</div>
+      <div class="mdesc">${e.x}</div>
+      <div class="why">그런데 <b>하루가 빈틈없이 차 있어요.</b> 한 가지를 미뤄야 해요. 무엇을 미룰까요?</div>
+      ${S.slots.map((s,i)=>{
+        /* 이미 지나간 시간은 미룰 수 없다 — 벌써 해 버린 일이다 */
+        if(i < S.runI || s.fix || !s.card || s.head) return '';
+        const c = CARDS[s.card];
+        return `<button class="opt o-${c.t}" onclick="act('evdrop',${i})"><span class="oi">${c.i}</span>
+          <span class="ot"><b>${c.n}</b><em>${hourTxt(s.h)}${c.t==='todo'? ' · 미루면 내일로 밀려요':(c.t==='care'? ' · 미루면 정돈이 안 올라요':' · 미루면 마음이 덜 올라요')}</em></span></button>`;
+      }).join('')}`;
+  },
+  menu(){
+    return `<div class="mtitle">⋯ 설정</div>
+      <div class="mdesc">${S.day}일차 ${today().d}요일 · 마음 ${Math.round(S.heart)} · 정돈 ${Math.round(S.tidy)} · ${fmt(S.money)}원</div>
+      <button class="btn gray sm" onclick="closeM()">돌아가기</button>
+      <button class="btn gray sm" onclick="act('wipe')">처음부터 다시 하기</button>`;
+  },
+};
+
+/* 이 칸에서 몇 칸이 이어져 비어 있나 */
+function roomAt(idx){
+  let n=0;
+  for(let i=idx; i<S.slots.length; i++){
+    const s = S.slots[i];
+    if(s.fix || s.card || s.head) break;
+    n++;
+  }
+  return n;
+}
+
+/* ── 동작 ─────────────────────────────────────────────────── */
+function act(a, x, y){
+  switch(a){
+    case 'go': SND.tap(); if(!S.slots.length) newDay(); else S.phase = S.phase==='title'? 'plan':S.phase; save(); renderAll(); break;
+    case 'menu': SND.tap(); openM({v:'menu'}); break;
+    case 'qrbig': SND.tap(); qrBig(); break;
+    case 'pick': SND.tap(); openM({v:'pick', idx:x}); break;
+
+    case 'put': {
+      const c = CARDS[x], idx = y;
+      if(isPlaced(x)){ toast('오늘 이미 넣었어요'); SND.no(); return; }
+      if(c.c > roomAt(idx)){ toast('두 칸이 이어져 있어야 넣을 수 있어요'); SND.no(); return; }
+      if(c.money<0 && S.money + c.money < 0){ toast('돈이 모자라요'); SND.no(); return; }
+      S.slots[idx].card = x;
+      for(let i=1;i<c.c;i++) S.slots[idx+i].head = 1;
+      SND.put(); closeM();
+      if(c.q){ const qk = pickQ(c.q); openM({v:'quiz', qk, card:x, idx}); }
+      save(); renderAll(); break;
+    }
+    case 'unset': {
+      const s = S.slots[x], c = CARDS[s.card];
+      for(let i=1;i<c.c;i++) if(S.slots[x+i]) S.slots[x+i].head = 0;
+      if(s.qok!=null){ S.quizAll--; if(s.qok) S.quizOk--; s.qok=null; }
+      s.card = null; SND.tap(); save(); renderAll(); break;
+    }
+    case 'qpick': {
+      const q = QUIZ[M.qk], ok = !!q.o[x].ok;
+      S.quizAll++; if(ok) S.quizOk++;
+      S.slots[M.idx].qok = ok?1:0;
+      if(!S.usedQ.includes(M.qk)) S.usedQ.push(M.qk);
+      ok? SND.ok() : SND.no();
+      M.picked = x; drawM(); save(); break;
+    }
+    case 'qdone': closeM(); renderAll(); break;
+
+    case 'start': SND.day(); startRun(); break;
+    case 'skipall': skipAll(); break;
+    /* 아직 하루가 정산되지 않았는데 눌렀으면 여기서 정산한다.
+       마지막 칸을 그린 뒤 정산까지 0.3초가 비는데, 그 사이에 버튼이 이미 보인다. */
+    case 'review':
+      if(S.phase==='run'){ clearTimeout(runT); finishDay(); }
+      else { S.phase='review'; save(); renderAll(); window.scrollTo(0,0); }
+      break;
+    case 'next': nextDay(); break;
+
+    case 'evtake': {
+      const sl = emptySlots()[0];
+      sl.card = '__ev'; sl.ev = S.pendEv;
+      closeM(); S.evUsed = 'empty'; stepOn(); break;
+    }
+    case 'evskip': { closeM(); S.evUsed = 'skip'; S.pendEv = null; stepOn(); break; }
+    case 'evdrop': {
+      const s = S.slots[x], c = CARDS[s.card];
+      for(let i=1;i<c.c;i++) if(S.slots[x+i]) S.slots[x+i].head=0;
+      S.dropped = s.card; s.card='__ev'; s.ev=S.pendEv; s.qok=null;
+      closeM(); S.evUsed = 'drop'; stepOn(); break;
+    }
+
+    case 'mplus': case 'mmin': {
+      const d = a==='mplus'? 500 : -500;
+      const rest = S.tmp.total - S.tmp.saved - S.tmp.gave;
+      if(d>0 && rest<500){ toast('쓸 돈이 모자라요'); SND.no(); return; }
+      if(d<0 && S.tmp[x]<500){ SND.no(); return; }
+      S.tmp[x] += d; SND.coin(); renderAll(); break;
+    }
+    case 'mdone': {
+      S.saved += S.tmp.saved; S.gave += S.tmp.gave;
+      S.money += S.tmp.total - S.tmp.saved - S.tmp.gave;
+      if(S.tmp.gave>0) S.heart = clamp(S.heart + 8, 0, 100);
+      S.tmp = null; S.phase='plan'; SND.coin(); save(); renderAll(); window.scrollTo(0,0); break;
+    }
+
+    case 'wish': { const w=$('wish'); if(w){ S.wish = w.value; save(); } break; }
+    case 'again': case 'wipe': {
+      wiping = true;
+      try{ localStorage.removeItem(KEY); }catch(e){}
+      S = fresh(); wiping = false;
+      closeM(); save(); renderAll(); window.scrollTo(0,0); break;
+    }
+  }
+}
+
+/* 같은 문답이 되풀이되지 않게 — 짝이 있는 것은 번갈아 */
+function pickQ(base){
+  const alts = QUIZ_ALT[base];
+  if(!alts) return base;
+  const un = alts.filter(k=>!S.usedQ.includes(k));
+  return un.length ? un[0] : alts[Math.floor(Math.random()*alts.length)];
+}
+
+/* ── 하루 만들기 ──────────────────────────────────────────── */
+function newDay(){
+  S.slots = buildSlots();
+  S.phase = 'plan';
+  S.log = []; S.runI = 0; S.evUsed = null; S.pendEv = null; S.dropped = null;
+  S.d0 = {heart:S.heart, tidy:S.tidy, money:S.money};
+  /* 예상 못한 일 — 2일차부터. 어느 자유 칸에서 터질지 미리 정한다 */
+  const fs = S.slots.map((s,i)=>s.fix?-1:i).filter(i=>i>=0);
+  S.evAt = S.day>=2 && fs.length ? fs[Math.floor(fs.length*0.35) + Math.floor(Math.random()*Math.max(1,Math.floor(fs.length*0.3)))] : -1;
+  /* 5일차(토) 아침에 용돈 */
+  if(S.day===5){ S.tmp = {total:7500, saved:3000, gave:500}; S.phase='money'; }
+  save();
+}
+
+function nextDay(){
+  if(S.day>=7){ S.phase='final'; save(); renderAll(); window.scrollTo(0,0); SND.day(); return; }
+  S.day++; newDay(); renderAll(); window.scrollTo(0,0);
+}
+
+/* ── 하루 살기 ───────────────────────────────────────────── */
+function startRun(){
+  S.phase='run'; S.runI=0; S.log=[];
+  S.rev = {todoAll:0, todoDone:0, broke:0, late:0, lowHeart:0};
+  /* 마음이 바닥이면 오늘 해야 할 일 하나가 안 끝난다 */
+  S.dull = S.heart < 30;
+  const list = todoList();
+  S.rev.todoAll = list.length;
+  S.notPlaced = list.filter(t=>!isPlaced(t.k)).map(t=>t.k);
+  /* 전체 총량에는 **오늘 새로 주어진 것만** 더한다 — 밀린 것은 준 날에 이미 셌다.
+     여기서 다시 세면 미룰수록 분모가 커져 완료율이 엉뚱해진다. */
+  S.todoAll += new Set(today().todo).size;
+  /* 밀린 목록은 여기서 비운다. 오늘 못 한 것이 finishDay 에서 다시 쌓인다.
+     안 비우면 한 번 밀린 일이 7일 내내 따라다닌다. */
+  S.backlog = [];
+  save(); renderAll(); stepOn();
+}
+
+let runT = null;
+function stepOn(){
+  clearTimeout(runT);
+  runT = setTimeout(step, 340);
+}
+function step(){
+  if(S.phase!=='run') return;
+  const i = S.runI;
+  if(i >= S.slots.length){ finishDay(); return; }
+
+  /* 예상 못한 일이 여기서 터진다 — 아이가 고르기 전에는 진행하지 않는다 */
+  if(i === S.evAt && !S.evUsed){
+    const e = pickEvent();
+    S.pendEv = e; SND.ev();
+    S.log.push({t:'', i:e.i, x:`<b>${e.n}</b>`, c:'ev'});
+    renderAll(); openM({v:'ev', e});
+    return;
+  }
+
+  const s = S.slots[i];
+  S.runI++;
+  if(s.fix){
+    if(s.span>1) S.log.push({t:hourTxt(s.h)+'~', i:s.i, x:s.n});
+    else S.log.push({t:hourTxt(s.h), i:s.i, x:s.n});
+  }else if(s.head){
+    /* 두 칸짜리의 뒷 칸 — 앞에서 이미 적었다 */
+  }else if(s.card==='__ev'){
+    const e = s.ev;
+    applyEv(e, hourTxt(s.h));
+  }else if(s.card){
+    doCard(s, hourTxt(s.h));
+  }else{
+    S.log.push({t:hourTxt(s.h), i:'⬜', x:'<span style="color:#b3a58f">비워 둔 시간</span>'});
+  }
+  save(); renderAll();
+  stepOn();
+}
+
+function skipAll(){
+  clearTimeout(runT);
+  let guard = 0;
+  while(S.runI < S.slots.length && guard++ < 60){
+    if(S.runI === S.evAt && !S.evUsed){ step(); return; }   /* 사건은 건너뛸 수 없다 */
+    step0();
+  }
+  finishDay();
+}
+function step0(){
+  const s = S.slots[S.runI]; S.runI++;
+  if(s.fix){ S.log.push({t:(s.span>1? hourTxt(s.h)+'~':hourTxt(s.h)), i:s.i, x:s.n}); }
+  else if(s.head){}
+  else if(s.card==='__ev'){ applyEv(s.ev, hourTxt(s.h)); }
+  else if(s.card){ doCard(s, hourTxt(s.h)); }
+  else S.log.push({t:hourTxt(s.h), i:'⬜', x:'<span style="color:#b3a58f">비워 둔 시간</span>'});
+}
+
+/* 숫자만 뜨면 무엇이 오른 건지 모른다 — 이름을 붙인다 */
+function d(n, unit){
+  if(!n) return '';
+  const cls = n>0 ? 'up' : 'dn';
+  if(unit==='원') return `<span class="delta ${cls}">${n>0?'+':'−'}${fmt(Math.abs(n))}원</span>`;
+  return `<span class="delta ${cls}">${unit? unit+' ' : ''}${n>0?'+':''}${n}</span>`;
+}
+
+function doCard(s, t){
+  const c = CARDS[s.card];
+  if(c.t==='todo'){
+    if(S.dull && !S.dulled){
+      S.dulled = 1; S.rev.lowHeart = 1;
+      S.log.push({t, i:c.i, x:`<b>${c.n}</b> — 마음이 가라앉아 집중이 안 됐어요. 끝내지 못했어요.`, c:'bad'});
+      S.backlog.push(s.card);
+      S.heart = clamp(S.heart-3,0,100);
+      return;
+    }
+    S.rev.todoDone++; S.todoDone++;
+    let m = 0;
+    if(c.money){ m = c.money; S.money += m; }
+    S.log.push({t, i:c.i, x:`<b>${c.n}</b> — 끝냈어요!${d(m,'원')}`, c:'good'});
+    S.heart = clamp(S.heart + 1, 0, 100);
+  }else if(c.t==='want'){
+    let h = c.heart, m = c.money||0;
+    if(S.tidy < 35) h = Math.round(h*0.75);        /* 어수선하면 놀아도 개운하지 않다 */
+    S.heart = clamp(S.heart + h, 0, 100);
+    if(m){ S.money += m; }
+    S.log.push({t, i:c.i, x:`<b>${c.n}</b>${d(h,'마음')}${d(m,'원')}`, c:'good'});
+  }else{
+    let tv = c.tidy;
+    if(s.qok===1) tv = Math.round(tv*1.35);
+    else if(s.qok===0) tv = Math.round(tv*0.45);
+    S.tidy = clamp(S.tidy + tv, 0, 100);
+    S.careCnt++;
+    S.log.push({t, i:c.i, x:`<b>${c.n}</b> — ${s.qok===1? '제대로 했어요!' : (s.qok===0? '했지만 방법이 조금 아쉬웠어요.' : '했어요.')}<span class="delta up">정돈 +${tv}</span>`, c:'good'});
+  }
+}
+
+function pickEvent(){
+  /* 정돈이 낮으면 「준비물이 안 보여요」가 먼저 — 3일차부터 */
+  if(S.day>=3 && S.tidy<45 && !S.seenEv.includes('lost')) return EV_LOST;
+  if(S.day>=3 && S.tidy<30 && Math.random()<0.5) return EV_LOST;
+  const un = EVENTS.filter(e=>!S.seenEv.includes(e.k));
+  const pool = un.length? un : EVENTS;
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+function applyEv(e, t){
+  if(!S.seenEv.includes(e.k)) S.seenEv.push(e.k);
+  if(e.heart) S.heart = clamp(S.heart + e.heart, 0, 100);
+  if(e.money){ S.money = Math.max(0, S.money + e.money); }
+  const drop = S.dropped ? ` 대신 <b>${CARDS[S.dropped].n}</b>을(를) 미뤘어요.` : '';
+  if(S.dropped){
+    if(CARDS[S.dropped].t==='todo'){ S.backlog.push(S.dropped); S.rev.broke = 1; }
+    S.dropped = null;
+  }
+  S.log.push({t, i:e.i, x:`<b>${e.n}</b>${drop}${d(e.heart,'마음')}${d(e.money,'원')}`, c:'ev'});
+}
+
+function finishDay(){
+  clearTimeout(runT);
+  /* 안 놓은 해야 할 일은 밀린다 */
+  S.notPlaced.forEach(k=>{ S.backlog.push(k); S.rev.late = 1; });
+  S.backlog = [...new Set(S.backlog)];
+  /* 하루가 지나면 정돈은 조금 내려간다 — 관리는 되풀이다 */
+  S.tidy = clamp(S.tidy - 8, 0, 100);
+  /* 하고 싶은 일을 하나도 안 넣었으면 마음이 크게 내려간다 */
+  const hadWant = S.slots.some(s=>s.card && CARDS[s.card] && CARDS[s.card].t==='want');
+  let drop = 5 + (hadWant ? 0 : 13);
+  if(S.heart < 25) drop = Math.round(drop*0.5);   /* 바닥에 눌어붙지 않게 */
+  S.heart = clamp(S.heart - drop, 0, 100);
+  S.hearts.push(Math.round(S.heart));
+  S.dulled = 0;
+
+  /* 7일차 — 생일 선물 */
+  if(S.day===7){
+    if(S.money >= 5000){ S.money -= 5000; S.gift = 1; S.spentOk++; S.heart = clamp(S.heart+14,0,100); }
+    else { S.gift = -1; S.heart = clamp(S.heart-10,0,100); }
+  }
+  S.lastRev = Object.assign({}, S.rev, {
+    emptyEnd: emptySlots().length,
+    freeAll: freeSlots().length,
+    dHeart: Math.round(S.heart - S.d0.heart),
+    dTidy: Math.round(S.tidy - S.d0.tidy),
+    dMoney: S.money - S.d0.money,
+  });
+  if(S.day===7){
+    S.lastRev.gift = S.gift;
+  }
+  S.hist.push({day:S.day, done:S.rev.todoDone, all:S.rev.todoAll, heart:Math.round(S.heart), tidy:Math.round(S.tidy)});
+  S.phase = 'review'; save(); renderAll(); window.scrollTo(0,0); SND.day();
+}
+
+/* ── 성적표 ───────────────────────────────────────────────── */
+function score(){
+  const todo = S.todoAll ? Math.round(S.todoDone / S.todoAll * 100) : 100;
+  const heart = S.hearts.length ? Math.round(S.hearts.reduce((a,b)=>a+b,0)/S.hearts.length) : 50;
+  let money = 0;
+  if(S.saved>0) money += 30;
+  if(S.gave>0)  money += 25;
+  if(S.gift===1) money += 45;
+  else if(S.gift===-1) money += 0;
+  else money += 20;
+  money = clamp(money, 0, 100);
+  const tidy = clamp(Math.round(S.tidy*0.55 + Math.min(S.careCnt,12)*3.5), 0, 100);
+  const vals = [todo, heart, money, tidy], low = Math.min(...vals), high = Math.max(...vals);
+  const avg = vals.reduce((a,b)=>a+b,0)/4;
+  /* 등급은 **가장 낮은 축**이 거의 다 정한다 — 한쪽만 잘해서는 안 올라간다.
+     그래도 평균을 3할 섞는다. 안 섞으면 「할 일도 정리도 다 했지만 안 논 아이」와
+     「아무것도 안 한 아이」가 같은 등급으로 나온다(실측). */
+  const g = low*0.7 + avg*0.3;
+
+  let grade, say;
+  if(g>=80){ grade='살림꾼 1급'; say='네 가지를 고루 잘 지켰어요. 이게 정말 어려운 거예요.'; }
+  else if(g>=65){ grade='살림꾼 2급'; say='거의 다 됐어요. 가장 낮은 것 하나만 더 챙기면 돼요.'; }
+  else if(g>=50){ grade='살림꾼 3급'; say='기본은 지켰어요. 한 가지가 계속 뒤처졌어요.'; }
+  else if(g>=30){ grade='살림 견습생'; say='해낸 것도 있지만 무너진 자리가 있어요.'; }
+  else { grade='아직 연습 중'; say='다시 한 번 해 보면 훨씬 나아질 거예요.'; }
+
+  let msg;
+  if(high-low >= 45){
+    const names = ['할 일','마음','돈','정돈'];
+    const hi = names[vals.indexOf(high)], lo = names[vals.indexOf(low)];
+    msg = `💭 <b>${hi}</b>만 아주 높고 <b>${lo}</b>은(는) 많이 낮아요.<br><br>
+      교과서 107쪽이 이렇게 말해요 —<br>
+      <b>「무조건 아끼는 것이 최선은 아니랍니다.<br>상황에 따라 생활 자원을 합리적으로 사용해야 합니다.」</b><br><br>
+      관리는 <b>한 가지를 끝까지 지키는 것</b>이 아니라 <b>여러 가지를 견주어 고르는 것</b>이에요.`;
+  }else if(g>=80 || low>=75){
+    msg = `💭 네 가지가 서로 잡아당기는데도 고루 지켰어요.<br><br>
+      <b>시간·돈·마음·공간은 따로 놀지 않아요.</b> 정돈을 놓으면 물건을 찾느라 시간이 가고,
+      시간이 모자라면 할 일이 밀리고, 할 일이 밀리면 마음이 가라앉아요. 그걸 겪어 봤죠.`;
+  }else{
+    msg = `💭 <b>비워 둔 시간</b>이 있었나요?<br><br>
+      계획을 빈틈없이 채우면 예상 못한 일이 왔을 때 <b>무언가를 반드시 미뤄야</b> 해요.
+      교과서 93쪽도 「예상치 못한 일이 생기면 계획을 수정합니다」라고 해요.
+      <b>여유는 낭비가 아니라 계획의 일부</b>예요.`;
+  }
+  if(S.gift===1) msg += `<br><br>🎂 채율이 선물도 잊지 않았네요.`;
+  if(S.gift===-1) msg += `<br><br>🎂 채율이 생일에 아무것도 못 했어요. <b>모으기만 한 돈은 쓸 때 쓰지 못하면 소용이 없어요.</b>`;
+  return {todo, heart, money, tidy, grade, say, msg};
+}
+
+/* ── QR — 배포 주소가 정해진 뒤 SVG 를 이 자리에 끼운다.
+   외부 QR 서비스를 부르지 말 것(학교 방화벽에 걸린다). 파일 이름을 바꾸면 다시 만들 것. */
+const QR = /*QR_INJECT*/'';
+function qrBig(){
+  const src = document.querySelector('#qrbtn svg'); if(!src) return;
+  const o = document.createElement('div');
+  o.style.cssText = 'position:fixed;inset:0;z-index:200;background:rgba(30,24,16,.93);'+
+    'display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:20px';
+  const c = src.cloneNode(true);
+  c.style.cssText = 'width:min(78vw,460px);height:min(78vw,460px);background:#fff;padding:14px;border-radius:14px';
+  const t = document.createElement('div');
+  t.style.cssText = 'color:#fff;font-size:14px;font-weight:700;text-align:center;line-height:1.6';
+  t.innerHTML = '폰 카메라로 찍으세요<br><span style="font-size:11px;opacity:.7">아무 데나 누르면 닫혀요</span>';
+  o.appendChild(c); o.appendChild(t);
+  o.onclick = ()=>o.remove();
+  document.body.appendChild(o);
+}
+
+/* ── 시작 ─────────────────────────────────────────────────── */
+if(S.phase!=='title' && !S.slots.length && S.phase!=='final') newDay();
+/* 살아 보는 중에 앱이 닫혔다면 그 자리에서 이어 간다.
+   (진행에 쓰는 값이 없으면 계획 화면으로 되돌린다 — 멈춘 채로 두지 않는다) */
+if(S.phase==='run' && (!S.rev || !S.notPlaced || !S.d0)) S.phase = 'plan';
+renderAll();
+if(S.phase==='run') stepOn();
+document.addEventListener('visibilitychange', ()=>{ if(document.hidden) save(); });
+window.addEventListener('beforeunload', save);
+</script>
+</body>
+</html>

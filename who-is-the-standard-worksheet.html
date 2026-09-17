@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>누구의 키에 맞춘 세상일까 — 학습지</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1f2430;--navy:#1d3557;--green:#2e7a42;--purple:#7a3fa0;--line:#cfc9bd;--muted:#6f6a61;--soft:#f6f2ea}
+@page{size:A4;margin:0}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans KR',sans-serif;color:var(--ink);background:#e9e6e0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.tool{position:sticky;top:0;background:#1d3557;color:#fff;padding:10px 16px;display:flex;gap:14px;align-items:center;justify-content:center;font-size:15px;z-index:3}
+.tool button{background:#fff;color:#1d3557;border:0;border-radius:8px;padding:10px 20px;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;min-height:44px}
+.page{width:210mm;height:297mm;margin:16px auto;background:#fff;padding:13mm 14mm 12mm;display:flex;flex-direction:column;overflow:hidden}
+.head{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid var(--navy);padding-bottom:8px}
+.head .eb{font-size:11pt;font-weight:700;color:var(--navy);letter-spacing:.05em}
+.head h1{font-size:21pt;font-weight:900;color:var(--navy);line-height:1.25}
+.who{font-size:11.5pt;white-space:nowrap}
+.who span{display:inline-block;border-bottom:1px solid #555;min-width:34px;margin:0 3px}
+.who span.nm{min-width:110px}
+.pbody{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:space-between;gap:12px;padding-top:12px}
+.grow{flex-grow:var(--g,.5);min-height:0}
+.sec{display:flex;flex-direction:column;min-height:0}
+.sh{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.num{flex:none;width:26px;height:26px;border-radius:50%;background:var(--c,var(--navy));color:#fff;font-weight:900;font-size:12pt;display:flex;align-items:center;justify-content:center}
+.sh h2{font-size:14pt;font-weight:900;color:var(--c,var(--navy))}
+.sh .hint{font-size:10pt;color:var(--muted);margin-left:auto}
+.q{font-size:12pt;line-height:1.5}
+.box{border:1.5px solid var(--line);border-radius:8px;display:flex;flex-direction:column;min-height:0}
+svg.lines{display:block;width:100%;flex:1 1 0}
+.plan{display:grid;grid-template-columns:1fr 1fr;gap:10px;flex:1;min-height:0}
+.cell{border:1.5px solid var(--line);border-radius:8px;padding:6px 10px 4px;display:flex;flex-direction:column;min-height:0}
+.cell .lb{font-size:11pt;font-weight:700;color:var(--green)}
+.cell .lb small{font-weight:400;color:var(--muted);font-size:9.5pt}
+.draw{grid-row:span 2}
+.draw .area{flex:1;border:1.5px dashed #b9c9bc;border-radius:6px;margin:4px 0 6px;min-height:0}
+.scene{background:var(--soft);border-radius:8px;padding:7px 12px;font-size:12pt;margin-bottom:8px}
+.eyes{display:grid;grid-template-columns:1fr 1fr;gap:10px;flex:1;min-height:0}
+.eyes .cell .lb{color:var(--purple)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 4px}
+.chip{font-size:10pt;border:1px solid var(--line);border-radius:12px;padding:1px 9px;color:var(--muted)}
+.foot{border-top:1.5px solid var(--line);padding-top:6px;margin-top:10px;font-size:9.5pt;color:var(--muted);display:flex;justify-content:space-between}
+.foot b{color:var(--navy)}
+@media print{
+  body{background:#fff}
+  .tool{display:none}
+  .page{margin:0;box-shadow:none}
+}
+@media screen{.page{box-shadow:0 2px 12px rgba(0,0,0,.15)}}
+</style>
+</head>
+<body>
+<div class="tool no-print">
+  <span>A4 한 장 · 인쇄 설정에서 “배경 그래픽”을 켜면 색이 함께 나옵니다.</span>
+  <button onclick="window.print()">🖨️ 인쇄</button>
+</div>
+
+<div class="page">
+  <div class="head">
+    <div>
+      <div class="eb">장애이해교육</div>
+      <h1>누구의 키에 맞춘 세상일까?</h1>
+    </div>
+    <div class="who"><span></span>학년 <span></span>반 <span></span>번 이름 <span class="nm"></span></div>
+  </div>
+
+  <div class="pbody">
+
+    <!-- 1 -->
+    <div class="sec grow" style="--g:.12;--c:#2c5d8f">
+      <div class="sh"><div class="num">1</div><h2>내가 기준이 아닐 때</h2><span class="hint">나도 ‘작은 사람’이었다</span></div>
+      <p class="q">몸이 작거나, 다쳤거나, 짐이 많아서 <b>불편했던 곳</b>은 어디였나요? 그곳은 <b>누구에게 맞춰져</b> 있었을까요?</p>
+      <div class="box" style="margin-top:5px;flex:1;min-height:62px"><svg class="lines"></svg></div>
+    </div>
+
+    <!-- 2 -->
+    <div class="sec" style="--c:#946012">
+      <div class="sh"><div class="num">2</div><h2>다르다는 것</h2><span class="hint">따로 세우지 않는 말</span></div>
+      <p class="q">“어머, 불쌍해라.” · “장애가 있는데도 대단하다!” · “우리랑 달라서 따로…”<br>
+      세 말의 공통점은 무엇일까요? <span style="color:var(--muted)">(한 줄)</span></p>
+      <div class="box" style="margin-top:5px;height:34px;flex:none"><svg class="lines" style="flex:none;height:100%"></svg></div>
+    </div>
+
+    <!-- 3 -->
+    <div class="sec grow" style="--g:.36;--c:var(--green)">
+      <div class="sh"><div class="num">3</div><h2>가장 낮은 자리에서 다시 설계하기</h2><span class="hint">우리 학교 한 곳을 골라요</span></div>
+      <div class="plan">
+        <div class="cell" style="flex:none">
+          <div class="lb">① 고른 곳 <small>(예: 정문, 급식실, 화장실, 운동장 스탠드)</small></div>
+          <svg class="lines" style="flex:none;height:30px"></svg>
+        </div>
+        <div class="cell draw">
+          <div class="lb">③ 이렇게 바꾼다 <small>(그림 + 설명)</small></div>
+          <div class="area"></div>
+          <svg class="lines" style="flex:none;height:60px"></svg>
+        </div>
+        <div class="cell">
+          <div class="lb">② 그곳에서 <b>가장 불편할</b> 사람</div>
+          <div class="chips"><span class="chip">휠체어</span><span class="chip">눈이 안 보이는</span><span class="chip">귀가 안 들리는</span><span class="chip">1학년</span><span class="chip">깁스한 친구</span></div>
+          <svg class="lines"></svg>
+        </div>
+        <div class="cell" style="grid-column:1 / span 2;flex:none">
+          <div class="lb">④ 이렇게 바꾸면 <b>또 누가</b> 편해질까요?</div>
+          <svg class="lines" style="flex:none;height:30px"></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4 -->
+    <div class="sec grow" style="--g:.34;--c:var(--purple)">
+      <div class="sh"><div class="num">4</div><h2>외치는 소리를 들을 때</h2><span class="hint">보는 눈 · 생각하는 눈</span></div>
+      <div class="scene">🚇 아침 지하철이 <b>장애인 이동권 시위</b>로 10분 늦어졌어요.</div>
+      <div class="eyes" style="min-height:130px">
+        <div class="cell"><div class="lb">👀 보는 눈으로 하면 나올 말</div><svg class="lines"></svg></div>
+        <div class="cell"><div class="lb">🤔 생각하는 눈으로 바꾼 말</div><svg class="lines"></svg></div>
+      </div>
+    </div>
+
+    <!-- 5 -->
+    <div class="sec" style="--c:var(--navy)">
+      <div class="sh"><div class="num">5</div><h2>앞으로 나는</h2></div>
+      <p class="q">오늘 배운 것 가운데 하나를 골라 <b>나의 한 문장</b>으로 써 보세요.</p>
+      <div class="box" style="margin-top:5px;height:64px;flex:none"><svg class="lines" style="flex:none;height:100%"></svg></div>
+    </div>
+
+  </div>
+
+  <div class="foot">
+    <span>① <b>나를 기준으로 삼지 않는다</b> &nbsp;② <b>가장 낮은 자리에서 본다</b> &nbsp;③ <b>외치는 소리에 ‘왜?’를 먼저 묻는다</b></span>
+    <span>장애이해교육</span>
+  </div>
+</div>
+
+<script>
+const PITCH = 30;
+function drawLines(){
+  document.querySelectorAll('svg.lines').forEach(svg=>{
+    const r = svg.getBoundingClientRect();
+    const w = Math.round(r.width), h = Math.round(r.height);
+    if(!w || !h) return;
+    const rows = Math.max(1, Math.round(h / PITCH));
+    const step = h / rows;
+    svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+    let s = '';
+    for(let i=1;i<=rows;i++){
+      const y = Math.min(h-0.5, i*step - 0.5);
+      if(i===rows && svg.closest('.box')) continue;   // 상자 테두리가 바닥선 역할
+      s += `<line x1="6" x2="${w-6}" y1="${y}" y2="${y}" stroke="#d9d3c8" stroke-width="1"/>`;
+    }
+    svg.innerHTML = s;
+  });
+}
+document.fonts.ready.then(drawLines);
+addEventListener('load', drawLines);
+addEventListener('resize', drawLines);
+addEventListener('beforeprint', drawLines);
+</script>
+</body>
+</html>

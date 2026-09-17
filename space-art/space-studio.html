@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>우주 연출 스튜디오</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Black+Han+Sans&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#070b1c;--panel:#10173a;--panel2:#1b2452;--line:#2e3a74;--ink:#eef2ff;--muted:#98a4d4;--acc:#ffcc4d;--acc2:#6ee7f9;--pink:#ff7ab6;--ok:#5ee39a;--bad:#ff7b7b}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:'Noto Sans KR',sans-serif;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;overflow:hidden}
+button{font-family:inherit;color:inherit;cursor:pointer;border:0;border-radius:12px;min-height:44px;padding:8px 14px;font-size:16px;font-weight:700;background:var(--panel2);white-space:nowrap}
+button:active{transform:scale(.96)}
+button.pri{background:linear-gradient(135deg,#ffcc4d,#ff9a3d);color:#2a1600}
+button.ghost{background:transparent;border:1.5px solid var(--line)}
+button.on{background:var(--acc2);color:#062030}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:34px;background:transparent}
+input[type=range]::-webkit-slider-runnable-track{height:8px;border-radius:4px;background:linear-gradient(90deg,#ffe28a,#6ee7f9 60%,#3a3f7a)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;border-radius:50%;background:#fff;border:3px solid var(--acc);margin-top:-11px;box-shadow:0 2px 8px #0008}
+.screen{position:fixed;inset:0;display:none;flex-direction:column}
+.screen.on{display:flex}
+.top{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#0b1130ee;border-bottom:1px solid var(--line);overflow-x:auto;flex-shrink:0;scrollbar-width:none}
+.top::-webkit-scrollbar{display:none}
+.top h2{font-family:'Black Han Sans',sans-serif;font-weight:400;font-size:22px;margin:0 8px;white-space:nowrap}
+.top .sp{flex:1}
+.stagewrap{position:relative;flex:1;min-height:0;min-width:0;background:#02040c}
+.stagewrap canvas.main{position:absolute;inset:0;width:100%;height:100%;touch-action:none;display:block}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#000c;border:1px solid var(--line);padding:12px 20px;border-radius:14px;font-size:17px;z-index:90;opacity:0;transition:opacity .3s;pointer-events:none;max-width:90vw;text-align:center}
+.toast.show{opacity:1}
+.modal{position:fixed;inset:0;background:#000b;display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.modal.on{display:flex}
+.card{background:var(--panel);border:1.5px solid var(--line);border-radius:22px;padding:24px;max-width:620px;width:100%;max-height:94vh;overflow:auto;box-shadow:0 20px 60px #000a}
+.card h3{font-family:'Black Han Sans',sans-serif;font-weight:400;font-size:30px;margin:0 0 10px}
+.card p{font-size:19px;line-height:1.65;margin:8px 0}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.muted{color:var(--muted)}
+
+/* 처음 화면 */
+#home .stagewrap{position:absolute;inset:0}
+.homebox{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;pointer-events:none;background:radial-gradient(ellipse at center,#0007 0,#0000 70%)}
+.homebox>*{pointer-events:auto}
+.eyebrow{font-size:16px;color:var(--acc2);letter-spacing:.1em;font-weight:700}
+.title{font-family:'Black Han Sans',sans-serif;font-size:clamp(40px,8vw,82px);margin:4px 0 6px;text-shadow:0 0 30px #6ee7f966,0 4px 0 #0008;text-align:center;line-height:1.1}
+.sub{font-size:19px;color:#dfe6ff;margin-bottom:26px;text-align:center}
+.menu{display:grid;grid-template-columns:repeat(3,minmax(0,250px));gap:14px;width:100%;justify-content:center}
+.mcard{background:#0e1640dd;border:1.5px solid var(--line);border-radius:20px;padding:18px 16px;text-align:left;white-space:normal;min-height:150px;display:flex;flex-direction:column;gap:6px;backdrop-filter:blur(4px)}
+.mcard .ic{font-size:36px}
+.mcard b{font-size:21px}
+.mcard span{font-size:15px;color:var(--muted);font-weight:400;line-height:1.45}
+.mcard.hot{border-color:var(--acc);box-shadow:0 0 24px #ffcc4d33}
+@media (max-width:760px){.menu{grid-template-columns:1fr;max-width:420px}.mcard{min-height:0;flex-direction:row;align-items:center}.mcard .ic{font-size:30px}}
+.corner{position:absolute;top:12px;right:12px;display:flex;gap:8px;z-index:5}
+.qrbtn{background:#fff;padding:6px;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:2px;color:#123}
+.qrbtn[hidden]{display:none}
+.qrbtn svg{width:64px;height:64px;display:block}
+.qrbtn small{font-size:11px}
+#qrBig .card{max-width:560px;text-align:center;background:#fff;color:#123}
+#qrBig svg{width:min(460px,80vw);height:auto}
+
+/* 스튜디오 */
+.sbody{flex:1;display:flex;min-height:0}
+.palette{width:300px;flex-shrink:0;background:var(--panel);border-left:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+.tabs{display:flex;flex-wrap:wrap;gap:4px;padding:8px}
+.tabs button{min-height:38px;padding:4px 10px;font-size:15px}
+.grid{flex:1;overflow-y:auto;overflow-x:hidden;padding:4px 8px 12px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;align-content:start}
+.tile{min-width:0;background:#0a1030;border:1.5px solid var(--line);border-radius:12px;padding:6px 2px;display:flex;flex-direction:column;align-items:center;gap:2px;min-height:92px;position:relative;font-weight:400;font-size:13px;white-space:normal}
+.tile img{width:62px;height:56px;object-fit:contain}
+.tile.sel{border-color:var(--acc);background:#2a2a10}
+.tile .x{position:absolute;top:2px;right:2px;width:26px;height:26px;min-height:0;padding:0;border-radius:50%;background:#000a;font-size:14px}
+.tile.wide{grid-column:span 3;flex-direction:row;justify-content:center;min-height:56px;font-size:16px;font-weight:700;background:linear-gradient(135deg,#ff7ab6,#8a5cff)}
+.bgtile img{width:84px;height:48px;object-fit:cover;border-radius:6px}
+.objbar{flex-shrink:0;background:var(--panel);border-top:1px solid var(--line);padding:8px 14px;min-height:94px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.objbar .hint{font-size:17px;color:var(--muted);line-height:1.5}
+.sl{display:flex;align-items:center;gap:8px;flex:1;min-width:220px}
+.sl label{font-size:15px;font-weight:700;white-space:nowrap}
+.sl .end{font-size:14px;color:var(--muted);white-space:nowrap}
+.dist{flex:2;min-width:300px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;font-size:14px}
+.chip{background:#0a1030;border:1px solid var(--line);border-radius:999px;padding:3px 10px;white-space:nowrap}
+.chip b{color:var(--acc)}
+#mini{position:absolute;left:10px;bottom:10px;width:250px;height:160px;border-radius:14px;border:1.5px solid var(--line);background:#050a22e6;touch-action:none;display:none}
+#mini.on{display:block}
+.stagehint{position:absolute;left:50%;top:14px;transform:translateX(-50%);background:#000a;padding:6px 14px;border-radius:999px;font-size:15px;pointer-events:none;white-space:nowrap}
+@media (orientation:portrait),(max-width:900px){
+  .sbody{flex-direction:column}
+  .palette{width:auto;height:230px;border-left:0;border-top:1px solid var(--line)}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(84px,1fr))}
+  .tile.wide{grid-column:1/-1}
+  #mini{width:190px;height:122px}
+}
+
+/* 사진 지우개 */
+#eraser .card{max-width:900px}
+.erwrap{display:flex;justify-content:center;align-items:center;background:#0a1030;border-radius:14px;padding:8px;height:min(56vh,520px)}
+#erCv{max-width:100%;max-height:100%;touch-action:none;border-radius:8px;
+ background-image:linear-gradient(45deg,#ccc 25%,transparent 25%),linear-gradient(-45deg,#ccc 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#ccc 75%),linear-gradient(-45deg,transparent 75%,#ccc 75%);
+ background-size:20px 20px;background-position:0 0,0 10px,10px -10px,-10px 0;background-color:#fff}
+
+/* 설계도 */
+#plan .card{max-width:1100px;padding:16px}
+#planCv{width:100%;height:auto;border-radius:10px;display:block}
+
+/* 훈련소 */
+.mlist{flex:1;overflow-y:auto;padding:18px;display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px;align-content:start;max-width:1200px;margin:0 auto;width:100%}
+.mtile{background:var(--panel);border:1.5px solid var(--line);border-radius:18px;padding:16px;text-align:left;white-space:normal;display:flex;flex-direction:column;gap:4px;min-height:140px}
+.mtile .n{font-size:14px;color:var(--muted)}
+.mtile .ic{font-size:34px}
+.mtile b{font-size:20px}
+.mtile .st{color:var(--acc);font-size:20px;letter-spacing:2px}
+.mtile.lock{opacity:.4}
+.mtile.next{border-color:var(--acc);box-shadow:0 0 18px #ffcc4d40}
+.mbody{flex:1;display:flex;min-height:0}
+.mpanel{width:340px;flex-shrink:0;background:var(--panel);border-left:1px solid var(--line);padding:14px;display:flex;flex-direction:column;gap:12px;overflow-y:auto}
+.goal{background:#0a1030;border:1.5px solid var(--line);border-radius:14px;padding:12px;font-size:17px;line-height:1.5}
+.ordr{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:6px}
+.ordr .L{width:40px;height:40px;border-radius:50%;background:var(--acc);color:#2a1600;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:20px}
+.ordr small{font-size:13px;color:var(--muted)}
+.pick{display:flex;gap:8px}
+.pick button{flex:1;font-size:22px;font-weight:900}
+.pick button.on{background:var(--acc);color:#2a1600}
+.tool{background:#0a1030;border-radius:14px;padding:8px 12px}
+.tool .h{font-size:15px;font-weight:700;display:flex;justify-content:space-between}
+.tool .h span{color:var(--acc)}
+.bigok{font-size:22px;min-height:58px}
+.stars{font-size:54px;letter-spacing:6px;color:var(--acc);text-align:center;margin:6px 0}
+.stars .off{color:#3a4270}
+@media (orientation:portrait),(max-width:900px){
+  .mbody{flex-direction:column}
+  .mpanel{width:auto;max-height:46vh;border-left:0;border-top:1px solid var(--line)}
+}
+
+/* 무대 모드 */
+#stageMode .stagewrap{position:absolute;inset:0}
+.smbar{position:absolute;top:12px;left:50%;transform:translateX(-50%);display:flex;gap:8px;background:#000c;padding:8px;border-radius:16px;transition:opacity .4s;flex-wrap:wrap;justify-content:center;max-width:96vw}
+.smbar.hide{opacity:0;pointer-events:none}
+</style>
+</head>
+<body>
+
+<!-- ───────── 처음 ───────── -->
+<section id="home" class="screen on">
+  <div class="stagewrap"><canvas class="main" id="cvHome"></canvas></div>
+  <div class="homebox">
+    <div class="eyebrow">미술 10 · 우주로 날아간 미술</div>
+    <div class="title">우주 연출 스튜디오</div>
+    <div class="sub">납작한 화면에 <b>깊이</b>를 만드는 비법을 익히고, 나만의 우주를 연출해요</div>
+    <div class="menu">
+      <button class="mcard hot" onclick="go('missions')"><div class="ic">🎓</div><div><b>거리 마법 훈련소</b><br><span id="homeStars">10판 · 거리감을 만드는 여섯 가지 마법</span></div></button>
+      <button class="mcard" onclick="go('studio')"><div class="ic">🎬</div><div><b>우주 연출 스튜디오</b><br><span>행성·우주인·내 작품 사진을 놓고 거리만 바꾸면 우주가 깊어져요</span></div></button>
+      <button class="mcard" onclick="go('stageMode')"><div class="ic">📺</div><div><b>무대 모드</b><br><span>교실 TV에 움직이는 우주를 띄우고 그 앞에 작품을 매달아요</span></div></button>
+    </div>
+  </div>
+  <div class="corner">
+    <button class="ghost" id="sndBtn" onclick="toggleSnd()" style="background:#0008">🔊</button>
+    <button class="qrbtn" id="qrBtn" hidden onclick="showQR()"></button>
+  </div>
+</section>
+
+<!-- ───────── 훈련소 목록 ───────── -->
+<section id="missions" class="screen">
+  <div class="top">
+    <button onclick="go('home')">◀ 처음</button>
+    <h2>🎓 거리 마법 훈련소</h2>
+    <div class="sp"></div>
+    <span class="chip" id="mStarSum">★ 0 / 30</span>
+  </div>
+  <div class="mlist" id="mList"></div>
+</section>
+
+<!-- ───────── 훈련 한 판 ───────── -->
+<section id="mission" class="screen">
+  <div class="top">
+    <button onclick="go('missions')">◀ 목록</button>
+    <h2 id="mTitle">1판</h2>
+    <div class="sp"></div>
+    <button onclick="showIntro()">❓ 마법 설명</button>
+    <button onclick="startMission(curM)">↺ 처음부터</button>
+  </div>
+  <div class="mbody">
+    <div class="stagewrap"><canvas class="main" id="cvMission"></canvas><div class="stagehint" id="mHint" style="display:none"></div></div>
+    <div class="mpanel">
+      <div class="goal" id="mGoal"></div>
+      <div>
+        <div class="muted" style="font-size:14px;margin-bottom:4px">고칠 것을 고르세요 (화면에서 눌러도 돼요)</div>
+        <div class="pick" id="mPick"></div>
+      </div>
+      <div id="mTools" style="display:flex;flex-direction:column;gap:8px"></div>
+      <div class="sp" style="flex:1"></div>
+      <button class="pri bigok" onclick="judge()">✨ 확인!</button>
+    </div>
+  </div>
+</section>
+
+<!-- ───────── 스튜디오 ───────── -->
+<section id="studio" class="screen">
+  <div class="top">
+    <button onclick="go('home')">◀ 처음</button>
+    <h2>🎬 우주 연출 스튜디오</h2>
+    <div class="sp"></div>
+    <button id="btnOff" title="누르고 있는 동안 거리 마법을 끕니다">👁 마법 끄고 보기</button>
+    <button id="btnPlay" onclick="togglePlay()">▶ 살펴보기</button>
+    <button id="btnMini" onclick="toggleMini()">🗺 위에서 본 모습</button>
+    <button onclick="openPlan()">📋 설계도</button>
+    <button onclick="exportPNG()">💾 그림 저장</button>
+    <button onclick="go('stageMode')">📺 무대</button>
+    <button class="ghost" onclick="loadSample()">✨ 예시</button>
+    <button class="ghost" onclick="clearScene()">🗑 새로</button>
+  </div>
+  <div class="sbody">
+    <div class="stagewrap"><canvas class="main" id="cvStudio"></canvas><canvas id="mini"></canvas><div class="stagehint" id="playHint" style="display:none">화면을 끌거나 태블릿을 기울여 보세요 — 가까운 것이 더 많이 움직여요</div></div>
+    <aside class="palette">
+      <div class="tabs" id="tabs"></div>
+      <div class="grid" id="grid"></div>
+    </aside>
+  </div>
+  <div class="objbar" id="objbar"></div>
+</section>
+
+<!-- ───────── 무대 모드 ───────── -->
+<section id="stageMode" class="screen">
+  <div class="stagewrap"><canvas class="main" id="cvStage"></canvas></div>
+  <div class="smbar" id="smbar">
+    <button onclick="leaveStage()">◀ 나가기</button>
+    <button id="smWhat" onclick="smToggleWhat()">🪐 내 장면</button>
+    <span style="display:flex;gap:4px"><button onclick="smBg(-1)">◀</button><button id="smBgName" style="min-width:130px" onclick="smBg(1)">배경</button><button onclick="smBg(1)">▶</button></span>
+    <button id="smSpd" onclick="smSpeed()">🐢 천천히</button>
+    <button onclick="fullScreen()">⛶ 전체 화면</button>
+  </div>
+</section>
+
+<!-- ───────── 모달들 ───────── -->
+<div class="modal" id="introM"><div class="card">
+  <div style="font-size:54px" id="inIc"></div>
+  <h3 id="inT"></h3>
+  <p id="inP"></p>
+  <p class="muted" id="inEx" style="font-size:17px"></p>
+  <div class="row" style="margin-top:14px"><div class="sp" style="flex:1"></div><button class="pri" onclick="closeM('introM')">시작! ▶</button></div>
+</div></div>
+
+<div class="modal" id="resultM"><div class="card" style="text-align:center">
+  <div class="stars" id="rsStars"></div>
+  <h3 id="rsT"></h3>
+  <p id="rsP"></p>
+  <div class="row" style="justify-content:center;margin-top:14px" id="rsBtns"></div>
+</div></div>
+
+<div class="modal" id="askM"><div class="card" style="max-width:440px">
+  <p id="askP" style="font-size:20px"></p>
+  <div class="row" style="justify-content:flex-end;margin-top:14px"><button class="ghost" id="askNo">아니요</button><button class="pri" id="askYes">네</button></div>
+</div></div>
+
+<div class="modal" id="eraser"><div class="card">
+  <h3 style="font-size:24px">📷 내 작품 배경 지우기</h3>
+  <p class="muted" style="font-size:16px;margin:0 0 8px">흰 종이 앞에서 찍으면 잘 지워져요. 지울 곳을 눌러 보세요.</p>
+  <div class="erwrap"><canvas id="erCv"></canvas></div>
+  <div class="row" style="margin-top:10px">
+    <button id="erWand" class="on" onclick="erMode('wand')">🪄 눌러서 지우기</button>
+    <button id="erBrush" onclick="erMode('brush')">🧽 문질러 지우기</button>
+    <button onclick="erEdge()">⬜ 가장자리 배경 한 번에</button>
+    <button onclick="erUndo()">↩ 되돌리기</button>
+  </div>
+  <div class="sl" style="margin-top:6px"><label>비슷한 색 범위</label><span class="end">좁게</span><input type="range" id="erTol" min="10" max="110" value="45"><span class="end">넓게</span></div>
+  <div class="row" style="justify-content:flex-end;margin-top:8px"><button class="ghost" onclick="closeM('eraser')">취소</button><button class="pri" onclick="erDone()">✓ 다 됐어요</button></div>
+</div></div>
+
+<div class="modal" id="plan"><div class="card">
+  <canvas id="planCv" width="1600" height="1000"></canvas>
+  <div class="row" style="justify-content:flex-end;margin-top:10px"><button onclick="savePlan()">💾 설계도 저장</button><button class="pri" onclick="closeM('plan')">닫기</button></div>
+</div></div>
+
+<div class="modal" id="qrBig" onclick="closeM('qrBig')"><div class="card"><div id="qrBigIn"></div><p style="font-size:16px">태블릿 카메라로 찍으면 열려요</p></div></div>
+
+<input type="file" id="fileIn" accept="image/*" capture="environment" hidden>
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+const QR = {};
+/*QR_INJECT*/
+
+const W = 1600, H = 900, MG = 130, PAN = 90, HZ = 560;
+const $ = s => document.querySelector(s);
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+function rng(seed){ return function(){ seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function store(k, v){ try{ if(v === undefined) return JSON.parse(localStorage.getItem(k)); localStorage.setItem(k, JSON.stringify(v)); return true; }catch(e){ return v === undefined ? null : false; } }
+const STORE_OK = (() => { try{ localStorage.setItem('space-t', '1'); localStorage.removeItem('space-t'); return true; }catch(e){ return false; } })();
+function toast(m, ms = 2600){ const t = $('#toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('show'), ms); }
+function openM(id){ $('#' + id).classList.add('on'); }
+function closeM(id){ $('#' + id).classList.remove('on'); }
+function ask(msg, yes = '네'){
+  return new Promise(res => {
+    $('#askP').textContent = msg; $('#askYes').textContent = yes; openM('askM');
+    $('#askYes').onclick = () => { closeM('askM'); res(true); };
+    $('#askNo').onclick = () => { closeM('askM'); res(false); };
+  });
+}
+
+/* ───────── 소리 ───────── */
+const SND = (() => {
+  let ac = null, on = store('space-snd') !== false;
+  const A = () => { if(!ac){ try{ ac = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){} } if(ac && ac.state === 'suspended') ac.resume(); return ac; };
+  function tone(f, d, type = 'sine', v = .12, when = 0, slide = 0){
+    const a = A(); if(!a || !on) return;
+    const t = a.currentTime + when, o = a.createOscillator(), g = a.createGain();
+    o.type = type; o.frequency.setValueAtTime(f, t); if(slide) o.frequency.exponentialRampToValueAtTime(slide, t + d);
+    g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(v, t + .012); g.gain.exponentialRampToValueAtTime(.0001, t + d);
+    o.connect(g).connect(a.destination); o.start(t); o.stop(t + d + .05);
+  }
+  function whoosh(){
+    const a = A(); if(!a || !on) return;
+    const len = a.sampleRate * .6, b = a.createBuffer(1, len, a.sampleRate), d = b.getChannelData(0);
+    for(let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / len);
+    const s = a.createBufferSource(); s.buffer = b; const f = a.createBiquadFilter(); f.type = 'bandpass'; f.Q.value = 2;
+    const t = a.currentTime; f.frequency.setValueAtTime(300, t); f.frequency.exponentialRampToValueAtTime(2500, t + .5);
+    const g = a.createGain(); g.gain.value = .25; s.connect(f).connect(g).connect(a.destination); s.start();
+  }
+  return {
+    tap(){ tone(700, .07, 'triangle', .07); },
+    pop(){ tone(380, .14, 'sine', .14, 0, 900); },
+    del(){ tone(500, .15, 'sine', .1, 0, 160); },
+    ok(){ [523, 659, 784, 1047].forEach((f, i) => tone(f, .28, 'triangle', .11, i * .09)); },
+    bad(){ tone(240, .22, 'square', .05, 0, 170); tone(200, .25, 'square', .05, .12, 140); },
+    star(i){ tone(1046 + i * 260, .35, 'sine', .12, .35 + i * .22); },
+    whoosh,
+    toggle(){ on = !on; store('space-snd', on); return on; },
+    get on(){ return on; }
+  };
+})();
+function toggleSnd(){ const o = SND.toggle(); $('#sndBtn').textContent = o ? '🔊' : '🔇'; }
+$('#sndBtn').textContent = SND.on ? '🔊' : '🔇';
+
+/* ───────── 그림 재료(스프라이트) ───────── */
+function mk(w, h, fn){ const c = document.createElement('canvas'); c.width = w; c.height = h; fn(c.getContext('2d'), w, h); return c; }
+function circ(g, x, y, r){ g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); }
+function shade(g, cx, cy, r, dark = .75){
+  const gr = g.createRadialGradient(cx - r * .42, cy - r * .45, r * .05, cx, cy, r * 1.02);
+  gr.addColorStop(0, 'rgba(255,255,255,.32)'); gr.addColorStop(.35, 'rgba(255,255,255,0)');
+  gr.addColorStop(.75, `rgba(0,0,25,${dark * .55})`); gr.addColorStop(1, `rgba(0,0,25,${dark})`);
+  g.fillStyle = gr; circ(g, cx, cy, r); g.fill();
+}
+function craters(g, cx, cy, r, n, R, dark, lite){
+  for(let i = 0; i < n; i++){
+    const a = R() * 6.283, d = Math.sqrt(R()) * r * .85, x = cx + Math.cos(a) * d, y = cy + Math.sin(a) * d;
+    const cr = r * (.04 + R() * .12), sq = 1 - (d / r) * .5;
+    g.save(); g.translate(x, y); g.rotate(a); g.scale(sq, 1);
+    g.fillStyle = dark; circ(g, 0, 0, cr); g.fill();
+    g.strokeStyle = lite; g.lineWidth = cr * .22; g.beginPath(); g.arc(0, 0, cr, .3, 2.6); g.stroke();
+    g.restore();
+  }
+}
+function blobs(g, cx, cy, r, n, R, cols, rmin, rmax, alpha){
+  for(let i = 0; i < n; i++){
+    const a = R() * 6.283, d = Math.sqrt(R()) * r;
+    g.globalAlpha = alpha; g.fillStyle = cols[i % cols.length];
+    circ(g, cx + Math.cos(a) * d, cy + Math.sin(a) * d, rmin + R() * (rmax - rmin)); g.fill();
+  }
+  g.globalAlpha = 1;
+}
+function planetBase(g, cx, cy, r, c1, c2){
+  const gr = g.createRadialGradient(cx - r * .3, cy - r * .3, r * .1, cx, cy, r);
+  gr.addColorStop(0, c1); gr.addColorStop(1, c2); g.fillStyle = gr; circ(g, cx, cy, r); g.fill();
+}
+function limb(g, pts, w, col = '#f4f6fb', edge = '#8e97ad'){
+  g.lineCap = 'round'; g.lineJoin = 'round';
+  for(const [lw, c] of [[w + 6, edge], [w, col]]){
+    g.lineWidth = lw; g.strokeStyle = c; g.beginPath(); g.moveTo(pts[0][0], pts[0][1]);
+    for(let i = 1; i < pts.length; i++) g.lineTo(pts[i][0], pts[i][1]); g.stroke();
+  }
+}
+const PAINT = {
+  rocky: () => mk(256, 256, g => { const R = rng(11), c = 128, r = 118;
+    planetBase(g, c, c, r, '#d7a878', '#8a5a36'); g.save(); circ(g, c, c, r); g.clip();
+    blobs(g, c, c, r, 50, R, ['#6d4526', '#e9c29a', '#9b6a42'], 8, 30, .22);
+    craters(g, c, c, r, 16, R, 'rgba(70,40,20,.55)', 'rgba(255,225,190,.5)'); g.restore(); shade(g, c, c, r); }),
+  gas: () => mk(256, 256, g => { const R = rng(21), c = 128, r = 118;
+    g.save(); circ(g, c, c, r); g.clip(); g.fillStyle = '#e2ad73'; g.fillRect(0, 0, 256, 256);
+    const cols = ['#f6dcad', '#d99a5b', '#b96f3f', '#f0c388', '#a55f35', '#fbe7c6'];
+    let y = 4; while(y < 252){ const h = 8 + R() * 20; g.fillStyle = cols[(R() * cols.length) | 0]; g.beginPath(); g.moveTo(0, y);
+      for(let x = 0; x <= 256; x += 16) g.lineTo(x, y + Math.sin(x / 26 + y) * 3); g.lineTo(256, y + h); g.lineTo(0, y + h); g.fill(); y += h * .8; }
+    g.fillStyle = '#b3432c'; g.beginPath(); g.ellipse(160, 165, 30, 13, 0, 0, 7); g.fill();
+    g.fillStyle = '#e77a55'; g.beginPath(); g.ellipse(160, 165, 17, 7, 0, 0, 7); g.fill();
+    g.restore(); shade(g, c, c, r); }),
+  ringed: () => mk(340, 220, g => { const cx = 170, cy = 110, r = 70;
+    const ring = (front) => { g.save(); g.translate(cx, cy); g.rotate(-.28);
+      if(front){ g.beginPath(); g.rect(-200, 0, 400, 120); g.clip(); }
+      for(let i = 0; i < 14; i++){ const rx = 100 + i * 4.6; g.strokeStyle = `rgba(${230 - i * 4},${210 - i * 6},${160 - i * 5},${.25 + (i % 3) * .2})`; g.lineWidth = 3.4; g.beginPath(); g.ellipse(0, 0, rx, rx * .24, 0, 0, 7); g.stroke(); }
+      g.restore(); };
+    ring(false);
+    g.save(); circ(g, cx, cy, r); g.clip(); g.fillStyle = '#ecd59a'; g.fillRect(0, 0, 340, 220);
+    const R = rng(5); for(let y = 30; y < 190; y += 9){ g.fillStyle = ['#f6e6b8', '#d9b574', '#e8c98a', '#c79f5d'][(R() * 4) | 0]; g.globalAlpha = .7; g.fillRect(0, y, 340, 5 + R() * 5); }
+    g.globalAlpha = 1; g.restore(); shade(g, cx, cy, r);
+    ring(true); }),
+  ice: () => mk(256, 256, g => { const R = rng(31), c = 128, r = 118;
+    planetBase(g, c, c, r, '#e9fbff', '#7fc4e4'); g.save(); circ(g, c, c, r); g.clip();
+    blobs(g, c, c, r, 26, R, ['#a9dcf2', '#ffffff', '#6fb3d8'], 10, 34, .35);
+    g.strokeStyle = 'rgba(40,110,160,.45)'; g.lineWidth = 2;
+    for(let i = 0; i < 22; i++){ let x = R() * 256, y = R() * 256; g.beginPath(); g.moveTo(x, y); for(let k = 0; k < 6; k++){ x += (R() - .5) * 60; y += (R() - .5) * 60; g.lineTo(x, y); } g.stroke(); }
+    g.restore(); shade(g, c, c, r, .6); }),
+  lava: () => mk(256, 256, g => { const R = rng(41), c = 128, r = 116;
+    planetBase(g, c, c, r, '#4a2019', '#1a0906'); g.save(); circ(g, c, c, r); g.clip();
+    g.shadowColor = '#ff4500'; g.shadowBlur = 14; g.lineCap = 'round';
+    for(let i = 0; i < 16; i++){ let x = R() * 256, y = R() * 256; g.strokeStyle = R() < .5 ? '#ff7a1a' : '#ffb13b'; g.lineWidth = 2 + R() * 4; g.beginPath(); g.moveTo(x, y);
+      for(let k = 0; k < 7; k++){ x += (R() - .5) * 50; y += (R() - .5) * 50; g.lineTo(x, y); } g.stroke(); }
+    g.shadowBlur = 0; g.restore(); shade(g, c, c, r, .55);
+    g.strokeStyle = 'rgba(255,100,30,.35)'; g.lineWidth = 5; circ(g, c, c, r + 1); g.stroke(); }),
+  earth: () => mk(256, 256, g => { const R = rng(51), c = 128, r = 108;
+    g.shadowColor = '#7cc4ff'; g.shadowBlur = 22; g.fillStyle = '#2a6fd6'; circ(g, c, c, r); g.fill(); g.shadowBlur = 0;
+    planetBase(g, c, c, r, '#3d8cf0', '#123e8c'); g.save(); circ(g, c, c, r); g.clip();
+    for(let k = 0; k < 6; k++){ const bx = R() * 256, by = 30 + R() * 196; for(let i = 0; i < 12; i++){ g.fillStyle = i % 4 ? '#4caf50' : '#9c8a55'; circ(g, bx + (R() - .5) * 60, by + (R() - .5) * 40, 6 + R() * 14); g.fill(); } }
+    g.fillStyle = 'rgba(255,255,255,.75)'; for(let i = 0; i < 14; i++){ g.beginPath(); g.ellipse(R() * 256, R() * 256, 16 + R() * 30, 3 + R() * 4, (R() - .5) * .6, 0, 7); g.fill(); }
+    g.restore(); shade(g, c, c, r, .7);
+    g.strokeStyle = 'rgba(140,200,255,.7)'; g.lineWidth = 4; circ(g, c, c, r + 1); g.stroke(); }),
+  moon: () => mk(256, 256, g => { const R = rng(61), c = 128, r = 118;
+    planetBase(g, c, c, r, '#e6e6ec', '#8c8c98'); g.save(); circ(g, c, c, r); g.clip();
+    blobs(g, c, c, r, 10, R, ['#9b9aa8'], 18, 44, .5);
+    craters(g, c, c, r, 26, R, 'rgba(80,80,95,.5)', 'rgba(255,255,255,.55)'); g.restore(); shade(g, c, c, r); }),
+  purple: () => mk(256, 256, g => { const R = rng(71), c = 128, r = 118;
+    planetBase(g, c, c, r, '#c79bff', '#5a2aa0'); g.save(); circ(g, c, c, r); g.clip();
+    g.lineWidth = 12; for(let i = 0; i < 8; i++){ g.strokeStyle = i % 2 ? 'rgba(63,214,194,.5)' : 'rgba(255,140,220,.35)'; g.beginPath(); g.arc(c + (R() - .5) * 80, c + 200 + R() * 60, 150 + i * 16, 3.6, 5.8); g.stroke(); }
+    blobs(g, c, c, r, 14, R, ['#ffe0ff', '#3fd6c2'], 4, 10, .6); g.restore(); shade(g, c, c, r); }),
+  sun: () => mk(300, 300, g => { const c = 150;
+    let gr = g.createRadialGradient(c, c, 60, c, c, 150); gr.addColorStop(0, 'rgba(255,210,90,.95)'); gr.addColorStop(.5, 'rgba(255,150,40,.35)'); gr.addColorStop(1, 'rgba(255,120,0,0)');
+    g.fillStyle = gr; g.fillRect(0, 0, 300, 300);
+    gr = g.createRadialGradient(c - 20, c - 20, 5, c, c, 88); gr.addColorStop(0, '#fffbe0'); gr.addColorStop(.5, '#ffd24a'); gr.addColorStop(1, '#ff8a00');
+    g.fillStyle = gr; circ(g, c, c, 86); g.fill();
+    const R = rng(81); g.fillStyle = 'rgba(200,80,0,.35)'; for(let i = 0; i < 7; i++){ circ(g, c + (R() - .5) * 110, c + (R() - .5) * 110, 3 + R() * 6); g.fill(); } }),
+  star: () => mk(170, 170, g => { const c = 85;
+    let gr = g.createRadialGradient(c, c, 2, c, c, 60); gr.addColorStop(0, 'rgba(255,250,210,.9)'); gr.addColorStop(1, 'rgba(255,230,150,0)'); g.fillStyle = gr; g.fillRect(0, 0, 170, 170);
+    const star = (s, col) => { g.fillStyle = col; g.beginPath(); for(let i = 0; i < 8; i++){ const a = i * Math.PI / 4 - Math.PI / 2, rr = i % 2 ? s * .16 : (i % 4 ? s * .5 : s); g.lineTo(c + Math.cos(a) * rr, c + Math.sin(a) * rr); } g.fill(); };
+    star(82, '#fff3b0'); star(60, '#ffffff'); }),
+  galaxy: () => mk(320, 230, g => { const R = rng(91), cx = 160, cy = 115;
+    g.globalCompositeOperation = 'lighter';
+    let gr = g.createRadialGradient(cx, cy, 0, cx, cy, 70); gr.addColorStop(0, 'rgba(255,240,200,.95)'); gr.addColorStop(1, 'rgba(255,200,150,0)');
+    g.fillStyle = gr; g.beginPath(); g.ellipse(cx, cy, 90, 55, 0, 0, 7); g.fill();
+    for(let i = 0; i < 2600; i++){
+      const t = Math.pow(R(), .8) * 4.4, arm = i % 2, a = t * 1.45 + arm * Math.PI + (R() - .5) * .6, rad = t * 33 + (R() - .5) * 14;
+      const x = cx + Math.cos(a) * rad, y = cy + Math.sin(a) * rad * .52;
+      const hue = t < 1 ? 45 : 220 + t * 18; g.fillStyle = `hsla(${hue},90%,${80 - t * 6}%,${.55 - t * .07})`;
+      g.fillRect(x, y, .8 + R() * 1.6, .8 + R() * 1.6);
+    } }),
+  nebula: () => mk(360, 250, g => { const R = rng(101);
+    g.globalCompositeOperation = 'lighter';
+    const cols = ['255,90,170', '140,90,255', '60,200,255', '255,160,90'];
+    for(let i = 0; i < 46; i++){ const t = R(), x = 60 + t * 240 + (R() - .5) * 60, y = 125 + Math.sin(t * 5) * 40 + (R() - .5) * 50, rr = 30 + R() * 60;
+      const gr = g.createRadialGradient(x, y, 0, x, y, rr); gr.addColorStop(0, `rgba(${cols[i % 4]},.2)`); gr.addColorStop(1, `rgba(${cols[i % 4]},0)`);
+      g.fillStyle = gr; g.fillRect(x - rr, y - rr, rr * 2, rr * 2); }
+    g.fillStyle = '#fff'; for(let i = 0; i < 40; i++){ g.globalAlpha = .4 + R() * .6; g.fillRect(40 + R() * 280, 50 + R() * 150, 1.5, 1.5); } }),
+  comet: () => mk(360, 120, g => { const hx = 300, hy = 60;
+    g.globalCompositeOperation = 'lighter';
+    let gr = g.createLinearGradient(hx, 0, 0, 0); gr.addColorStop(0, 'rgba(160,230,255,.85)'); gr.addColorStop(1, 'rgba(120,160,255,0)');
+    g.fillStyle = gr; g.beginPath(); g.moveTo(hx, hy - 14); g.quadraticCurveTo(150, hy - 26, 0, hy - 48); g.lineTo(0, hy + 44); g.quadraticCurveTo(150, hy + 22, hx, hy + 14); g.fill();
+    gr = g.createLinearGradient(hx, 0, 60, 0); gr.addColorStop(0, 'rgba(255,255,255,.9)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
+    g.strokeStyle = gr; g.lineWidth = 2; for(let k = -2; k <= 2; k++){ g.beginPath(); g.moveTo(hx, hy + k * 3); g.quadraticCurveTo(160, hy + k * 8, 40, hy + k * 16); g.stroke(); }
+    gr = g.createRadialGradient(hx, hy, 0, hx, hy, 34); gr.addColorStop(0, '#ffffff'); gr.addColorStop(.3, 'rgba(180,240,255,.9)'); gr.addColorStop(1, 'rgba(120,200,255,0)');
+    g.fillStyle = gr; g.fillRect(hx - 40, hy - 40, 80, 80); }),
+  asteroid: () => mk(230, 190, g => { const R = rng(111), cx = 115, cy = 95;
+    g.beginPath(); for(let i = 0; i < 16; i++){ const a = i / 16 * 6.283, rr = 70 + (R() - .5) * 34; g.lineTo(cx + Math.cos(a) * rr * 1.2, cy + Math.sin(a) * rr * .95); } g.closePath();
+    g.save(); g.clip(); planetBase(g, cx, cy, 100, '#b5a896', '#5a5048'); craters(g, cx, cy, 80, 12, R, 'rgba(50,40,30,.5)', 'rgba(255,240,220,.4)');
+    shade(g, cx, cy, 95, .7); g.restore(); }),
+  rocket: () => mk(170, 310, g => { const c = 85;
+    let gr = g.createLinearGradient(0, 240, 0, 305); gr.addColorStop(0, '#fff7c0'); gr.addColorStop(.3, '#ffb13b'); gr.addColorStop(1, 'rgba(255,80,0,0)');
+    g.fillStyle = gr; g.beginPath(); g.moveTo(c - 22, 236); g.quadraticCurveTo(c, 330, c + 22, 236); g.fill();
+    g.fillStyle = '#d63a3a'; g.beginPath(); g.moveTo(c - 38, 150); g.lineTo(c - 70, 228); g.lineTo(c - 36, 214); g.fill(); g.beginPath(); g.moveTo(c + 38, 150); g.lineTo(c + 70, 228); g.lineTo(c + 36, 214); g.fill();
+    g.fillStyle = '#7b8494'; g.beginPath(); g.moveTo(c - 24, 220); g.lineTo(c + 24, 220); g.lineTo(c + 30, 240); g.lineTo(c - 30, 240); g.fill();
+    gr = g.createLinearGradient(c - 42, 0, c + 42, 0); gr.addColorStop(0, '#b9c0cc'); gr.addColorStop(.35, '#ffffff'); gr.addColorStop(1, '#9aa2b0');
+    g.fillStyle = gr; g.beginPath(); g.moveTo(c, 12); g.bezierCurveTo(c + 50, 60, c + 44, 150, c + 38, 222); g.lineTo(c - 38, 222); g.bezierCurveTo(c - 44, 150, c - 50, 60, c, 12); g.fill();
+    g.save(); g.clip(); g.fillStyle = '#d63a3a'; g.fillRect(0, 0, 170, 62); g.fillRect(0, 196, 170, 8); g.restore();
+    g.fillStyle = '#5b6474'; circ(g, c, 115, 24); g.fill();
+    gr = g.createRadialGradient(c - 6, 108, 2, c, 115, 19); gr.addColorStop(0, '#bfeaff'); gr.addColorStop(1, '#1d5aa8'); g.fillStyle = gr; circ(g, c, 115, 18); g.fill();
+    g.fillStyle = '#d63a3a'; g.fillRect(c - 3, 160, 6, 50); }),
+  ufo: () => mk(300, 180, g => { const c = 150;
+    let gr = g.createLinearGradient(0, 30, 0, 100); gr.addColorStop(0, 'rgba(190,250,255,.95)'); gr.addColorStop(1, 'rgba(60,170,220,.7)');
+    g.fillStyle = gr; g.beginPath(); g.ellipse(c, 92, 62, 58, 0, Math.PI, 0); g.fill();
+    g.fillStyle = '#6ee06e'; circ(g, c, 78, 16); g.fill(); g.fillStyle = '#111'; circ(g, c - 6, 76, 4); g.fill(); circ(g, c + 6, 76, 4); g.fill();
+    g.fillStyle = 'rgba(255,255,255,.7)'; g.beginPath(); g.ellipse(c - 28, 62, 9, 16, -.5, 0, 7); g.fill();
+    gr = g.createLinearGradient(0, 80, 0, 130); gr.addColorStop(0, '#eef1f7'); gr.addColorStop(.5, '#9aa3b5'); gr.addColorStop(1, '#4b5366');
+    g.fillStyle = gr; g.beginPath(); g.ellipse(c, 104, 142, 32, 0, 0, 7); g.fill();
+    g.fillStyle = '#2f3647'; g.beginPath(); g.ellipse(c, 112, 132, 14, 0, 0, Math.PI); g.fill();
+    ['#ff5a5a', '#ffd24a', '#5ee39a', '#6ee7f9', '#ff7ab6', '#ffd24a', '#ff5a5a'].forEach((col, i) => { const a = Math.PI * (i + 1) / 8; g.fillStyle = col; g.shadowColor = col; g.shadowBlur = 10; circ(g, c - Math.cos(a) * 118, 110 + Math.sin(a) * 12, 6); g.fill(); });
+    g.shadowBlur = 0; }),
+  satellite: () => mk(330, 170, g => {
+    const panel = (x) => { g.fillStyle = '#1b3d8f'; g.fillRect(x, 55, 112, 62); g.strokeStyle = '#7fb0ff'; g.lineWidth = 1.4;
+      for(let i = 1; i < 6; i++){ g.beginPath(); g.moveTo(x + i * 112 / 6, 55); g.lineTo(x + i * 112 / 6, 117); g.stroke(); }
+      g.beginPath(); g.moveTo(x, 86); g.lineTo(x + 112, 86); g.stroke(); g.strokeStyle = '#c9d2e3'; g.lineWidth = 3; g.strokeRect(x, 55, 112, 62); };
+    g.fillStyle = '#9aa3b5'; g.fillRect(118, 82, 94, 8); panel(8); panel(210);
+    const gr = g.createLinearGradient(125, 0, 205, 0); gr.addColorStop(0, '#a8791c'); gr.addColorStop(.4, '#ffd76a'); gr.addColorStop(1, '#b6861f');
+    g.fillStyle = gr; g.fillRect(128, 50, 74, 72); g.strokeStyle = 'rgba(120,80,10,.5)'; g.lineWidth = 1;
+    for(let i = 0; i < 6; i++){ g.beginPath(); g.moveTo(128, 56 + i * 12); g.lineTo(202, 60 + i * 11); g.stroke(); }
+    g.strokeStyle = '#c9d2e3'; g.lineWidth = 3; g.beginPath(); g.moveTo(165, 50); g.lineTo(165, 30); g.stroke();
+    g.fillStyle = '#eef1f7'; g.beginPath(); g.ellipse(165, 26, 30, 12, 0, Math.PI, 0); g.fill(); g.strokeStyle = '#9aa3b5'; g.stroke();
+    g.strokeStyle = '#eef1f7'; g.lineWidth = 2; g.beginPath(); g.moveTo(165, 122); g.lineTo(165, 158); g.stroke(); g.fillStyle = '#ff5a5a'; circ(g, 165, 160, 4); g.fill(); }),
+  station: () => mk(380, 210, g => {
+    g.strokeStyle = '#a3abbd'; g.lineWidth = 10; g.beginPath(); g.moveTo(16, 105); g.lineTo(364, 105); g.stroke();
+    g.strokeStyle = '#6d768a'; g.lineWidth = 1.5; for(let x = 20; x < 360; x += 12){ g.beginPath(); g.moveTo(x, 100); g.lineTo(x + 12, 110); g.stroke(); }
+    const pan = (x, y) => { g.fillStyle = '#1b3d8f'; g.fillRect(x - 15, y, 30, 78); g.strokeStyle = '#7fb0ff'; g.lineWidth = 1; for(let i = 1; i < 6; i++){ g.beginPath(); g.moveTo(x - 15, y + i * 13); g.lineTo(x + 15, y + i * 13); g.stroke(); } g.strokeStyle = '#c9d2e3'; g.lineWidth = 2; g.strokeRect(x - 15, y, 30, 78); };
+    [36, 76, 304, 344].forEach(x => { pan(x, 18); pan(x, 114); });
+    const mod = (x, y, w, h) => { const gr = g.createLinearGradient(0, y, 0, y + h); gr.addColorStop(0, '#ffffff'); gr.addColorStop(.6, '#c9cfdb'); gr.addColorStop(1, '#7c8599');
+      g.fillStyle = gr; g.beginPath(); g.roundRect ? g.roundRect(x, y, w, h, h / 2) : g.rect(x, y, w, h); g.fill(); g.strokeStyle = '#6d768a'; g.lineWidth = 1.5; g.stroke(); };
+    mod(130, 84, 120, 42); mod(176, 40, 28, 130); mod(110, 92, 30, 26); mod(240, 92, 30, 26);
+    g.fillStyle = '#ffd24a'; circ(g, 190, 105, 6); g.fill();
+    g.fillStyle = '#eef1f7'; g.fillRect(150, 140, 16, 40); g.fillRect(214, 30, 16, 40); }),
+  astronaut: () => mk(230, 270, g => {
+    g.translate(115, 140); g.rotate(-.18);
+    g.fillStyle = '#a9b1c2'; g.strokeStyle = '#6d768a'; g.lineWidth = 3; g.beginPath(); g.roundRect ? g.roundRect(-40, -62, 80, 92, 14) : g.rect(-40, -62, 80, 92); g.fill(); g.stroke();
+    limb(g, [[-14, 30], [-36, 78], [-24, 118]], 30); limb(g, [[14, 30], [44, 70], [80, 88]], 30);
+    g.fillStyle = '#7b8494'; circ(g, -24, 122, 18); g.fill(); circ(g, 86, 90, 18); g.fill();
+    limb(g, [[-26, -30], [-68, -52], [-86, -96]], 26); limb(g, [[26, -30], [68, -6], [98, -30]], 26);
+    g.fillStyle = '#c9cfdb'; circ(g, -88, -102, 14); g.fill(); circ(g, 102, -34, 14); g.fill();
+    g.fillStyle = '#f4f6fb'; g.strokeStyle = '#8e97ad'; g.lineWidth = 3; g.beginPath(); g.roundRect ? g.roundRect(-34, -48, 68, 88, 18) : g.rect(-34, -48, 68, 88); g.fill(); g.stroke();
+    g.fillStyle = '#dfe3ec'; g.fillRect(-18, -20, 36, 24); ['#ff5a5a', '#ffd24a', '#6ee7f9'].forEach((c, i) => { g.fillStyle = c; circ(g, -10 + i * 10, -8, 4); g.fill(); });
+    g.fillStyle = '#f4f6fb'; circ(g, 0, -80, 38); g.fill(); g.stroke();
+    const gr = g.createLinearGradient(-20, -100, 20, -60); gr.addColorStop(0, '#ffd27a'); gr.addColorStop(.35, '#c47b1c'); gr.addColorStop(1, '#1b1f3a');
+    g.fillStyle = gr; g.beginPath(); g.ellipse(4, -80, 27, 21, 0, 0, 7); g.fill();
+    g.fillStyle = 'rgba(255,255,255,.8)'; g.beginPath(); g.ellipse(-8, -88, 7, 4, -.5, 0, 7); g.fill(); }),
+  alien: () => mk(210, 240, g => { const c = 105;
+    g.strokeStyle = '#5bc75b'; g.lineWidth = 5; g.lineCap = 'round';
+    g.beginPath(); g.moveTo(c - 20, 70); g.quadraticCurveTo(c - 40, 30, c - 50, 16); g.moveTo(c + 20, 70); g.quadraticCurveTo(c + 40, 30, c + 50, 16); g.stroke();
+    g.fillStyle = '#ff7ab6'; circ(g, c - 50, 16, 10); g.fill(); circ(g, c + 50, 16, 10); g.fill();
+    limb(g, [[c - 40, 150], [c - 75, 130], [c - 88, 100]], 16, '#6ee06e', '#3c9a3c'); limb(g, [[c + 40, 150], [c + 78, 160], [c + 92, 190]], 16, '#6ee06e', '#3c9a3c');
+    const gr = g.createRadialGradient(c - 20, 100, 10, c, 140, 100); gr.addColorStop(0, '#b8ffb0'); gr.addColorStop(1, '#3fae3f');
+    g.fillStyle = gr; g.beginPath(); g.moveTo(c, 58); g.bezierCurveTo(c + 70, 58, c + 72, 230, c, 230); g.bezierCurveTo(c - 72, 230, c - 70, 58, c, 58); g.fill();
+    for(const s of [-1, 1]){ g.fillStyle = '#111'; g.beginPath(); g.ellipse(c + s * 22, 110, 17, 22, s * .3, 0, 7); g.fill(); g.fillStyle = '#fff'; circ(g, c + s * 22 - 5, 102, 5); g.fill(); }
+    g.strokeStyle = '#1f5a1f'; g.lineWidth = 4; g.beginPath(); g.arc(c, 150, 16, .3, 2.84); g.stroke(); })
+};
+const KINDS = {
+  rocky: {n: '바위 행성', cat: 'planet', size: 260, mat: '스티로폼 공에 휴지를 붙여 울퉁불퉁하게 + 갈색 물감'},
+  gas: {n: '가스 행성', cat: 'planet', size: 300, mat: '스티로폼 공에 색점토를 가늘게 밀어 띠처럼 두르기'},
+  ringed: {n: '고리 행성', cat: 'planet', size: 360, mat: '스티로폼 공 + 두꺼운 종이·CD를 오려 고리 끼우기'},
+  earth: {n: '푸른 행성', cat: 'planet', size: 260, mat: '스티로폼 공에 파랑·초록 색점토 붙이기'},
+  ice: {n: '얼음 행성', cat: 'planet', size: 240, mat: '플라스틱 반구 두 개 + 은박지·파란 셀로판'},
+  lava: {n: '용암 행성', cat: 'planet', size: 240, mat: '검정 색점토 위에 주황 점토를 가늘게 금 긋기'},
+  moon: {n: '달', cat: 'planet', size: 200, mat: '달걀판 조각을 붙인 공 + 회색 물감'},
+  purple: {n: '보라 행성', cat: 'planet', size: 260, mat: '스티로폼 공 + 보라 물감 + 반짝이 풀'},
+  sun: {n: '태양', cat: 'planet', size: 320, mat: '플라스틱 반구에 노랑·주황 셀로판 + 뒤에서 손전등'},
+  star: {n: '반짝 별', cat: 'sky', size: 90, mat: '은박지를 접어 오리기 · 모루로 별 모양'},
+  galaxy: {n: '은하', cat: 'sky', size: 380, mat: '검정 종이에 흰 물감을 소용돌이로 흩뿌리기'},
+  nebula: {n: '성운', cat: 'sky', size: 480, mat: '솜을 얇게 펴서 물감 뿌리기'},
+  comet: {n: '혜성', cat: 'sky', size: 320, mat: '구긴 은박지 머리 + 은박 수술 꼬리'},
+  asteroid: {n: '소행성', cat: 'sky', size: 150, mat: '은박지를 구겨 뭉치기 · 달걀판 조각', float: 1},
+  rocket: {n: '로켓', cat: 'ship', size: 120, mat: '휴지심 + 색지 날개 + 셀로판 불꽃', float: 1},
+  ufo: {n: '비행접시', cat: 'ship', size: 250, mat: '플라스틱 반구 + 종이 접시 두 장', float: 1},
+  satellite: {n: '인공위성', cat: 'ship', size: 250, mat: '작은 상자에 금색 포장지 + 은박지 태양 전지판', float: 1},
+  station: {n: '우주 정거장', cat: 'ship', size: 380, mat: '휴지심을 빨대로 잇고 은박지 붙이기', float: 1},
+  astronaut: {n: '우주인', cat: 'life', size: 160, mat: '철사 뼈대 + 흰 색점토 (우리가 만든 작품!)', float: 1},
+  alien: {n: '외계인', cat: 'life', size: 130, mat: '초록 색점토 + 모루 더듬이', float: 1},
+  photo: {n: '내 작품', cat: 'mine', size: 250, mat: '철사·색점토 작품 → 낚싯줄이나 철사에 매달기', float: 1}
+};
+const SPR = {}, ALPHA = {};
+function sprite(o){
+  if(o.k === 'photo') return PHOTOS[o.pid] || null;
+  if(!SPR[o.k]) SPR[o.k] = PAINT[o.k]();
+  return SPR[o.k];
+}
+function sprKey(o){ return o.k === 'photo' ? 'p:' + o.pid : o.k; }
+function alphaAt(spr, key, u, v){
+  let a = ALPHA[key];
+  if(!a){ const s = 64, c = mk(s, s, g => g.drawImage(spr, 0, 0, s, s)); const d = c.getContext('2d').getImageData(0, 0, s, s).data; a = new Uint8Array(s * s); for(let i = 0; i < s * s; i++) a[i] = d[i * 4 + 3]; ALPHA[key] = a; }
+  const x = clamp((u * 64) | 0, 0, 63), y = clamp((v * 64) | 0, 0, 63);
+  let m = 0; for(let dy = -2; dy <= 2; dy++) for(let dx = -2; dx <= 2; dx++){ const xx = x + dx, yy = y + dy; if(xx >= 0 && yy >= 0 && xx < 64 && yy < 64) m = Math.max(m, a[yy * 64 + xx]); }
+  return m;
+}
+const HAS_FILTER = (() => { try{ const g = document.createElement('canvas').getContext('2d'); g.filter = 'blur(1px)'; return g.filter === 'blur(1px)'; }catch(e){ return false; } })();
+const FC = new Map();
+function filtered(spr, key, wDev, b, sat, blur, hue){
+  wDev = Math.max(4, Math.round(wDev / 4) * 4);
+  const hDev = Math.max(4, Math.round(wDev * spr.height / spr.width));
+  const pad = Math.ceil(blur * 2.4);
+  const k = key + '|' + wDev + '|' + b.toFixed(2) + '|' + sat.toFixed(2) + '|' + blur.toFixed(1) + '|' + hue;
+  let e = FC.get(k);
+  if(e){ FC.delete(k); FC.set(k, e); return e; }
+  const c = document.createElement('canvas'); c.width = wDev + pad * 2; c.height = hDev + pad * 2;
+  const g = c.getContext('2d'); g.imageSmoothingQuality = 'high';
+  const f = [];
+  if(b !== 1) f.push(`brightness(${b.toFixed(2)})`);
+  if(sat !== 1) f.push(`saturate(${sat.toFixed(2)})`);
+  if(hue) f.push(`hue-rotate(${hue}deg)`);
+  if(blur > .05) f.push(`blur(${blur.toFixed(1)}px)`);
+  if(HAS_FILTER) g.filter = f.length ? f.join(' ') : 'none';
+  g.drawImage(spr, pad, pad, wDev, hDev);
+  e = {c, pad, w: wDev, h: hDev};
+  FC.set(k, e); if(FC.size > 300) FC.delete(FC.keys().next().value);
+  return e;
+}
+
+/* ───────── 배경 ───────── */
+const BGS = [
+  {id: 'deep', n: '깊은 우주', mat: '검정 우드록에 흰 물감을 칫솔로 튕겨 별 뿌리기'},
+  {id: 'nebula', n: '성운', mat: '아크릴 물감을 물에 번지게 칠하고 반짝이 풀 찍기'},
+  {id: 'milky', n: '은하수', mat: '검정 종이 + 흰 물감 점 + 은박 수술 커튼'},
+  {id: 'orbit', n: '지구 궤도', mat: '대형 모니터에 이 화면을 띄우고 작품을 매달기'},
+  {id: 'surface', n: '행성 표면', mat: '달걀판·구긴 은박지로 울퉁불퉁한 바닥 만들기'},
+  {id: 'station', n: '우주 기지 창문', mat: '은박지 벽면에 창틀 모양 구멍을 오려 앞에 세우기'}
+];
+const CW = W + MG * 2, CH = H + MG * 2;
+function layer(fn){ return mk(CW, CH, g => { g.translate(MG, MG); fn(g); }); }
+function skyBase(g, top, bot, glows, seed){
+  const gr = g.createLinearGradient(0, -MG, 0, H + MG); gr.addColorStop(0, top); gr.addColorStop(1, bot);
+  g.fillStyle = gr; g.fillRect(-MG, -MG, CW, CH);
+  const R = rng(seed);
+  for(const col of glows){ const x = R() * W, y = R() * H, r = 250 + R() * 350; const q = g.createRadialGradient(x, y, 0, x, y, r); q.addColorStop(0, col); q.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = q; g.fillRect(-MG, -MG, CW, CH); }
+}
+function starsL(n, r0, r1, seed, glow, band){
+  return layer(g => { const R = rng(seed);
+    for(let i = 0; i < n; i++){
+      let x = -MG + R() * CW, y = -MG + R() * CH;
+      if(band){ const t = R() * 2 - .5, off = (R() + R() + R() - 1.5) * 120; x = t * W; y = H * .75 - t * W * .42 + off; }
+      const r = r0 + Math.pow(R(), 3) * (r1 - r0);
+      const tint = R(); g.fillStyle = tint < .15 ? '#ffe6b0' : tint < .3 ? '#bcd6ff' : '#ffffff';
+      g.globalAlpha = .35 + R() * .65;
+      if(glow && r > 1.3){ g.shadowColor = g.fillStyle; g.shadowBlur = r * 5; }
+      circ(g, x, y, r); g.fill(); g.shadowBlur = 0;
+    }
+    g.globalAlpha = 1; });
+}
+function twinkles(seed, n){ const R = rng(seed), a = []; for(let i = 0; i < n; i++) a.push({x: R() * W, y: R() * H, r: 4 + R() * 7, ph: R() * 6.28, sp: .8 + R() * 1.4}); return a; }
+const BGC = {};
+function getBG(id){
+  if(BGC[id]) return BGC[id];
+  let B;
+  const deepSet = (seed) => [
+    {c: layer(g => skyBase(g, '#03061a', '#0c1640', ['rgba(90,60,180,.16)', 'rgba(40,90,180,.14)', 'rgba(150,50,120,.1)'], seed)), f: .04},
+    {c: starsL(900, .4, 1.1, seed + 1), f: .1},
+    {c: starsL(120, .8, 2.4, seed + 2, true), f: .22}
+  ];
+  if(id === 'deep') B = {layers: deepSet(7), tw: twinkles(3, 24)};
+  else if(id === 'nebula'){
+    const neb = layer(g => { skyBase(g, '#07031a', '#12072c', [], 1); const R = rng(77);
+      g.globalCompositeOperation = 'lighter'; const cols = ['255,80,160', '130,80,255', '40,190,255', '255,150,80'];
+      for(let i = 0; i < 90; i++){ const t = R(), x = -100 + t * (W + 200), y = H * .5 + Math.sin(t * 4.2) * 220 + (R() - .5) * 260, r = 90 + R() * 240;
+        const q = g.createRadialGradient(x, y, 0, x, y, r); q.addColorStop(0, `rgba(${cols[(t * 3.99) | 0]},.085)`); q.addColorStop(1, `rgba(${cols[(t * 3.99) | 0]},0)`); g.fillStyle = q; g.fillRect(x - r, y - r, r * 2, r * 2); }
+      g.globalCompositeOperation = 'source-over';
+      for(let i = 0; i < 30; i++){ const x = R() * W, y = H * .5 + (R() - .5) * 400, r = 40 + R() * 110; const q = g.createRadialGradient(x, y, 0, x, y, r); q.addColorStop(0, 'rgba(5,2,15,.35)'); q.addColorStop(1, 'rgba(5,2,15,0)'); g.fillStyle = q; g.fillRect(x - r, y - r, r * 2, r * 2); } });
+    B = {layers: [{c: neb, f: .06}, {c: starsL(700, .4, 1.1, 12), f: .12}, {c: starsL(100, .8, 2.4, 13, true), f: .22}], tw: twinkles(4, 26)};
+  }
+  else if(id === 'milky'){
+    const band = layer(g => { skyBase(g, '#040818', '#0a1030', [], 1); g.save(); g.translate(W / 2, H * .45); g.rotate(-.4);
+      const q = g.createLinearGradient(0, -260, 0, 260); q.addColorStop(0, 'rgba(120,140,255,0)'); q.addColorStop(.5, 'rgba(200,190,255,.28)'); q.addColorStop(1, 'rgba(120,140,255,0)');
+      g.fillStyle = q; g.fillRect(-1300, -260, 2600, 520); const R = rng(9);
+      for(let i = 0; i < 40; i++){ const x = (R() - .5) * 2200, y = (R() - .5) * 90, r = 30 + R() * 80; const z = g.createRadialGradient(x, y, 0, x, y, r); z.addColorStop(0, 'rgba(8,6,20,.45)'); z.addColorStop(1, 'rgba(8,6,20,0)'); g.fillStyle = z; g.fillRect(x - r, y - r, r * 2, r * 2); }
+      g.restore(); });
+    B = {layers: [{c: band, f: .04}, {c: starsL(5000, .3, .9, 21, false, true), f: .07}, {c: starsL(600, .4, 1.1, 22), f: .12}, {c: starsL(90, .8, 2.4, 23, true), f: .22}], tw: twinkles(5, 22)};
+  }
+  else if(id === 'orbit'){
+    const earth = layer(g => { const ex = W / 2, ey = 1950, er = 1400, R = rng(31);
+      g.save(); g.shadowColor = 'rgba(110,180,255,.9)'; g.shadowBlur = 60; g.fillStyle = '#1a4aa0'; circ(g, ex, ey, er); g.fill(); g.restore();
+      g.save(); circ(g, ex, ey, er); g.clip();
+      const q = g.createLinearGradient(0, ey - er, 0, H + MG); q.addColorStop(0, '#4d9bf5'); q.addColorStop(.2, '#1b5bb8'); q.addColorStop(1, '#071a44'); g.fillStyle = q; g.fillRect(-MG, 0, CW, H + MG);
+      for(let k = 0; k < 16; k++){ const bx = -MG + R() * CW, by = 570 + R() * 480; for(let i = 0; i < 16; i++){ g.fillStyle = i % 4 ? 'rgba(70,150,70,.9)' : 'rgba(150,130,80,.9)'; g.beginPath(); g.ellipse(bx + (R() - .5) * 220, by + (R() - .5) * 50 * ((by - 540) / 300), 20 + R() * 50, (6 + R() * 16) * ((by - 540) / 360), 0, 0, 7); g.fill(); } }
+      g.fillStyle = 'rgba(255,255,255,.55)'; for(let i = 0; i < 70; i++){ const y = 560 + Math.pow(R(), 1.3) * 480; g.beginPath(); g.ellipse(-MG + R() * CW, y, 40 + R() * 120, 3 + ((y - 550) / 480) * 12, (R() - .5) * .1, 0, 7); g.fill(); }
+      const sh = g.createLinearGradient(0, 540, 0, 1000); sh.addColorStop(0, 'rgba(0,0,20,0)'); sh.addColorStop(1, 'rgba(0,0,20,.55)'); g.fillStyle = sh; g.fillRect(-MG, 540, CW, 600);
+      g.restore();
+      g.strokeStyle = 'rgba(130,200,255,.75)'; g.lineWidth = 10; circ(g, ex, ey, er + 3); g.stroke();
+      g.globalCompositeOperation = 'lighter';
+      let s = g.createRadialGradient(ex + 120, 552, 0, ex + 120, 552, 520); s.addColorStop(0, 'rgba(255,245,210,1)'); s.addColorStop(.08, 'rgba(255,220,140,.8)'); s.addColorStop(.35, 'rgba(255,150,60,.25)'); s.addColorStop(1, 'rgba(255,120,40,0)');
+      g.fillStyle = s; g.fillRect(-MG, -MG, CW, CH);
+      s = g.createLinearGradient(ex + 120 - 700, 0, ex + 120 + 700, 0); s.addColorStop(0, 'rgba(255,220,160,0)'); s.addColorStop(.5, 'rgba(255,240,210,.9)'); s.addColorStop(1, 'rgba(255,220,160,0)');
+      g.fillStyle = s; g.fillRect(ex + 120 - 700, 549, 1400, 5); });
+    const d = deepSet(41);
+    B = {layers: [d[0], d[1], d[2], {c: earth, f: .3}], tw: twinkles(6, 16).filter(t => t.y < 480)};
+  }
+  else if(id === 'surface'){
+    const sky = layer(g => { skyBase(g, '#02030d', '#1a1335', ['rgba(120,60,160,.18)'], 51);
+      const p = PAINT.ringed(); g.drawImage(p, 1020, 90, 440, 285); const m = PAINT.moon(); g.drawImage(m, 260, 150, 90, 90);
+      const q = g.createLinearGradient(0, HZ - 180, 0, HZ); q.addColorStop(0, 'rgba(160,110,200,0)'); q.addColorStop(1, 'rgba(190,140,220,.35)'); g.fillStyle = q; g.fillRect(-MG, HZ - 180, CW, 180); });
+    const mount = layer(g => { const R = rng(52); g.fillStyle = '#2d2545'; g.beginPath(); g.moveTo(-MG, HZ + 50); let x = -MG;
+      while(x < W + MG){ g.lineTo(x, HZ - 10 - R() * 70); x += 30 + R() * 70; } g.lineTo(W + MG, HZ + 50); g.fill();
+      g.fillStyle = '#3a3158'; g.beginPath(); g.moveTo(-MG, HZ + 50); x = -MG; while(x < W + MG){ g.lineTo(x, HZ - R() * 30); x += 20 + R() * 40; } g.lineTo(W + MG, HZ + 50); g.fill(); });
+    const ground = layer(g => { const R = rng(53);
+      const q = g.createLinearGradient(0, HZ, 0, H + MG); q.addColorStop(0, '#6a5a7a'); q.addColorStop(.25, '#7a6570'); q.addColorStop(1, '#a48870');
+      g.fillStyle = q; g.fillRect(-MG, HZ, CW, H + MG - HZ);
+      for(let i = 0; i < 70; i++){ const y = HZ + 6 + Math.pow(R(), 1.7) * (H + MG - HZ), t = (y - HZ) / (H - HZ), x = -MG + R() * CW, rx = 8 + t * (40 + R() * 110), ry = rx * (.1 + .22 * t);
+        g.fillStyle = `rgba(40,25,40,${.25 + t * .25})`; g.beginPath(); g.ellipse(x, y, rx, ry, 0, 0, 7); g.fill();
+        g.strokeStyle = `rgba(230,200,190,${.2 + t * .3})`; g.lineWidth = 1 + t * 3; g.beginPath(); g.ellipse(x, y, rx, ry, 0, .2, 2.9); g.stroke(); }
+      for(let i = 0; i < 200; i++){ const y = HZ + Math.pow(R(), 1.5) * (H + MG - HZ), t = (y - HZ) / (H - HZ); g.fillStyle = 'rgba(60,40,50,.5)'; g.beginPath(); g.ellipse(-MG + R() * CW, y, 1 + t * 6, .5 + t * 3, 0, 0, 7); g.fill(); }
+      g.strokeStyle = 'rgba(220,190,240,.5)'; g.lineWidth = 2; g.beginPath(); g.moveTo(-MG, HZ); g.lineTo(W + MG, HZ); g.stroke(); });
+    B = {layers: [{c: sky, f: .06}, {c: starsL(90, .8, 2, 55, true), f: .1}, {c: mount, f: .2}, {c: ground, f: .42}], tw: twinkles(7, 14).filter(t => t.y < HZ - 120), horizon: HZ};
+  }
+  else if(id === 'station'){
+    const fg = layer(g => {
+      const q = g.createLinearGradient(-MG, -MG, W + MG, H + MG); q.addColorStop(0, '#dfe4ee'); q.addColorStop(.35, '#8f98ab'); q.addColorStop(.6, '#c9cfdb'); q.addColorStop(1, '#5e6679');
+      g.fillStyle = q; g.beginPath(); g.rect(-MG, -MG, CW, CH);
+      const hx = 110, hy = 95, hw = W - 220, hh = H - 190;
+      if(g.roundRect) g.roundRect(hx, hy, hw, hh, 70); else g.rect(hx, hy, hw, hh);
+      g.fill('evenodd');
+      g.strokeStyle = '#4b5366'; g.lineWidth = 16; g.beginPath(); if(g.roundRect) g.roundRect(hx - 6, hy - 6, hw + 12, hh + 12, 76); else g.rect(hx - 6, hy - 6, hw + 12, hh + 12); g.stroke();
+      g.strokeStyle = '#eef1f7'; g.lineWidth = 3; g.beginPath(); if(g.roundRect) g.roundRect(hx - 16, hy - 16, hw + 32, hh + 32, 84); else g.rect(hx - 16, hy - 16, hw + 32, hh + 32); g.stroke();
+      for(let i = 0; i < 14; i++){ const t = i / 14; for(const [x, y] of [[hx + t * hw + 30, hy - 42], [hx + t * hw + 30, hy + hh + 42]]){ g.fillStyle = '#5e6679'; circ(g, x, y, 7); g.fill(); g.fillStyle = '#eef1f7'; circ(g, x - 2, y - 2, 3); g.fill(); } }
+      g.fillStyle = '#2f3647'; g.fillRect(W / 2 - 150, H - 70, 300, 40); ['#5ee39a', '#ffd24a', '#ff5a5a', '#6ee7f9', '#5ee39a'].forEach((c, i) => { g.fillStyle = c; circ(g, W / 2 - 100 + i * 50, H - 50, 8); g.fill(); });
+      g.save(); g.beginPath(); if(g.roundRect) g.roundRect(hx, hy, hw, hh, 70); else g.rect(hx, hy, hw, hh); g.clip();
+      g.fillStyle = 'rgba(200,230,255,.05)'; g.beginPath(); g.moveTo(hx + 200, hy); g.lineTo(hx + 420, hy); g.lineTo(hx + 120, hy + hh); g.lineTo(hx - 100, hy + hh); g.fill();
+      g.fillStyle = 'rgba(200,230,255,.03)'; g.beginPath(); g.moveTo(hx + 480, hy); g.lineTo(hx + 540, hy); g.lineTo(hx + 240, hy + hh); g.lineTo(hx + 180, hy + hh); g.fill();
+      g.restore(); });
+    B = {layers: deepSet(61), tw: twinkles(8, 20), fg};
+  }
+  BGC[id] = B; return B;
+}
+
+/* ───────── 무대(렌더러) ───────── */
+class Stage {
+  constructor(cv, opt = {}){
+    this.cv = cv; this.g = cv.getContext('2d'); this.cover = !!opt.cover;
+    this.scene = {bg: 'deep', objs: []}; this.play = false; this.magicOff = false; this.hideObjs = false;
+    this.cam = {x: 0, y: 0}; this.user = {x: 0, y: 0}; this.speed = 1; this.drift = 1;
+    this.sel = null; this.mission = null; this.tags = false; this.shoot = null; this.nextShoot = 3;
+    this.fit();
+  }
+  fit(){
+    const p = this.cv.parentElement.getBoundingClientRect();
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    this.dpr = dpr; this.cv.width = Math.max(2, Math.round(p.width * dpr)); this.cv.height = Math.max(2, Math.round(p.height * dpr));
+    const kx = this.cv.width / W, ky = this.cv.height / H;
+    this.k = this.cover ? Math.max(kx, ky) : Math.min(kx, ky);
+    this.ox = (this.cv.width - W * this.k) / 2; this.oy = (this.cv.height - H * this.k) / 2;
+  }
+  toL(e){ const r = this.cv.getBoundingClientRect(); return {x: ((e.clientX - r.left) * this.dpr - this.ox) / this.k, y: ((e.clientY - r.top) * this.dpr - this.oy) / this.k}; }
+  look(o){
+    if(this.mission){
+      const m = this.magicOff ? MOFF : null;
+      return {w: m ? m.sz : o.sz, b: m ? 1 : o.bri, blur: m ? 0 : o.blur, sat: m ? 1 : 1 - (1 - o.bri) * .9, f: m ? m.spd : o.spd};
+    }
+    const d = this.magicOff ? 0 : o.d;
+    return {w: o.size / (1 + 3.2 * d), b: 1 - .55 * d, blur: d * 3.2, sat: 1 - .45 * d, f: .3 + .7 * (1 - o.d)};
+  }
+  geom(o, t){
+    const L = this.look(o), spr = sprite(o); if(!spr) return null;
+    const w = L.w, h = w * spr.height / spr.width;
+    let x = o.x - this.px * L.f, y = (this.mission && this.magicOff && MOFF.y != null && o.anchor === 'b' ? MOFF.y : o.y) - this.py * L.f;
+    if(this.play && (KINDS[o.k] || {}).float && !this.mission) y += Math.sin(t * .9 + o.id * 1.7) * 9 * L.f;
+    return {L, spr, w, h, x, y, rot: o.rot || 0, flip: o.flip, anchor: o.anchor || 'c'};
+  }
+  ordered(){
+    const a = this.scene.objs.slice();
+    if(this.mission) a.sort((p, q) => p.z - q.z); else a.sort((p, q) => q.d - p.d || p.id - q.id);
+    return a;
+  }
+  update(dt, t){
+    let tx = this.user.x, ty = this.user.y;
+    if(this.play){ tx += Math.sin(t * .23 * this.speed) * .75 * this.drift + TILT.x; ty += Math.sin(t * .15 * this.speed + 1) * .45 * this.drift + TILT.y; }
+    else if(!this.mission || !this.mission.drift){ tx = 0; ty = 0; }
+    if(this.mission && this.mission.drift){ tx = Math.sin(t * .9) * 1.1; ty = 0; }
+    const a = 1 - Math.pow(.02, dt);
+    this.cam.x += (clamp(tx, -1.3, 1.3) - this.cam.x) * a; this.cam.y += (clamp(ty, -1.3, 1.3) - this.cam.y) * a;
+    if(this.play){
+      this.nextShoot -= dt;
+      if(this.nextShoot < 0 && !this.shoot){ this.shoot = {x: 200 + Math.random() * 1000, y: 40 + Math.random() * 300, vx: 900 + Math.random() * 500, vy: 260 + Math.random() * 200, life: 0}; this.nextShoot = 4 + Math.random() * 6; }
+      if(this.shoot){ const s = this.shoot; s.life += dt; s.x += s.vx * dt; s.y += s.vy * dt; if(s.life > 1.1) this.shoot = null; }
+    }
+  }
+  render(t, g = this.g, k = this.k, ox = this.ox, oy = this.oy, full = true){
+    this.px = this.cam.x * PAN; this.py = this.cam.y * PAN * .6;
+    if(full){ g.setTransform(1, 0, 0, 1, 0, 0); g.fillStyle = '#01020a'; g.fillRect(0, 0, g.canvas.width, g.canvas.height); }
+    g.setTransform(k, 0, 0, k, ox, oy);
+    g.save(); g.beginPath(); g.rect(0, 0, W, H); g.clip();
+    const B = getBG(this.scene.bg);
+    for(const L of B.layers) g.drawImage(L.c, -MG - this.px * L.f, -MG - this.py * L.f);
+    for(const s of B.tw){
+      const a = .25 + .75 * Math.abs(Math.sin(t * s.sp + s.ph)), x = s.x - this.px * .22, y = s.y - this.py * .22;
+      g.globalAlpha = a; g.fillStyle = '#fff';
+      g.beginPath(); g.moveTo(x, y - s.r); g.lineTo(x + s.r * .18, y); g.lineTo(x, y + s.r); g.lineTo(x - s.r * .18, y); g.fill();
+      g.beginPath(); g.moveTo(x - s.r, y); g.lineTo(x, y + s.r * .18); g.lineTo(x + s.r, y); g.lineTo(x, y - s.r * .18); g.fill();
+    }
+    g.globalAlpha = 1;
+    if(this.shoot){ const s = this.shoot, a = Math.sin(Math.PI * s.life / 1.1), x = s.x - this.px * .15, y = s.y - this.py * .15;
+      const q = g.createLinearGradient(x, y, x - s.vx * .18, y - s.vy * .18); q.addColorStop(0, `rgba(255,255,255,${a})`); q.addColorStop(1, 'rgba(255,255,255,0)');
+      g.strokeStyle = q; g.lineWidth = 2.5; g.beginPath(); g.moveTo(x, y); g.lineTo(x - s.vx * .18, y - s.vy * .18); g.stroke(); }
+    const tagq = [];
+    if(!this.hideObjs){
+      for(const o of this.ordered()){
+        const G = this.geom(o, t); if(!G) continue;
+        const kd = k;
+        const e = filtered(G.spr, sprKey(o), G.w * kd, G.L.b, G.L.sat, G.L.blur * kd, o.hue || 0);
+        const dw = e.w / kd, dh = e.h / kd, pad = e.pad / kd;
+        g.save(); g.translate(G.x, G.y); g.rotate(G.rot); if(G.flip) g.scale(-1, 1);
+        if(!HAS_FILTER) g.globalAlpha = G.L.b;
+        const top = G.anchor === 'b' ? -dh : -dh / 2;
+        g.drawImage(e.c, -dw / 2 - pad, top - pad, dw + pad * 2, dh + pad * 2);
+        g.globalAlpha = 1;
+        if(full && this.sel === o){ g.strokeStyle = '#ffcc4d'; g.lineWidth = 3 / (k / this.dpr); g.setLineDash([10, 8]); g.strokeRect(-dw / 2 - 8, top - 8, dw + 16, dh + 16); g.setLineDash([]); }
+        g.restore();
+        if(this.tags && o.L) tagq.push({o, x: G.x, y: G.anchor === 'b' ? G.y - dh - 34 : G.y - dh / 2 - 30});
+      }
+      for(const {o, x, y} of tagq){
+        g.fillStyle = this.sel === o ? '#ffcc4d' : 'rgba(10,16,48,.85)'; g.strokeStyle = '#ffcc4d'; g.lineWidth = 3;
+        circ(g, x, y, 24); g.fill(); g.stroke();
+        g.fillStyle = this.sel === o ? '#2a1600' : '#ffcc4d'; g.font = '900 28px "Noto Sans KR",sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(o.L, x, y + 1);
+      }
+    }
+    if(B.fg) g.drawImage(B.fg, -MG - this.px * 1.25, -MG - this.py * 1.25);
+    if(this.mission && this.mission.bg === 'surface' && this.mission.tools.includes('y') && full && !this.magicOff){
+      g.setLineDash([14, 10]); g.strokeStyle = 'rgba(255,204,77,.7)'; g.lineWidth = 2; g.beginPath(); g.moveTo(0, HZ - this.py * .42); g.lineTo(W, HZ - this.py * .42); g.stroke(); g.setLineDash([]);
+      g.fillStyle = 'rgba(255,204,77,.9)'; g.font = '700 22px "Noto Sans KR",sans-serif'; g.textAlign = 'left'; g.textBaseline = 'bottom'; g.fillText('지평선', 16, HZ - 6);
+    }
+    g.restore();
+  }
+  hit(p, t){
+    const a = this.ordered().reverse();
+    for(const o of a){
+      const G = this.geom(o, t); if(!G) continue;
+      let dx = p.x - G.x, dy = p.y - G.y; const c = Math.cos(-G.rot), s = Math.sin(-G.rot);
+      let lx = dx * c - dy * s, ly = dx * s + dy * c; if(G.flip) lx = -lx;
+      const u = (lx + G.w / 2) / G.w, v = (ly + (G.anchor === 'b' ? G.h : G.h / 2)) / G.h;
+      const m = Math.max(0, 30 / G.w);
+      if(u < -m || u > 1 + m || v < -m || v > 1 + m) continue;
+      if(G.w < 70 || alphaAt(G.spr, sprKey(o), clamp(u, 0, 1), clamp(v, 0, 1)) > 25) return o;
+    }
+    return null;
+  }
+}
+let MOFF = null;
+
+/* 태블릿 기울기 */
+const TILT = {x: 0, y: 0, base: null, on: false};
+window.addEventListener('deviceorientation', e => {
+  if(e.beta == null) return;
+  const ang = (screen.orientation && screen.orientation.angle) || window.orientation || 0;
+  let x = e.gamma, y = e.beta;
+  if(ang === 90){ x = e.beta; y = -e.gamma; } else if(ang === -90 || ang === 270){ x = -e.beta; y = e.gamma; }
+  if(!TILT.base) TILT.base = {x, y};
+  TILT.x = clamp((x - TILT.base.x) / 25, -1, 1); TILT.y = clamp((y - TILT.base.y) / 25, -1, 1);
+});
+function resetTilt(){ TILT.base = null; TILT.x = TILT.y = 0; }
+
+/* ───────── 화면 전환 · 반복 ───────── */
+const stages = {};
+let cur = 'home';
+function go(id){
+  if(cur === 'stageMode' && id !== 'stageMode' && document.fullscreenElement) document.exitFullscreen().catch(() => {});
+  document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === id));
+  cur = id; SND.tap();
+  if(id === 'missions') renderMList();
+  if(id === 'home') updHomeStars();
+  if(id === 'stageMode') enterStage();
+  if(id === 'studio'){ fitAll(); renderPalette(); renderObjbar(); }
+  requestAnimationFrame(fitAll);
+}
+function fitAll(){ for(const k in stages) if(stages[k].cv.offsetParent) stages[k].fit(); if(cur === 'studio') fitMini(); }
+window.addEventListener('resize', () => setTimeout(fitAll, 60));
+let lastT = performance.now();
+function loop(now){
+  const dt = Math.min(.05, (now - lastT) / 1000); lastT = now; const t = now / 1000;
+  const map = {home: 'home', studio: 'studio', mission: 'mission', stageMode: 'stage'};
+  const s = stages[map[cur]];
+  if(s){ s.update(dt, t); s.render(t); }
+  if(cur === 'studio' && MINI.on) drawMini();
+  requestAnimationFrame(loop);
+}
+
+/* ───────── 처음 화면 ───────── */
+stages.home = new Stage($('#cvHome'), {cover: true});
+stages.home.scene = {bg: 'nebula', objs: [
+  {id: 1, k: 'ringed', x: 1280, y: 230, d: .55, size: 520, rot: 0},
+  {id: 2, k: 'moon', x: 260, y: 160, d: .8, size: 300},
+  {id: 3, k: 'earth', x: 150, y: 720, d: .05, size: 380},
+  {id: 4, k: 'astronaut', x: 1380, y: 700, d: .05, size: 250, rot: .4},
+  {id: 5, k: 'comet', x: 520, y: 110, d: .9, size: 520, rot: .25},
+  {id: 6, k: 'satellite', x: 1080, y: 790, d: .45, size: 300, rot: -.3},
+  {id: 7, k: 'lava', x: 620, y: 830, d: .75, size: 240}
+]};
+stages.home.play = true; stages.home.drift = 1.2;
+function updHomeStars(){ const s = totalStars(); $('#homeStars').textContent = s ? `10판 · 모은 별 ★ ${s} / 30` : '10판 · 거리감을 만드는 여섯 가지 마법'; }
+
+/* QR */
+function showQR(){ $('#qrBigIn').innerHTML = QR.main; openM('qrBig'); }
+if(QR.main){ const b = $('#qrBtn'); b.hidden = false; b.innerHTML = QR.main + '<small>🔍 크게</small>'; }
+document.addEventListener('keydown', e => { if(e.key === 'Escape') document.querySelectorAll('.modal.on').forEach(m => { if(m.id !== 'eraser') m.classList.remove('on'); }); });
+
+/* ───────── 거리 마법 훈련소 ───────── */
+const TOOLS = {
+  size: {n: '🔍 크기', min: 60, max: 420, step: 2, key: 'sz', fmt: v => Math.round(v)},
+  bri: {n: '☀️ 밝기', min: .25, max: 1, step: .01, key: 'bri', fmt: v => Math.round(v * 100) + '%'},
+  blur: {n: '💧 흐림', min: 0, max: 7, step: .1, key: 'blur', fmt: v => v.toFixed(1)},
+  spd: {n: '🏃 움직임', min: .1, max: 1.2, step: .01, key: 'spd', fmt: v => Math.round(v * 100) + '%'}
+};
+const CUE = {
+  size: {ic: '🔍', n: '크기 마법'}, order: {ic: '📚', n: '겹치기 마법'}, bri: {ic: '☀️', n: '밝기 마법'},
+  blur: {ic: '💧', n: '흐림 마법'}, y: {ic: '🏔', n: '높이 마법'}, spd: {ic: '🏃', n: '움직임 마법'}
+};
+const MS = [
+  {t: '크기 마법', ic: '🔍', bg: 'deep', tools: ['size'],
+   intro: '가까운 것은 <b>크게</b>, 먼 것은 <b>작게</b>.<br>똑같은 행성 셋이에요. 크기만 바꿔서 거리를 만들어 보세요.',
+   ex: '운동장 끝에 선 친구는 손가락 한 마디만 해 보이죠. 친구가 작아진 게 아니라 멀어진 거예요.',
+   order: ['A', 'B', 'C'], objs: [{L: 'A', k: 'rocky', x: 360, y: 450, sz: 170}, {L: 'B', k: 'rocky', x: 800, y: 430, sz: 250}, {L: 'C', k: 'rocky', x: 1240, y: 470, sz: 210}]},
+  {t: '겹치기 마법', ic: '📚', bg: 'deep', tools: ['order'],
+   intro: '앞에 있는 것이 뒤에 있는 것을 <b>가려요</b>.<br>가려진 쪽이 더 멀어 보여요. 크기는 그대로 두고 순서만 바꿔 보세요.',
+   ex: '책상 위에 컵을 두 개 놓고 한쪽 눈으로 보세요. 가려진 컵이 뒤에 있다는 걸 바로 알 수 있어요.',
+   order: ['B', 'A', 'C'], objs: [{L: 'A', k: 'moon', x: 620, y: 450, sz: 300, z: 0}, {L: 'B', k: 'moon', x: 800, y: 470, sz: 300, z: 1}, {L: 'C', k: 'moon', x: 980, y: 440, sz: 300, z: 2}]},
+  {t: '두 마법을 한편으로', ic: '🤝', bg: 'nebula', tools: ['size', 'order'],
+   intro: '크기와 겹치기가 <b>서로 다른 말</b>을 하면 눈이 헷갈려요.<br>작은 것이 큰 것을 가리고 있네요! 두 마법이 같은 말을 하게 고쳐 보세요.',
+   ex: '가까운 것 = 크고, 앞에 있다. 둘이 맞아야 깊이가 또렷해져요.',
+   order: ['C', 'B', 'A'], objs: [{L: 'A', k: 'gas', x: 660, y: 450, sz: 320, z: 2}, {L: 'B', k: 'gas', x: 820, y: 430, sz: 200, z: 0, hue: 120}, {L: 'C', k: 'gas', x: 980, y: 470, sz: 250, z: 1, hue: 220}]},
+  {t: '밝기 마법', ic: '☀️', bg: 'deep', tools: ['bri'],
+   intro: '먼 것은 <b>어둡고 색이 옅게</b>.<br>크기가 같아도 밝기만으로 거리가 생기는지 해 보세요.',
+   ex: '멀리 있는 산이 뿌옇고 흐릿한 색으로 보이죠? 화가들은 이것을 빌려 와 그림에 거리를 만들어요(공기원근법). 우주에는 공기가 없지만, 그림에서는 이 비법이 잘 통해요.',
+   order: ['A', 'C', 'B'], objs: [{L: 'A', k: 'earth', x: 380, y: 450, sz: 230, bri: .55}, {L: 'B', k: 'earth', x: 800, y: 450, sz: 230, bri: .95}, {L: 'C', k: 'earth', x: 1220, y: 450, sz: 230, bri: .72}]},
+  {t: '흐림 마법', ic: '💧', bg: 'milky', tools: ['blur'],
+   intro: '가까운 것은 <b>또렷하게</b>, 먼 것은 <b>뿌옇게</b>.<br>사진기의 초점처럼 흐림으로 거리를 만들어 보세요.',
+   ex: '휴대폰으로 가까운 꽃을 찍으면 뒤 배경이 뿌옇게 번지죠. 그래서 흐린 것은 멀게 느껴져요.',
+   order: ['B', 'C', 'A'], objs: [{L: 'A', k: 'ice', x: 380, y: 450, sz: 240, blur: 0}, {L: 'B', k: 'ice', x: 800, y: 450, sz: 240, blur: 3.5}, {L: 'C', k: 'ice', x: 1220, y: 450, sz: 240, blur: 1.6}]},
+  {t: '높이 마법', ic: '🏔', bg: 'surface', tools: ['y'], anchor: 'b',
+   intro: '땅 위에서는 먼 것일수록 <b>지평선 가까이</b>, 화면 <b>위쪽</b>에 놓여요.<br>바위를 위아래로 끌어서 거리를 만들어 보세요.',
+   ex: '길 사진을 보면 먼 곳의 차는 화면 위쪽, 지평선 근처에 있어요. 가까운 차는 화면 아래에 있고요.',
+   order: ['A', 'B', 'C'], objs: [{L: 'A', k: 'asteroid', x: 420, y: 640, sz: 160}, {L: 'B', k: 'asteroid', x: 800, y: 860, sz: 160}, {L: 'C', k: 'asteroid', x: 1180, y: 760, sz: 160}]},
+  {t: '땅 위의 우주인', ic: '🧑‍🚀', bg: 'surface', tools: ['y', 'size'], anchor: 'b',
+   intro: '이제 <b>높이</b>와 <b>크기</b>를 함께!<br>지평선에 가까운 우주인은 작게, 화면 아래쪽 우주인은 크게.',
+   ex: '높이만 올리고 크기를 그대로 두면 먼 곳에 거인이 서 있는 것처럼 보여요.',
+   order: ['C', 'A', 'B'], objs: [{L: 'A', k: 'astronaut', x: 460, y: 700, sz: 200}, {L: 'B', k: 'astronaut', x: 800, y: 840, sz: 150}, {L: 'C', k: 'astronaut', x: 1140, y: 650, sz: 175}]},
+  {t: '움직임 마법', ic: '🏃', bg: 'deep', tools: ['spd'], drift: true,
+   intro: '화면이 옆으로 흘러가요. <b>가까운 것은 많이</b>, <b>먼 것은 조금</b> 움직여요.<br>움직이는 정도만으로 거리를 만들어 보세요.',
+   ex: '차창 밖을 보면 가까운 가로수는 휙휙 지나가고, 먼 산은 천천히 따라와요.',
+   order: ['B', 'A', 'C'], objs: [{L: 'A', k: 'ufo', x: 400, y: 450, sz: 230, spd: .6}, {L: 'B', k: 'ufo', x: 800, y: 450, sz: 230, spd: .6}, {L: 'C', k: 'ufo', x: 1200, y: 450, sz: 230, spd: .6}]},
+  {t: '네 마법 한꺼번에', ic: '🌌', bg: 'nebula', tools: ['size', 'order', 'bri', 'blur'],
+   intro: '크기 · 겹치기 · 밝기 · 흐림.<br><b>네 마법이 모두 같은 말</b>을 하게 만들어 보세요. 넷이 한편이 되면 깊이가 확 살아나요.',
+   ex: '하나라도 딴말을 하면 그 행성이 어색하게 튀어 보여요.',
+   order: ['A', 'B', 'C', 'D'], objs: [{L: 'A', k: 'gas', x: 540, y: 460, sz: 240, z: 2, bri: .8, blur: 1}, {L: 'B', k: 'gas', x: 720, y: 430, sz: 240, z: 0, bri: .8, blur: 1, hue: 140}, {L: 'C', k: 'gas', x: 900, y: 470, sz: 240, z: 3, bri: .8, blur: 1, hue: 220}, {L: 'D', k: 'gas', x: 1080, y: 440, sz: 240, z: 1, bri: .8, blur: 1, hue: 300}]},
+  {t: '최종 연출', ic: '🏆', bg: 'surface', tools: ['size', 'order', 'bri', 'blur', 'y', 'spd'], anchor: 'b', drift: true,
+   intro: '여섯 마법을 <b>전부</b> 써요!<br>외계 행성 위에 선 네 우주인에게 거리를 만들어 주세요.',
+   ex: '크게·앞에·밝게·또렷하게·아래에·많이 움직이게 — 이게 가장 가까운 우주인이에요.',
+   order: ['D', 'B', 'A', 'C'], objs: [{L: 'A', k: 'astronaut', x: 480, y: 760, sz: 180, z: 3, bri: .8, blur: 1, spd: .6}, {L: 'B', k: 'alien', x: 700, y: 760, sz: 180, z: 0, bri: .8, blur: 1, spd: .6}, {L: 'C', k: 'astronaut', x: 920, y: 760, sz: 180, z: 1, bri: .8, blur: 1, spd: .6, flip: 1}, {L: 'D', k: 'alien', x: 1140, y: 760, sz: 180, z: 2, bri: .8, blur: 1, spd: .6, hue: 200}]}
+];
+function prog(){ return store('space-missions') || {}; }
+function totalStars(){ const p = prog(); return Object.values(p).reduce((a, b) => a + b, 0); }
+function renderMList(){
+  const p = prog(); let html = '';
+  MS.forEach((m, i) => {
+    const s = p[i] || 0, open = i === 0 || p[i - 1] > 0, nxt = open && !s;
+    const cues = m.tools.map(t => CUE[t].ic).join(' ');
+    html += `<button class="mtile ${open ? '' : 'lock'} ${nxt ? 'next' : ''}" ${open ? `onclick="startMission(${i})"` : ''}>
+      <span class="n">${i + 1}판 · ${cues}</span><span class="ic">${open ? m.ic : '🔒'}</span><b>${m.t}</b>
+      <span class="st">${'★'.repeat(s)}<span style="color:#3a4270">${'★'.repeat(3 - s)}</span></span></button>`;
+  });
+  $('#mList').innerHTML = html;
+  $('#mStarSum').textContent = `★ ${totalStars()} / 30`;
+}
+let curM = 0;
+stages.mission = new Stage($('#cvMission'));
+function startMission(i){
+  curM = i; const m = MS[i], S = stages.mission;
+  document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === 'mission')); cur = 'mission';
+  S.mission = m; S.tags = true; S.magicOff = false; S.cam = {x: 0, y: 0};
+  S.scene = {bg: m.bg, objs: m.objs.map((o, j) => Object.assign({id: j + 1, sz: 220, bri: 1, blur: 0, spd: .6, z: j, hue: 0, anchor: m.anchor || 'c'}, JSON.parse(JSON.stringify(o))))};
+  S.sel = S.scene.objs[0];
+  $('#mTitle').textContent = `${i + 1}판 · ${m.t}`;
+  const ord = m.order.map((L, j) => `<span class="L">${L}</span>` + (j < m.order.length - 1 ? '▸' : '')).join('');
+  $('#mGoal').innerHTML = `🎯 <b>이 순서로 거리를 만들어요</b><div class="ordr"><small>👀 가장<br>가까이</small>${ord}<small>가장 🔭<br>멀리</small></div>`;
+  $('#mPick').innerHTML = S.scene.objs.map(o => `<button data-l="${o.L}" onclick="pickM('${o.L}')">${o.L}</button>`).join('');
+  const hint = m.tools.includes('y') ? '✋ 화면에서 끌어서 위아래로 옮겨요' : m.drift ? '화면이 옆으로 흘러가요 — 누가 많이 움직이나 보세요' : '';
+  $('#mHint').style.display = hint ? '' : 'none'; $('#mHint').textContent = hint;
+  requestAnimationFrame(() => { S.fit(); });
+  renderTools(); showIntro();
+}
+function showIntro(){
+  const m = MS[curM];
+  $('#inIc').textContent = m.ic; $('#inT').textContent = `${curM + 1}판 · ${m.t}`;
+  $('#inP').innerHTML = m.intro; $('#inEx').textContent = '💡 ' + m.ex;
+  openM('introM');
+}
+function pickM(L){ const S = stages.mission; S.sel = S.scene.objs.find(o => o.L === L); SND.tap(); renderTools(); }
+function renderTools(){
+  const S = stages.mission, m = S.mission, o = S.sel;
+  document.querySelectorAll('#mPick button').forEach(b => b.classList.toggle('on', b.dataset.l === o.L));
+  let h = '';
+  for(const t of m.tools){
+    if(TOOLS[t]){ const T = TOOLS[t];
+      h += `<div class="tool"><div class="h">${T.n} <span id="tv-${t}">${T.fmt(o[T.key])}</span></div>
+        <input type="range" min="${T.min}" max="${T.max}" step="${T.step}" value="${o[T.key]}" oninput="setTool('${t}',this.value)"></div>`;
+    } else if(t === 'order'){
+      const rank = S.scene.objs.slice().sort((a, b) => b.z - a.z).indexOf(o) + 1;
+      h += `<div class="tool"><div class="h">📚 겹치기 <span>앞에서 ${rank}번째</span></div>
+        <div class="row" style="margin-top:6px"><button style="flex:1" onclick="moveZ(1)">⬆ 앞으로</button><button style="flex:1" onclick="moveZ(-1)">⬇ 뒤로</button></div></div>`;
+    } else if(t === 'y'){
+      h += `<div class="tool"><div class="h">🏔 높이 <span>${o.y < HZ + 8 ? '하늘에 떠 있어요!' : '지평선에서 ' + Math.round(o.y - HZ)}</span></div>
+        <div class="muted" style="font-size:14px;margin-top:4px">화면에서 끌어서 위아래로 옮겨요</div></div>`;
+    }
+  }
+  $('#mTools').innerHTML = h;
+}
+function setTool(t, v){ const S = stages.mission, T = TOOLS[t]; S.sel[T.key] = +v; $('#tv-' + t).textContent = T.fmt(+v); }
+function moveZ(dir){
+  const S = stages.mission, arr = S.scene.objs.slice().sort((a, b) => a.z - b.z), i = arr.indexOf(S.sel), j = i + dir;
+  if(j < 0 || j >= arr.length){ SND.bad(); return; }
+  [arr[i].z, arr[j].z] = [arr[j].z, arr[i].z]; SND.pop(); renderTools();
+}
+(() => {
+  const cv = $('#cvMission'); let drag = null;
+  cv.addEventListener('pointerdown', e => {
+    const S = stages.mission, p = S.toL(e), o = S.hit(p, performance.now() / 1000);
+    if(!o) return;
+    S.sel = o; SND.tap(); renderTools();
+    if(S.mission.tools.includes('y')){ drag = {dy: p.y - o.y}; cv.setPointerCapture(e.pointerId); }
+  });
+  cv.addEventListener('pointermove', e => {
+    if(!drag) return; const S = stages.mission, p = S.toL(e);
+    S.sel.y = clamp(p.y - drag.dy, HZ - 120, H - 8); renderTools();
+  });
+  const end = () => { drag = null; };
+  cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end);
+})();
+function judge(){
+  const S = stages.mission, m = S.mission, objs = S.scene.objs;
+  const seq = m.order.map(L => objs.find(o => o.L === L));
+  let fail = null, strong = 0, total = 0;
+  const pairs = []; for(let i = 0; i < seq.length - 1; i++) pairs.push([seq[i], seq[i + 1]]);
+  for(const t of m.tools){
+    total++; let ok = true, st = true;
+    if(t === 'y'){ const up = objs.find(o => o.y < HZ + 8); if(up){ fail = fail || `「${up.L}」가 지평선 위로 올라가 하늘에 떠 버렸어요. 땅 위로 내려놓아요.`; continue; } }
+    for(const [p, n] of pairs){
+      let pass, str, msg;
+      if(t === 'size'){ const r = n.sz / p.sz; pass = r <= .92; str = r <= .8; msg = r <= 1.02 ? `「${n.L}」와 「${p.L}」의 크기가 거의 같아서 거리 차이가 안 느껴져요.` : `「${n.L}」가 「${p.L}」보다 커요. 더 가까운 「${p.L}」가 더 커야 해요.`; }
+      else if(t === 'order'){ pass = p.z > n.z; str = true; msg = `「${p.L}」가 「${n.L}」보다 앞에 있어야 해요. 앞에 있는 것이 뒤의 것을 가려요.`; }
+      else if(t === 'bri'){ const d = p.bri - n.bri; pass = d >= .06; str = d >= .14; msg = d > -.02 ? `「${n.L}」와 「${p.L}」의 밝기가 거의 같아요. 멀수록 더 어둡게!` : `「${n.L}」가 「${p.L}」보다 밝아요. 먼 「${n.L}」를 더 어둡게!`; }
+      else if(t === 'blur'){ const d = n.blur - p.blur; pass = d >= .3; str = d >= 1; msg = d > -.1 ? `「${n.L}」와 「${p.L}」의 흐림이 거의 같아요. 멀수록 더 뿌옇게!` : `「${n.L}」가 「${p.L}」보다 또렷해요. 먼 「${n.L}」를 더 흐리게!`; }
+      else if(t === 'y'){ const d = p.y - n.y; pass = d >= 15; str = d >= 50; msg = `「${n.L}」가 「${p.L}」보다 지평선에 더 가까이(화면 위쪽에) 있어야 해요.`; }
+      else if(t === 'spd'){ const d = p.spd - n.spd; pass = d >= .08; str = d >= .2; msg = d > -.02 ? `「${n.L}」와 「${p.L}」가 거의 똑같이 움직여요. 먼 것은 더 천천히!` : `「${n.L}」가 「${p.L}」보다 많이 움직여요. 먼 「${n.L}」를 더 천천히!`; }
+      if(!pass){ ok = false; fail = fail || `${CUE[t].ic} ${msg}`; }
+      if(!str) st = false;
+    }
+    if(ok && st) strong++;
+  }
+  if(fail){
+    SND.bad();
+    $('#rsStars').innerHTML = '🤔'; $('#rsT').textContent = '아직 거리가 헷갈려요';
+    $('#rsP').textContent = fail;
+    $('#rsBtns').innerHTML = `<button class="pri" onclick="closeM('resultM')">고치러 가기</button>`;
+    openM('resultM'); return;
+  }
+  const stars = strong === total ? 3 : strong * 2 >= total ? 2 : 1;
+  const p = prog(); const first = !p[curM]; p[curM] = Math.max(p[curM] || 0, stars); store('space-missions', p);
+  SND.ok(); for(let i = 0; i < stars; i++) SND.star(i);
+  $('#rsStars').innerHTML = '★'.repeat(stars) + `<span class="off">${'★'.repeat(3 - stars)}</span>`;
+  $('#rsT').textContent = stars === 3 ? '깊이가 확 살아났어요!' : '거리가 생겼어요!';
+  $('#rsP').innerHTML = (stars < 3 ? '차이를 조금 더 크게 벌리면 별 셋이에요. ' : '') + '<br><b>「마법 끄고 보기」를 누르고 있으면</b> 원래 납작했던 모습이 보여요.';
+  const last = curM === MS.length - 1;
+  $('#rsBtns').innerHTML = `<button id="rsOff">👁 마법 끄고 보기</button><button class="ghost" onclick="closeM('resultM')">더 고치기</button>` +
+    (last ? `<button class="pri" onclick="closeM('resultM');go('studio')">🎬 스튜디오로!</button>` : `<button class="pri" onclick="closeM('resultM');startMission(${curM + 1})">다음 판 ▶</button>`);
+  holdBtn($('#rsOff'), on => {
+    const S2 = stages.mission;
+    if(on){ const os = S2.scene.objs; MOFF = {sz: os.reduce((a, o) => a + o.sz, 0) / os.length, spd: os.reduce((a, o) => a + o.spd, 0) / os.length, y: os.reduce((a, o) => a + o.y, 0) / os.length}; $('#resultM').style.opacity = .12; }
+    else $('#resultM').style.opacity = '';
+    S2.magicOff = on;
+  });
+  openM('resultM');
+  if(first && last) toast('🏆 훈련소를 모두 마쳤어요! 이제 스튜디오에서 나만의 우주를 연출해요', 4000);
+}
+function holdBtn(b, fn){
+  const on = e => { e.preventDefault(); fn(true); }, off = () => fn(false);
+  b.addEventListener('pointerdown', on); b.addEventListener('pointerup', off); b.addEventListener('pointerleave', off); b.addEventListener('pointercancel', off);
+  b.addEventListener('contextmenu', e => e.preventDefault());
+}
+
+/* ───────── 스튜디오 ───────── */
+const PHOTOS = {}, PHOTO_URL = {};
+stages.studio = new Stage($('#cvStudio'));
+let nextId = 1;
+function S(){ return stages.studio; }
+function loadScene(){
+  const d = store('space-scene');
+  if(d && d.objs){
+    if(d.photos) for(const id in d.photos) addPhotoFromURL(id, d.photos[id]);
+    S().scene = {bg: d.bg || 'deep', objs: d.objs};
+    nextId = d.objs.reduce((a, o) => Math.max(a, o.id), 0) + 1;
+  }
+}
+let saveTimer = 0;
+function saveScene(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    const sc = S().scene;
+    const ok = store('space-scene', {bg: sc.bg, objs: sc.objs, photos: PHOTO_URL});
+    if(!ok && STORE_OK){ const ok2 = store('space-scene', {bg: sc.bg, objs: sc.objs.filter(o => o.k !== 'photo'), photos: {}}); toast(ok2 ? '사진이 커서 태블릿에 다 못 담았어요 — 「그림 저장」으로 남겨 두세요' : '저장 공간이 모자라요'); }
+  }, 400);
+}
+function addPhotoFromURL(id, url){
+  PHOTO_URL[id] = url;
+  const im = new Image();
+  im.onload = () => { PHOTOS[id] = mk(im.width, im.height, g => g.drawImage(im, 0, 0)); if(cur === 'studio') renderPalette(); };
+  im.src = url;
+}
+const CATS = [['bg', '🖼 배경'], ['planet', '🪐 행성'], ['sky', '✨ 별·은하'], ['ship', '🚀 탈것'], ['life', '🧑‍🚀 생물'], ['mine', '📷 내 작품']];
+let curCat = 'bg';
+const THUMB = {};
+function thumb(k){
+  if(!THUMB[k]){ const s = SPR[k] || (SPR[k] = PAINT[k]()); const r = Math.min(96 / s.width, 86 / s.height); THUMB[k] = mk(96, 86, g => g.drawImage(s, (96 - s.width * r) / 2, (86 - s.height * r) / 2, s.width * r, s.height * r)).toDataURL(); }
+  return THUMB[k];
+}
+const BGTH = {};
+function bgThumb(id){
+  if(!BGTH[id]){ const B = getBG(id); BGTH[id] = mk(160, 90, g => { g.scale(160 / W, 90 / H); for(const L of B.layers) g.drawImage(L.c, -MG, -MG); if(B.fg) g.drawImage(B.fg, -MG, -MG); }).toDataURL('image/jpeg', .8); }
+  return BGTH[id];
+}
+function renderPalette(){
+  $('#tabs').innerHTML = CATS.map(([id, n]) => `<button class="${id === curCat ? 'on' : ''}" onclick="curCat='${id}';renderPalette()">${n}</button>`).join('');
+  let h = '';
+  if(curCat === 'bg') h = BGS.map(b => `<button class="tile bgtile ${S().scene.bg === b.id ? 'sel' : ''}" onclick="setBg('${b.id}')"><img src="${bgThumb(b.id)}" alt="">${b.n}</button>`).join('');
+  else if(curCat === 'mine'){
+    h = `<button class="tile wide" onclick="$('#fileIn').click()">📷 작품 사진 찍기·고르기</button>`;
+    const ids = Object.keys(PHOTOS);
+    h += ids.map(id => `<button class="tile" onclick="addObj('photo','${id}')"><img src="${PHOTOS[id].toDataURL('image/png')}" alt="">내 작품<span class="x" onclick="event.stopPropagation();delPhoto('${id}')">✕</span></button>`).join('');
+    if(!ids.length) h += `<div class="muted" style="grid-column:1/-1;font-size:15px;line-height:1.6;padding:6px">철사·점토로 만든 우주인을 <b>흰 종이 앞에서</b> 찍으면 배경을 지우고 우주에 띄울 수 있어요.</div>`;
+  }
+  else h = Object.entries(KINDS).filter(([, v]) => v.cat === curCat).map(([k, v]) => `<button class="tile" onclick="addObj('${k}')"><img src="${thumb(k)}" alt="">${v.n}</button>`).join('');
+  $('#grid').innerHTML = h;
+}
+function setBg(id){ S().scene.bg = id; SND.whoosh(); renderPalette(); saveScene(); }
+function addObj(k, pid){
+  const st = S(), n = st.scene.objs.length;
+  const o = {id: nextId++, k, x: 560 + ((n * 173) % 480), y: 330 + ((n * 97) % 260), d: .25, size: KINDS[k].size, rot: 0, flip: 0, hue: 0};
+  if(pid) o.pid = pid;
+  st.scene.objs.push(o); st.sel = o; SND.pop();
+  if(st.play) togglePlay();
+  renderObjbar(); saveScene();
+}
+function delPhoto(id){
+  ask('이 사진을 목록에서 뺄까요? 무대에 놓인 것도 함께 사라져요.', '빼기').then(y => {
+    if(!y) return; delete PHOTOS[id]; delete PHOTO_URL[id];
+    const st = S(); st.scene.objs = st.scene.objs.filter(o => o.pid !== id); if(st.sel && st.sel.pid === id) st.sel = null;
+    renderPalette(); renderObjbar(); saveScene();
+  });
+}
+function layerName(d){ return d < .34 ? '앞줄' : d < .67 ? '가운데줄' : '뒷줄'; }
+function renderObjbar(){
+  const o = S().sel, bar = $('#objbar');
+  if(!o){
+    bar.innerHTML = S().play
+      ? `<div class="hint">▶ 살펴보는 중이에요. 화면을 끌거나 태블릿을 기울여 보세요. <b>가까운 것은 많이, 먼 것은 조금</b> 움직여요.</div>`
+      : `<div class="hint">① 오른쪽에서 배경과 스티커를 고르고 ② 무대에서 끌어 옮겨요 (두 손가락으로 크기·회전).<br>③ 스티커를 누르면 <b>거리</b>를 바꿀 수 있어요 — 크기·밝기·흐림이 한꺼번에 바뀌어요.</div>`;
+    return;
+  }
+  const L = S().look(o);
+  bar.innerHTML = `
+    <div class="sl dist"><label>📏 거리</label><span class="end">👀 가까이</span><input type="range" min="0" max="1" step=".01" value="${o.d}" oninput="setO('d',this.value)"><span class="end">멀리 🔭</span></div>
+    <div class="chips" id="rd"></div>
+    <div class="sl"><label>🔍 원래 크기</label><input type="range" min="40" max="900" step="5" value="${o.size}" oninput="setO('size',this.value)"></div>
+    <div class="sl"><label>🔄 회전</label><input type="range" min="-3.14" max="3.14" step=".02" value="${o.rot || 0}" oninput="setO('rot',this.value)"></div>
+    <div class="row">
+      <button onclick="objAct('flip')">↔ 뒤집기</button>
+      ${o.k !== 'photo' ? '<button onclick="objAct(\'hue\')">🎨 색</button>' : ''}
+      <button onclick="objAct('dup')">⧉ 복제</button>
+      <button onclick="objAct('del')">🗑 지우기</button>
+      <button class="ghost" onclick="objAct('done')">✓ 다 됐어요</button>
+    </div>`;
+  updReadout();
+}
+function updReadout(){
+  const o = S().sel, el = $('#rd'); if(!o || !el) return;
+  const s = 1 / (1 + 3.2 * o.d);
+  el.innerHTML = `<span class="chip">${layerName(o.d)}</span><span class="chip">크기 <b>×${s.toFixed(2)}</b></span><span class="chip">밝기 <b>${Math.round((1 - .55 * o.d) * 100)}%</b></span><span class="chip">흐림 <b>${(o.d * 3.2).toFixed(1)}</b></span><span class="chip">움직임 <b>${Math.round((.3 + .7 * (1 - o.d)) * 100)}%</b></span>`;
+}
+function setO(k, v){ const o = S().sel; if(!o) return; o[k] = +v; if(k === 'd') updReadout(); saveScene(); }
+function objAct(a){
+  const st = S(), o = st.sel; if(!o) return;
+  if(a === 'flip'){ o.flip = o.flip ? 0 : 1; SND.tap(); }
+  if(a === 'hue'){ o.hue = ((o.hue || 0) + 45) % 360; SND.tap(); }
+  if(a === 'dup'){ const c = Object.assign({}, o, {id: nextId++, x: o.x + 60, y: o.y + 40}); st.scene.objs.push(c); st.sel = c; SND.pop(); }
+  if(a === 'del'){ st.scene.objs = st.scene.objs.filter(x => x !== o); st.sel = null; SND.del(); }
+  if(a === 'done'){ st.sel = null; SND.tap(); }
+  renderObjbar(); saveScene();
+}
+function togglePlay(){
+  const st = S(); st.play = !st.play; st.user = {x: 0, y: 0}; resetTilt();
+  if(st.play){ st.sel = null; SND.whoosh(); }
+  $('#btnPlay').textContent = st.play ? '■ 멈추고 고치기' : '▶ 살펴보기';
+  $('#btnPlay').classList.toggle('on', st.play);
+  $('#playHint').style.display = st.play ? '' : 'none';
+  renderObjbar();
+}
+holdBtn($('#btnOff'), on => { S().magicOff = on; $('#btnOff').classList.toggle('on', on); });
+function loadSample(){
+  ask('예시 장면을 불러올까요? 지금 무대에 놓인 것은 사라져요.', '불러오기').then(y => {
+    if(!y) return;
+    const objs = [
+      {k: 'nebula', x: 1240, y: 250, d: .95, size: 900},
+      {k: 'galaxy', x: 330, y: 170, d: .9, size: 700, rot: -.3},
+      {k: 'ringed', x: 1150, y: 300, d: .7, size: 700},
+      {k: 'moon', x: 520, y: 260, d: .55, size: 420},
+      {k: 'comet', x: 820, y: 110, d: .8, size: 600, rot: .25},
+      {k: 'satellite', x: 740, y: 380, d: .38, size: 330, rot: -.2},
+      {k: 'astronaut', x: 1010, y: 470, d: .42, size: 300, rot: -.5, flip: 1},
+      {k: 'asteroid', x: 1420, y: 640, d: .15, size: 220},
+      {k: 'astronaut', x: 380, y: 560, d: .06, size: 250, rot: .3}
+    ];
+    const st = S(); st.scene = {bg: 'orbit', objs: objs.map(o => Object.assign({id: nextId++, rot: 0, flip: 0, hue: 0}, o))}; st.sel = null;
+    SND.whoosh(); renderPalette(); renderObjbar(); saveScene();
+  });
+}
+function clearScene(){
+  ask('무대를 비우고 새로 시작할까요?', '비우기').then(y => { if(!y) return; const st = S(); st.scene.objs = []; st.sel = null; SND.del(); renderObjbar(); saveScene(); });
+}
+(() => {
+  const cv = $('#cvStudio'), P = new Map(); let drag = null, pinch = null;
+  cv.addEventListener('pointerdown', e => {
+    const st = S(); cv.setPointerCapture(e.pointerId);
+    P.set(e.pointerId, {x: e.clientX, y: e.clientY});
+    if(st.play){ drag = {pan: true, sx: e.clientX, sy: e.clientY, ux: st.user.x, uy: st.user.y}; return; }
+    if(P.size === 2 && st.sel){
+      const [a, b] = [...P.values()];
+      pinch = {d: Math.hypot(a.x - b.x, a.y - b.y), ang: Math.atan2(b.y - a.y, b.x - a.x), size: st.sel.size, rot: st.sel.rot || 0}; drag = null; return;
+    }
+    if(P.size > 1) return;
+    const p = st.toL(e), o = st.hit(p, performance.now() / 1000);
+    if(o){ const changed = st.sel !== o; st.sel = o; drag = {dx: p.x - o.x, dy: p.y - o.y}; if(changed){ SND.tap(); renderObjbar(); } }
+    else if(st.sel){ st.sel = null; renderObjbar(); }
+  });
+  cv.addEventListener('pointermove', e => {
+    if(!P.has(e.pointerId)) return;
+    P.set(e.pointerId, {x: e.clientX, y: e.clientY});
+    const st = S();
+    if(drag && drag.pan){ const r = cv.getBoundingClientRect(); st.user.x = clamp(drag.ux - (e.clientX - drag.sx) / r.width * 3, -1.3, 1.3); st.user.y = clamp(drag.uy - (e.clientY - drag.sy) / r.height * 3, -1.3, 1.3); return; }
+    if(pinch && P.size >= 2 && st.sel){
+      const [a, b] = [...P.values()];
+      st.sel.size = clamp(pinch.size * Math.hypot(a.x - b.x, a.y - b.y) / pinch.d, 40, 900);
+      st.sel.rot = pinch.rot + Math.atan2(b.y - a.y, b.x - a.x) - pinch.ang; return;
+    }
+    if(drag && st.sel){ const p = st.toL(e); st.sel.x = clamp(p.x - drag.dx, -100, W + 100); st.sel.y = clamp(p.y - drag.dy, -100, H + 100); }
+  });
+  const end = e => {
+    P.delete(e.pointerId);
+    const st = S();
+    if(drag && drag.pan){ st.user = {x: 0, y: 0}; }
+    if(pinch && P.size < 2){ pinch = null; renderObjbar(); }
+    if(!P.size){ if(drag && !drag.pan) saveScene(); drag = null; }
+  };
+  cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end);
+})();
+
+/* 위에서 본 모습 */
+const MINI = {on: false, cv: $('#mini')};
+function toggleMini(){ MINI.on = !MINI.on; MINI.cv.classList.toggle('on', MINI.on); $('#btnMini').classList.toggle('on', MINI.on); fitMini(); SND.tap(); }
+function fitMini(){ const c = MINI.cv, dpr = Math.min(2, devicePixelRatio || 1); c.width = c.clientWidth * dpr; c.height = c.clientHeight * dpr; MINI.dpr = dpr; }
+const MM = {l: 14, r: 14, t: 26, b: 34};
+function miniPos(o, w, h){ return {x: MM.l + clamp(o.x / W, 0, 1) * (w - MM.l - MM.r), y: MM.t + (1 - o.d) * (h - MM.t - MM.b)}; }
+function drawMini(){
+  const c = MINI.cv, g = c.getContext('2d'), dpr = MINI.dpr || 1, w = c.width / dpr, h = c.height / dpr;
+  if(!w) return;
+  g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, w, h);
+  const top = MM.t, bh = (h - MM.t - MM.b) / 3;
+  ['뒷줄', '가운데줄', '앞줄'].forEach((n, i) => { g.fillStyle = i % 2 ? 'rgba(110,231,249,.06)' : 'rgba(110,231,249,.12)'; g.fillRect(MM.l - 6, top + i * bh - 6, w - MM.l - MM.r + 12, bh); g.fillStyle = '#98a4d4'; g.font = '11px "Noto Sans KR"'; g.textAlign = 'right'; g.fillText(n, w - 8, top + i * bh + 6); });
+  g.fillStyle = '#eef2ff'; g.font = '700 12px "Noto Sans KR"'; g.textAlign = 'left'; g.fillText('🗺 위에서 본 모습', 8, 16);
+  g.textAlign = 'center'; g.font = '14px sans-serif'; g.fillText('👀 보는 사람', w / 2, h - 8);
+  const st = S();
+  for(const o of st.scene.objs.slice().sort((a, b) => b.d - a.d)){
+    const p = miniPos(o, w, h), s = sprite(o); if(!s) continue;
+    const r = Math.min(26 / s.width, 26 / s.height);
+    g.drawImage(s, p.x - s.width * r / 2, p.y - s.height * r / 2, s.width * r, s.height * r);
+    if(st.sel === o){ g.strokeStyle = '#ffcc4d'; g.lineWidth = 2; circ(g, p.x, p.y, 17); g.stroke(); }
+  }
+}
+(() => {
+  const c = MINI.cv; let drag = null;
+  const pos = e => { const r = c.getBoundingClientRect(); return {x: e.clientX - r.left, y: e.clientY - r.top, w: r.width, h: r.height}; };
+  c.addEventListener('pointerdown', e => {
+    e.stopPropagation(); const p = pos(e), st = S(); let best = null, bd = 22;
+    for(const o of st.scene.objs){ const q = miniPos(o, p.w, p.h), d = Math.hypot(q.x - p.x, q.y - p.y); if(d < bd){ bd = d; best = o; } }
+    if(best){ st.sel = best; drag = true; c.setPointerCapture(e.pointerId); SND.tap(); renderObjbar(); }
+  });
+  c.addEventListener('pointermove', e => {
+    if(!drag) return; const p = pos(e), o = S().sel; if(!o) return;
+    o.x = clamp((p.x - MM.l) / (p.w - MM.l - MM.r), 0, 1) * W;
+    o.d = +clamp(1 - (p.y - MM.t) / (p.h - MM.t - MM.b), 0, 1).toFixed(2);
+    updReadout(); const r = document.querySelector('#objbar input[type=range]'); if(r) r.value = o.d;
+  });
+  c.addEventListener('pointerup', () => { if(drag) saveScene(); drag = null; });
+})();
+
+/* 그림 저장 */
+function download(canvas, name){
+  canvas.toBlob(b => { if(!b){ toast('저장하지 못했어요'); return; } const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 3000); toast('💾 다운로드 폴더에 저장했어요'); }, 'image/png');
+}
+function exportPNG(){
+  const st = S(), c = mk(W, H, () => {}), sel = st.sel; st.sel = null;
+  st.render(performance.now() / 1000, c.getContext('2d'), 1, 0, 0, false); st.sel = sel;
+  download(c, 'my-space.png'); SND.ok();
+}
+
+/* 설계도 */
+function wrap(g, text, x, y, maxW, lh){
+  let line = '', yy = y;
+  for(const ch of text){ const t = line + ch; if(g.measureText(t).width > maxW && line){ g.fillText(line, x, yy); line = ch; yy += lh; } else line = t; }
+  if(line){ g.fillText(line, x, yy); yy += lh; }
+  return yy;
+}
+function openPlan(){
+  const st = S(), c = $('#planCv'), g = c.getContext('2d'), WW = c.width, HH = c.height;
+  g.setTransform(1, 0, 0, 1, 0, 0);
+  g.fillStyle = '#fbf8ef'; g.fillRect(0, 0, WW, HH);
+  g.fillStyle = '#1b2452'; g.font = '400 52px "Black Han Sans","Noto Sans KR"'; g.textBaseline = 'alphabetic'; g.textAlign = 'left';
+  g.fillText('우리 모둠 우주 공간 설계도', 50, 80);
+  g.font = '400 24px "Noto Sans KR"'; g.fillStyle = '#5b6388'; g.fillText('모둠 이름 ______________   만든 사람 ______________________________', 50, 124);
+  const bx = 50, by = 160, bw = 720, bh = 560;
+  g.fillStyle = '#10173a'; g.fillRect(bx, by, bw, bh);
+  const bgInfo = BGS.find(b => b.id === st.scene.bg);
+  g.fillStyle = '#6ee7f9'; g.font = '700 22px "Noto Sans KR"'; g.fillText(`뒷판 · ${bgInfo.n}`, bx + 20, by + 36);
+  const rowT = by + 60, rowH = (bh - 130) / 3;
+  ['뒷줄', '가운데줄', '앞줄'].forEach((n, i) => { g.fillStyle = i % 2 ? '#141d48' : '#1a2556'; g.fillRect(bx + 10, rowT + i * rowH, bw - 20, rowH - 6); g.fillStyle = '#98a4d4'; g.font = '700 20px "Noto Sans KR"'; g.textAlign = 'right'; g.fillText(n, bx + bw - 22, rowT + i * rowH + 28); g.textAlign = 'left'; });
+  g.fillStyle = '#ffcc4d'; g.font = '700 22px "Noto Sans KR"'; g.textAlign = 'center'; g.fillText('👀 보는 사람 쪽 (작품의 앞)', bx + bw / 2, by + bh - 24); g.textAlign = 'left';
+  const objs = st.scene.objs.slice().sort((a, b) => b.d - a.d);
+  for(const o of objs){
+    const s = sprite(o); if(!s) continue;
+    const x = bx + 30 + clamp(o.x / W, 0, 1) * (bw - 60), y = rowT + (1 - o.d) * (rowH * 3 - 40) + 20;
+    const sz = 40 + (1 - o.d) * 30, r = Math.min(sz / s.width, sz / s.height);
+    g.drawImage(s, x - s.width * r / 2, y - s.height * r / 2, s.width * r, s.height * r);
+  }
+  const lx = 810; let y = 180;
+  g.fillStyle = '#1b2452'; g.font = '700 26px "Noto Sans KR"'; g.fillText('🧰 무엇으로 만들까', lx, y); y += 40;
+  g.font = '400 20px "Noto Sans KR"'; g.fillStyle = '#333a55';
+  g.fillStyle = '#0a7a8a'; g.font = '700 21px "Noto Sans KR"'; g.fillText(`뒷판 — ${bgInfo.n}`, lx, y); y += 28;
+  g.fillStyle = '#333a55'; g.font = '400 19px "Noto Sans KR"'; y = wrap(g, bgInfo.mat, lx + 16, y, 740, 26) + 8;
+  const groups = [['뒷줄', o => o.d >= .67], ['가운데줄', o => o.d >= .34 && o.d < .67], ['앞줄', o => o.d < .34]];
+  for(const [n, f] of groups){
+    const list = objs.filter(f); if(!list.length) continue;
+    const seen = new Set();
+    g.fillStyle = '#0a7a8a'; g.font = '700 21px "Noto Sans KR"'; g.fillText(n, lx, y); y += 28;
+    for(const o of list){
+      const key = o.k + (o.pid || ''); if(seen.has(key)) continue; seen.add(key);
+      const cnt = list.filter(q => q.k + (q.pid || '') === key).length;
+      if(y > 900) break;
+      const s = sprite(o); if(s){ const r = Math.min(30 / s.width, 30 / s.height); g.drawImage(s, lx + 16, y - 22, s.width * r, s.height * r); }
+      g.fillStyle = '#1b2452'; g.font = '700 19px "Noto Sans KR"'; g.fillText(KINDS[o.k].n + (cnt > 1 ? ` ×${cnt}` : ''), lx + 54, y);
+      const nw = g.measureText(KINDS[o.k].n + (cnt > 1 ? ` ×${cnt}` : '')).width;
+      g.fillStyle = '#333a55'; g.font = '400 18px "Noto Sans KR"'; y = wrap(g, '— ' + KINDS[o.k].mat, lx + 64 + nw, y, 720 - nw - 50, 25) + 6;
+    }
+    y += 6;
+  }
+  if(!objs.length){ g.fillStyle = '#8a8fa8'; g.font = '400 20px "Noto Sans KR"'; g.fillText('아직 무대에 놓인 것이 없어요.', lx, y); }
+  const ty = 760;
+  g.fillStyle = '#1b2452'; g.font = '700 26px "Noto Sans KR"'; g.fillText('✨ 실제로 세울 때 거리 마법 챙기기', 50, ty);
+  g.font = '400 21px "Noto Sans KR"'; g.fillStyle = '#333a55';
+  ['뒷줄 행성은 작게, 앞줄은 크게 만든다', '뒷줄은 어두운 색·옅은 색, 앞줄은 밝고 진한 색', '앞줄이 뒷줄을 조금 가리도록 겹쳐 세운다', '매다는 철사·낚싯줄 길이를 서로 다르게 해 높낮이를 준다']
+    .forEach((s, i) => { g.strokeStyle = '#1b2452'; g.lineWidth = 2; g.strokeRect(60, ty + 22 + i * 36, 22, 22); g.fillText(s, 96, ty + 41 + i * 36); });
+  g.fillStyle = '#1b2452'; g.font = '700 26px "Noto Sans KR"'; g.fillText('🤝 역할 나누기', 810, ty);
+  g.font = '400 21px "Noto Sans KR"'; g.fillStyle = '#333a55';
+  for(let i = 0; i < 4; i++){ g.fillText('이름 ________   맡은 일 __________________', 820, ty + 41 + i * 36); }
+  g.fillStyle = '#8a8fa8'; g.font = '400 17px "Noto Sans KR"'; g.fillText('미술 10 · 우주로 날아간 미술 — 우주 공간 연출하기 (교과서 62~63쪽)', 50, HH - 30);
+  openM('plan'); SND.tap();
+}
+function savePlan(){ download($('#planCv'), 'space-plan.png'); }
+
+/* 사진 지우개 */
+const ER = {c: $('#erCv'), g: null, undo: [], mode: 'wand'};
+ER.g = ER.c.getContext('2d', {willReadFrequently: true});
+$('#fileIn').addEventListener('change', e => {
+  const f = e.target.files[0]; e.target.value = ''; if(!f) return;
+  const url = URL.createObjectURL(f), im = new Image();
+  im.onload = () => {
+    const s = Math.min(1, 640 / Math.max(im.width, im.height));
+    ER.c.width = Math.round(im.width * s); ER.c.height = Math.round(im.height * s);
+    ER.g.drawImage(im, 0, 0, ER.c.width, ER.c.height); URL.revokeObjectURL(url);
+    ER.undo = []; erMode('wand'); openM('eraser');
+  };
+  im.onerror = () => toast('사진을 열지 못했어요');
+  im.src = url;
+});
+function erMode(m){ ER.mode = m; $('#erWand').classList.toggle('on', m === 'wand'); $('#erBrush').classList.toggle('on', m === 'brush'); }
+function erPush(){ ER.undo.push(ER.g.getImageData(0, 0, ER.c.width, ER.c.height)); if(ER.undo.length > 12) ER.undo.shift(); }
+function erUndo(){ const d = ER.undo.pop(); if(d){ ER.g.putImageData(d, 0, 0); SND.tap(); } }
+function flood(id, sx, sy, tol){
+  const w = id.width, h = id.height, d = id.data, i0 = (sy * w + sx) * 4;
+  const r0 = d[i0], g0 = d[i0 + 1], b0 = d[i0 + 2], t2 = tol * tol * 3;
+  const seen = new Uint8Array(w * h), st = [sy * w + sx]; seen[sy * w + sx] = 1;
+  while(st.length){
+    const p = st.pop(), k = p * 4, dr = d[k] - r0, dg = d[k + 1] - g0, db = d[k + 2] - b0;
+    if(d[k + 3] === 0 || dr * dr + dg * dg + db * db <= t2){
+      d[k + 3] = 0;
+      const x = p % w, y = (p / w) | 0;
+      if(x > 0 && !seen[p - 1]){ seen[p - 1] = 1; st.push(p - 1); }
+      if(x < w - 1 && !seen[p + 1]){ seen[p + 1] = 1; st.push(p + 1); }
+      if(y > 0 && !seen[p - w]){ seen[p - w] = 1; st.push(p - w); }
+      if(y < h - 1 && !seen[p + w]){ seen[p + w] = 1; st.push(p + w); }
+    }
+  }
+}
+function erEdge(){
+  erPush(); const w = ER.c.width, h = ER.c.height, id = ER.g.getImageData(0, 0, w, h), tol = +$('#erTol').value;
+  for(const [x, y] of [[0, 0], [w - 1, 0], [0, h - 1], [w - 1, h - 1], [w >> 1, 0], [w >> 1, h - 1], [0, h >> 1], [w - 1, h >> 1]]) if(id.data[(y * w + x) * 4 + 3]) flood(id, x, y, tol);
+  ER.g.putImageData(id, 0, 0); SND.pop();
+}
+(() => {
+  const c = ER.c; let down = false;
+  const pt = e => { const r = c.getBoundingClientRect(); return {x: (e.clientX - r.left) * c.width / r.width, y: (e.clientY - r.top) * c.height / r.height, s: c.width / r.width}; };
+  const rub = p => { const g = ER.g; g.save(); g.globalCompositeOperation = 'destination-out'; circ(g, p.x, p.y, 16 * p.s); g.fill(); g.restore(); };
+  c.addEventListener('pointerdown', e => {
+    const p = pt(e); c.setPointerCapture(e.pointerId); erPush();
+    if(ER.mode === 'wand'){ const id = ER.g.getImageData(0, 0, c.width, c.height); flood(id, clamp(p.x | 0, 0, c.width - 1), clamp(p.y | 0, 0, c.height - 1), +$('#erTol').value); ER.g.putImageData(id, 0, 0); SND.pop(); }
+    else { down = true; rub(p); }
+  });
+  c.addEventListener('pointermove', e => { if(down) rub(pt(e)); });
+  c.addEventListener('pointerup', () => { down = false; });
+})();
+function erDone(){
+  const w = ER.c.width, h = ER.c.height, d = ER.g.getImageData(0, 0, w, h).data;
+  let x0 = w, y0 = h, x1 = -1, y1 = -1;
+  for(let y = 0; y < h; y++) for(let x = 0; x < w; x++) if(d[(y * w + x) * 4 + 3] > 12){ if(x < x0) x0 = x; if(x > x1) x1 = x; if(y < y0) y0 = y; if(y > y1) y1 = y; }
+  if(x1 < 0){ toast('다 지워져 버렸어요. 되돌리기를 눌러 보세요'); return; }
+  const cw = x1 - x0 + 1, ch = y1 - y0 + 1;
+  const out = mk(cw, ch, g => g.drawImage(ER.c, x0, y0, cw, ch, 0, 0, cw, ch));
+  const id = 'p' + Date.now().toString(36);
+  PHOTOS[id] = out;
+  let url = out.toDataURL('image/webp', .85); if(url.indexOf('image/webp') < 0) url = out.toDataURL('image/png');
+  PHOTO_URL[id] = url;
+  closeM('eraser'); curCat = 'mine'; renderPalette(); addObj('photo', id);
+  toast('🧑‍🚀 내 작품이 우주에 떴어요! 거리를 바꿔 보세요');
+}
+
+/* ───────── 무대 모드 ───────── */
+stages.stage = new Stage($('#cvStage'), {cover: true});
+const SM = {what: 'scene', bgi: 0, slow: true, hideT: 0};
+function enterStage(){
+  const st = stages.stage;
+  st.scene = S().scene; st.play = true; st.sel = null; st.hideObjs = SM.what === 'bg';
+  st.speed = SM.slow ? .55 : 1.1; resetTilt();
+  SM.bgi = Math.max(0, BGS.findIndex(b => b.id === st.scene.bg));
+  smLabels(); showSmbar();
+  fullScreen();
+}
+function leaveStage(){ go('studio'); }
+function smLabels(){
+  $('#smWhat').textContent = SM.what === 'scene' ? '🪐 내 장면' : '🌌 배경만';
+  $('#smBgName').textContent = BGS[SM.bgi].n;
+  $('#smSpd').textContent = SM.slow ? '🐢 천천히' : '🐇 보통';
+}
+function smToggleWhat(){ SM.what = SM.what === 'scene' ? 'bg' : 'scene'; stages.stage.hideObjs = SM.what === 'bg'; smLabels(); SND.tap(); showSmbar(); }
+function smBg(dir){ SM.bgi = (SM.bgi + dir + BGS.length) % BGS.length; S().scene.bg = BGS[SM.bgi].id; saveScene(); smLabels(); SND.whoosh(); showSmbar(); }
+function smSpeed(){ SM.slow = !SM.slow; stages.stage.speed = SM.slow ? .55 : 1.1; smLabels(); SND.tap(); showSmbar(); }
+function fullScreen(){ const el = document.documentElement; if(!document.fullscreenElement && el.requestFullscreen) el.requestFullscreen().catch(() => {}); setTimeout(fitAll, 300); }
+function showSmbar(){ $('#smbar').classList.remove('hide'); clearTimeout(SM.hideT); SM.hideT = setTimeout(() => $('#smbar').classList.add('hide'), 3500); }
+$('#cvStage').addEventListener('pointerdown', showSmbar);
+document.addEventListener('fullscreenchange', () => setTimeout(fitAll, 120));
+
+/* 시작 */
+loadScene();
+fitAll();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

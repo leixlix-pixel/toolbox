@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>고려 모둠 토의 학습지 7장</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --ink:#1b2a33; --navy:#1a3a52; --acc:#2f7d75; --red:#b83227;
+  --line:#c8d3da; --muted:#6b7c88; --tint:#f1f7f6; --tint2:#fdf6ec;
+}
+html,body{margin:0;padding:0}
+body{
+  font-family:'Noto Sans KR',sans-serif; color:var(--ink);
+  background:#e9edf0; -webkit-print-color-adjust:exact; print-color-adjust:exact;
+}
+
+/* ── 화면 안내 바 ── */
+.topbar{
+  position:sticky; top:0; z-index:9; background:var(--navy); color:#fff;
+  padding:14px 20px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+  box-shadow:0 2px 10px rgba(0,0,0,.2);
+}
+.topbar h1{margin:0; font-size:17px; font-weight:700; letter-spacing:-.3px}
+.topbar p{margin:0; font-size:13px; color:#b9cfdd; flex:1; min-width:240px; line-height:1.5}
+.topbar button{
+  font-family:inherit; font-size:15px; font-weight:700; color:var(--navy); background:#ffd76e;
+  border:0; border-radius:8px; padding:11px 22px; min-height:44px; cursor:pointer;
+}
+.topbar button:active{transform:translateY(1px)}
+
+/* ── A4 ── */
+@page{size:A4; margin:0}
+.page{
+  width:210mm; height:297mm; overflow:hidden; position:relative;
+  padding:13mm 15mm 12mm; background:#fff; margin:18px auto;
+  display:flex; flex-direction:column;
+  box-shadow:0 3px 14px rgba(0,0,0,.14);
+  break-after:page; page-break-after:always;
+}
+.page:last-of-type{break-after:auto; page-break-after:auto}
+
+/* ── 머리 ── */
+.head{flex:0 0 auto; border-bottom:2.5px solid var(--navy); padding-bottom:7px; margin-bottom:11px}
+.hrow{display:flex; align-items:flex-end; gap:11px}
+.no{
+  flex:0 0 auto; width:34px; height:34px; border-radius:9px; background:var(--navy); color:#fff;
+  font-size:19px; font-weight:900; display:flex; align-items:center; justify-content:center;
+}
+.htxt{flex:1; min-width:0}
+.unit{font-size:10.5px; color:var(--acc); font-weight:700; letter-spacing:1.5px; margin-bottom:1px}
+.ttl{font-size:20px; font-weight:900; letter-spacing:-.7px; line-height:1.15}
+.name{flex:0 0 auto; font-size:11px; color:var(--muted); padding-bottom:2px; white-space:nowrap}
+
+/* ── 본문 ── */
+.pbody{flex:1; min-height:0; display:flex; flex-direction:column; justify-content:space-between; gap:9px}
+.sec{display:flex; flex-direction:column; min-height:0}
+.sh{display:flex; align-items:center; gap:7px; margin-bottom:5px; flex:0 0 auto}
+.sn{
+  width:19px; height:19px; border-radius:50%; background:var(--acc); color:#fff;
+  font-size:11.5px; font-weight:700; display:flex; align-items:center; justify-content:center; flex:0 0 auto;
+}
+.st{font-size:13.5px; font-weight:700; letter-spacing:-.3px}
+.time{
+  font-size:10px; font-weight:700; color:var(--acc); background:var(--tint);
+  border:1px solid #cfe3e0; border-radius:20px; padding:2px 8px; margin-left:auto; white-space:nowrap;
+}
+
+.situ{
+  font-size:12.5px; line-height:1.62; background:var(--tint2); border-left:3.5px solid #e0b96a;
+  padding:8px 11px; border-radius:0 6px 6px 0; margin-bottom:6px; flex:0 0 auto;
+}
+.situ b{font-weight:700; color:var(--red)}
+.ask{font-size:13px; font-weight:700; line-height:1.5; margin-bottom:6px; flex:0 0 auto; color:var(--navy)}
+
+.opts{display:flex; flex-wrap:wrap; gap:5px 14px; margin-bottom:6px; flex:0 0 auto}
+.opt{display:flex; align-items:center; gap:5px; font-size:12px; line-height:1.3}
+.opt i{
+  width:12px; height:12px; border:1.6px solid #8fa0ad; border-radius:2.5px;
+  flex:0 0 auto; display:block;
+}
+
+.collab{display:flex; font-size:10.5px; color:var(--muted); font-weight:700; margin-bottom:2px; flex:0 0 auto}
+.collab span:first-child{width:86px; flex:0 0 auto; padding-left:6px}
+.collab span:last-child{padding-left:8px}
+.hint{font-size:11px; color:var(--muted); line-height:1.5; margin-bottom:5px; flex:0 0 auto}
+
+svg.grid{flex:1 1 0; width:100%; display:block}
+
+/* 교과서 확인 */
+.check{
+  border:1.5px dashed #b8ccc9; background:#fafdfc; border-radius:7px;
+  padding:8px 11px 9px; flex:0 0 auto;
+}
+.ci{display:flex; align-items:flex-end; gap:6px; font-size:12px; line-height:1.85; margin-top:1px}
+.ci:first-child{margin-top:0}
+.ci span{flex:0 0 auto}
+.ci u{flex:1; min-width:30px; border-bottom:1px solid #b6c4cc; text-decoration:none; height:15px}
+.ci em{flex:0 0 auto; font-style:normal; color:var(--muted); font-size:11px}
+
+.more{
+  font-size:11.5px; line-height:1.55; color:var(--navy); background:#f4f7fa;
+  border-radius:6px; padding:7px 10px; margin-top:6px; flex:0 0 auto;
+}
+.more b{color:var(--red)}
+
+.foot{
+  flex:0 0 auto; margin-top:9px; padding-top:6px; border-top:1px solid var(--line);
+  font-size:10px; color:var(--muted); line-height:1.5; display:flex; justify-content:space-between; gap:12px;
+}
+
+@media print{
+  body{background:#fff}
+  .no-print{display:none !important}
+  .page{margin:0; box-shadow:none}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar no-print">
+  <h1>고려 · 모둠 토의 학습지 7장</h1>
+  <p>교과서 46~63쪽 · 한 장이 한 차시입니다. <b>토의 → 교과서 읽기 → 판단</b> 순서로 짜여 있어 교과서를 먼저 읽히면 효과가 줄어듭니다.</p>
+  <button onclick="window.print()">인쇄하기</button>
+</div>
+
+<div id="out"></div>
+
+<script>
+const SHEETS = [
+{
+  no:'1', unit:'고려의 건국과 후삼국 통일 · 교과서 47~48쪽',
+  title:'왕건은 왜 낙타를 굶겨 죽였을까',
+  situ:'너는 전쟁에서 이긴 나라의 왕이야. 그런데 얼마 전 망해 버린 이웃 나라 사람 <b>수만 명</b>이 국경을 넘어와서 받아 달라고 한다. 우리 백성 먹을 곡식도 넉넉하지 않아.',
+  ask:'너라면 이 사람들을 어떻게 하겠어? 고르고, 그렇게 정한 까닭을 쓰세요.',
+  opts:['돌려보낸다','받아주되 따로 살게 한다','우리 백성과 똑같이 대한다','그 밖에'],
+  g1:.18,
+  check:[
+    ['왕건은 발해 세자 대광현에게 무엇을 주었나요?','47쪽'],
+    ['왕건이 발해 유민을 받아들인 까닭은 무엇일까요?','47쪽'],
+    ['왕건이 후대 왕들에게 남긴 열 가지 가르침의 이름은?','48쪽']
+  ],
+  situ2:'그런데 <b>같은 왕건</b>이 이런 일도 했어. 거란이 사신과 낙타 50필을 선물로 보내오자, 사신 30명을 섬으로 귀양 보내고 낙타는 다리 아래에 묶어 <b>모두 굶어 죽게</b> 했다(53쪽). 발해 사람은 품어 주고, 낙타는 굶겨 죽였다. 같은 사람이야.',
+  ask2:'왕건은 꼭 그렇게까지 해야 했을까?',
+  opts2:['그래야 했다','그럴 필요는 없었다'],
+  g2:.40,
+  more:'생각 더하기 — 왕건이 낙타를 <b>사람들이 보는 다리 아래에</b> 묶어 둔 까닭은 뭘까? 몰래 없앨 수도 있었는데.'
+},
+{
+  no:'2', unit:'고려 사회의 모습 · 교과서 49~50쪽',
+  title:'시험으로 뽑으면 공평할까',
+  situ:'네가 왕이야. 나라 일을 맡길 사람을 뽑아야 하는데, 지금은 <b>힘센 집안 자식들이 좋은 자리를 다 차지하고</b> 있어. 집안을 보지 않고 사람을 뽑고 싶어.',
+  ask:'집안을 보지 않고 뽑으려면 어떤 방법이 있을까? 방법과, 그 방법의 문제점도 함께 쓰세요.',
+  opts:[],
+  g1:.20,
+  check:[
+    ['고려가 관리를 뽑기 위해 실시한 제도의 이름은?','49쪽'],
+    ['억울하게 노비가 된 백성에게 고려는 무엇을 해 주었나요?','49쪽'],
+    ['신라와 고려의 차이를 교과서는 무엇이라고 썼나요?','49쪽']
+  ],
+  situ2:'그런데 과거 시험을 보려면 <b>어려운 한문 책을 몇 년씩</b> 읽어야 했어. 책도 비쌌고, 가르쳐 줄 사람도 있어야 했지. 농사일을 도와야 하는 집 아이에게 그런 시간이 있었을까?',
+  ask2:'시험으로 사람을 뽑는 것은 공평한 방법일까?',
+  opts2:['공평하다','공평하지 않다','공평하지만 부족하다'],
+  g2:.38,
+  more:'생각 더하기 — 오늘날에도 시험으로 뽑는 일이 많아. <b>그건 어때?</b> 더 나은 방법이 있을까?'
+},
+{
+  no:'3', unit:'고려 사회의 모습 · 교과서 50 · 52쪽',
+  title:'아버지는 왜 아들에게 옷 한 벌만 남겼을까',
+  situ:'고려의 어느 아버지가 세상을 떠나며 <b>재산을 전부 다 자란 딸</b>에게 주고, 어린 아들에게는 <b>검은 옷 한 벌, 모자 하나, 신발 하나, 종이 한 장</b>만 남겼어. 세월이 흘러 다 자란 아들이 이 유언은 부당하다며 소송을 냈다. 네가 재판관이야.',
+  ask:'너라면 어떻게 판결하겠어? 판결과 그 까닭을 쓰세요.',
+  opts:[],
+  g1:.20,
+  check:[
+    ['손변은 어떻게 판결했나요?','52쪽'],
+    ['아버지가 그렇게 유언한 까닭은 무엇이었나요?','52쪽'],
+    ['고려에서 아들과 딸은 유산을 어떻게 받았나요?','50쪽'],
+    ['고려 여성은 재혼을 할 수 있었나요?','50쪽']
+  ],
+  situ2:'우리는 흔히 <b>‘옛날 여자들은 늘 차별받았다’</b>고 생각해. 그런데 고려는 딸도 재산을 똑같이 받았고, 재혼도 자유로웠고, 여자가 집안의 가장인 경우도 있었어. 이건 조선 시대에 가서 바뀐 거야.',
+  ask2:'우리가 ‘옛날부터 늘 그랬다’고 믿고 있는 것 중에, 사실은 아닐지도 모르는 것이 또 있을까?',
+  opts2:[],
+  g2:.38,
+  more:'생각 더하기 — 그렇게 <b>잘못 믿게 된 까닭</b>은 뭘까? 누가 그렇게 말해 주었지?'
+},
+{
+  no:'4', unit:'고려와 주변 나라 · 교과서 53~54쪽',
+  title:'서희는 무엇을 주고 무엇을 얻었나',
+  situ:'우리보다 <b>훨씬 강한 나라</b>의 군대가 국경을 넘어왔어. 싸워서 이길 힘은 없다. 임금이 너를 대표로 뽑아 적진에 보냈어. 너 혼자 걸어 들어가야 해.',
+  ask:'적장에게 무슨 말을 해서 돌려보낼래? 그리고 그 대신 무엇을 내줄 수 있을까?',
+  opts:[],
+  g1:.20,
+  check:[
+    ['서희가 거란에게 약속한 것은 무엇인가요?','54쪽'],
+    ['그 대신 고려가 얻은 땅의 이름은?','54쪽'],
+    ['거란이 고려에 쳐들어온 것은 모두 몇 번인가요?','54쪽'],
+    ['강감찬이 거란군을 크게 물리친 곳은?','54쪽']
+  ],
+  situ2:'그런데 고려는 <b>약속을 지키지 않았어.</b> 송과 계속 친하게 지냈지. 그러자 거란이 2차로 쳐들어와 개경을 빼앗았고, 3차로 또 쳐들어왔어. 그 전쟁들에서 수많은 사람이 죽었다.',
+  ask2:'고려가 약속을 어긴 것은 잘못일까?',
+  opts2:['잘못이다','잘못이 아니다'],
+  g2:.38,
+  more:'생각 더하기 — 나라끼리 한 약속은 <b>어떤 때 지키지 않아도 될까?</b> 그런 때가 있기는 할까?'
+},
+{
+  no:'5', unit:'고려와 주변 나라 · 교과서 56~57쪽',
+  title:'왕은 섬으로 갔다',
+  situ:'세계에서 가장 강한 군대가 쳐들어왔어. 그들은 <b>말을 타고 싸우는 데는 천하무적</b>이지만, 배를 다룰 줄은 모른다. 네가 왕이야.',
+  ask:'너는 어디로 가겠어? 그리고 두고 가는 백성에게 무슨 말을 하겠어?',
+  opts:[],
+  g1:.19,
+  check:[
+    ['고려가 옮긴 수도는 어디인가요?','56쪽'],
+    ['몽골과의 전쟁은 몇 년 동안 이어졌나요?','56쪽'],
+    ['처인성에서 몽골군 총사령관을 죽인 사람은 누구인가요?','57쪽'],
+    ['그와 함께 싸운 사람들은 어떤 사람들이었나요?','57쪽']
+  ],
+  situ2:'왕과 귀족은 강화도에서 <b>30년 동안 안전했어.</b> 바다를 못 건너는 몽골군은 섬에 들어오지 못했으니까. 그동안 <b>육지의 백성은 그대로 당했다.</b> 땅은 황폐해지고 수많은 사람이 죽거나 끌려갔지. 몽골군 총사령관을 죽인 것은 왕이 보낸 군대가 아니라, 승려 김윤후와 <b>차별받던 사람들</b>이었어.',
+  ask2:'왕이 섬으로 간 것은 옳았을까?',
+  opts2:['옳았다','옳지 않았다'],
+  g2:.40,
+  more:'생각 더하기 — 교과서는 이 30년을 <b>몇 줄로</b> 적었어. 네가 교과서를 쓴다면 이 30년을 뭐라고 쓰겠어?'
+},
+{
+  no:'6', unit:'고려의 문화 · 교과서 58~59쪽',
+  title:'누구의 청자일까',
+  situ:'깨지기 쉬운 그릇 <b>수천 개</b>를 나라의 남쪽 끝(강진)에서 수도(개경)까지 옮겨야 해. 800년 전이야. 자동차도 없고 포장도로도 없어.',
+  ask:'어떻게 옮기겠어? 그 방법에는 어떤 위험이 있을까?',
+  opts:[],
+  g1:.20,
+  check:[
+    ['고려청자를 만든 곳과 도착한 곳은 어디인가요?','59쪽'],
+    ['태안 앞바다에서 발견된 것은 무엇인가요?','59쪽'],
+    ['고려청자는 주로 누가 사용했나요?','58쪽'],
+    ['청자를 만들려면 무엇이 필요했나요? (한 가지)','58쪽']
+  ],
+  situ2:'고려청자는 <b>비싸고 귀한 물건</b>이라 주로 지배층이 썼어. 농사짓던 백성은 평생 한 번도 손에 쥐어 보지 못했을지도 몰라. 그런데 우리는 청자를 <b>‘고려의 문화’</b>라고 부른다.',
+  ask2:'백성이 써 본 적 없는 물건을 ‘고려의 문화’라고 불러도 될까? 그렇다면 백성의 문화는 무엇이라고 불러야 할까?',
+  opts2:[],
+  g2:.38,
+  more:'생각 더하기 — 800년 뒤 사람들이 <b>우리 시대의 문화</b>를 말한다면, 무엇을 가지고 말할까? 그건 모두가 쓰는 물건일까?'
+},
+{
+  no:'7', unit:'고려의 문화 · 교과서 60~61쪽',
+  title:'전쟁 중에 나무를 깎았다',
+  situ:'전쟁 중이야. 적군은 이미 나라 안에 들어와 있고, 마을이 불타고 사람들이 끌려가고 있어. 나라에 남은 <b>돈과 사람과 시간</b>을 어디에 쓸지 네가 정해야 해.',
+  ask:'어디에 쓰겠어? 고르고 까닭을 쓰세요.',
+  opts:['무기 만들기','성 쌓기','굶는 백성 먹이기','그 밖에'],
+  g1:.18,
+  check:[
+    ['고려가 몽골과 싸우는 동안 만든 것은 무엇인가요?','60쪽'],
+    ['경판은 모두 몇 장쯤 되나요?','60쪽'],
+    ['왜 만들었는지 기도문에서 찾아 쓰세요.','60쪽'],
+    ['『직지』는 어떤 책인가요?','61쪽']
+  ],
+  situ2:'고려는 <b>16년 동안 8만 장이 넘는</b> 나무를 깎았어. 나무를 베고, 바닷물에 담가 말리고, 글자를 한 자 한 자 새겼지. 그 돈과 사람과 시간을 <b>무기에 썼다면</b> 어땠을까. 전쟁은 결국 몽골의 뜻대로 끝났어.',
+  ask2:'전쟁 중에 경판을 깎은 것은 헛일이었을까?',
+  opts2:['헛일이었다','헛일이 아니었다'],
+  g2:.40,
+  more:'생각 더하기 — 고려의 『직지』는 세계에서 가장 오래된 금속 활자 인쇄본이야. 그런데 <b>세상을 바꾼 것은 78년이나 늦은 독일의 인쇄술</b>이었어. 최초인 것이 중요할까?'
+}
+];
+
+function optsHTML(list){
+  if(!list || !list.length) return '';
+  return '<div class="opts">' + list.map(o=>'<span class="opt"><i></i>'+o+'</span>').join('') + '</div>';
+}
+function checkHTML(list){
+  return '<div class="check">' + list.map(c=>
+    '<div class="ci"><span>'+c[0]+'</span><u></u><em>'+c[1]+'</em></div>'
+  ).join('') + '</div>';
+}
+
+function pageHTML(s){
+  return '<div class="page">'
+  + '<div class="head"><div class="hrow">'
+  +   '<div class="no">'+s.no+'</div>'
+  +   '<div class="htxt"><div class="unit">'+s.unit+'</div><div class="ttl">'+s.title+'</div></div>'
+  +   '<div class="name">5학년 ___반 이름 __________</div>'
+  + '</div></div>'
+
+  + '<div class="pbody">'
+
+  /* ① 혼자 */
+  + '<div class="sec grow" style="flex-grow:'+s.g1+'">'
+  +   '<div class="sh"><div class="sn">1</div><div class="st">먼저 혼자 생각하기</div><div class="time">혼자 2분</div></div>'
+  +   '<div class="situ">'+s.situ+'</div>'
+  +   '<div class="ask">'+s.ask+'</div>'
+  +   optsHTML(s.opts)
+  +   '<svg class="grid" data-mode="lines" data-pitch="27" style="min-height:52px"></svg>'
+  + '</div>'
+
+  /* ② 모둠 */
+  + '<div class="sec grow" style="flex-grow:.19">'
+  +   '<div class="sh"><div class="sn">2</div><div class="st">모둠에서 듣기</div><div class="time">모둠 8분</div></div>'
+  +   '<div class="hint">한 사람씩 돌아가며 자기가 쓴 것을 읽습니다. 그다음 자유롭게 이야기하세요. <b>나와 다른 생각을 한 친구만</b> 적으면 됩니다. 같은 생각은 적지 않아도 괜찮습니다.</div>'
+  +   '<div class="collab"><span>친구 이름</span><span>나와 달랐던 생각</span></div>'
+  +   '<svg class="grid" data-mode="named" data-pitch="27" style="min-height:54px"></svg>'
+  + '</div>'
+
+  /* ③ 교과서 */
+  + '<div class="sec">'
+  +   '<div class="sh"><div class="sn">3</div><div class="st">이제 교과서를 읽습니다</div><div class="time">혼자 10분</div></div>'
+  +   checkHTML(s.check)
+  + '</div>'
+
+  /* ④ 판단 */
+  + '<div class="sec grow" style="flex-grow:'+s.g2+'">'
+  +   '<div class="sh"><div class="sn">4</div><div class="st">읽고 나서, 나는 이렇게 생각한다</div><div class="time">혼자 5분</div></div>'
+  +   '<div class="situ">'+s.situ2+'</div>'
+  +   '<div class="ask">'+s.ask2+'</div>'
+  +   optsHTML(s.opts2)
+  +   '<svg class="grid" data-mode="lines" data-pitch="27" style="min-height:76px"></svg>'
+  +   '<div class="more">'+s.more+'</div>'
+  + '</div>'
+
+  + '</div>'
+
+  + '<div class="foot">'
+  +   '<span>이 학습지에는 <b>정답이 없는 질문</b>이 들어 있습니다. 생각이 바뀌었으면 처음 쓴 것을 지우지 말고 둘 다 남겨 두세요.</span>'
+  +   '<span>고려 '+s.no+'/7</span>'
+  + '</div>'
+  + '</div>';
+}
+
+document.getElementById('out').innerHTML = SHEETS.map(pageHTML).join('');
+
+/* ── 격자는 SVG 선으로 긋는다 (CSS 테두리는 인쇄 시 세로선이 사라진다) ── */
+function drawGrid(svg){
+  const r = svg.getBoundingClientRect();
+  const w = Math.round(r.width), h = Math.round(r.height);
+  if(w < 20 || h < 20) return;
+  const pitch = +svg.dataset.pitch || 28;
+  const rows = Math.max(1, Math.round(h / pitch));
+  const rh = h / rows;
+  let s = '<rect x="0.8" y="0.8" width="'+(w-1.6)+'" height="'+(h-1.6)+'" rx="5" fill="none" stroke="#b6c5cd" stroke-width="1.6"/>';
+  for(let i=1;i<rows;i++){
+    const y = +(i*rh).toFixed(2);
+    s += '<line x1="1.6" y1="'+y+'" x2="'+(w-1.6)+'" y2="'+y+'" stroke="#dce3e9" stroke-width="1.1"/>';
+  }
+  if(svg.dataset.mode === 'named'){
+    s += '<line x1="86" y1="1.6" x2="86" y2="'+(h-1.6)+'" stroke="#dce3e9" stroke-width="1.1"/>';
+  }
+  svg.setAttribute('viewBox','0 0 '+w+' '+h);
+  svg.setAttribute('preserveAspectRatio','none');
+  svg.innerHTML = s;
+}
+function drawAll(){ document.querySelectorAll('svg.grid').forEach(drawGrid); }
+
+drawAll();
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(drawAll);
+window.addEventListener('load', drawAll);
+window.addEventListener('resize', drawAll);
+window.addEventListener('beforeprint', drawAll);
+</script>
+</body>
+</html>

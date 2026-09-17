@@ -1106,7 +1106,7 @@ const ERAS = [
 const KEY='timeTravelerAncientKorea_v1';
 const blank = ()=>({ done:[], solved:{}, troubles:0, hints:0, started:false });
 let S = blank();
-let cur = { era:0, qi:0, answered:false, tIdx:0, pendingQ:null };
+let cur = { era:0, qi:0, answered:false, tIdx:0, key:null, order:[], wrong:[] };
 let finalPick = [];
 
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
@@ -1228,14 +1228,20 @@ function renderQ(){
 
   const opts=document.getElementById('qopts');
   opts.className='opts '+(q.photo?'photo':(q.fig&&IMG[q.fig]?'text two':'text'));
-  opts.innerHTML=q.opts.map((o,n)=>{
+  const key=cur.era+'-'+cur.qi;
+  if(cur.key!==key){ cur.key=key; cur.order=shuffled(q.opts.length); cur.wrong=[]; }
+  opts.innerHTML=cur.order.map(n=>{
+    const o=q.opts[n];
     if(q.photo){
       const src=IMG[o.img]||'';
       return '<button class="opt" data-n="'+n+'"><img src="'+src+'" alt=""><span>'+o.t+'</span></button>';
     }
     return '<button class="opt" data-n="'+n+'">'+o+'</button>';
   }).join('');
-  opts.querySelectorAll('.opt').forEach(b=>b.onclick=()=>answer(+b.dataset.n));
+  opts.querySelectorAll('.opt').forEach(b=>{
+    b.onclick=()=>answer(+b.dataset.n);
+    if(cur.wrong.indexOf(+b.dataset.n)>=0){ b.classList.add('bad'); b.disabled=true; }
+  });
 
   document.getElementById('qfb').innerHTML='';
   document.getElementById('qht').innerHTML='';
@@ -1246,13 +1252,14 @@ function answer(n){
   if(cur.answered) return;
   const e=ERAS[cur.era], q=e.qs[cur.qi];
   const btns=[].slice.call(document.querySelectorAll('#qopts .opt'));
+  const me=btns.filter(b=>+b.dataset.n===n)[0];
   const fb=document.getElementById('qfb');
 
   if(n===q.correct){
     cur.answered=true;
     SND.ok();
     btns.forEach(b=>b.disabled=true);
-    btns[n].classList.add('good');
+    me.classList.add('good');
     fb.innerHTML='<span class="ok">들키지 않았다.</span> '+q.why[n];
     const list=S.solved[cur.era]||[];
     if(list.indexOf(cur.qi)<0) list.push(cur.qi);
@@ -1266,12 +1273,13 @@ function answer(n){
     nb.classList.add('show');
   }else{
     SND.bad();
-    btns[n].classList.add('bad');
-    btns[n].disabled=true;
+    me.classList.add('bad');
+    me.disabled=true;
     fb.innerHTML='<span class="no">아차.</span> '+q.why[n];
     S.troubles++;
     save();
-    cur.pendingQ = n;
+    if(cur.wrong.indexOf(n)<0) cur.wrong.push(n);
+    cur.answered=true;               /* 사건이 뜨기 전 1.5초 동안 또 누르지 못하게 */
     setTimeout(()=>openTrouble(), 1500);
   }
 }
@@ -1302,6 +1310,13 @@ function nextQ(){
   renderQ();
 }
 
+/* 보기 순서 섞기 — 문제 데이터는 정답을 맨 앞에 적어 두었으므로 화면에서 반드시 섞는다 */
+function shuffled(len){
+  const a=[]; for(let i=0;i<len;i++) a.push(i);
+  for(let i=len-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); const t=a[i]; a[i]=a[j]; a[j]=t; }
+  return a;
+}
+
 /* ===================== 사건 ===================== */
 function openTrouble(){
   const e=ERAS[cur.era];
@@ -1313,7 +1328,7 @@ function openTrouble(){
   document.getElementById('tdesc').innerHTML=t.desc;
   document.getElementById('tq').innerHTML=t.q;
   const opts=document.getElementById('topts');
-  opts.innerHTML=t.opts.map((o,n)=>'<button class="opt" data-n="'+n+'">'+o+'</button>').join('');
+  opts.innerHTML=shuffled(t.opts.length).map(n=>'<button class="opt" data-n="'+n+'">'+t.opts[n]+'</button>').join('');
   opts.querySelectorAll('.opt').forEach(b=>b.onclick=()=>tAnswer(+b.dataset.n, t));
   document.getElementById('tfb').innerHTML='';
   document.getElementById('tnext').classList.remove('show');
@@ -1322,16 +1337,17 @@ function openTrouble(){
 
 function tAnswer(n, t){
   const btns=[].slice.call(document.querySelectorAll('#topts .opt'));
+  const me=btns.filter(b=>+b.dataset.n===n)[0];
   const fb=document.getElementById('tfb');
   if(n===t.correct){
     SND.ok();
     btns.forEach(b=>b.disabled=true);
-    btns[n].classList.add('good');
+    me.classList.add('good');
     fb.innerHTML='<span class="ok">빠져나왔다!</span> '+t.why[n];
     document.getElementById('tnext').classList.add('show');
   }else{
     SND.bad();
-    btns[n].classList.add('bad'); btns[n].disabled=true;
+    me.classList.add('bad'); me.disabled=true;
     fb.innerHTML='<span class="no">아직이다.</span> '+t.why[n];
   }
 }
@@ -1341,12 +1357,6 @@ function escapeOut(){
   show('quiz');
   renderQ();
   toast('다시 해 보자. 아까 고른 답은 빼고.', 2200);
-  if(cur.pendingQ!=null){
-    const btns=[].slice.call(document.querySelectorAll('#qopts .opt'));
-    const b=btns[cur.pendingQ];
-    if(b){ b.classList.add('bad'); b.disabled=true; }
-    cur.pendingQ=null;
-  }
 }
 
 /* ===================== 마지막 관문 ===================== */

@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>독도, 무엇으로 답할까 — 증거를 고르는 사람</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Gaegu:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a1420; --bg2:#0f1d2e; --card:#15243a; --card2:#1e3350;
+  --line:#2f4767; --ink:#e9f2fb; --muted:#8fa6c4;
+  --sand:#e8c87a; --sea:#3fd0c9; --red:#ff6b7a; --blue:#5fa8ff; --green:#5fcf7a;
+}
+html,body{background:var(--bg);color:var(--ink)}
+body{
+  font-family:'Noto Sans KR',sans-serif; font-size:17px; line-height:1.6;
+  touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+  user-select:none; -webkit-user-select:none; min-height:100vh;
+  background:
+    radial-gradient(1100px 460px at 50% -8%, #16304d 0%, transparent 62%),
+    var(--bg);
+}
+button{font-family:inherit;font-size:inherit;color:inherit;border:none;background:none;cursor:pointer}
+input,textarea{font-family:inherit}
+#app{max-width:820px;margin:0 auto;padding:0 14px 44px}
+
+header{
+  display:flex;align-items:center;gap:6px;
+  padding:12px 2px 10px;position:sticky;top:0;z-index:40;
+  background:linear-gradient(180deg,var(--bg) 70%,transparent);
+}
+.brand{font-weight:900;font-size:15px;letter-spacing:-.7px;display:flex;align-items:center;gap:6px;white-space:nowrap;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.brand .dot{width:10px;height:10px;border-radius:50%;background:var(--sea);box-shadow:0 0 12px var(--sea);animation:bl 2.2s infinite}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.3}}
+.hspace{flex:1}
+.iconbtn{width:36px;height:36px;flex:none;border-radius:11px;background:var(--card);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:17px}
+.cnt{font-size:12.5px;font-weight:700;padding:5px 9px;flex:none;white-space:nowrap;border-radius:999px;background:var(--card2);border:1px solid var(--line);color:var(--sand);min-height:32px;display:flex;align-items:center}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px}
+.big{font-size:26px;font-weight:900;line-height:1.32;letter-spacing:-1px}
+.sub{color:var(--muted);font-size:15px}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:2px;color:var(--sea)}
+.btn{
+  display:block;width:100%;min-height:52px;padding:13px 17px;border-radius:14px;
+  background:var(--card2);border:1.5px solid var(--line);
+  font-weight:500;text-align:left;line-height:1.45;
+  transition:transform .08s,border-color .15s,background .15s;
+}
+.btn:active{transform:scale(.985)}
+.btn.primary{background:var(--sand);border-color:#f7e3ad;color:#3a2c0c;font-weight:700;text-align:center}
+.btn.go{background:var(--sea);border-color:#a5f0eb;color:#04302c;font-weight:700;text-align:center}
+.btn.ghost{background:transparent;color:var(--muted);font-weight:500;text-align:center;min-height:46px}
+.btn.sel{border-color:var(--sand);background:#332a14}
+.btn.ok{border-color:#2f7a5c;background:#102b23}
+.btn.no{border-color:#7a3340;background:#2e1820;opacity:.72}
+.stack{display:flex;flex-direction:column;gap:9px}
+.mt{margin-top:14px}
+
+/* ── 시작 ── */
+.hero{text-align:center;padding:20px 6px 6px}
+.hero h1{font-size:31px;font-weight:900;line-height:1.24;letter-spacing:-1.4px;margin:12px 0 8px}
+.hero h1 em{font-style:normal;color:var(--sand)}
+.heroic{font-size:50px;line-height:1;filter:drop-shadow(0 0 22px rgba(63,208,201,.4))}
+
+/* ── 메시지(일본 또래) ── */
+.msg{
+  background:linear-gradient(135deg,#13263d,#182f4a);border:1px solid var(--line);
+  border-radius:18px;padding:16px 17px;margin-top:16px;text-align:left
+}
+.msg .from{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);margin-bottom:9px}
+.msg .from i{width:26px;height:26px;border-radius:50%;background:#24405f;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:14px;flex:none}
+.msg .body{font-size:16.5px;line-height:1.72;background:#1c3552;border-radius:4px 14px 14px 14px;padding:12px 14px;border:1px solid #33537a}
+.msg .note{font-size:13px;color:var(--muted);margin-top:10px;line-height:1.6}
+
+/* ── QR ── */
+.qrwrap{text-align:center;margin-top:24px}
+.qrbtn{position:relative;background:#fff;border-radius:14px;padding:9px;line-height:0;border:3px solid var(--card2)}
+.qrbtn svg{width:128px;height:128px;display:block}
+.qrbadge{position:absolute;right:-8px;bottom:-9px;background:var(--sand);color:#3a2c0c;font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;line-height:1.5}
+.qrov{position:fixed;inset:0;background:rgba(5,10,16,.94);z-index:90;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;padding:20px}
+.qrov .in{background:#fff;padding:16px;border-radius:20px;line-height:0}
+.qrov svg{width:min(78vw,440px);height:min(78vw,440px);display:block}
+
+/* ── 홈: 증거철 ── */
+.filebox{
+  display:flex;gap:15px;align-items:center;
+  background:linear-gradient(135deg,#13243a,#1b3150);
+  border:1px solid var(--line);border-radius:20px;padding:15px 17px;margin-bottom:14px
+}
+.filebox svg{width:108px;height:136px;flex:none}
+.filetx{flex:1;min-width:0}
+.gauge{height:10px;border-radius:99px;background:#0b1928;overflow:hidden;margin:9px 0 7px;border:1px solid var(--line)}
+.gauge i{display:block;height:100%;background:linear-gradient(90deg,var(--sand),var(--sea));border-radius:99px;transition:width .5s}
+.mlist{display:flex;flex-direction:column;gap:10px}
+.mrow{display:flex;align-items:center;gap:13px;width:100%;padding:14px 15px;border-radius:16px;background:var(--card);border:1.5px solid var(--line);text-align:left}
+.mrow .num{width:34px;height:34px;border-radius:11px;flex:none;background:var(--card2);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;color:var(--muted)}
+.mrow .tx{flex:1;min-width:0}
+.mrow .tx b{display:block;font-size:16.5px;font-weight:700}
+.mrow .tx span{display:block;font-size:13.5px;color:var(--muted);line-height:1.45}
+.mrow .st{font-size:21px;flex:none}
+.mrow.ok{border-color:#2f7a5c;background:#12281f}
+.mrow.ok .num{background:var(--sea);color:#04302c}
+
+/* ── 말풍선 ── */
+.saying{display:flex;gap:11px;align-items:flex-start;margin:4px 0 14px}
+.saying .face{
+  width:44px;height:44px;border-radius:50%;flex:none;
+  background:linear-gradient(160deg,#27405f,#15243a);border:1.5px solid var(--sea);
+  display:flex;align-items:center;justify-content:center;font-size:21px
+}
+.saying .bub{
+  flex:1;background:var(--card2);border:1.5px solid var(--line);border-radius:4px 16px 16px 16px;
+  padding:12px 15px;font-size:16.5px;line-height:1.62
+}
+.saying .bub b{color:var(--sand);font-weight:700}
+.saying.me{flex-direction:row-reverse}
+.saying.me .face{border-color:var(--blue)}
+.saying.me .bub{border-radius:16px 4px 16px 16px;background:#16294a;border-color:#3a5a8c}
+.saying.jp .face{border-color:#b98a8a;background:linear-gradient(160deg,#4a2c33,#2a1a20)}
+.saying.jp .bub{background:#2b1c24;border-color:#5e3b45}
+
+/* ── 증거 카드 ── */
+.evid{
+  background:linear-gradient(135deg,#f6efdd,#e9dcc0);color:#2b2415;
+  border-radius:15px;padding:15px 16px;margin:10px 0
+}
+.evid .et{font-size:12px;font-weight:700;letter-spacing:1px;color:#8a6f3e;margin-bottom:5px}
+.evid .en{font-size:19px;font-weight:900;letter-spacing:-.5px;line-height:1.3}
+.evid .eq{
+  font-family:'Gaegu',sans-serif;font-size:19px;line-height:1.7;color:#4a3820;
+  background:#efe4c8;border-radius:9px;padding:10px 12px;margin-top:10px;border-left:4px solid #b9995c
+}
+.evid .ed{font-size:14px;line-height:1.65;color:#4d4231;margin-top:9px}
+.evid .ed b{color:#8a4a20}
+.evid .src{font-size:11.5px;color:#8a7c5e;margin-top:9px;line-height:1.5}
+
+/* ── ★ 등급 ── */
+.stars{display:flex;gap:7px;margin-top:11px}
+.starbtn{
+  flex:1;min-height:58px;border-radius:13px;background:var(--card2);
+  border:1.5px solid var(--line);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:2px;padding:7px 4px
+}
+.starbtn .s{font-size:15px;letter-spacing:1px;color:var(--sand)}
+.starbtn .l{font-size:11.5px;color:var(--muted);line-height:1.3;text-align:center}
+.starbtn.sel{border-color:var(--sand);background:#332a14}
+.starbtn.sel .l{color:var(--sand)}
+.gradedot{display:flex;gap:6px;justify-content:center;margin-top:12px}
+.gradedot i{width:8px;height:8px;border-radius:50%;background:var(--line);display:block}
+.gradedot i.on{background:var(--sand)}
+.gradedot i.dn{background:var(--sea)}
+
+/* ── 지도 ── */
+.mapwrap{background:#f3ead4;border-radius:15px;padding:12px;margin:12px 0}
+.mapwrap svg{width:100%;display:block;border-radius:9px}
+.maplegend{display:flex;gap:14px;justify-content:center;margin-top:10px;font-size:13px;color:#4d4231}
+.maplegend span{display:flex;align-items:center;gap:5px}
+.maplegend i{width:14px;height:14px;border-radius:3px;display:block;border:1px solid #8a7c5e}
+.hotisle{cursor:pointer}
+
+/* ── 비교표 ── */
+.cmp{border:1.5px solid var(--line);border-radius:14px;overflow:hidden;margin-top:12px}
+.cmp .row{display:flex;border-bottom:1px solid var(--line)}
+.cmp .row:last-child{border-bottom:none}
+.cmp .row.head{background:var(--card2);font-weight:700}
+.cmp .c{flex:1;padding:10px 11px;font-size:14px;line-height:1.5;border-right:1px solid var(--line);min-width:0}
+.cmp .c:last-child{border-right:none}
+.cmp .c.k{flex:0 0 76px;color:var(--muted);font-size:13px;background:#12203450}
+.cmp .row.head .c.a{color:var(--sea)}
+.cmp .row.head .c.b{color:var(--red)}
+.cmp .blank{
+  display:block;width:100%;min-height:40px;border-radius:9px;border:1.5px dashed var(--line);
+  background:#0f1d2e;color:var(--muted);font-size:13.5px;padding:8px;text-align:center
+}
+.cmp .blank.filled{border-style:solid;border-color:var(--sand);color:var(--ink);background:#2a2415}
+
+/* ── 답장 조립 ── */
+.letter{
+  background:linear-gradient(135deg,#f7f1e2,#ece2cb);color:#2b2415;
+  border-radius:16px;padding:18px 18px 15px;margin-top:6px;
+  box-shadow:0 10px 28px rgba(0,0,0,.4)
+}
+.letter h3{font-family:'Gaegu',sans-serif;font-size:23px;font-weight:700;margin-bottom:11px;color:#3f3018}
+.letter p{font-size:15.5px;line-height:1.8;margin-bottom:9px}
+.letter .slot{
+  font-family:'Gaegu',sans-serif;font-size:17px;line-height:1.65;color:#3f3018;
+  background:#efe4c8;border-radius:9px;padding:9px 11px;margin:7px 0;border-left:4px solid #b9995c
+}
+.letter .slot.empty{color:#a4977a;border-left-color:#cbbc96;font-style:italic}
+.letter .sign{text-align:right;font-family:'Gaegu',sans-serif;font-size:17px;color:#6b573a;margin-top:12px}
+.picks{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.pick{
+  display:flex;align-items:center;gap:10px;width:100%;padding:12px 13px;border-radius:13px;
+  background:var(--card2);border:1.5px solid var(--line);text-align:left;font-size:15px;line-height:1.45
+}
+.pick .pn{font-size:13px;color:var(--sand);font-weight:700;flex:none}
+.pick.sel{border-color:var(--sand);background:#332a14}
+.pick.dim{opacity:.45}
+
+/* ── 피드백 ── */
+.fb{border-radius:15px;padding:14px 16px;margin-top:12px;font-size:16px;line-height:1.66;border:1.5px solid}
+.fb.good{background:#102b23;border-color:#2f7a5c}
+.fb.bad{background:#2e1820;border-color:#7a3340}
+.fb.note{background:#16294a;border-color:#3a5a8c}
+.fb b{font-weight:700}
+.fb .ft{display:block;font-weight:700;margin-bottom:5px;font-size:15px}
+.fb.good .ft{color:var(--sea)}
+.fb.bad .ft{color:var(--red)}
+.fb.note .ft{color:var(--blue)}
+
+/* ── 입력 ── */
+.inbox{
+  width:100%;min-height:52px;padding:13px 15px;border-radius:14px;
+  background:#0c1827;border:1.5px solid var(--line);color:var(--ink);
+  font-size:17px;line-height:1.5;resize:none;user-select:text;-webkit-user-select:text
+}
+.inbox:focus{outline:none;border-color:var(--sand)}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
+.chip{padding:9px 13px;border-radius:999px;background:var(--card2);border:1.5px solid var(--line);font-size:14.5px;min-height:40px;display:flex;align-items:center;text-align:left;line-height:1.35}
+.chip.sel{border-color:var(--sand);background:#332a14;color:var(--sand);font-weight:700}
+
+#toast{
+  position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);
+  background:#07111c;border:1.5px solid var(--sand);color:var(--ink);
+  padding:11px 18px;border-radius:999px;font-size:15px;font-weight:500;
+  opacity:0;transition:opacity .25s,transform .25s;z-index:80;pointer-events:none;max-width:90vw;text-align:center
+}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.ovl{position:fixed;inset:0;background:rgba(5,10,16,.93);z-index:70;display:flex;align-items:center;justify-content:center;padding:20px}
+.ovl .in{background:var(--card);border:1.5px solid var(--sand);border-radius:22px;padding:26px 22px;max-width:430px;width:100%;text-align:center}
+.ovl .ic{font-size:48px;line-height:1;margin-bottom:10px}
+.ovl h2{font-size:22px;font-weight:900;margin-bottom:8px;letter-spacing:-.6px}
+.ovl p{color:var(--muted);font-size:15.5px;line-height:1.65;margin-bottom:16px}
+
+.foot{text-align:center;color:var(--muted);font-size:12.5px;margin-top:24px;line-height:1.6}
+.warn{font-size:13px;color:var(--muted);line-height:1.6;background:#12203a;border:1px solid var(--line);border-radius:12px;padding:11px 13px;margin-top:12px}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="brand"><span class="dot"></span><span>독도, 무엇으로 답할까</span></div>
+    <div class="hspace"></div>
+    <div class="cnt" id="cnt">📁 0/6</div>
+    <button class="iconbtn" onclick="toggleSound()" id="sbtn" title="소리">🔊</button>
+    <button class="iconbtn" onclick="resetAll()" title="처음부터">↺</button>
+  </header>
+  <div id="view"></div>
+</div>
+<div id="toast"></div>
+<div id="ovlwrap"></div>
+<script>
+/* ══════════════════════════════════════════════════════════
+   독도, 무엇으로 답할까 — 증거를 고르는 사람
+   2026-10-26 독도교육주간 / 5학년 / 단일 파일 · 외부 의존 없음
+   ══════════════════════════════════════════════════════════ */
+
+const QR = { main:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 35 35" shape-rendering="crispEdges"><path fill="#ffffff" d="M0 0h35v35H0z"/><path stroke="#000000" d="M1 1.5h7m2 0h1m2 0h1m3 0h1m1 0h2m3 0h1m2 0h7M1 2.5h1m5 0h1m8 0h1m1 0h2m3 0h1m1 0h1m1 0h1m5 0h1M1 3.5h1m1 0h3m1 0h1m1 0h2m1 0h2m1 0h1m1 0h1m3 0h3m3 0h1m1 0h3m1 0h1M1 4.5h1m1 0h3m1 0h1m1 0h2m1 0h2m4 0h1m1 0h1m3 0h2m1 0h1m1 0h3m1 0h1M1 5.5h1m1 0h3m1 0h1m1 0h1m3 0h9m2 0h1m2 0h1m1 0h3m1 0h1M1 6.5h1m5 0h1m1 0h3m6 0h1m3 0h1m2 0h1m1 0h1m5 0h1M1 7.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M9 8.5h3m1 0h1m1 0h1m1 0h1m1 0h5M1 9.5h1m1 0h5m3 0h1m1 0h3m2 0h1m1 0h1m2 0h1m1 0h1m1 0h5M4 10.5h2m3 0h1m1 0h4m4 0h3m1 0h2m2 0h2m1 0h2m1 0h1M2 11.5h2m1 0h1m1 0h5m2 0h3m4 0h3m1 0h1m1 0h1m1 0h1m1 0h2M4 12.5h1m1 0h1m2 0h2m2 0h2m6 0h3m1 0h1m3 0h3M2 13.5h1m1 0h2m1 0h3m1 0h3m1 0h2m1 0h2m3 0h3m3 0h2m1 0h1M1 14.5h4m1 0h1m2 0h2m3 0h1m1 0h1m2 0h3m2 0h1m2 0h1m2 0h1m1 0h2M2 15.5h2m3 0h2m6 0h2m1 0h1m2 0h2m3 0h2m1 0h2m1 0h1M2 16.5h1m2 0h1m2 0h1m1 0h1m3 0h1m1 0h2m3 0h2m1 0h4m1 0h3M6 17.5h5m3 0h1m3 0h1m5 0h1m1 0h1m1 0h2m3 0h1M1 18.5h2m1 0h1m3 0h2m4 0h1m2 0h6m1 0h1m2 0h2m1 0h4M1 19.5h2m2 0h6m1 0h2m2 0h3m3 0h2m2 0h4m1 0h2M1 20.5h1m2 0h3m1 0h3m1 0h1m1 0h1m1 0h2m1 0h1m2 0h2m1 0h9M4 21.5h2m1 0h1m1 0h1m5 0h2m1 0h1m1 0h1m2 0h4m1 0h3m1 0h2M1 22.5h1m7 0h1m1 0h3m3 0h5m1 0h2m2 0h1m2 0h1m2 0h1M1 23.5h1m4 0h3m1 0h1m1 0h1m2 0h3m1 0h1m2 0h2m2 0h5m1 0h1M1 24.5h1m1 0h2m4 0h1m3 0h2m1 0h2m3 0h4m3 0h1m1 0h4M1 25.5h1m1 0h1m1 0h4m1 0h2m2 0h1m2 0h2m2 0h1m1 0h7m3 0h1M9 26.5h1m1 0h1m2 0h1m2 0h2m1 0h4m1 0h1m3 0h1m1 0h1m1 0h1M1 27.5h7m5 0h1m2 0h1m2 0h1m1 0h1m1 0h3m1 0h1m1 0h1m1 0h1M1 28.5h1m5 0h1m1 0h1m3 0h1m1 0h2m2 0h1m2 0h1m1 0h2m3 0h5M1 29.5h1m1 0h3m1 0h1m1 0h2m1 0h2m1 0h1m2 0h1m1 0h1m2 0h1m1 0h6m1 0h2M1 30.5h1m1 0h3m1 0h1m1 0h1m3 0h1m1 0h1m1 0h1m2 0h3m1 0h3m2 0h2m1 0h2M1 31.5h1m1 0h3m1 0h1m1 0h2m5 0h1m4 0h2m1 0h2m1 0h2m2 0h1M1 32.5h1m5 0h1m2 0h8m1 0h1m2 0h1m3 0h1m2 0h3M1 33.5h7m1 0h1m1 0h1m1 0h1m2 0h1m1 0h1m1 0h1m2 0h3m2 0h1m3 0h1"/></svg>' };/*QR_INJECT*/
+
+const SND = {
+  ctx:null, vol:.55,
+  init(){ if(this.ctx) return; try{ this.ctx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} },
+  tone(f,dur,type,vol,delay,slide){
+    if(!this.ctx||this.vol<=0) return;
+    const t0=this.ctx.currentTime+(delay||0);
+    const o=this.ctx.createOscillator(), g=this.ctx.createGain();
+    o.type=type||'square';
+    o.frequency.setValueAtTime(f,t0);
+    if(slide) o.frequency.exponentialRampToValueAtTime(Math.max(40,slide),t0+dur);
+    g.gain.setValueAtTime(.0001,t0);
+    g.gain.exponentialRampToValueAtTime((vol==null?.16:vol)*this.vol,t0+.012);
+    g.gain.exponentialRampToValueAtTime(.0001,t0+dur);
+    o.connect(g); g.connect(this.ctx.destination);
+    o.start(t0); o.stop(t0+dur+.05);
+  },
+  noise(dur,vol,delay,freq){
+    if(!this.ctx||this.vol<=0) return;
+    const t0=this.ctx.currentTime+(delay||0);
+    const len=Math.floor(this.ctx.sampleRate*dur);
+    const buf=this.ctx.createBuffer(1,len,this.ctx.sampleRate);
+    const d=buf.getChannelData(0);
+    for(let i=0;i<len;i++) d[i]=(Math.random()*2-1)*(1-i/len);
+    const src=this.ctx.createBufferSource(); src.buffer=buf;
+    const g=this.ctx.createGain(); g.gain.value=(vol==null?.12:vol)*this.vol;
+    const f=this.ctx.createBiquadFilter(); f.type='bandpass'; f.frequency.value=freq||1200;
+    src.connect(f); f.connect(g); g.connect(this.ctx.destination); src.start(t0);
+  },
+  click(){ this.tone(680,.06,'square',.10); },
+  tap(){ this.tone(440,.05,'triangle',.09); },
+  ok(){ [523,659,784,1047].forEach((f,i)=>this.tone(f,.16,'triangle',.15,i*.075)); },
+  bad(){ this.tone(220,.22,'sawtooth',.13,0,110); this.tone(160,.26,'square',.08,.06,90); },
+  get(){ [784,1047,1319].forEach((f,i)=>this.tone(f,.14,'sine',.18,i*.06)); },
+  /* 도장 — 증거가 철에 꽂힐 때 */
+  stamp(){ this.noise(.16,.18,0,320); this.tone(150,.16,'square',.12,0,90); },
+  /* 종이 넘기기 */
+  paper(){ this.noise(.24,.07,0,2600); },
+  /* 파도 — 지도·바다 */
+  wave(){ this.noise(1.1,.07,0,520); this.noise(.8,.05,.35,760); },
+  /* 깨달음 */
+  bell(){ this.tone(1318,.62,'sine',.15); this.tone(1976,.5,'sine',.06,.03); },
+  send(){ [659,880,1175].forEach((f,i)=>this.tone(f,.2,'sine',.15,i*.08)); },
+  fanfare(){ [523,659,784,1047,1319].forEach((f,i)=>this.tone(f,.28,'triangle',.17,i*.12)); }
+};
+
+const KEY='dokdo-evidence-v1';
+let S = { done:{}, lines:{}, name:'', sign:'', picks:[], sound:true };
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} }
+function load(){
+  try{ const r=localStorage.getItem(KEY); if(r) S=Object.assign(S,JSON.parse(r)); }catch(e){}
+  SND.vol = S.sound===false ? 0 : .55;
+}
+
+/* 답장에 넣을 수 있는 증거 문장 (미션 6) */
+const EVID = [
+  { id:'e1', short:'두 섬이 서로 보인다 (1454)',
+    line:'『세종실록지리지』(1454)에 “두 섬은 서로 멀지 않아 날씨가 맑으면 바라볼 수 있다”고 적혀 있어. 울릉도에서 독도가 보여. 너희 오키섬에서는 안 보이고.' },
+  { id:'e2', short:'일본인이 그린 지도 (1785)',
+    line:'1785년 하야시 시헤이가 그린 「삼국접양지도」에는 울릉도와 독도가 조선과 같은 노란색이야. 옆에 “조선의 것”이라고 적혀 있어. 일본 사람이 그린 지도야.' },
+  { id:'e3', short:'일본 태정관의 지시 (1877)',
+    line:'1877년 일본 최고 관청인 태정관이 “울릉도와 그 외 한 섬은 일본과 관계없다”고 지시했어. 그 문서에 붙어 있던 지도에 그 한 섬이 독도로 그려져 있어.' },
+  { id:'e4', short:'관보에 실었느냐 (1900 / 1905)',
+    line:'1900년 대한제국은 칙령 제41호로 독도를 울도군에 넣고 나라 관보에 실었어. 1905년 시마네현 고시는 관보에 실리지 않았어. 5년 늦었고, 제대로 알리지도 않았어.' },
+  { id:'e5', short:'지금 사람이 산다',
+    line:'지금 독도에는 주소가 있어. 경상북도 울릉군 울릉읍 독도리. 주민이 살고 경비대가 있고 등대가 켜져 있어.' }
+];
+
+/* ══════════════════════════════════════════════════════════
+   미션
+   step.type : talk | choice | rank | map | cmp | assemble | sign
+   ══════════════════════════════════════════════════════════ */
+
+const MISSIONS = [
+/* ─────────────────────────── 1 ─────────────────────────── */
+{
+  id:'m1', ic:'⚖️', title:'내 증거의 무게', sub:'아는 것과 쓸 수 있는 것은 다르다',
+  note:'약한 증거를 세게 말하면, 거기부터 무너진다.',
+  steps:[
+    { type:'choice', lead:'하루에게 어떻게 답할까?',
+      q:'첫 답장으로 무엇을 보낼까?', poll:true,
+      opts:[
+        { t:'"독도는 우리 땅이야!"', ok:true,
+          fb:'<b>하루:</b> "나도 우리 땅이라고 배웠는데. 그럼 어떻게 되는 거야?"<br><br>…서로 배운 대로 말하면 <b>거기서 멈춘다.</b> 목소리를 키워도 마찬가지다.' },
+        { t:'"너희 교과서가 틀렸어."', ok:true,
+          fb:'<b>하루:</b> "왜 틀렸는데? 어디가?"<br><br>…결국 <b>근거를 대야 한다.</b> 틀렸다고 말하는 사람이 왜 틀렸는지도 말해야 한다.' },
+        { t:'"왜 그렇게 배웠어? 나도 근거를 찾아볼게."', ok:true, key:true,
+          fb:'<b>하루:</b> "우리 교과서에 그렇게 나와 있어. 너희는 뭐라고 배우는데?"<br><br>…대화가 <b>이어졌다.</b> 이제 찾을 차례다.' }
+      ],
+      after:['m','(나는 아는 게 노래밖에 없다는 걸 깨달았다. 자료를 찾으러 갔다.)']
+    },
+    { type:'talk', lines:[
+      ['m','도서관에서 독도 자료를 찾았다. 생각보다 많다.'],
+      ['m','그런데 <b>다 똑같이 센 건 아닌 것 같다.</b> 하나씩 무게를 달아 보자.'],
+      ['n','증거마다 <b>★</b>를 매겨 보세요. 상대가 <b>반박하기 어려울수록</b> 별이 많습니다.']
+    ]},
+    { type:'rank',
+      q:'이 증거는 얼마나 센가?',
+      levels:[
+        { s:'✕',   l:'증거로<br>못 쓴다' },
+        { s:'★',   l:'도움은 되나<br>혼자선 약하다' },
+        { s:'★★★', l:'아주 세다<br>반박하기 어렵다' }
+      ],
+      cards:[
+        { name:'「독도는 우리 땅」 노래',
+          era:'1982년 · 대한민국',
+          quote:'울릉도 동남쪽 뱃길 따라 이백 리…',
+          desc:'많은 사람이 알고 부른다. 가사에 독도의 위치와 우편번호까지 들어 있다.',
+          ans:0,
+          fbs:[
+            '맞다. <b>노래는 증거가 아니다.</b> 우리가 만든 것이기 때문이다. 하루도 자기 나라 노래를 만들 수 있다. 외우기엔 좋지만 답장에는 못 쓴다.',
+            '노래는 <b>우리가 만든 것</b>이다. 상대도 자기 노래를 만들 수 있다. "우리 노래에 그렇게 나와"는 근거가 못 된다. 한 칸 더 낮춰 보자.',
+            '노래로 답하면 하루가 뭐라고 할까? "우리도 그런 노래 있어."<br><b>노래 대 노래</b>가 되면 아무것도 정해지지 않는다. 훨씬 낮춰야 한다.'
+          ]},
+        { name:'이사부의 우산국 정벌',
+          era:'512년 · 신라',
+          quote:'우산국이 신라에 항복하고\n해마다 토산물을 바쳤다.',
+          desc:'신라 장군 이사부가 나무 사자를 써서 우산국을 복속시켰다. 우산국은 <b>지금의 울릉도</b>다.',
+          ans:1,
+          fbs:[
+            '너무 낮다. <b>버릴 것은 아니다</b> — 울릉도를 아주 오래전부터 다스렸다는 <b>바탕</b>은 된다. 다만 이것만으로 독도를 말할 수는 없다. 가운데가 맞다.',
+            '그렇다. <b>우산국은 울릉도</b>다. 기록이 말하는 것은 울릉도이고, 독도를 직접 가리키지는 않는다.<br><br>바탕으로는 쓰되, <b>이것만 앞세우면 안 된다.</b>',
+            '잠깐. <b>우산국은 울릉도</b>다. 1500년 전 기록이라 세 보이지만 독도를 직접 말하지 않는다.<br><br>이걸 가장 센 증거로 내밀면 하루가 한마디 할 것이다 — <b>"그건 울릉도잖아."</b> 그 순간 <b>나머지 증거까지 의심받는다.</b>'
+          ]},
+        { name:'『세종실록지리지』',
+          era:'1454년 · 조선',
+          quote:'우산과 무릉 두 섬이 현의 정동쪽 바다 가운데 있다.\n두 섬은 서로 멀지 않아 날씨가 맑으면 바라볼 수 있다.',
+          desc:'무릉은 울릉도, <b>우산은 독도</b>다. 나라가 펴낸 지리책에 <b>두 섬</b>이 함께 적혀 있다.',
+          ans:2,
+          fbs:[
+            '너무 낮다. 이건 <b>나라가 펴낸 지리책</b>이다. 그리고 "맑으면 보인다"는 한 줄이 그 섬이 어디인지 가리킨다. 훨씬 세다.',
+            '조금 더 세게 봐도 된다. <b>"서로 바라볼 수 있다"</b>가 결정적이다 — 울릉도에서 독도가 보이기 때문에 두 섬을 한 묶음으로 다스린 것이다.',
+            '그렇다. <b>나라가 펴낸 지리책</b>에 두 섬이 함께 적혀 있다. 그리고 <b>"맑으면 바라볼 수 있다"</b> —<br><br>울릉도에서 독도가 <b>보인다</b>(87km). 일본 오키섬에서는 <b>안 보인다</b>(157km).<br>이 한 줄이 왜 독도가 울릉도에 딸린 섬이었는지를 말해 준다.'
+          ]}
+      ]},
+    { type:'talk', lines:[
+      ['m','아는 건 많은데 <b>쓸 수 있는 건 생각보다 적다.</b>'],
+      ['n','증거를 고를 때 기준은 하나입니다 — <b>상대가 반박하기 어려운가.</b><br>내가 얼마나 확신하는지가 아니라.']
+    ]}
+  ]
+},
+/* ─────────────────────────── 2 ─────────────────────────── */
+{
+  id:'m2', ic:'🗺️', title:'일본인이 그린 지도', sub:'삼국접양지도 · 1785년',
+  note:'가장 센 증거는 상대가 스스로 남긴 것이다.',
+  steps:[
+    { type:'talk', lines:[
+      ['m','오래된 지도를 찾았다. 1785년에 그려진 것이다.'],
+      ['m','그런데 이 지도, <b>일본 사람이 그렸다.</b> 하야시 시헤이라는 학자다.'],
+      ['n','이 지도는 <b>나라마다 색을 다르게</b> 칠했습니다. 섬을 눌러 무슨 색인지 확인해 보세요.']
+    ]},
+    { type:'map',
+      q:'섬을 하나씩 눌러 <b>무슨 색으로 칠해져 있는지</b> 확인하자',
+      after:['n','울릉도와 독도가 <b>조선과 같은 노란색</b>입니다. 그리고 독도 옆에 이렇게 적혀 있습니다 — <b>「朝鮮ノ持也」(조선의 것이다)</b>']
+    },
+    { type:'choice', q:'이 지도가 <b>센 증거인 까닭</b>은?',
+      opts:[
+        { t:'일본 사람이 그린 지도라서', ok:true, key:true,
+          fb:'그렇다. <b>상대는 자기편이 남긴 것을 부정하기 어렵다.</b><br><br>우리가 그린 지도에 "우리 땅"이라 적혀 있으면 상대는 "너희가 그렸잖아"라고 한다. 하지만 <b>일본 사람이 일본 붓으로 조선 색을 칠한 지도</b>에는 그 말을 할 수 없다.' },
+        { t:'아주 오래된 지도라서', ok:false,
+          fb:'오래된 것이 다 센 것은 아니다. 1500년 전 기록(이사부)이 ★ 하나였던 걸 떠올려 보자. <b>나이가 아니라 누가 남겼느냐</b>가 무게를 정한다.' },
+        { t:'색깔이 뚜렷하게 칠해져 있어서', ok:false,
+          fb:'색이 뚜렷한 건 읽기 편할 뿐이다. 우리가 색을 뚜렷하게 칠해도 상대는 안 믿는다. <b>누가 칠했느냐</b>를 다시 보자.' }
+      ]}
+  ]
+},
+/* ─────────────────────────── 3 ─────────────────────────── */
+{
+  id:'m3', ic:'📜', title:'일본이 쓴 문서', sub:'태정관 지령 · 1877년',
+  note:'증거를 내면 반론이 온다. 답을 미리 준비해 둔다.',
+  steps:[
+    { type:'talk', evid:{
+        name:'태정관 지령', era:'1877년 · 일본',
+        quote:'다케시마(울릉도) 외 한 섬의 건은\n본방(일본)과 관계없음을 명심할 것',
+        desc:'태정관은 당시 일본의 <b>최고 행정기관</b>이다. 지금으로 치면 총리실쯤 된다. 내무성이 물어보자 이렇게 답했다.',
+        src:'일본 국립공문서관 소장. 한국 외교부 독도 자료실에서 사진을 볼 수 있다.'
+      },
+      lines:[
+      ['m','이번엔 <b>일본 정부가 직접 쓴 문서</b>다.'],
+      ['m','1877년, 일본 최고 관청이 내린 지시다.']
+    ]},
+    { type:'choice', q:'이 문서는 무슨 뜻일까?',
+      opts:[
+        { t:'울릉도와 또 하나의 섬은 일본 땅이 아니다', ok:true,
+          fb:'그렇다. <b>"관계없다"는 "우리 것이 아니다"</b>라는 뜻이다. 일본 정부가 스스로 그렇게 적었다.' },
+        { t:'울릉도만 일본 땅이 아니다', ok:false,
+          fb:'문서를 다시 읽어 보자. <b>"다케시마 외 한 섬"</b> — 울릉도 <b>그리고 또 하나의 섬</b>이다. 두 개를 함께 말하고 있다.' },
+        { t:'일본이 그 섬에 관심이 없다는 뜻', ok:false,
+          fb:'관심이 없다는 말이 아니다. 나라의 공문서에서 <b>"본방과 관계없다"</b>는 <b>영토가 아니다</b>라는 뜻이다.' }
+      ]},
+    { type:'choice', lead:'이 증거를 답장에 썼다. 그런데 —',
+      scene:[{who:'하루', jp:true, say:'우리 쪽 학자는 그 “외 한 섬”이 <b>독도가 아닐 수도 있다</b>고 하던데?'}],
+      q:'뭐라고 답할까?',
+      opts:[
+        { t:'그 문서에 붙어 있던 <b>지도</b>를 보여준다', ok:true, key:true,
+          fb:'맞다. 태정관 지령에는 <b>「기죽도약도」라는 지도가 첨부</b>되어 있다. 거기에 울릉도와 또 하나의 섬이 그려져 있고, 그 섬이 <b>독도</b>다.<br><br><b>증거를 내면 반론이 온다.</b> 좋은 증거일수록 더 세게 온다. 그래서 <b>반론에 대한 답까지 함께 준비</b>해야 한다.' },
+        { t:'"아니야, 독도 맞아!"라고 우긴다', ok:false,
+          fb:'우기면 <b>노래로 답하는 것과 같아진다.</b> 하루도 똑같이 우길 수 있다. …이 문서에 <b>무엇이 함께 붙어 있었는지</b> 다시 찾아보자.' },
+        { t:'그 증거는 접고 다른 증거로 넘어간다', ok:false,
+          fb:'반론에 답하지 않고 넘어가면 <b>그 증거는 죽는다.</b> 그리고 하루는 이렇게 생각할 것이다 — "역시 자신이 없구나."<br><br>사실 이 문서에는 <b>답이 함께 붙어 있다.</b> 다시 보자.' }
+      ]}
+  ]
+},
+/* ─────────────────────────── 4 ─────────────────────────── */
+{
+  id:'m4', ic:'📰', title:'1900 그리고 1905', sub:'무엇이 달랐나',
+  note:'1905년은 시작이었다. 독도는 맨 처음 빼앗긴 땅이다.',
+  steps:[
+    { type:'talk', lines:[
+      ['m','두 개의 문서가 나왔다. <b>5년 차이</b>다.'],
+      ['m','하나는 대한제국이, 하나는 일본 시마네현이 만들었다.'],
+      ['n','둘을 나란히 놓고 <b>빈칸을 채워</b> 보세요. 차이가 보일 겁니다.']
+    ]},
+    { type:'cmp',
+      q:'두 문서의 <b>빈칸</b>을 채우자',
+      cols:['대한제국 칙령 제41호','시마네현 고시 제40호'],
+      rows:[
+        { k:'언제', a:'1900년 10월 25일', b:'1905년 2월 22일' },
+        { k:'누가', a:'황제가 재가한 나라의 법령', b:'시마네현(지방)의 고시' },
+        { k:'내용', a:'울도군이 울릉전도·죽도·<b>석도(독도)</b>를 관할한다', b:'독도를 시마네현에 넣는다' }
+      ],
+      blanks:[
+        { k:'어디에 알렸나', side:'a', ans:'나라 관보에 실었다',
+          opts:['나라 관보에 실었다','아무 데도 안 알렸다','학교에만 알렸다'],
+          fb:'맞다. 1900년 10월 27일 <b>대한제국 관보</b>에 실렸다. 나라 안팎이 볼 수 있게 공개한 것이다.' },
+        { k:'어디에 알렸나', side:'b', ans:'관보에 싣지 않았다',
+          opts:['나라 관보에 실었다','관보에 싣지 않았다','신문 1면에 실었다'],
+          fb:'그렇다. <b>일본 관보에 실리지 않았다.</b> 「회람용」 도장이 찍힌 종이만 돌았고, 현 게시판에 붙였다는 증거도 찾을 수 없다. 일본 사람들조차 거의 몰랐다.' }
+      ],
+      after:['n','<b>5년 먼저 했고, 제대로 알렸다.</b> 뒤에 한 쪽은 조용히 했다.']
+    },
+    { type:'choice', q:'<b>1905년 2월</b>은 어떤 때였을까?<br><span class="sub">5학년 사회 시간에 배운 것을 떠올려 보자.</span>',
+      opts:[
+        { t:'러일전쟁 중이었고, <b>을사늑약 9개월 전</b>이었다', ok:true, key:true,
+          fb:'그렇다. 1905년 2월 독도 편입 → <b>그해 11월 을사늑약</b> → 1910년 강제 병합.<br><br><b>독도는 나중에 빼앗긴 땅이 아니라 맨 처음 빼앗긴 땅이다.</b> 나라를 삼키는 일의 첫 걸음이었다.' },
+        { t:'해방 직후였다', ok:false,
+          fb:'해방은 <b>1945년</b>이다. 40년이나 뒤다. 1905년은 대한제국이 아직 있던 때이고, 일본이 그 나라를 삼키기 시작하던 때다.' },
+        { t:'조선이 세워지던 때였다', ok:false,
+          fb:'조선 건국은 <b>1392년</b>이다. 500년 차이다. 1905년이면 5학년 사회에서 배운 <b>일제의 침탈</b>이 시작되던 때다.' }
+      ]}
+  ]
+},
+/* ─────────────────────────── 5 ─────────────────────────── */
+{
+  id:'m5', ic:'🏛️', title:'왜 재판에 안 가나', sub:'가장 많이 받는 질문',
+  note:'다툴 일이 아닌 것을 다툼거리로 만들지 않는다.',
+  steps:[
+    { type:'talk', lines:[
+      ['m','증거를 거의 다 모았다. 그런데 하루가 이런 말을 했다.'],
+      ['j','일본은 <b>국제사법재판소에서 정하자</b>고 여러 번 제안했대. 한국이 거부했다던데, 왜 안 가는 거야?'],
+      ['m','…어? 당당하면 가면 되는 거 아닌가?']
+    ]},
+    { type:'choice', q:'재판에 가야 할까?',
+      opts:[
+        { t:'안 간다 — 독도는 다툴 일이 아니니까', ok:true,
+          fb:'그렇다. 다만 <b>왜</b> 그런지 말할 수 있어야 한다. 다음 물음을 보자.' },
+        { t:'가야 한다 — 당당하니까 이길 텐데', ok:false,
+          fb:'마음은 그렇다. 하지만 재판소는 <b>"누구 것인지 모를 때"</b> 가는 곳이다. 가는 순간 독도는 <b>"아직 안 정해진 땅"</b>이 된다.<br><br>다음 물음으로 다시 생각해 보자.' },
+        { t:'잘 모르겠다', ok:false,
+          fb:'솔직한 답이다. 이것은 어른들도 많이 묻는 것이다. 다음 물음으로 같이 생각해 보자.' }
+      ]},
+    { type:'choice', lead:'이렇게 생각해 보자.',
+      q:'<b>내가 사는 집</b>인데 옆집이 "법원에 가서 누구 집인지 정하자"고 한다. 법원에 가면 어떻게 될까?',
+      opts:[
+        { t:'판결이 나올 때까지 <b>"누구 집인지 모르는 집"</b>이 된다', ok:true, key:true,
+          fb:'바로 그것이다.<br><br>지금 독도는 <b>대한민국이 다스리는 우리 땅</b>이다. 주민이 살고 경찰이 지킨다. 재판에 가는 순간 <b>"다투는 땅"</b>이 되고, 그것이 일본이 바라는 바다.<br><br>그리고 국제사법재판소는 <b>양쪽이 모두 동의해야</b> 열린다. 그래서 일본은 계속 제안하고, 제안 자체가 “여기는 분쟁지역이다”라고 보이게 만든다.' },
+        { t:'내 집이라는 게 더 확실해진다', ok:false,
+          fb:'그럴 수도 있지만 <b>반대로 될 수도 있다.</b> 그리고 재판이 끝날 때까지는 어떻게 될까? 이미 내 집인데 <b>"아직 모르는 집"</b>이 되어 버린다.' },
+        { t:'아무 일도 안 일어난다', ok:false,
+          fb:'아무 일도 안 일어나지 않는다. <b>법원에 갔다는 사실 자체</b>가 "이 집은 다툼이 있는 집"이라고 말해 준다. 이미 내 집인데 말이다.' }
+      ]},
+    { type:'talk', lines:[
+      ['n','지금 독도에는 <b>주소</b>가 있습니다 — 경상북도 울릉군 울릉읍 독도리.'],
+      ['n','주민이 살고, 독도경비대가 지키고, 등대가 켜져 있습니다. <b>우편물도 배달됩니다.</b>'],
+      ['m','다투는 땅이 아니라 <b>사람이 사는 우리 땅</b>이구나.']
+    ]}
+  ]
+},
+/* ─────────────────────────── 6 ─────────────────────────── */
+{
+  id:'m6', ic:'✉️', title:'답장', sub:'이기려고 쓰는 것이 아니다',
+  note:null,
+  steps:[
+    { type:'talk', lines:[
+      ['m','증거가 다섯 개 모였다. 이제 답장을 쓸 차례다.'],
+      ['m','다 넣고 싶지만… <b>너무 길면 안 읽는다.</b> 센 것으로 <b>세 개</b>만 고르자.'],
+      ['n','답장에 넣을 증거를 <b>세 개</b> 고르세요. 고르는 대로 편지에 들어갑니다.']
+    ]},
+    { type:'assemble', q:'답장에 넣을 증거 <b>세 개</b>를 고르자' },
+    { type:'sign', q:'마지막 줄은 <b>네가 쓴다.</b>',
+      hint:'하루에게 건넬 마지막 한 줄. <b>대화를 닫지 않는 말</b>이면 더 좋다.',
+      chips:[
+        '너희 교과서에는 뭐라고 쓰여 있는지 더 알려줄래?',
+        '내 말이 다 맞다고는 안 할게. 근거를 보고 같이 생각해 보자.',
+        '너를 이기려고 쓴 게 아니야. 내가 아는 것을 보여주고 싶었어.',
+        '혹시 이상한 부분이 있으면 말해 줘. 다시 찾아볼게.',
+        '다음에 만나면 이 이야기 계속하자.'
+      ]}
+  ]
+}
+];
+
+/* ══════════════════════════════════════════════════════════
+   화면
+   ══════════════════════════════════════════════════════════ */
+let V = { screen:'intro', mid:null, si:0, ti:1, pick:null, heard:[],
+          ri:0, rank:null, seen:[], cmpSlot:null, cmpAns:{}, picks:[], sign:'', ovl:null };
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const M = id => MISSIONS.find(m=>m.id===id);
+function doneCount(){ return MISSIONS.filter(m=>S.done[m.id]).length; }
+
+function render(){
+  const v=$('view');
+  if(V.screen==='intro')        v.innerHTML=viewIntro();
+  else if(V.screen==='home')    v.innerHTML=viewHome();
+  else if(V.screen==='mission') v.innerHTML=viewMission();
+  else if(V.screen==='final')   v.innerHTML=viewFinal();
+  $('cnt').textContent='📁 '+doneCount()+'/6';
+  $('sbtn').textContent = S.sound===false ? '🔇' : '🔊';
+  $('ovlwrap').innerHTML = V.ovl || '';
+  save();
+}
+
+/* ── 시작 ── */
+function viewIntro(){
+  const has=doneCount()>0;
+  return `
+  <div class="hero">
+    <div class="heroic">🏝️</div>
+    <h1>독도, <em>무엇으로</em> 답할까</h1>
+    <div class="sub">자매학교 교류 · 일본 친구에게 메시지가 왔다</div>
+  </div>
+  <div class="msg">
+    <div class="from"><i>💬</i><span>하루 (일본, 같은 학년)</span></div>
+    <div class="body">왜 너희 나라가 <b>우리 섬</b>에 있어?<br>우리 교과서엔 한국이 <b>불법으로 점거</b>하고 있다고 나와 있어.</div>
+    <div class="note">일본은 2017년부터 <b>초등학교 교과서에도</b> 그렇게 싣도록 정했습니다. 하루는 배운 대로 말한 것입니다.</div>
+  </div>
+  <div class="card mt">
+    <div class="eyebrow">이 수업에서 할 일</div>
+    <div style="font-size:16px;line-height:1.7;margin-top:8px">
+      답장을 쓰려고 보니 — <b>내가 아는 건 노래뿐이었다.</b><br>
+      증거를 모으고 <b>센 것과 약한 것을 가려서</b> 답장을 쓰자. 화내지 않고, <b>근거로.</b>
+    </div>
+  </div>
+  <div class="stack mt">
+    <button class="btn primary" onclick="start()">${has?'이어서 하기 ('+doneCount()+'/6)':'증거 모으러 가기'}</button>
+    ${has?'<button class="btn ghost" onclick="resetAll()">처음부터 다시</button>':''}
+  </div>
+  ${QR.main?`<div class="qrwrap">
+    <button class="qrbtn" onclick="showQR()">${QR.main}<span class="qrbadge">크게</span></button>
+    <div class="sub" style="font-size:12px;margin-top:8px">📱 태블릿에서 바로 열기</div>
+  </div>`:''}
+  <div class="foot">독도교육주간 · 5학년 · 한 차시<br>10월 25일은 <b>독도의 날</b>입니다 — 1900년 그날 대한제국 칙령 제41호가 나왔습니다.<br>소리가 나옵니다 (오른쪽 위 🔊 로 끌 수 있어요)</div>`;
+}
+function start(){ SND.init(); SND.click(); V.screen='home'; render(); }
+
+/* ── 증거철 그림 ── */
+function fileSvg(){
+  const n=doneCount();
+  let tabs='';
+  for(let i=0;i<6;i++){
+    const y=22+i*18, on=i<n;
+    tabs+=`<rect x="${on?14:20}" y="${y}" width="${on?80:68}" height="13" rx="3"
+      fill="${on?'#e8c87a':'#22354f'}" stroke="${on?'#f3ddab':'#2f4767'}" stroke-width="1"/>`;
+    if(on) tabs+=`<circle cx="24" cy="${y+6.5}" r="2.4" fill="#5a4418"/>`;
+  }
+  return `<svg viewBox="0 0 108 136" aria-hidden="true">
+    <rect x="6" y="10" width="96" height="120" rx="7" fill="#1b2d46" stroke="#2f4767" stroke-width="2"/>
+    <path d="M6 20 h34 l7 -9 h48 a7 7 0 0 1 7 7 v3" fill="none" stroke="#3fd0c9" stroke-width="2" opacity=".55"/>
+    ${tabs}
+    <text x="54" y="127" text-anchor="middle" font-size="8" fill="#8fa6c4">증거철</text>
+  </svg>`;
+}
+
+/* ── 홈 ── */
+function viewHome(){
+  const n=doneCount();
+  const rows=MISSIONS.map((m,i)=>{
+    const ok=!!S.done[m.id];
+    return `<button class="mrow ${ok?'ok':''}" onclick="openM('${m.id}')">
+      <span class="num">${ok?'✓':i+1}</span>
+      <span class="tx"><b>${m.ic} ${m.title}</b><span>${ok?(S.lines[m.id]||m.sub):m.sub}</span></span>
+      <span class="st">${ok?'📄':'›'}</span>
+    </button>`;
+  }).join('');
+  return `
+  <div class="filebox">
+    ${fileSvg()}
+    <div class="filetx">
+      <div class="eyebrow">증거철</div>
+      <div style="font-size:19px;font-weight:900;margin-top:3px">${n}/6 장 모음</div>
+      <div class="gauge"><i style="width:${n/6*100}%"></i></div>
+      <div class="sub" style="font-size:13.5px">${n===0?'아직 한 장도 없다.':n<6?'여섯 장을 다 모으면 답장을 보낼 수 있다.':'답장을 보냈다.'}</div>
+    </div>
+  </div>
+  ${n===6?`<button class="btn go" style="margin-bottom:14px" onclick="goFinal()">✉️ 보낸 답장 보기</button>`:''}
+  <div class="mlist">${rows}</div>
+  <div class="foot"><b>1번부터 차례로</b> 하면 이야기가 이어집니다.</div>`;
+}
+function openM(id){ SND.init(); SND.click(); V.screen='mission'; V.mid=id; V.si=0; resetStep(); render(); }
+function resetStep(){ V.ti=1; V.pick=null; V.heard=[]; V.ri=0; V.rank=null; V.seen=[]; V.cmpSlot=null; V.cmpAns={}; }
+function home(){ SND.click(); V.screen='home'; render(); }
+function goFinal(){ SND.click(); V.screen='final'; render(); }
+
+/* ── 미션 화면 ── */
+function viewMission(){
+  const m=M(V.mid), st=m.steps[V.si];
+  let body='';
+  if(st.type==='talk')          body=bodyTalk(m,st);
+  else if(st.type==='choice')   body=bodyChoice(m,st);
+  else if(st.type==='rank')     body=bodyRank(m,st);
+  else if(st.type==='map')      body=bodyMap(m,st);
+  else if(st.type==='cmp')      body=bodyCmp(m,st);
+  else if(st.type==='assemble') body=bodyAssemble(m,st);
+  else if(st.type==='sign')     body=bodySign(m,st);
+  const dots=m.steps.map((_,i)=>`<i class="${i<V.si?'dn':i===V.si?'on':''}"></i>`).join('');
+  return `
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+    <button class="iconbtn" onclick="home()">‹</button>
+    <div style="flex:1;min-width:0">
+      <div class="eyebrow">${m.ic} ${m.title}</div>
+      <div class="sub" style="font-size:13px">${m.sub}</div>
+    </div>
+  </div>
+  <div class="gradedot" style="margin:0 0 14px">${dots}</div>
+  ${body}`;
+}
+
+/* 화자: m=나 · n=자료 도우미 · j=하루(일본 친구) */
+function say(who,html){
+  if(who==='m') return `<div class="saying me"><div class="face">🙋</div><div class="bub">${html}</div></div>`;
+  if(who==='j') return `<div class="saying jp"><div class="face">💬</div><div class="bub">${html}</div></div>`;
+  return `<div class="saying"><div class="face">🔎</div><div class="bub">${html}</div></div>`;
+}
+function line(l){ return say(l[0], l[1]); }
+
+/* ── 증거 카드 ── */
+function evidCard(e){
+  return `<div class="evid">
+    <div class="et">${e.era||''}</div>
+    <div class="en">${e.name}</div>
+    ${e.quote?`<div class="eq">${esc(e.quote).replace(/\n/g,'<br>')}</div>`:''}
+    ${e.desc?`<div class="ed">${e.desc}</div>`:''}
+    ${e.src?`<div class="src">${e.src}</div>`:''}
+  </div>`;
+}
+
+/* ── talk ── */
+function bodyTalk(m,st){
+  const ls=st.lines, shown=Math.min(V.ti,ls.length), last=shown>=ls.length;
+  return `<div class="card">
+    ${st.evid&&shown>=2?ls.slice(0,1).map(line).join('')+evidCard(st.evid)+ls.slice(1,shown).map(line).join('')
+                       :ls.slice(0,shown).map(line).join('')}
+    ${!last?`<button class="btn mt" onclick="moreTalk()" style="text-align:center;color:#8fa6c4">… 계속 보기</button>`
+           :`<button class="btn go mt" onclick="nextStep()">다음</button>`}
+  </div>`;
+}
+function moreTalk(){ SND.paper(); V.ti++; render(); }
+
+/* ── choice ── */
+function bodyChoice(m,st){
+  const picked=V.pick!=null, o=picked?st.opts[V.pick]:null;
+  const opts=st.opts.map((op,i)=>{
+    let cls='btn';
+    if(picked){
+      if(i===V.pick) cls+= (op.ok?' ok':' no');
+      else if(op.ok && !st.poll) cls+=' ok';
+      else cls+=' no';
+    }
+    return `<button class="${cls}" onclick="pickOpt(${i})" ${picked?'disabled':''}>${op.t}</button>`;
+  }).join('');
+  const scene = st.scene
+    ? st.scene.map(s=>say(s.jp?'j':'m', `<b>${s.who}:</b> ${s.say}`)).join('')
+    : '';
+  let foot='';
+  if(picked){
+    if(o.ok||st.poll){
+      const more = st.poll && V.heard.length<st.opts.length;
+      foot=`${more?`<button class="btn mt" onclick="hearMore()" style="text-align:center">다른 답은 어떻게 될까? (${V.heard.length}/${st.opts.length})</button>`:''}
+            <button class="btn go mt" onclick="nextStep()">다음</button>`;
+    } else {
+      foot=`<button class="btn primary mt" onclick="againOpt()">다시 생각해 보기</button>`;
+    }
+  }
+  return `<div class="card">
+    ${st.lead?`<div class="sub" style="margin-bottom:10px;font-size:14.5px">${st.lead}</div>`:''}
+    ${scene}
+    ${say('n',st.q)}
+    <div class="stack mt">${opts}</div>
+    ${picked?`<div class="fb ${o.ok||st.poll?'good':'bad'}"><span class="ft">${o.ok||st.poll?'🔎 살펴보기':'🔎 다시 보자'}</span>${o.fb}</div>`:''}
+    ${picked&&(o.ok||st.poll)&&st.after?`<div style="margin-top:12px">${line(st.after)}</div>`:''}
+    ${foot}
+  </div>`;
+}
+function pickOpt(i){
+  const st=M(V.mid).steps[V.si], o=st.opts[i];
+  V.pick=i;
+  if(!V.heard.includes(i)) V.heard.push(i);
+  if(o.key) SND.bell(); else if(o.ok||st.poll) SND.ok(); else SND.bad();
+  render();
+}
+function againOpt(){ SND.click(); V.pick=null; render(); }
+function hearMore(){
+  const st=M(V.mid).steps[V.si];
+  for(let i=0;i<st.opts.length;i++) if(!V.heard.includes(i)){ V.pick=i; V.heard.push(i); SND.ok(); render(); return; }
+}
+
+/* ── rank : 증거의 무게 매기기 ── */
+function bodyRank(m,st){
+  const c=st.cards[V.ri], picked=V.rank!=null, right=picked&&V.rank===c.ans;
+  const lv=st.levels.map((L,i)=>{
+    let cls='starbtn';
+    if(picked){ if(i===V.rank) cls+=' sel'; }
+    return `<button class="${cls}" onclick="pickRank(${i})" ${picked?'disabled':''}>
+      <span class="s">${L.s}</span><span class="l">${L.l}</span></button>`;
+  }).join('');
+  const dots=st.cards.map((_,i)=>`<i class="${i<V.ri?'dn':i===V.ri?'on':''}"></i>`).join('');
+  const last=V.ri>=st.cards.length-1;
+  return `<div class="card">
+    ${say('n',st.q)}
+    ${evidCard(c)}
+    <div class="stars">${lv}</div>
+    ${picked?`<div class="fb ${right?'good':'note'}"><span class="ft">${right?'🔎 그렇다':'🔎 다시 달아 보자'}</span>${c.fbs[V.rank]}</div>`:''}
+    ${picked?(right
+        ? `<button class="btn go mt" onclick="${last?'nextStep()':'nextCard()'}">${last?'다음':'다음 증거'}</button>`
+        : `<button class="btn primary mt" onclick="againRank()">다시 달아 보기</button>`):''}
+    <div class="gradedot">${dots}</div>
+  </div>`;
+}
+function pickRank(i){
+  const st=M(V.mid).steps[V.si], c=st.cards[V.ri];
+  V.rank=i;
+  if(i===c.ans) SND.stamp(); else SND.bad();
+  render();
+}
+function againRank(){ SND.click(); V.rank=null; render(); }
+function nextCard(){ SND.paper(); V.ri++; V.rank=null; render(); window.scrollTo(0,0); }
+
+/* ── map : 일본인이 그린 지도 ── */
+const ISLES = [
+  { id:'ul', name:'울릉도', cx:196, cy:120, r:13, color:'#e8c87a', who:'조선 색' },
+  { id:'dk', name:'독도',   cx:238, cy:128, r:8,  color:'#e8c87a', who:'조선 색', tag:'朝鮮ノ持也' },
+  { id:'ok', name:'오키섬', cx:290, cy:176, r:11, color:'#7fbf6a', who:'일본 색' }
+];
+function mapSvg(){
+  const isles=ISLES.map(i=>{
+    const on=V.seen.includes(i.id);
+    return `<g class="hotisle" onclick="tapIsle('${i.id}')">
+      <circle cx="${i.cx}" cy="${i.cy}" r="${i.r+9}" fill="transparent"/>
+      <circle cx="${i.cx}" cy="${i.cy}" r="${i.r}" fill="${on?i.color:'#b9b2a0'}"
+        stroke="${on?'#7a6132':'#8a8272'}" stroke-width="1.6"/>
+      ${!on?`<text x="${i.cx}" y="${i.cy+4}" text-anchor="middle" font-size="11" fill="#5d5749" font-weight="700">?</text>`:''}
+      <text x="${i.cx}" y="${i.cy+i.r+13}" text-anchor="middle" font-size="10.5" fill="#4d4231" font-weight="700">${i.name}</text>
+      ${on&&i.tag?`<text x="${i.cx}" y="${i.cy-i.r-6}" text-anchor="middle" font-size="9.5" fill="#8a4a20" font-weight="700">${i.tag}</text>`:''}
+    </g>`;
+  }).join('');
+  return `<svg viewBox="0 0 360 230">
+    <rect x="0" y="0" width="360" height="230" fill="#cfe0e6"/>
+    <path d="M0 34 C40 30 74 54 92 84 C104 106 96 140 74 168 C56 190 28 206 0 212 Z" fill="#e8c87a" stroke="#a8863f" stroke-width="1.5"/>
+    <text x="42" y="120" font-size="12" fill="#6b5320" font-weight="700">조선</text>
+    <path d="M330 92 C300 112 286 146 300 186 C312 218 340 228 360 230 L360 84 Z" fill="#7fbf6a" stroke="#4f8440" stroke-width="1.5"/>
+    <text x="332" y="140" font-size="12" fill="#2f5426" font-weight="700">일본</text>
+    <text x="180" y="52" text-anchor="middle" font-size="11" fill="#5b7480">동　해</text>
+    ${isles}
+  </svg>`;
+}
+function bodyMap(m,st){
+  const all=V.seen.length>=ISLES.length;
+  return `<div class="card">
+    ${say('n',st.q)}
+    <div class="mapwrap">
+      ${mapSvg()}
+      <div class="maplegend">
+        <span><i style="background:#e8c87a"></i>조선</span>
+        <span><i style="background:#7fbf6a"></i>일본</span>
+        <span><i style="background:#b9b2a0"></i>아직 안 봄</span>
+      </div>
+    </div>
+    <div class="sub" style="text-align:center;font-size:13.5px">${V.seen.length} / ${ISLES.length} 확인</div>
+    ${all?`<div style="margin-top:12px">${line(st.after)}</div><button class="btn go mt" onclick="nextStep()">다음</button>`:''}
+  </div>`;
+}
+function tapIsle(id){
+  if(V.seen.includes(id)){ SND.tap(); return; }
+  V.seen.push(id);
+  SND.get();
+  if(V.seen.length>=ISLES.length) SND.wave();
+  render();
+}
+
+/* ── cmp : 두 문서 비교 ── */
+function bodyCmp(m,st){
+  const rows=st.rows.map(r=>`<div class="row">
+      <div class="c k">${r.k}</div><div class="c">${r.a}</div><div class="c">${r.b}</div>
+    </div>`).join('');
+  const bl=st.blanks.map((b,i)=>{
+    const v=V.cmpAns[i];
+    return `<div class="c">${v
+      ? `<span class="blank filled">${v}</span>`
+      : `<button class="blank" onclick="openCmp(${i})">${V.cmpSlot===i?'↓ 아래에서 고르기':'눌러서 채우기'}</button>`}</div>`;
+  }).join('');
+  const done=st.blanks.every((_,i)=>V.cmpAns[i]);
+  let picker='';
+  if(V.cmpSlot!=null && !V.cmpAns[V.cmpSlot]){
+    const b=st.blanks[V.cmpSlot];
+    picker=`<div class="mt">
+      <div class="sub" style="font-size:14px;margin-bottom:7px">
+        <b>${st.cols[V.cmpSlot]}</b> — ${b.k}?</div>
+      <div class="stack">${b.opts.map(o=>`<button class="btn" onclick="setCmp('${esc(o)}')">${o}</button>`).join('')}</div>
+    </div>`;
+  }
+  const fbs=st.blanks.map((b,i)=>V.cmpAns[i]===b.ans
+      ? `<div class="fb good"><span class="ft">🔎 ${st.cols[i]}</span>${b.fb}</div>` : '').join('');
+  return `<div class="card">
+    ${say('n',st.q)}
+    <div class="cmp">
+      <div class="row head"><div class="c k"></div><div class="c a">${st.cols[0]}</div><div class="c b">${st.cols[1]}</div></div>
+      ${rows}
+      <div class="row"><div class="c k">${st.blanks[0].k}</div>${bl}</div>
+    </div>
+    ${picker}
+    ${done?fbs+`<div style="margin-top:12px">${line(st.after)}</div><button class="btn go mt" onclick="nextStep()">다음</button>`:''}
+  </div>`;
+}
+function openCmp(i){ SND.click(); V.cmpSlot=i; render(); }
+function setCmp(v){
+  const st=M(V.mid).steps[V.si], b=st.blanks[V.cmpSlot];
+  if(v!==b.ans){ SND.bad(); toast('다시 생각해 보세요'); return; }
+  V.cmpAns[V.cmpSlot]=v; V.cmpSlot=null;
+  SND.stamp(); render();
+}
+
+/* ── assemble : 답장에 넣을 증거 고르기 ── */
+function letterHtml(picks, sign, name){
+  const slots=[0,1,2].map(i=>{
+    const e=picks[i]!=null?EVID.find(x=>x.id===picks[i]):null;
+    return e ? `<div class="slot">${e.line}</div>`
+             : `<div class="slot empty">— 증거 ${i+1} —</div>`;
+  }).join('');
+  return `<div class="letter">
+    <h3>하루에게</h3>
+    <p>네 메시지 잘 받았어. 화내려고 쓰는 게 아니야.<br>내가 찾아본 것을 보여줄게.</p>
+    ${slots}
+    ${sign?`<p style="margin-top:11px">${esc(sign)}</p>`:''}
+    <div class="sign">${esc(name||'　　　')} 씀</div>
+  </div>`;
+}
+function bodyAssemble(m,st){
+  const full=V.picks.length>=3;
+  const list=EVID.map(e=>{
+    const k=V.picks.indexOf(e.id), on=k>=0;
+    const dim=!on&&full;
+    return `<button class="pick ${on?'sel':''} ${dim?'dim':''}" onclick="togPick('${e.id}')">
+      <span class="pn">${on?k+1:'＋'}</span><span>${e.short}</span></button>`;
+  }).join('');
+  return `<div class="card">
+    ${say('n',st.q)}
+    ${letterHtml(V.picks,'',S.name)}
+    <div class="picks">${list}</div>
+    <div class="sub" style="text-align:center;margin-top:10px;font-size:13.5px">${V.picks.length} / 3 고름${full?'':' — 세 개를 고르세요'}</div>
+    ${full?`<button class="btn go mt" onclick="nextStep()">다음</button>`:''}
+  </div>`;
+}
+function togPick(id){
+  const k=V.picks.indexOf(id);
+  if(k>=0){ V.picks.splice(k,1); SND.tap(); }
+  else {
+    if(V.picks.length>=3){ toast('세 개까지만 — 빼고 싶은 것을 먼저 누르세요'); SND.bad(); return; }
+    V.picks.push(id); SND.stamp();
+  }
+  S.picks=V.picks.slice(); save(); render();
+}
+
+/* ── sign : 마지막 한 줄 ── */
+function bodySign(m,st){
+  const ok=V.sign.trim().length>=2;
+  const chips=st.chips.map(c=>`<button class="chip ${V.sign===c?'sel':''}" onclick="putSign('${esc(c)}')">${c}</button>`).join('');
+  return `<div class="card">
+    ${say('n',st.q)}
+    <div class="sub mt" style="font-size:14.5px">${st.hint}</div>
+    ${letterHtml(V.picks,V.sign,S.name)}
+    <textarea class="inbox mt" rows="2" placeholder="마지막 한 줄" oninput="setSign(this.value)" maxlength="70">${esc(V.sign)}</textarea>
+    <div class="chips">${chips}</div>
+    <div class="mt">
+      <div class="sub" style="font-size:13px;margin-bottom:6px">이름</div>
+      <input class="inbox" value="${esc(S.name)}" placeholder="이름" oninput="setName(this.value)" maxlength="10">
+    </div>
+    ${ok?`<button class="btn go mt" onclick="finishM()">✉️ 답장 보내기</button>`
+        :`<div class="sub" style="text-align:center;margin-top:14px;font-size:13.5px">한 줄을 적으면 답장을 보낼 수 있다</div>`}
+  </div>`;
+}
+function setSign(v){ V.sign=v; S.sign=v; }
+function setName(v){ S.name=v; save(); }
+function putSign(c){ SND.tap(); V.sign=c; S.sign=c; render(); }
+
+/* ── 단계 이동 ── */
+function nextStep(){
+  SND.click();
+  const m=M(V.mid);
+  if(V.si<m.steps.length-1){ V.si++; resetStep(); render(); window.scrollTo(0,0); }
+  else finishM();
+}
+
+/* ── 미션 완료 ── */
+function finishM(){
+  const m=M(V.mid);
+  if(m.id==='m6' && V.sign.trim().length<2){ toast('마지막 한 줄을 적어 주세요'); return; }
+  S.done[m.id]=true;
+  S.lines[m.id]= m.id==='m6' ? '답장을 보냈다.' : m.note;
+  if(m.id==='m6'){ S.picks=V.picks.slice(); S.sign=V.sign.trim(); }
+  save();
+  const n=doneCount();
+  if(m.id==='m6') SND.send(); else SND.stamp();
+  V.ovl=`<div class="ovl">
+    <div class="in">
+      <div class="ic">${m.id==='m6'?'✉️':'📄'}</div>
+      <h2>${m.id==='m6'?'답장을 보냈다':'증거철에 한 장'}</h2>
+      ${m.id==='m6'?'':`<div class="evid" style="text-align:left;margin:0 0 16px">
+        <div class="et">${MISSIONS.findIndex(x=>x.id===m.id)+1}번째 장</div>
+        <div class="ed" style="margin-top:2px;font-size:15.5px">${S.lines[m.id]}</div>
+      </div>`}
+      <p>${n<6?'증거철 <b>'+n+'/6</b> — 아직 '+(6-n)+'장이 남았다.':'<b>하루에게 답장이 갔다.</b>'}</p>
+      ${n<6?`<button class="btn go" onclick="closeOvl()">계속하기</button>`
+           :`<button class="btn go" onclick="closeOvl(1)">답장 보기</button>`}
+    </div></div>`;
+  V.screen='home'; render();
+  if(n===6) setTimeout(()=>SND.fanfare(),800);
+}
+function closeOvl(toFinal){
+  SND.click(); V.ovl=null;
+  if(toFinal) V.screen='final';
+  render(); window.scrollTo(0,0);
+}
+
+/* ── 마지막 화면 ── */
+function viewFinal(){
+  const notes=MISSIONS.slice(0,5).map((m,i)=>
+    `<div style="display:flex;gap:9px;padding:8px 0;border-bottom:1px dashed var(--line);font-size:15px;line-height:1.55">
+       <b style="color:var(--sand);flex:none">${i+1}.</b><span>${S.lines[m.id]||m.note}</span></div>`).join('');
+  return `
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+    <button class="iconbtn" onclick="home()">‹</button>
+    <div style="flex:1"><div class="eyebrow">보낸 답장</div><div class="sub" style="font-size:13px">그리고 하루의 답</div></div>
+  </div>
+  <div class="card">
+    ${letterHtml(S.picks&&S.picks.length?S.picks:V.picks, S.sign||V.sign, S.name)}
+    <div class="mt">${say('j','읽어 봤어. 우리 교과서에 없는 자료가 많네. 특히 <b>일본 사람이 그린 지도</b> 이야기는 처음 들었어.<br><br>바로 네 말이 맞다고는 못 하겠어. 나도 더 찾아볼게.')}</div>
+    ${say('m','…그거면 됐다. <b>이기려고 쓴 게 아니라 보여주려고 쓴 것이니까.</b>')}
+    <div class="fb note mt"><span class="ft">🔎 오늘 알게 된 것</span>
+      증거는 <b>많이</b> 대는 것이 아니라 <b>센 것으로</b> 대는 것이다.<br>
+      그리고 가장 센 증거는 <b>상대가 스스로 남긴 것</b>이다.
+    </div>
+    <div class="mt" style="background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:14px 16px">
+      <div class="eyebrow" style="margin-bottom:6px">증거철에 남은 다섯 줄</div>
+      ${notes}
+    </div>
+    <button class="btn go mt" onclick="saveCard()">💾 답장을 이미지로 저장하기</button>
+    <button class="btn ghost" onclick="home()">미션 다시 보기</button>
+  </div>
+  <div class="warn">
+    <b>선생님께</b> — 저장한 답장을 모아 게시하면 학급 전시가 됩니다. 아이마다 고른 증거가 다릅니다.
+  </div>
+  <div class="foot">독도교육주간 · 2026.10.26~10.30<br>10월 25일은 독도의 날 (대한제국 칙령 제41호, 1900)</div>`;
+}
+
+/* ── 답장 이미지 저장 ── */
+function saveCard(){
+  SND.click();
+  const W=820, H=1180, c=document.createElement('canvas');
+  c.width=W; c.height=H;
+  const x=c.getContext('2d');
+  const g=x.createLinearGradient(0,0,W,H);
+  g.addColorStop(0,'#f9f3e4'); g.addColorStop(1,'#ece2cb');
+  x.fillStyle=g; x.fillRect(0,0,W,H);
+  x.globalAlpha=.05; x.strokeStyle='#8a6f3e';
+  for(let i=0;i<70;i++){ x.beginPath(); x.moveTo(0,i*17+((i*37)%13)); x.lineTo(W,i*17+((i*53)%19)); x.stroke(); }
+  x.globalAlpha=1;
+  x.strokeStyle='#8a6f3e'; x.lineWidth=3; x.strokeRect(26,26,W-52,H-52);
+  x.strokeStyle='#c3ab7a'; x.lineWidth=1; x.strokeRect(36,36,W-72,H-72);
+
+  const F=(s,w)=>`${w||400} ${s}px 'Noto Sans KR', sans-serif`;
+  /* 줄바꿈 그리기 */
+  function wrap(t,left,y,maxw,lh){
+    let ln='';
+    for(const ch of t){
+      if(ch==='\n'){ x.fillText(ln,left,y); ln=''; y+=lh; continue; }
+      if(x.measureText(ln+ch).width>maxw){ x.fillText(ln,left,y); ln=ch; y+=lh; }
+      else ln+=ch;
+    }
+    x.fillText(ln,left,y);
+    return y+lh;
+  }
+
+  x.textAlign='center'; x.fillStyle='#3f3018';
+  x.font=F(17,700); x.fillText('독도교육주간 · 증거로 쓴 답장', W/2, 92);
+  x.font=F(36,900); x.fillText('하루에게', W/2, 142);
+  x.strokeStyle='#8a6f3e'; x.lineWidth=2;
+  x.beginPath(); x.moveTo(90,166); x.lineTo(W-90,166); x.stroke();
+
+  x.textAlign='left'; x.font=F(18,400); x.fillStyle='#4d4231';
+  let y=wrap('네 메시지 잘 받았어. 화내려고 쓰는 게 아니야. 내가 찾아본 것을 보여줄게.',78,206,W-156,30);
+  y+=14;
+
+  const picks=(S.picks&&S.picks.length?S.picks:V.picks)||[];
+  picks.forEach((id,i)=>{
+    const e=EVID.find(v=>v.id===id); if(!e) return;
+    /* 번호 원 */
+    x.fillStyle='#b08832'; x.beginPath(); x.arc(92,y-6,14,0,Math.PI*2); x.fill();
+    x.fillStyle='#fff'; x.font=F(15,900); x.textAlign='center'; x.fillText(String(i+1),92,y-1);
+    x.textAlign='left'; x.fillStyle='#8a6f3e'; x.font=F(14,700);
+    x.fillText(e.short,116,y-1); y+=26;
+    x.fillStyle='#33291a'; x.font=F(17,400);
+    y=wrap(e.line.replace(/[“”]/g,'"'),116,y,W-200,28);
+    y+=18;
+  });
+
+  if(S.sign||V.sign){
+    x.strokeStyle='#cbb98f'; x.lineWidth=1; x.setLineDash([5,5]);
+    x.beginPath(); x.moveTo(78,y-8); x.lineTo(W-78,y-8); x.stroke(); x.setLineDash([]);
+    y+=16;
+    x.fillStyle='#8a4a20'; x.font=F(19,700);
+    y=wrap(S.sign||V.sign,78,y,W-156,30);
+  }
+
+  x.textAlign='right'; x.fillStyle='#4d4231'; x.font=F(20,700);
+  x.fillText((S.name||'　　　')+' 씀', W-84, H-136);
+  x.textAlign='center'; x.fillStyle='#8a7c5e'; x.font=F(13,400);
+  x.fillText('10월 25일은 독도의 날 · 대한제국 칙령 제41호(1900)', W/2, H-92);
+  x.fillText('2026년 10월 · 독도교육주간', W/2, H-68);
+
+  try{
+    const a=document.createElement('a');
+    a.download='독도_답장_'+(S.name||'나')+'.png';
+    a.href=c.toDataURL('image/png'); a.click();
+    SND.get(); toast('답장을 저장했어요');
+  }catch(e){ toast('저장이 막혀 있어요 — 화면을 캡처해 주세요'); }
+}
+
+/* ── 잡다 ── */
+let toastT=null;
+function toast(msg){
+  const t=$('toast'); t.innerHTML=msg; t.classList.add('on');
+  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('on'),2300);
+}
+function toggleSound(){
+  S.sound = S.sound===false;
+  SND.vol = S.sound ? .55 : 0;
+  save(); render();
+  if(S.sound){ SND.init(); SND.ok(); }
+}
+let resetArm=false, resetT=null;
+function resetAll(){
+  if(!resetArm){
+    resetArm=true; SND.bad();
+    toast('정말 처음부터? <b>한 번 더</b> 누르면 증거철이 비워집니다');
+    clearTimeout(resetT); resetT=setTimeout(()=>{resetArm=false;},3500);
+    return;
+  }
+  resetArm=false;
+  S={ done:{}, lines:{}, name:'', sign:'', picks:[], sound:S.sound };
+  save();
+  V={ screen:'intro', mid:null, si:0, ti:1, pick:null, heard:[], ri:0, rank:null,
+      seen:[], cmpSlot:null, cmpAns:{}, picks:[], sign:'', ovl:null };
+  render(); window.scrollTo(0,0);
+  toast('증거철을 비웠습니다');
+}
+function showQR(){
+  SND.click();
+  V.ovl=`<div class="qrov" onclick="hideQR()"><div class="in">${QR.main}</div>
+    <div style="color:#8fa6c4;font-size:14px;text-align:center">태블릿 카메라로 찍으세요<br>아무 데나 누르면 닫힙니다</div></div>`;
+  render();
+}
+function hideQR(){ SND.click(); V.ovl=null; render(); }
+
+/* ── 부팅 ── */
+load();
+if(S.picks&&S.picks.length) V.picks=S.picks.slice();
+if(S.sign) V.sign=S.sign;
+render();
+window.addEventListener('keydown',e=>{ if(e.key==='Escape'&&V.ovl){ V.ovl=null; render(); } });
+</script>
+</body>
+</html>

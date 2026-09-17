@@ -47,7 +47,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:#3d4a5a;color:#1a1a1a;-web
 .wtab .r{display:flex;border-bottom:1px solid #ccc;flex:1;min-height:0;align-items:stretch}
 .wtab .r:last-child{border-bottom:none}
 .wtab .r.h{background:#e9f0f7;flex:none;font-weight:700;font-size:9pt;text-align:center;color:#2b3f57}
-.wtab .c1{flex:1;padding:6px 9px;font-size:9.5pt;line-height:1.4;display:flex;align-items:center;border-right:1px solid #ccc;min-width:0}
+.wtab .c1{flex:1;padding:6px 9px;font-size:9.5pt;line-height:1.35;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:1px;border-right:1px solid #ccc;min-width:0}
 .wtab .c1 s{display:block;font-size:8pt;color:#777;text-decoration:none;font-weight:400}
 .wtab .c2{flex:0 0 96px;border-right:1px solid #ccc;display:flex;align-items:center;justify-content:center;gap:5px}
 .wtab .c3{flex:0 0 176px;display:flex;align-items:center;padding:0 5px}
@@ -110,7 +110,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:#3d4a5a;color:#1a1a1a;-web
   <div class="pbody">
 
     <!-- ① 증거의 무게 -->
-    <div class="sec grow" style="--g:.26">
+    <div class="sec grow" style="--g:.24">
       <div class="sh"><span class="no">1</span><b>증거의 무게를 달아 보자</b>
         <span>기준은 하나 — <u>상대가 반박하기 어려운가</u>.</span></div>
       <div class="wtab">
@@ -150,7 +150,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:#3d4a5a;color:#1a1a1a;-web
     </div>
 
     <!-- ③ 어른께 여쭤보기 -->
-    <div class="sec grow" style="--g:.19">
+    <div class="sec grow" style="--g:.15">
       <div class="sh"><span class="no">3</span><b>어른께 여쭤보기</b>
         <span>“독도가 왜 우리 땅이야?” 하고 여쭌 뒤, 그 답이 <u>얼마나 센 증거인지</u> 내가 매겨 보자.</span>
         <span class="lv">집에서 하는 칸</span></div>
@@ -158,7 +158,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:#3d4a5a;color:#1a1a1a;-web
     </div>
 
     <!-- ④ 하루에게 답장 -->
-    <div class="sec grow" style="--g:.26">
+    <div class="sec grow" style="--g:.32">
       <div class="sh"><span class="no">4</span><b>하루에게 답장 쓰기</b>
         <span>증거 <u>세 개</u>를 골라 쓰고, 마지막 한 줄로 맺자. 화내지 않고, 근거로.</span></div>
       <div class="reply">
@@ -183,7 +183,7 @@ function drawLines(){
   document.querySelectorAll('svg.g').forEach(sv=>{
     const r=sv.getBoundingClientRect(), w=r.width, h=r.height;
     if(w<4||h<4) return;
-    const pitch=34;
+    const pitch = sv.closest(".reply") ? 29 : 34;
     const rows=Math.max(1,Math.round((h-8)/pitch));
     const gap=(h-8)/rows;
     let s='';

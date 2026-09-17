@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>정답 없는 세 가지 질문 — 학급회의</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1f2430;--navy:#1d3557;--navy2:#2c5d8f;--red:#c2410c;--gold:#e0a43a;--paper:#fbf8f2;--line:#e2ddd2;--muted:#6f6a61;--green:#2e7a42;--acc:#1d3557;
+  --A:#2c5d8f;--Asoft:#e3edf8;--B:#c2410c;--Bsoft:#fbe9df}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#262a33;overflow:hidden}
+body{font-family:'Noto Sans KR',sans-serif;color:var(--ink);touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none}
+#wrap{position:fixed;inset:0 0 46px 0;display:flex;align-items:center;justify-content:center}
+#stage{width:1280px;height:720px;position:relative;flex:none;transform-origin:center center}
+.slide{position:absolute;inset:0;background:var(--paper);padding:44px 64px 40px;display:none;flex-direction:column;overflow:hidden}
+.slide.on{display:flex}
+.slide::after{content:"";position:absolute;left:0;right:0;bottom:0;height:8px;background:var(--acc)}
+.eyebrow{font-size:17px;font-weight:700;letter-spacing:.06em;color:var(--acc);margin-bottom:10px}
+h1{font-size:62px;font-weight:900;line-height:1.2;color:var(--navy)}
+h2{font-size:40px;font-weight:900;line-height:1.25;color:var(--navy);margin-bottom:20px}
+p{font-size:22px;line-height:1.6}
+.lead{font-size:26px;line-height:1.6}
+.sm{font-size:18px;color:var(--muted);line-height:1.55}
+.hand{font-family:'Gaegu',cursive;font-weight:700}
+b.hn{background:linear-gradient(transparent 58%,#cfe0f3 58%);color:var(--navy)}
+b.hl{background:linear-gradient(transparent 58%,#f6d3c3 58%);color:#9a3412}
+.act{background:#fff;border:3px solid var(--acc);border-radius:16px;padding:18px 24px}
+button{font-family:inherit;cursor:pointer}
+
+/* 순서 */
+.steps{display:flex;flex-direction:column;gap:12px;flex:1;justify-content:center}
+.st{display:flex;align-items:center;gap:20px;background:#fff;border:2px solid var(--line);border-radius:14px;padding:12px 22px}
+.st .n{flex:none;width:48px;height:48px;border-radius:50%;background:var(--navy);color:#fff;font-size:26px;font-weight:900;display:flex;align-items:center;justify-content:center}
+.st .t{font-size:27px;font-weight:700;width:300px;flex:none}
+.st .d{font-size:21px;color:var(--muted)}
+.st .m{margin-left:auto;font-size:19px;color:var(--navy2);font-weight:700;white-space:nowrap}
+
+/* 질문 슬라이드 */
+.scene{background:#fff;border-radius:16px;border:2px solid var(--line);padding:20px 26px;font-size:25px;line-height:1.65}
+.scene .ic{font-size:46px;float:left;margin:2px 18px 0 0;line-height:1}
+.ab{display:grid;grid-template-columns:1fr 1fr;gap:26px;flex:1;min-height:0;margin-top:22px}
+.opt{border-radius:18px;padding:18px 26px;display:flex;flex-direction:column;justify-content:center;gap:8px}
+.opt.a{background:var(--Asoft);border:3px solid var(--A)}
+.opt.b{background:var(--Bsoft);border:3px solid var(--B)}
+.opt .k{font-size:20px;font-weight:900;letter-spacing:.05em}
+.opt.a .k{color:var(--A)} .opt.b .k{color:var(--B)}
+.opt .t{font-size:38px;font-weight:900;line-height:1.3}
+.opt .d{font-size:25px;color:#4b4740;line-height:1.5}
+.qfoot{margin-top:16px;font-size:20px;color:var(--muted);text-align:center}
+
+/* 적기 */
+.wgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:18px}
+.wq{background:#fff;border:2px solid var(--line);border-radius:14px;padding:14px 18px}
+.wq .n{font-size:17px;font-weight:900;color:var(--navy2)}
+.wq .t{font-size:24px;font-weight:900;margin-top:2px}
+.wq .ab2{font-size:17px;margin-top:6px;line-height:1.5}
+.wq .ab2 i{font-style:normal;font-weight:700}
+.timer{display:flex;align-items:center;justify-content:center;gap:30px;flex:1}
+.clock{font-size:150px;font-weight:900;color:var(--navy);font-variant-numeric:tabular-nums;line-height:1;min-width:430px;text-align:center}
+.clock.done{color:var(--green)}
+.tbtns{display:flex;flex-direction:column;gap:10px}
+.tb{background:#fff;border:2px solid var(--navy);color:var(--navy);border-radius:12px;min-width:120px;min-height:52px;font-size:22px;font-weight:700}
+.tb.main{background:var(--navy);color:#fff}
+
+/* 손 들기 */
+.tally{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;flex:1;min-height:0}
+.tc{background:#fff;border:3px solid var(--line);border-radius:16px;padding:16px 18px;display:flex;flex-direction:column;gap:10px;position:relative}
+.tc.pick{border-color:var(--gold);box-shadow:0 0 0 4px #f6e2b8}
+.tc .n{font-size:16px;font-weight:900;color:var(--navy2)}
+.tc .t{font-size:24px;font-weight:900;line-height:1.3;min-height:62px}
+.cnt{display:flex;align-items:center;gap:8px}
+.cnt .lab{flex:1;font-size:18px;font-weight:700;line-height:1.3}
+.cnt.a .lab{color:var(--A)} .cnt.b .lab{color:var(--B)}
+.cnt button{width:48px;height:48px;border-radius:10px;border:2px solid var(--line);background:#faf8f4;font-size:26px;font-weight:700;color:var(--ink)}
+.cnt .v{width:50px;text-align:center;font-size:32px;font-weight:900;font-variant-numeric:tabular-nums}
+.bar2{height:22px;border-radius:11px;overflow:hidden;display:flex;background:#eee}
+.bar2 i{display:block;height:100%;transition:width .2s}
+.bar2 .ia{background:var(--A)} .bar2 .ib{background:var(--B)}
+.tense{font-size:17px;color:var(--muted);min-height:26px}
+.tc.pick .tense{color:#9a6a12;font-weight:700}
+.usebtn{margin-top:auto;min-height:50px;border-radius:12px;border:2px solid var(--navy);background:#fff;color:var(--navy);font-size:20px;font-weight:700}
+.tc.pick .usebtn{background:var(--navy);color:#fff}
+
+/* 발표 · 반론 */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:26px;flex:1;min-height:0}
+.side{border-radius:18px;padding:20px 26px;display:flex;flex-direction:column;gap:12px}
+.side.a{background:var(--Asoft);border:3px solid var(--A)}
+.side.b{background:var(--Bsoft);border:3px solid var(--B)}
+.side .t{font-size:30px;font-weight:900;line-height:1.3}
+.side.a .t{color:var(--A)} .side.b .t{color:var(--B)}
+.frame{background:#fff;border-radius:12px;padding:12px 18px;font-size:26px;line-height:1.45}
+.rules{display:flex;flex-direction:column;gap:14px;flex:1;justify-content:center}
+.rule{background:#fff;border-left:10px solid var(--acc);border-radius:12px;padding:16px 24px}
+.rule .h{font-size:20px;font-weight:700;color:var(--muted)}
+.rule .f{font-size:34px;line-height:1.45;margin-top:4px}
+.rule .f u{text-decoration:none;border-bottom:3px dotted var(--muted);padding:0 20px}
+
+/* 조건 카드 */
+.twists{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;flex:1;min-height:0}
+.tw{border-radius:18px;border:3px solid var(--gold);background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:22px;text-align:center;cursor:pointer}
+.tw .no{font-size:22px;font-weight:900;color:#9a6a12}
+.tw .back{font-size:90px;line-height:1.2;margin-top:10px}
+.tw .tap{font-size:18px;color:var(--muted);margin-top:8px}
+.tw .txt{display:none;font-size:29px;font-weight:700;line-height:1.5;margin-top:14px}
+.tw.open{background:#fdf6e6}
+.tw.open .back,.tw.open .tap{display:none}
+.tw.open .txt{display:block}
+
+/* 다시 손 들기 */
+.again{display:grid;grid-template-columns:1fr 1fr;gap:30px;flex:1;min-height:0}
+.agcol{background:#fff;border:2px solid var(--line);border-radius:16px;padding:20px 26px;display:flex;flex-direction:column;gap:16px}
+.agcol h3{font-size:24px;color:var(--navy2)}
+.agrow{display:flex;align-items:center;gap:14px;font-size:24px;font-weight:700}
+.agrow .lab{width:190px;flex:none;line-height:1.3}
+.agrow.a .lab{color:var(--A)} .agrow.b .lab{color:var(--B)}
+.agrow .num{font-size:40px;font-weight:900;width:60px;text-align:center;font-variant-numeric:tabular-nums}
+.agrow button{width:52px;height:52px;border-radius:10px;border:2px solid var(--line);background:#faf8f4;font-size:28px;font-weight:700}
+.moved{font-size:26px;line-height:1.5;margin-top:auto;background:#fdf6e6;border-radius:12px;padding:12px 18px}
+
+/* 마무리 */
+.whos{display:flex;flex-direction:column;gap:14px;flex:1;justify-content:center}
+.who{display:grid;grid-template-columns:320px 1fr;align-items:center;gap:20px;background:#fff;border:2px solid var(--line);border-radius:14px;padding:14px 22px;cursor:pointer}
+.who .q{font-size:25px;font-weight:900}
+.who .ans{font-size:23px;line-height:1.45;color:var(--muted)}
+.who.open .ans{color:var(--ink)}
+.who .ans .hide{display:inline}
+.who .ans .show{display:none}
+.who.open .ans .hide{display:none}
+.who.open .ans .show{display:inline}
+
+.bar{position:fixed;left:0;right:0;bottom:0;height:46px;background:#15181e;display:flex;align-items:center;justify-content:center;gap:14px;color:#cfd3dc;font-size:15px;z-index:5}
+.bar button{background:#2d323c;color:#fff;border:0;border-radius:8px;min-width:48px;height:34px;font-size:16px;padding:0 12px}
+#prog{position:fixed;left:0;bottom:46px;height:4px;background:var(--acc);transition:width .2s;z-index:5}
+.zone{position:fixed;top:0;bottom:46px;width:6%;z-index:4}
+#zl{left:0}#zr{right:0}
+</style>
+</head>
+<body>
+<div id="wrap"><div id="stage">
+
+<!-- 1 표지 -->
+<section class="slide on" style="--acc:#1d3557;justify-content:center">
+  <div class="eyebrow">2학기 두 번째 학급회의 · 10월 1일</div>
+  <h1>정답 없는<br>세 가지 질문</h1>
+  <div style="height:28px"></div>
+  <p class="lead">오늘은 무엇을 <b class="hn">정하는</b> 회의가 아니라,<br>서로의 <b class="hl">이유</b>를 듣는 회의야.</p>
+  <div style="height:26px"></div>
+  <p class="sm">🗂️ 모둠 과제 &nbsp;·&nbsp; 🎂 생일 파티 &nbsp;·&nbsp; 🎤 반 대표</p>
+</section>
+
+<!-- 2 순서 -->
+<section class="slide" style="--acc:#1d3557">
+  <div class="eyebrow">오늘의 순서</div>
+  <h2>이렇게 진행할 거야</h2>
+  <div class="steps">
+    <div class="st"><div class="n">1</div><div class="t">세 질문 읽기</div><div class="d">어떤 상황인지 같이 본다</div><div class="m">5분</div></div>
+    <div class="st"><div class="n">2</div><div class="t">내 생각 적기</div><div class="d">세 질문 모두, 어느 쪽인지 + 이유</div><div class="m">8분</div></div>
+    <div class="st"><div class="n">3</div><div class="t">하나 고르기</div><div class="d">손을 들어 보고, 가장 팽팽하게 갈린 질문으로</div><div class="m">2분</div></div>
+    <div class="st"><div class="n">4</div><div class="t">발표 → 반론</div><div class="d">양쪽이 번갈아 말하고, 서로의 이유를 따져 본다</div><div class="m">18분</div></div>
+    <div class="st"><div class="n">5</div><div class="t">다시 손 들기</div><div class="d">생각이 바뀐 사람은 누구고, 왜?</div><div class="m">5분</div></div>
+  </div>
+  <p class="qfoot" style="margin-top:14px">📌 정답은 없다. <b style="color:var(--ink)">이유가 있을 뿐이다.</b></p>
+</section>
+
+<!-- 3~5 질문 (JS 가 채운다) -->
+<section class="slide qs" data-q="0" style="--acc:#2c5d8f"></section>
+<section class="slide qs" data-q="1" style="--acc:#2c5d8f"></section>
+<section class="slide qs" data-q="2" style="--acc:#2c5d8f"></section>
+
+<!-- 6 적기 -->
+<section class="slide" style="--acc:#2e7a42">
+  <div class="eyebrow">2 · 내 생각 적기</div>
+  <h2 style="margin-bottom:16px">세 질문 <b class="hn">모두</b>, 어느 쪽인지 + 왜</h2>
+  <div class="wgrid" id="wgrid"></div>
+  <div class="timer">
+    <div class="clock" id="clock">8:00</div>
+    <div class="tbtns">
+      <button class="tb main" id="tgo">▶ 시작</button>
+      <button class="tb" id="tplus">+1분</button>
+      <button class="tb" id="tminus">−1분</button>
+    </div>
+  </div>
+  <p class="qfoot" style="margin-top:6px">한가운데는 없어. 조금이라도 <b style="color:var(--ink)">더 가까운 쪽</b>에 동그라미.</p>
+</section>
+
+<!-- 7 손 들기 -->
+<section class="slide" style="--acc:#9a6a12">
+  <div class="eyebrow">3 · 하나 고르기</div>
+  <h2 style="margin-bottom:16px">어느 질문에서 우리 반이 <b class="hl">가장 팽팽하게</b> 갈릴까?</h2>
+  <div class="tally" id="tally"></div>
+</section>
+
+<!-- 8 발표 -->
+<section class="slide" style="--acc:#1d3557">
+  <div class="eyebrow" id="presEb">4 · 발표</div>
+  <h2 id="presT" style="margin-bottom:16px"></h2>
+  <div class="two" id="presTwo"></div>
+  <p class="qfoot">양쪽이 <b style="color:var(--ink)">한 사람씩 번갈아</b> 말해. 앞사람과 같은 이유면 "나도 ○○와 같은데, 하나 더하면…"</p>
+</section>
+
+<!-- 9 반론 -->
+<section class="slide" style="--acc:#7a3fa0">
+  <div class="eyebrow">4 · 반론</div>
+  <h2>사람이 아니라 <b class="hn">이유</b>를 겨눈다</h2>
+  <div class="rules">
+    <div class="rule"><div class="h">반론할 때</div><div class="f">"네 이유 중 <u>&nbsp;</u> 부분이 나는 걸려. 왜냐하면…"</div></div>
+    <div class="rule"><div class="h">되물을 때</div><div class="f">"그럼 만약 <u>&nbsp;</u> 라면, 그래도 그렇게 할 거야?"</div></div>
+    <div class="rule"><div class="h">받아들일 때</div><div class="f">"그 말은 맞아. 그래도 나는 <u>&nbsp;</u> 때문에 여전히…"</div></div>
+  </div>
+  <p class="qfoot">🚫 "그건 틀렸어" · "말도 안 돼" 대신 <b style="color:var(--ink)">어디가, 왜</b> 걸리는지 말하기</p>
+</section>
+
+<!-- 10 조건 카드 -->
+<section class="slide" style="--acc:#9a6a12">
+  <div class="eyebrow">4 · 반론 — 조건이 바뀐다면?</div>
+  <h2 id="twT" style="margin-bottom:16px"></h2>
+  <div class="twists" id="twists"></div>
+  <p class="qfoot">한 장씩 열어 보고 묻기: <b style="color:var(--ink)">"이러면 생각이 바뀌는 사람?"</b></p>
+</section>
+
+<!-- 11 다시 손 들기 -->
+<section class="slide" style="--acc:#2e7a42">
+  <div class="eyebrow">5 · 다시 손 들기</div>
+  <h2 id="agT" style="margin-bottom:16px"></h2>
+  <div class="again" id="again"></div>
+</section>
+
+<!-- 12 마무리 -->
+<section class="slide" style="--acc:#1d3557">
+  <div class="eyebrow">마무리 · 하나만 더 생각해 보기</div>
+  <h2 style="margin-bottom:10px">세 질문 모두, 결국 <b class="hn">"뭐가 공평하지?"</b>였어</h2>
+  <p class="lead" style="margin-bottom:6px">그런데 그 <b class="hl">공평의 잣대</b>를 대는 사람이 누구였을까? <span class="sm">(한 줄씩 눌러서 열기)</span></p>
+  <div class="whos" id="whos"></div>
+  <p class="qfoot" style="margin-top:10px">어느 자리에 서서 보느냐에 따라 <b style="color:var(--ink)">공평이 다르게 보인다.</b> 오늘 우리는 답 대신 <b style="color:var(--ink)">서로의 자리</b>를 들었다.</p>
+</section>
+
+</div></div>
+
+<div id="prog"></div>
+<div class="zone" id="zl"></div><div class="zone" id="zr"></div>
+<div class="bar no-print">
+  <button id="prev">◀</button><span id="cnt">1 / 1</span><button id="next">▶</button>
+  <button id="reset">↺ 집계 지우기</button>
+  <button id="fs">⛶ 전체화면</button>
+</div>
+
+<script>
+const Q = [
+  { icon:'🗂️', title:'모둠 과제, 말할까?',
+    scene:'넷이서 모둠 과제를 했다. 그런데 <b>도헌</b>이는 거의 아무것도 하지 않았다. 발표가 끝나자 선생님이 묻는다. <b>"모둠 모두 함께 했나요?"</b>',
+    a:{t:'사실대로 말한다', d:'"도헌이는 거의 안 했어요."'},
+    b:{t:'말하지 않는다', d:'"네, 다 같이 했어요."'},
+    twists:['도헌이가 그 주에 집에 <b>힘든 일</b>이 있었다면?','모둠마다 <b>칭찬 도장</b>을 받는다면?','도헌이가 <b>먼저 사과</b>하고 다음엔 꼭 하겠다고 했다면?'],
+    who:'<b>선생님</b>(모둠 밖에서 한 일을 재는 잣대)과 <b>모둠 친구</b>(우리 사이의 의리라는 잣대)' },
+  { icon:'🎂', title:'생일 파티, 몇 명만?',
+    scene:'<b>소하</b>는 생일에 친구들을 집에 부르고 싶다. 그런데 집이 좁아 <b>다섯 명</b>까지만 된다. 우리 반은 스무 명이 넘는다.',
+    a:{t:'몇 명만 불러도 된다', d:'내 생일이고 내 집이니까, 내가 고른다.'},
+    b:{t:'몇 명만 부르면 안 된다', d:'초대받지 못한 친구가 마음이 상한다.'},
+    twists:['초대장을 <b>교실에서</b> 나눠 준다면?','우리 반에 <b>한 번도 초대받지 못한</b> 친구가 있다면?','<b>내가</b> 초대받지 못한 쪽이라면?'],
+    who:'<b>초대하는 나</b>(내 것은 내가 정한다는 잣대)와 <b>초대받지 못한 친구</b>(같은 반인데 빠졌다는 잣대)' },
+  { icon:'🎤', title:'반 대표, 누가 나갈까?',
+    scene:'학교 행사에서 반 대표 <b>한 명</b>이 무대에서 발표한다. <b>채율</b>이는 말을 제일 잘하고 작년에도 나갔다. <b>시온</b>이는 한 번도 못 나가 봤지만 꼭 해 보고 싶어 한다.',
+    a:{t:'채율이가 나간다', d:'반을 대표하니까, 가장 잘하는 사람이.'},
+    b:{t:'시온이가 나간다', d:'기회는 골고루 돌아가야 하니까.'},
+    twists:['다른 반과 겨뤄서 <b>1등 반에 상</b>이 있다면?','시온이가 <b>한 달 동안</b> 몰래 연습해 왔다면?','무대에서 실수하면 시온이가 <b>크게 상처받을</b> 수도 있다면?'],
+    who:'<b>반 전체</b>(가장 좋은 결과라는 잣대)와 <b>한 사람</b>(한 번은 해 볼 기회라는 잣대)' },
+];
+
+/* 상태 — 새로고침해도 집계가 남도록 (저장이 막히면 그냥 메모리로) */
+let S = { votes:[[0,0],[0,0],[0,0]], chosen:null, after:[0,0], opened:[] };
+try{ const s = JSON.parse(localStorage.getItem('fairness-meeting')); if(s && s.votes) S = Object.assign(S, s); }catch(e){}
+function save(){ try{ localStorage.setItem('fairness-meeting', JSON.stringify(S)); }catch(e){} }
+
+function tension(v){ const t=v[0]+v[1]; if(!t) return -1; return Math.min(v[0],v[1])/Math.max(v[0],v[1]); }
+function autoPick(){
+  let best=null, bt=-1;
+  S.votes.forEach((v,i)=>{ const t=tension(v); if(t>bt){ bt=t; best=i; } });
+  return bt<0 ? null : best;
+}
+function chosen(){ return S.chosen!==null ? S.chosen : (autoPick() ?? 0); }
+
+/* 질문 슬라이드 */
+document.querySelectorAll('.qs').forEach(sec=>{
+  const i = +sec.dataset.q, q = Q[i];
+  sec.innerHTML = `
+    <div class="eyebrow">1 · 질문 ${i+1} / 3</div>
+    <h2>${q.icon} ${q.title}</h2>
+    <div class="scene">${q.scene}</div>
+    <div class="ab">
+      <div class="opt a"><div class="k">A</div><div class="t">${q.a.t}</div><div class="d">${q.a.d}</div></div>
+      <div class="opt b"><div class="k">B</div><div class="t">${q.b.t}</div><div class="d">${q.b.d}</div></div>
+    </div>
+    <p class="qfoot">너라면 어느 쪽? <b style="color:var(--ink)">왜?</b></p>`;
+});
+
+document.getElementById('wgrid').innerHTML = Q.map((q,i)=>`
+  <div class="wq"><div class="n">질문 ${i+1}</div><div class="t">${q.icon} ${q.title}</div>
+  <div class="ab2"><i style="color:var(--A)">A</i> ${q.a.t}<br><i style="color:var(--B)">B</i> ${q.b.t}</div></div>`).join('');
+
+/* 타이머 — 끝나도 멈추지 않고 초록으로만 바뀐다 */
+let tLeft = 480, tRun = false, tId = null;
+const clock = document.getElementById('clock'), tgo = document.getElementById('tgo');
+function drawClock(){
+  const m = Math.floor(tLeft/60), s = tLeft%60;
+  clock.textContent = tLeft>0 ? `${m}:${String(s).padStart(2,'0')}` : '다 됐어!';
+  clock.classList.toggle('done', tLeft<=0);
+  tgo.textContent = tRun ? '⏸ 멈춤' : '▶ 시작';
+}
+tgo.onclick = ()=>{
+  tRun = !tRun;
+  clearInterval(tId);
+  if(tRun) tId = setInterval(()=>{ if(tLeft>0) tLeft--; if(tLeft<=0){ tRun=false; clearInterval(tId); chime(); } drawClock(); }, 1000);
+  drawClock();
+};
+document.getElementById('tplus').onclick = ()=>{ tLeft += 60; drawClock(); };
+document.getElementById('tminus').onclick = ()=>{ tLeft = Math.max(0, tLeft-60); drawClock(); };
+function chime(){
+  try{
+    const ac = new (window.AudioContext||window.webkitAudioContext)();
+    [660, 880].forEach((f,k)=>{
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.frequency.value = f; o.connect(g); g.connect(ac.destination);
+      const t = ac.currentTime + k*0.35;
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.3, t+0.03);
+      g.gain.exponentialRampToValueAtTime(0.0001, t+0.6);
+      o.start(t); o.stop(t+0.65);
+    });
+  }catch(e){}
+}
+
+/* 손 들기 */
+function drawTally(){
+  const pick = chosen(), auto = autoPick();
+  document.getElementById('tally').innerHTML = Q.map((q,i)=>{
+    const v = S.votes[i], tot = v[0]+v[1], t = tension(v);
+    const pa = tot ? v[0]/tot*100 : 50;
+    let note = tot ? `${v[0]} 대 ${v[1]}` : '아직 안 셌어';
+    if(i===auto && tot) note += ' · 가장 팽팽해';
+    return `<div class="tc ${i===pick && (tot||S.chosen!==null) ? 'pick':''}">
+      <div class="n">질문 ${i+1}</div><div class="t">${q.icon} ${q.title}</div>
+      <div class="cnt a"><div class="lab">A ${q.a.t}</div><button data-v="${i},0,-1">−</button><div class="v">${v[0]}</div><button data-v="${i},0,1">+</button></div>
+      <div class="cnt b"><div class="lab">B ${q.b.t}</div><button data-v="${i},1,-1">−</button><div class="v">${v[1]}</div><button data-v="${i},1,1">+</button></div>
+      <div class="bar2">${tot ? `<i class="ia" style="width:${pa}%"></i><i class="ib" style="width:${100-pa}%"></i>` : ''}</div>
+      <div class="tense">${note}</div>
+      <button class="usebtn" data-use="${i}">${i===pick && (tot||S.chosen!==null) ? '✔ 이 질문으로' : '이 질문으로 하기'}</button>
+    </div>`;
+  }).join('');
+}
+document.getElementById('tally').addEventListener('click', e=>{
+  const b = e.target.closest('button'); if(!b) return;
+  if(b.dataset.v){
+    const [i,k,d] = b.dataset.v.split(',').map(Number);
+    S.votes[i][k] = Math.max(0, S.votes[i][k]+d);
+    S.after = S.votes[chosen()].slice();
+  } else if(b.dataset.use!==undefined){
+    S.chosen = +b.dataset.use;
+    S.after = S.votes[S.chosen].slice();
+    S.opened = [];
+  }
+  save(); drawAll();
+});
+
+/* 고른 질문을 따라가는 슬라이드들 */
+function drawChosen(){
+  const i = chosen(), q = Q[i];
+  document.getElementById('presT').innerHTML = `${q.icon} 질문 ${i+1} · ${q.title}`;
+  document.getElementById('presTwo').innerHTML = `
+    <div class="side a"><div class="t">A · ${q.a.t}</div>
+      <div class="frame">"나는 <b>A</b>야. 왜냐하면 …"</div>
+      <div class="frame">"특히 <b>이런 경우</b>를 생각하면 …"</div></div>
+    <div class="side b"><div class="t">B · ${q.b.t}</div>
+      <div class="frame">"나는 <b>B</b>야. 왜냐하면 …"</div>
+      <div class="frame">"특히 <b>이런 경우</b>를 생각하면 …"</div></div>`;
+  document.getElementById('twT').innerHTML = `${q.icon} ${q.title} — <b class="hl">만약에…</b>`;
+  document.getElementById('twists').innerHTML = q.twists.map((t,k)=>`
+    <div class="tw ${S.opened.includes(k)?'open':''}" data-k="${k}">
+      <div class="no">조건 카드 ${k+1}</div><div class="back">❓</div><div class="tap">눌러서 열기</div>
+      <div class="txt">${t}</div></div>`).join('');
+  const b4 = S.votes[i], af = S.after;
+  const diffA = af[0]-b4[0];
+  let moved = '처음과 같아.';
+  if(diffA>0) moved = `B → A 로 옮긴 사람이 적어도 <b>${diffA}명</b>. 무엇이 마음을 바꿨을까?`;
+  if(diffA<0) moved = `A → B 로 옮긴 사람이 적어도 <b>${-diffA}명</b>. 무엇이 마음을 바꿨을까?`;
+  if(!b4[0] && !b4[1]) moved = '처음 손 들기를 안 했으면, 지금 수만 세도 돼.';
+  document.getElementById('agT').innerHTML = `${q.icon} ${q.title} — <b class="hn">생각이 바뀌었나?</b>`;
+  document.getElementById('again').innerHTML = `
+    <div class="agcol"><h3>처음</h3>
+      <div class="agrow a"><div class="lab">A ${q.a.t}</div><div class="num">${b4[0]}</div></div>
+      <div class="agrow b"><div class="lab">B ${q.b.t}</div><div class="num">${b4[1]}</div></div>
+      <div class="moved" style="background:#f3f1ec">바뀐 사람은 <b>한 명씩</b> 물어보기:<br>"누구 말 때문에?"</div></div>
+    <div class="agcol"><h3>토의 뒤</h3>
+      <div class="agrow a"><div class="lab">A ${q.a.t}</div><button data-a="0,-1">−</button><div class="num">${af[0]}</div><button data-a="0,1">+</button></div>
+      <div class="agrow b"><div class="lab">B ${q.b.t}</div><button data-a="1,-1">−</button><div class="num">${af[1]}</div><button data-a="1,1">+</button></div>
+      <div class="moved">${moved}</div></div>`;
+}
+document.getElementById('twists').addEventListener('click', e=>{
+  const c = e.target.closest('.tw'); if(!c) return;
+  const k = +c.dataset.k;
+  S.opened = S.opened.includes(k) ? S.opened.filter(x=>x!==k) : S.opened.concat(k);
+  save(); drawChosen();
+});
+document.getElementById('again').addEventListener('click', e=>{
+  const b = e.target.closest('button[data-a]'); if(!b) return;
+  const [k,d] = b.dataset.a.split(',').map(Number);
+  S.after[k] = Math.max(0, S.after[k]+d);
+  save(); drawChosen();
+});
+
+/* 마무리 */
+document.getElementById('whos').innerHTML = Q.map((q,i)=>`
+  <div class="who"><div class="q">${q.icon} ${q.title}</div>
+  <div class="ans"><span class="hide">누구와 누구의 잣대가 부딪혔을까? 👆</span><span class="show">${q.who}</span></div></div>`).join('');
+document.getElementById('whos').addEventListener('click', e=>{ const w = e.target.closest('.who'); if(w) w.classList.toggle('open'); });
+
+document.getElementById('reset').onclick = ()=>{
+  const b = document.getElementById('reset');
+  if(b.dataset.arm){ S = { votes:[[0,0],[0,0],[0,0]], chosen:null, after:[0,0], opened:[] }; save(); drawAll(); b.textContent='↺ 집계 지우기'; delete b.dataset.arm; return; }
+  b.dataset.arm = 1; b.textContent = '한 번 더 누르면 지워짐';
+  setTimeout(()=>{ delete b.dataset.arm; b.textContent='↺ 집계 지우기'; }, 3000);
+};
+
+function drawAll(){ drawTally(); drawChosen(); }
+
+/* 넘기기 */
+const stage = document.getElementById('stage');
+const slides = [...document.querySelectorAll('.slide')];
+let cur = 0;
+function fit(){ const s = Math.min(innerWidth/1280, (innerHeight-46)/720); stage.style.transform = 'scale('+s+')'; }
+function show(i){
+  cur = Math.max(0, Math.min(slides.length-1, i));
+  slides.forEach((s,k)=>s.classList.toggle('on', k===cur));
+  document.getElementById('cnt').textContent = (cur+1)+' / '+slides.length;
+  const p = document.getElementById('prog');
+  p.style.width = ((cur+1)/slides.length*100)+'%';
+  p.style.background = getComputedStyle(slides[cur]).getPropertyValue('--acc');
+  history.replaceState(null,'','#'+(cur+1));
+}
+document.getElementById('prev').onclick = ()=>show(cur-1);
+document.getElementById('next').onclick = ()=>show(cur+1);
+document.getElementById('zl').onclick = ()=>show(cur-1);
+document.getElementById('zr').onclick = ()=>show(cur+1);
+document.getElementById('fs').onclick = ()=>{ document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); };
+addEventListener('keydown', e=>{
+  if(['ArrowRight',' ','PageDown'].includes(e.key)){ e.preventDefault(); show(cur+1); }
+  else if(['ArrowLeft','PageUp'].includes(e.key)){ e.preventDefault(); show(cur-1); }
+  else if(e.key==='Home') show(0);
+  else if(e.key==='End') show(slides.length-1);
+  else if(e.key==='f'||e.key==='F') document.getElementById('fs').click();
+});
+let tx=null;
+addEventListener('touchstart', e=>{ tx = e.target.closest('button,.tw,.who') ? null : e.touches[0].clientX; }, {passive:true});
+addEventListener('touchend', e=>{ if(tx===null) return; const dx = e.changedTouches[0].clientX - tx; if(Math.abs(dx)>60) show(cur + (dx<0?1:-1)); tx=null; });
+addEventListener('resize', fit);
+drawAll(); drawClock(); fit();
+show((parseInt(location.hash.slice(1))||1)-1);
+</script>
+</body>
+</html>

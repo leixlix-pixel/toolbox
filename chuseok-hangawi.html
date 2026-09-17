@@ -365,23 +365,27 @@ V.m1=function(){
   </div>
   <div class="navrow"><button class="btn ghost" data-a="home">← 마을로</button></div>`;
 };
+/* 넷을 다 이었으면 정리와 버튼을 곧바로 — 기다리는 사이 「← 마을로」를 누르고 나가면
+   다시 들어와도 칩이 다 잠겨 있어 끝낼 길이 없었다(2026-09-17). 화면을 그릴 때마다 붙인다. */
+V.m1.after=function(){
+  if(Object.keys(M1.got).length<4) return;
+  fb((M1.last?'✓ 맞았어! '+M1.last+'<br><br>':'')+`<b>정리해 볼까.</b><br>
+   · <b>한가위</b> = 큰(한) + 가운데(가위) → <b>가을의 한가운데, 크게 치르는 날</b><br>
+   · <b>추석(秋夕)</b> = 가을 + 저녁 → <b>가을 저녁</b>, 달이 가장 밝은 그 저녁<br>
+   · <b>중추절(仲秋節)</b> = 가을(秋)의 가운데(仲) 명절<br>
+   이름 네 개가 모두 한 곳을 가리켜 — <b>달</b>과 <b>가을 한가운데</b>.`,'info');
+  M1.last=null;
+  doneBtn(1,'이름의 뜻을 찾았다. 추석은 「가을 한가운데, 달이 가장 밝은 날」.');
+};
 function m1pick(kind,val){
   if(kind==='w'){ SND.tap(); M1.sel=(M1.sel===val?null:val); render(); return; }
   if(!M1.sel){ toast('먼저 왼쪽 글자를 골라 줘'); return; }
   const p=M1.pairs.find(x=>x.w===M1.sel);
   if(p.d===val){
-    SND.ok(); M1.got[p.w]=val; M1.sel=null; render();
-    fb('✓ 맞았어! '+p.why,'good');
-    if(Object.keys(M1.got).length===4){
-      setTimeout(()=>{
-        fb(`<b>정리해 볼까.</b><br>
-         · <b>한가위</b> = 큰(한) + 가운데(가위) → <b>가을의 한가운데, 크게 치르는 날</b><br>
-         · <b>추석(秋夕)</b> = 가을 + 저녁 → <b>가을 저녁</b>, 달이 가장 밝은 그 저녁<br>
-         · <b>중추절(仲秋節)</b> = 가을(秋)의 가운데(仲) 명절<br>
-         이름 네 개가 모두 한 곳을 가리켜 — <b>달</b>과 <b>가을 한가운데</b>.`,'info');
-        doneBtn(1,'이름의 뜻을 찾았다. 추석은 「가을 한가운데, 달이 가장 밝은 날」.');
-      },1500);
-    }
+    SND.ok(); M1.got[p.w]=val; M1.sel=null;
+    if(Object.keys(M1.got).length===4) M1.last=p.why;
+    render();
+    if(Object.keys(M1.got).length<4) fb('✓ 맞았어! '+p.why,'good');
   } else {
     SND.bad();
     const msg=M1.wrong[M1.sel+'|'+val]||'그건 다른 글자의 뜻이야. 다시 생각해 보자.';
@@ -587,13 +591,14 @@ function m3ox(v){
     else { SND.bad(); M3.ox[2]='✗ 사실은 <b>X</b>야. 예법 문헌에 그런 규칙은 없어. 성균관도 <b>과일 순서에 정해진 격식은 없다</b>고 했어. 어른들도 모르는 분이 많아 — 오늘 알려 드려도 좋겠다.'; }
   }
   render(); window.scrollTo(0,document.body.scrollHeight);
-  if(M3.ox[1]&&M3.ox[2]){
-    setTimeout(()=>{
+}
+/* 두 문제를 다 풀었으면 정리와 버튼을 그릴 때마다 붙인다(타이머로 붙이면 나간 뒤 딴 화면에 꽂힌다) */
+V.m3.after=function(){
+  if(M3.step==='ox' && M3.ox[1]&&M3.ox[2]){
       fb('<b>그럼 차례상에서 정말 중요한 건 뭘까?</b><br>성균관이 간소화 기준을 내놓은 까닭은 “차례를 지내는 마음이 음식 장만에 지쳐 사라지지 않게 하려고”였대. 상 위에 무엇이 몇 개인지보다, <b>올해 잘 지냈다고 함께 인사하는 마음</b>이 차례야.','info');
       doneBtn(3,'차례상의 규칙보다 중요한 것 — 그해 거둔 것과 감사하는 마음.');
-    },900);
   }
-}
+};
 
 /* ═══════════════ 미션 4 — 송편 빚기 ═══════════════ */
 const M4={ step:1, so:null, shape:null, leaf:null };
@@ -764,7 +769,7 @@ V.m5.after=function(){
       SND.drum();
       if(M5.beat>=r.beats){
         M5.running=false;
-        setTimeout(()=>{ M5.round++; if(M5.round<=M5.rounds.length) SND.kkwang(); go('m5'); },420);
+        setTimeout(()=>{ if(S.view!=='m5') return; M5.round++; if(M5.round<=M5.rounds.length) SND.kkwang(); go('m5'); },420);
         return;
       }
       const b=$('m5b'); if(b) b.textContent=M5.beat;
@@ -845,6 +850,10 @@ V.m6=function(){
   </div>
   <div class="navrow"><button class="btn ghost" data-a="home">← 마을로</button></div>`;
 };
+/* 짝을 다 맞췄으면 버튼은 그릴 때마다 붙인다 — 나갔다 오면 카드가 다 잠겨 넘어갈 길이 없었다 */
+V.m6.after=function(){
+  if(M6.step==='match' && Object.keys(M6.matched).length===4) actBtn('마지막 물음으로 →','m6next');
+};
 M6.shuffled=M6.pairs.slice().sort(()=>Math.random()-.5);
 function m6pick(side,id){
   SND.tap();
@@ -858,9 +867,6 @@ function m6pick(side,id){
     const p=M6.pairs.find(x=>x.id===id);
     SND.ok(); M6.matched[id]=true; M6.sel=null; render();
     fb(`✓ <b>${p.old}</b> — ${p.oldd}.<br>→ 오늘은 <b>${p.now}</b>. ${p.noww}`,'good');
-    if(Object.keys(M6.matched).length===4){
-      actBtn('마지막 물음으로 →','m6next');
-    }
   } else {
     SND.bad(); M6.sel=null; render();
     fb('✗ 그 둘은 이어지지 않아. <b>무엇을 하려던 풍습인지</b>를 먼저 생각해 봐 — 만나려던 것인지, 거둔 것을 다루는 일인지, 함께 놀려던 것인지, 기억하려던 것인지.','nope');

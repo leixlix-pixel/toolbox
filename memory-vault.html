@@ -253,7 +253,13 @@ h1.title{font-family:'Gaegu',cursive; font-size:58px; line-height:1; margin:18px
   font-size:16.5px; line-height:2.0; margin-bottom:12px; user-select:text; -webkit-user-select:text;
 }
 .read .rt{font-family:'Gaegu',cursive; font-size:25px; color:var(--navy); display:block; margin-bottom:6px;}
-.read .num{background:#fff3cf; border-radius:5px; padding:0 3px; font-weight:900; color:#a06a00;}
+/* 글 속 숫자말. 평소엔 그냥 굵은 글씨다 — 어느 것이 암호인지 표시하지 않는다.
+   숫자 찾기 단계(.hot)가 되어야 셋이 똑같은 모양으로 눌러진다. */
+.read .pn{font-weight:900; color:var(--navy);}
+/* 손가락으로 누르는 자리다 — 한 글자짜리('두','네')도 잡히게 padding 을 줄이지 말 것. */
+.read .pn.hot{cursor:pointer; background:#fff3cf; border:2px dashed #d9a441; border-radius:8px; padding:4px 10px; margin:0 1px; color:#8a5a00; display:inline-block; line-height:1.25;}
+.read .pn.hot:active{background:#ffe59a;}
+.read .pn.no{opacity:.4; border-style:solid; border-color:#c9c2b2; background:#efece4; color:#8b8574; cursor:default;}
 .read p{margin:0 0 4px;}
 .read .pick{cursor:pointer; border-radius:6px; padding:1px 3px;}
 .read .pick:active{background:#fff3cf;}
@@ -461,7 +467,7 @@ const ROOMS = [
    intro:"먼지: “여기서부터가 진짜야. 문장이 <b>맞기만</b> 해서는 기억이 살아나지 않아. 읽는 사람이 <b>그 자리에 있는 것처럼</b> 만드는 말이 필요해.”" },
  { nm:"열람실",     sub:"흐려진 기억 세 편",     ac:"#ffd97a", wall:"#3b3524", devs:["f1","f2","f3","door"],
    key:"🏆", keynm:"마지막 문",
-   intro:"먼지: “남은 건 <b>글 세 편</b>이야. 천천히 읽어. 글 속에 <b>숫자</b>가 하나씩 숨어 있는데, 그게 마지막 문의 암호야.”" }
+   intro:"먼지: “남은 건 <b>글 세 편</b>이야. 천천히 읽어. 글 속에 <b>숫자</b>가 하나씩 숨어 있는데, 그게 마지막 문의 암호야. <b>내가 대신 찾아 주지는 않아.</b>”" }
 ];
 
 /* ── 방 1. 접수대 — 문장 성분 이름표 고치기 (72~75쪽) ──────
@@ -631,11 +637,14 @@ const JARS = {
 };
 
 /* ── 방 6. 열람실 — 짧은 글 세 편 (84~89쪽) ───────────────
-   글마다 숫자 하나가 숨어 있고, 그 셋이 마지막 문의 암호가 된다. */
+   글마다 숫자 하나가 숨어 있고, 그 셋이 마지막 문의 암호가 된다.
+   2단계다 — ① 글을 읽고 문제를 푼다 ② 글 속 숫자말 중 numask 에 맞는 것을 찾아 누른다.
+   숫자는 글에 {0}{1}{2} 자리로 박혀 있고 nums 로 채운다. 답은 na 하나뿐이고
+   나머지는 진짜 오답이다 — 글을 안 읽으면 고를 수 없다. */
 const READS = {
  f1:{ nm:"흐려진 기억 ①", title:"교실 문 앞에서", by:"소하",
-   text:["3월 2일 아침, 나는 새 교실 문 앞에서 한참을 서 있었다.",
-         "문고리를 잡았다가 놓기를 <span class='num'>네</span> 번이나 했다.",
+   text:["{0}월 {1}일 아침, 나는 새 교실 문 앞에서 한참을 서 있었다.",
+         "문고리를 잡았다가 놓기를 {2} 번이나 했다.",
          "안에서 웃음소리가 들릴 때마다 손이 문고리에서 미끄러졌다.",
          "그때 뒤에서 누가 내 이름을 불렀다. 유담이었다.",
          "우리는 같이 문을 열었다.",
@@ -645,42 +654,61 @@ const READS = {
    ok:"맞아. <b>무섭다·긴장된다고 한마디도 하지 않았는데</b> 마음이 다 보이지. 몸이 한 일로 보여 준 거야 — 낱말 창고에서 배운 그 방법.",
    why:{ 1:"날짜는 <b>언제</b>인지를 알려 줄 뿐이야. 마음은 안 들어 있어.",
          2:"교실 안의 모습을 알려 주는 문장이야. 글쓴이의 마음이 드러난 자리는 따로 있어." },
-   num:4, numwhy:"문고리를 잡았다 놓은 횟수 — <b>네 번</b>",
+   numask:"문고리를 잡았다 놓은 횟수",
+   nums:[{v:3,w:"3",t:"새 학년이 시작한 달"},
+         {v:2,w:"2",t:"그 달의 며칟날"},
+         {v:4,w:"네",t:"문고리를 잡았다 놓은 횟수"}], na:2,
    hints:["글쓴이가 ‘무섭다·떨린다’라고 직접 쓴 자리는 한 군데도 없어.",
           "그런데도 마음이 느껴지는 문장이 있지. <b>몸이 한 일</b>을 적은 문장이야.",
-          "문고리를 <b>몇 번</b> 잡았다 놓았는지 세어 본 그 문장."] },
+          "문고리를 <b>몇 번</b> 잡았다 놓았는지 세어 본 그 문장."],
+   nhints:["맨 앞의 두 숫자는 <b>날짜</b>야. 날짜는 언제인지만 알려 주지, 찾는 건 그게 아니야.",
+           "<b>문고리</b> 이야기가 나온 문장을 다시 읽어 봐.",
+           "잡았다가 놓기를 <b>몇 번</b> 했는지 적힌 그 자리야."] },
  f2:{ nm:"흐려진 기억 ②", title:"우산 하나", by:"도헌",
    text:["지난 금요일에 나는 우산을 학교에 두고 왔다.",
          "집까지는 걸어서 한참이라, 나는 현관에 서서 비만 내다보고 있었다.",
-         "그런데 저 멀리서 우산 하나가 흔들리며 다가왔다.",
-         "나보다 <span class='num'>일곱</span> 살 어린 동생이었다.",
-         "우산이 작아서 둘 다 한쪽 어깨가 흠뻑 젖었다.",
+         "그런데 저 멀리서 우산 {0}가 흔들리며 다가왔다.",
+         "나보다 {1} 살 어린 동생이었다.",
+         "우산이 작아서 {2} 다 한쪽 어깨가 흠뻑 젖었다.",
          "나는 그날 동생을 결코 잊을 것이다."],
    ask:"이 글에서 <b>고쳐야 할 문장</b>은?",
    opts:["나는 그날 동생을 결코 잊을 것이다.","우산이 작아서 둘 다 한쪽 어깨가 흠뻑 젖었다.","저 멀리서 우산 하나가 흔들리며 다가왔다."], a:0,
    ok:"찾았다! <b>결코</b>는 부정하는 말과 짝인데 ‘잊을 것이다’로 맺었어. → <b>결코 잊지 못할 것이다</b>로 고쳐야 해.",
    why:{ 1:"이 문장은 멀쩡해. 오히려 <b>어깨가 젖었다</b>고 보여 주는 좋은 문장이야.",
          2:"이 문장도 멀쩡해. 동생이 온 것을 <b>우산 하나가 흔들리며</b>로 보여 줬지." },
-   num:7, numwhy:"동생과의 나이 차이 — <b>일곱 살</b>",
+   numask:"동생과 나의 나이 차이",
+   nums:[{v:1,w:"하나",t:"다가온 우산의 수"},
+         {v:7,w:"일곱",t:"동생과 나의 나이 차이"},
+         {v:2,w:"둘",t:"한 우산을 같이 쓴 사람 수"}], na:1,
    hints:["실험실에서 만난 <b>짝이 정해진 말</b>이 이 글에도 하나 들어 있어.",
           "<b>결코</b>가 보이면 그 문장의 끝을 확인해 봐.",
-          "‘결코’는 <b>……지 못하다·……지 않다</b>와 짝이야. 그런데 이 글은 다르게 맺었어."] },
+          "‘결코’는 <b>……지 못하다·……지 않다</b>와 짝이야. 그런데 이 글은 다르게 맺었어."],
+   nhints:["우산의 수도, 함께 우산을 쓴 사람 수도 아니야.",
+           "동생이 <b>나보다 몇 살 어린지</b>가 적힌 문장이 있어.",
+           "‘나보다 ○ 살 어린 동생이었다’ — 그 자리야."] },
  f3:{ nm:"흐려진 기억 ③", title:"배턴", by:"재율",
    text:["나는 달리기가 빠른 편이 아니다.",
          "그런데 올해 이어달리기 마지막 주자가 되었다.",
-         "내 앞 주자가 배턴을 내밀었을 때 나는 그것을 한 번 놓쳤다.",
-         "허리를 숙여 배턴을 줍고 다시 뛰었다.",
-         "우리 모둠은 <span class='num'>두</span> 번째로 들어왔다.",
+         "내 앞 주자가 배턴을 내밀었을 때 나는 그것을 {0} 번 놓쳤다.",
+         "허리를 숙여 배턴을 줍는 사이에 {1} 명이 나를 앞질렀다.",
+         "나는 배턴을 고쳐 쥐고 다시 뛰었다.",
+         "우리 모둠은 {2} 번째로 들어왔다.",
          "나는 끝까지 뛰었다."],
    ask:"이 글의 <b>끝부분에 빠진 것</b>은?",
    opts:["일이 끝난 뒤 글쓴이의 마음과 생각","일이 일어난 날짜와 그날의 날씨","함께 달린 친구들의 이름"], a:0,
    ok:"바로 그거야. 일만 차례대로 적고 끝나면 읽는 사람은 <b>왜 이 일이 특별한지</b>를 알 수 없어. 경험을 글로 쓸 때 <b>끝에는 그때 마음이나 지금 생각</b>이 들어가야 해.",
    why:{ 1:"날짜와 날씨가 없어도 이 글은 읽혀. 없어서 아쉬운 건 그게 아니야.",
          2:"이름을 더 넣는다고 글이 살아나지는 않아. 빠진 것은 <b>글쓴이 안쪽</b>의 것이야." },
-   num:2, numwhy:"모둠이 들어온 등수 — <b>두 번째</b>",
+   numask:"모둠이 들어온 등수",
+   nums:[{v:1,w:"한",t:"배턴을 놓친 횟수"},
+         {v:1,w:"한",t:"나를 앞지른 사람 수"},
+         {v:2,w:"두",t:"모둠이 들어온 등수"}], na:2,
    hints:["앞의 두 글과 견주어 봐. 그 글들의 <b>마지막 문장</b>에는 무엇이 있었지?",
           "이 글은 일어난 일만 차례대로 적혀 있고 <b>딱 거기서 멈춘다.</b>",
-          "배턴을 놓치고도 끝까지 뛴 그때 <b>어떤 마음</b>이었는지가 없어."] }
+          "배턴을 놓치고도 끝까지 뛴 그때 <b>어떤 마음</b>이었는지가 없어."],
+   nhints:["‘한’이 두 군데 있지? 놓친 횟수와 앞지른 사람 수야. <b>둘 다 아니야.</b>",
+           "찾는 것은 <b>등수</b>야. 모둠이 몇 번째로 들어왔지?",
+           "‘우리 모둠은 ○ 번째로 들어왔다’ — 그 자리야."] }
 };
 const LOCK_ANSWER = [4,7,2];
 
@@ -762,7 +790,9 @@ let S = null, TICK = null, MD = null;
 const $ = id => document.getElementById(id);
 
 function freshState(){
-  return { room:0, time:1800, solved:{}, keys:[], notes:[], hint:{}, seen:{},
+  /* readq — 열람실 글의 ①문제를 맞혔다는 표시. 글은 2단계라(문제→숫자 찾기)
+     힌트를 보거나 나갔다 와도 문제부터 다시 풀지 않게 여기 적어 둔다. */
+  return { room:0, time:1800, solved:{}, keys:[], notes:[], hint:{}, seen:{}, readq:{},
            lock:[0,0,0], flavor:{}, snd:1, done:false, end:{pick:-1, words:[]} };
 }
 function save(){ try{ localStorage.setItem(K_SAVE, JSON.stringify(S)); }catch(e){} }
@@ -979,12 +1009,17 @@ function openStaff(){
     sheetOpen("🤖 먼지", '<div class="hintbox">먼지: “이 방은 다 고쳤어. 문을 열어 봐.”</div>');
     return;
   }
-  const hs2 = devHints(id);
-  const step = Math.min(S.hint[id]||0, hs2.length);
-  let h = '<div class="ask">먼지가 귀찮은 듯 다가온다. — <b>'+devName(id)+'</b> 이야기구나.</div>';
+  /* 열람실 글은 2단계라 힌트도 둘이다 — 문제를 이미 맞혔으면 숫자 찾기 힌트를 준다.
+     단계 카운터도 따로 센다(n:아이디). 안 그러면 문제 힌트를 다 본 아이가
+     숫자 힌트도 마지막 단계부터 받는다. */
+  const inNum = !!(READS[id] && (S.readq||{})[id] && READS[id].nhints);
+  const hs2 = inNum ? READS[id].nhints : devHints(id);
+  const hkey = inNum ? ('n:'+id) : id;
+  const step = Math.min(S.hint[hkey]||0, hs2.length);
+  let h = '<div class="ask">먼지가 귀찮은 듯 다가온다. — <b>'+devName(id)+(inNum?' — 숨은 숫자':'')+'</b> 이야기구나.</div>';
   for(let i=0;i<step;i++) h += '<div class="hintbox"><span class="st">'+(i+1)+'단계</span>'+hs2[i]+'</div>';
   if(step<hs2.length)
-    h += '<button class="btn btn-gold" style="width:100%" onclick="moreHint(\''+id+'\')">'+(step===0?'힌트 받기':'한 번 더 알려 줘')+' ('+(step+1)+'/'+hs2.length+')</button>';
+    h += '<button class="btn btn-gold" style="width:100%" onclick="moreHint(\''+hkey+'\')">'+(step===0?'힌트 받기':'한 번 더 알려 줘')+' ('+(step+1)+'/'+hs2.length+')</button>';
   else
     h += '<div class="hintbox" style="background:#efe7d2">먼지: “여기까지가 끝이야. <b>답은 안 알려 줘.</b> 이제 네가 해 봐.”</div>';
   sheetOpen("🤖 먼지 부르기", h);
@@ -1109,7 +1144,21 @@ function openJar(id){
   if(J.kind==='order'){ MD={id:id, slots:[-1,-1,-1], pick:-1}; return drawOrder(); }
   MD={id:id, dead:[], order:shuffled(J.opts.length)}; drawChoice(J,'jar');
 }
-function openRead(id){ MD={id:id, dead:[], order:shuffled(READS[id].opts.length)}; drawChoice(READS[id],'read'); }
+function openRead(id){
+  const done1 = (S.readq||{})[id];
+  MD={id:id, dead:[], ndead:[], phase:done1?'n':'q', order:shuffled(READS[id].opts.length)};
+  drawChoice(READS[id],'read');
+}
+
+/* 글 본문 — {0}{1}{2} 자리에 숫자말을 채운다.
+   live 가 아닐 때는 그냥 굵은 글씨다. 눌러야 할 때에만 셋이 한꺼번에 눌러진다. */
+function readBody(R, live){
+  return R.text.map(p=>'<p>'+p.replace(/\{(\d+)\}/g,(m,k)=>{
+    const i=+k, n=R.nums[i], dead=(MD.ndead||[]).indexOf(i)>=0;
+    if(!live) return '<span class="pn">'+n.w+'</span>';
+    return '<span class="pn hot'+(dead?' no':'')+'"'+(dead?'':' onclick="pickNum('+i+')"')+'>'+n.w+'</span>';
+  })+'</p>').join('');
+}
 
 function drawChoice(D, kind){
   let head='';
@@ -1120,18 +1169,25 @@ function drawChoice(D, kind){
     head = '<div class="mach" style="background:#fff3e6;border-color:#e0b98c"><div style="font-size:16.5px;line-height:1.85">'+D.lead+'</div></div>'
          + '<div class="ask">'+D.ask+'</div>';
   } else {
-    const R=D;
+    const R=D, live=(MD.phase==='n');
     head = '<div class="read"><span class="rt">'+R.title+'</span>'
          + '<div style="font-size:12px;color:#8b8574;margin-bottom:8px">'+R.by+'의 기억</div>'
-         + R.text.map(p=>'<p>'+p+'</p>').join('') + '</div>'
-         + '<div class="ask">'+R.ask+'</div>';
+         + readBody(R, live) + '</div>'
+         + '<div class="ask">'+(live
+             ? '🔢 이 글에서 <b>'+R.numask+'</b>를 찾아 눌러 보자.'
+               + '<div style="font-size:13.5px;color:#7b7566;font-weight:400;margin-top:5px">글 속 숫자말이 눌러진다. 세 군데 중 하나다.</div>'
+             : R.ask)+'</div>';
   }
-  let h = head + '<div class="opts">';
-  MD.order.forEach(k=>{
-    const dead = MD.dead.indexOf(k)>=0;
-    h += '<button class="opt'+(dead?' no':'')+'"'+(dead?' disabled':'')+' onclick="pickChoice('+k+',\''+kind+'\')">'+D.opts[k]+'</button>';
-  });
-  h += '</div>';
+  let h = head;
+  /* 숫자 찾기 단계에서는 선택지를 그리지 않는다 — 누를 곳은 글 안쪽뿐이다. */
+  if(!(kind==='read' && MD.phase==='n')){
+    h += '<div class="opts">';
+    MD.order.forEach(k=>{
+      const dead = MD.dead.indexOf(k)>=0;
+      h += '<button class="opt'+(dead?' no':'')+'"'+(dead?' disabled':'')+' onclick="pickChoice('+k+',\''+kind+'\')">'+D.opts[k]+'</button>';
+    });
+    h += '</div>';
+  }
   sheetOpen(D.nm, h);
 }
 function pickChoice(i, kind){
@@ -1142,21 +1198,47 @@ function pickChoice(i, kind){
     const btns=$("sheet").querySelectorAll('.opt');
     btns[MD.order.indexOf(i)].classList.add('ok'); btns.forEach(b=>b.disabled=true);
     fb(true,'<span class="ttl">✔ '+(kind==='tube'?'불이 켜졌다':'맞았다')+'</span>'+D.ok);
+    /* 글은 여기서 안 끝난다 — 숫자를 직접 찾아야 장치가 풀린다.
+       문제만 맞히고 암호를 받아 가지 못하게 한 자리다(2026-09-18). */
+    if(kind==='read'){
+      S.readq=S.readq||{}; S.readq[MD.id]=1; save();
+      setTimeout(()=>{
+        MD.phase='n'; drawChoice(D,kind);
+        fb(true,'<span class="ttl">🔢 이제 암호다</span>먼지: “이 글에 숫자가 하나 숨어 있어. <b>'+D.numask+'</b>를 글에서 찾아 눌러 봐.”');
+      }, 2600);
+      return;
+    }
     let note='', chip=null;
     if(kind==='tube') note='<b>'+D.pre.trim()+' …</b> → <b>'+D.opts[D.a]+'</b>';
     if(kind==='jar')  note='<b>'+D.nm+'</b> — '+D.opts[D.a];
-    if(kind==='read'){
-      note='<b>'+D.title+'</b> — 숨은 숫자 <b>'+D.num+'</b> ('+D.numwhy+')';
-      chip=D.title+' = '+D.num;
-      setTimeout(()=>{ SND.ding(); toast("🔢 숫자 "+D.num+" 을(를) 수첩에 적었다"); }, 900);
-    }
     solveDev(MD.id, note, chip);
-    setTimeout(()=>{ closeModal(); render(); }, kind==='read'?2600:1900);
+    setTimeout(()=>{ closeModal(); render(); }, 1900);
   }else{
     SND.bad(); if(kind==='tube') SND.steam();
     MD.dead.push(i);
     drawChoice(D,kind);
     fb(false,'<span class="ttl">'+(kind==='tube'?'치익 — 김만 난다':'아니야')+'</span>'+D.why[i]);
+  }
+}
+
+/* 글 속 숫자말 누르기 — 암호는 여기서만 나온다.
+   오답도 진짜 숫자라, 무엇의 수인지 글에서 확인해야 고를 수 있다. */
+function pickNum(i){
+  const D = READS[MD.id];
+  if(!D || MD.phase!=='n' || MD.ndead.indexOf(i)>=0) return;
+  const n = D.nums[i];
+  if(i===D.na){
+    SND.ok();
+    MD.phase='done'; drawChoice(D,'read');
+    fb(true,'<span class="ttl">✔ 찾았다 — 숫자 '+n.v+'</span><b>'+n.t+'</b>. 수첩에 적어 둘게.');
+    solveDev(MD.id, '<b>'+D.title+'</b> — 숨은 숫자 <b>'+n.v+'</b> ('+n.t+')', D.title+' = '+n.v);
+    setTimeout(()=>{ SND.ding(); toast("🔢 숫자 "+n.v+" 을(를) 수첩에 적었다"); }, 900);
+    setTimeout(()=>{ closeModal(); render(); }, 2600);
+  }else{
+    SND.bad(); shake();
+    MD.ndead.push(i); drawChoice(D,'read');
+    /* 조사를 붙이지 말 것 — t 가 받침으로도 끝나고 숫자로도 끝나서 ‘달야’가 된다. */
+    fb(false,'<span class="ttl">그 숫자가 아니야</span>‘'+n.w+'’ — 그건 <b>'+n.t+'</b>. 찾는 것은 <b>'+D.numask+'</b>.');
   }
 }
 
@@ -1263,6 +1345,10 @@ function checkSw(){
 }
 
 /* ── ⑤ 마지막 문 : 숫자 자물쇠 ──────────────────────────── */
+/* 헛돌리기 막이 — 세 번 틀리면 10초 뻑뻑해진다. 저장하지 않는다(메모리에만 둔다):
+   이어하기로 들어왔는데 잠겨 있으면 아이가 영문도 모르고 기다린다. */
+let LOCKFAIL=0, LOCKUNTIL=0, LOCKT=null;
+function lockLeft(){ return Math.max(0, Math.ceil((LOCKUNTIL-Date.now())/1000)); }
 function openLock(){
   MD={id:'lock'};
   drawLock();
@@ -1277,16 +1363,23 @@ function drawLock(){
       +'<div style="font-size:12px;color:#7b7566">'+(i+1)+'번째 글</div></div>';
   });
   h+='</div>';
-  const chips = S.notes.filter(n=>n.chip);
-  if(chips.length) h+='<div style="text-align:center;font-size:14px;color:#7b7566;margin:8px 0 12px">수첩: '+chips.map(c=>'<b>'+c.chip+'</b>').join(' · ')+'</div>';
-  h+='<button class="btn btn-gold" style="width:100%" onclick="checkLock()">돌려 보기</button>';
+  /* 여기에 수첩을 펼쳐 놓지 말 것 — 답이 순서까지 적힌 채로 보인다.
+     확인은 가방(🎒)에서 하고, 이 화면은 맞히는 자리로만 둔다(2026-09-18). */
+  h+='<div style="text-align:center;font-size:13.5px;color:#7b7566;margin:8px 0 12px">적어 둔 숫자는 <b>가방</b>에 있다. 세 글이 나온 <b>차례대로</b> 맞춰야 한다.</div>';
+  const wait = lockLeft();
+  h+= wait
+    ? '<button class="btn" style="width:100%" disabled>자물쇠가 뻑뻑하다 — '+wait+'초</button>'
+    : '<button class="btn btn-gold" style="width:100%" onclick="checkLock()">돌려 보기</button>';
+  h+='<button class="btn btn-ghost btn-sm" style="width:100%;margin-top:9px" onclick="closeModal()">📖 글을 다시 읽으러 가기</button>';
   sheetOpen("🔒 마지막 문", h);
 }
 function spin(i,d){
   S.lock[i]=(S.lock[i]+d+10)%10; SND.tap(); save(); drawLock();
 }
 function checkLock(){
+  if(lockLeft()>0){ SND.bad(); return; }
   if(S.lock.join('')===LOCK_ANSWER.join('')){
+    LOCKFAIL=0; clearInterval(LOCKT);
     SND.door(); setTimeout(()=>SND.get(),400);
     S.solved['door']=true; if(S.keys.indexOf(5)<0) S.keys.push(5);
     S.done=true; save();
@@ -1294,7 +1387,20 @@ function checkLock(){
     setTimeout(()=>{ clearInterval(TICK); showEnd(); }, 900);
   }else{
     SND.bad(); shake();
-    fb(false,'<span class="ttl">덜컥 — 열리지 않는다</span>세 글을 다시 읽어 봐. 숫자는 <b>글 안에 노란색으로</b> 남아 있고, 수첩(📓)에도 적어 두었어.');
+    LOCKFAIL++;
+    if(LOCKFAIL>=3){
+      LOCKFAIL=0; LOCKUNTIL=Date.now()+10000;
+      clearInterval(LOCKT);
+      LOCKT=setInterval(()=>{
+        if(!MD || MD.id!=='lock'){ clearInterval(LOCKT); return; }
+        drawLock();
+        if(lockLeft()<=0) clearInterval(LOCKT);
+      },1000);
+      drawLock();
+      fb(false,'<span class="ttl">덜컥덜컥 — 자물쇠가 뻑뻑해졌다</span>먼지: “세 번이나 헛돌렸어. <b>10초</b>는 쉬어야 다시 돌아가. 아무 숫자나 돌려서는 안 열려 — 그동안 <b>글을 다시 읽자.</b>”');
+      return;
+    }
+    fb(false,'<span class="ttl">덜컥 — 열리지 않는다</span>세 글을 다시 읽어 봐. 숫자는 <b>글 안에만</b> 있고, 찾아낸 것은 가방에 적혀 있어.');
   }
 }
 

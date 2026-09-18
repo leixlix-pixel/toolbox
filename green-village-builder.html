@@ -182,6 +182,65 @@ button{font-family:inherit; color:inherit; border:none; background:none; cursor:
 .pcell{height:84px; border-radius:8px; background:#4a7fa5; border:2px solid #395f7c; box-shadow:inset 0 0 12px rgba(255,255,255,.25)}
 .pcell.dirty{background:#8d7f63; border-color:#6f6350; box-shadow:inset 0 0 14px rgba(60,48,30,.5)}
 
+/* ---- 노동: 문지르기 ---- */
+.scrubg{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:14px; padding:12px; border-radius:16px; touch-action:none; user-select:none; -webkit-user-select:none}
+.scell{height:78px; border-radius:8px; border:2px solid transparent; transition:background .12s, box-shadow .12s; position:relative; touch-action:none}
+/* 깨끗해진 칸 = 안쪽에 하얀 빛 · 남은 겹은 두께만큼 테두리가 굵어진다(흰 눈도 겹이 보이게) */
+.scell.d1{box-shadow:inset 0 0 0 3px rgba(0,0,0,.10), inset 0 2px 7px rgba(0,0,0,.10)}
+.scell.d2{box-shadow:inset 0 0 0 7px rgba(0,0,0,.13), inset 0 3px 10px rgba(0,0,0,.16)}
+.scell.d3{box-shadow:inset 0 0 0 12px rgba(0,0,0,.16), inset 0 4px 13px rgba(0,0,0,.22)}
+.scrubg.solar{background:#2f3d4a}
+.scrubg.solar .scell{background:#4fa3d8; border-color:#2f7ba8}
+.scrubg.solar .scell.d1{background:#b3a487; border-color:#8b7f66}
+.scrubg.solar .scell.d2{background:#8d7f63; border-color:#6f6350}
+.scrubg.solar .scell.d3{background:#6d6249; border-color:#544c39}
+.scrubg.snow{background:#4a5b6b}
+.scrubg.snow .scell{background:#6f6255; border-color:#544a40}
+.scrubg.snow .scell.d1{background:#c6d9e6; border-color:#9db7c8}
+.scrubg.snow .scell.d2{background:#e4eef5; border-color:#b4cbda}
+.scrubg.snow .scell.d3{background:#fff; border-color:#c6dae7}
+.scrubg.leaf{background:#5a5348}
+.scrubg.leaf .scell{background:#8aa0b8; border-color:#63788e}
+.scrubg.leaf .scell.d1{background:#d8bb80; border-color:#a98c52}
+.scrubg.leaf .scell.d2{background:#b3853f; border-color:#8e682d}
+.scrubg.leaf .scell.d3{background:#8e6027; border-color:#6d481a}
+.scrubg.weed{background:#4f6b46}
+.scrubg.weed .scell{background:#cfe6bf; border-color:#a6c793}
+.scrubg.weed .scell.d1{background:#94c072; border-color:#6f9c4f}
+.scrubg.weed .scell.d2{background:#5f8a3e; border-color:#456a29}
+.scrubg.weed .scell.d3{background:#3e6127; border-color:#2a4718}
+.scrubg.soot{background:#3b3430}
+.scrubg.soot .scell{background:#f0e3cd; border-color:#c9b697}
+.scrubg.soot .scell.d1{background:#9c8d84; border-color:#6f635b}
+.scrubg.soot .scell.d2{background:#5d534d; border-color:#443c37}
+.scrubg.soot .scell.d3{background:#2b2623; border-color:#171412}
+.scrubg.wall{background:#5c6670}
+.scrubg.wall .scell{background:#f3efe6; border-color:#d3cdc0}
+.scrubg.wall .scell.d1{background:#c4bdaf; border-color:#a9a294}
+.scrubg.wall .scell.d2{background:#a29a8b; border-color:#847d70}
+.scrubg.wall .scell.d3{background:#7e766a; border-color:#625c52}
+.scell.crack::after{content:''; position:absolute; left:14%; top:10%; width:3px; height:80%; background:#3d3a35; transform:rotate(22deg); border-radius:2px; box-shadow:6px 12px 0 -1px #3d3a35, 12px 26px 0 -1px #3d3a35}
+
+/* ---- 노동: 꾹 눌러 채우기 ---- */
+.holdw{margin-top:14px; touch-action:none; user-select:none; -webkit-user-select:none}
+.holdg{display:grid; grid-template-columns:repeat(auto-fit,minmax(118px,1fr)); gap:12px}
+.hpt{position:relative; height:118px; border-radius:16px; border:3px solid var(--line); background:#fff; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; overflow:hidden; touch-action:none}
+.hpt .hfill{position:absolute; left:0; bottom:0; width:100%; height:0%; background:linear-gradient(#8fce7a,#5fae4c); transition:height .06s linear}
+.hpt .hin{position:relative; z-index:1; font-size:38px; line-height:1}
+.hpt .hlb{position:relative; z-index:1; font-size:15px; font-weight:700; color:var(--muted)}
+.hpt.on{border-color:var(--green); box-shadow:0 0 0 4px rgba(63,155,79,.18)}
+.hpt.on .hlb{color:var(--green-d)}
+.hpt.full{border-color:var(--green); background:var(--leaf)}
+.hpt.full .hfill{background:#bfe3a4}
+
+/* ---- 노동: 연타 ---- */
+.pumpw{margin-top:14px; text-align:center; user-select:none; -webkit-user-select:none}
+.pumpbar{height:34px; border-radius:999px; background:#e6eef3; border:3px solid var(--line); overflow:hidden; margin-bottom:14px}
+.pumpbar i{display:block; height:100%; width:0%; background:linear-gradient(90deg,#7fc2e0,#4a9fd0); transition:width .1s linear}
+.pumpbtn{width:100%; min-height:150px; border-radius:22px; border:4px solid var(--green); background:var(--leaf); font-family:inherit; font-size:34px; font-weight:700; color:var(--green-d); touch-action:manipulation}
+.pumpbtn:active{transform:translateY(4px); background:#cfe9bb}
+.worknote{margin-top:12px; font-size:18px; color:var(--muted); line-height:1.5; word-break:keep-all}
+
 #toast{position:absolute; left:50%; top:84px; transform:translate(-50%,-10px); z-index:200; background:var(--ink); color:#fff; font-size:20px; padding:12px 24px; border-radius:999px; opacity:0; transition:all .25s; pointer-events:none; white-space:nowrap}
 #toast.on{opacity:1; transform:translate(-50%,0)}
 
@@ -446,8 +505,71 @@ const EV = {
       { e: '📢', n: '마을 사람들에게 봉지를 풀어서 내 달라고 알린다', ok: true, why: '고치는 것보다 안 생기게 하는 게 나아요.' },
       { e: '💪', n: '더 힘센 기계로 바꾼다', ok: false, why: '돈도 에너지도 더 들고, 여전히 안에 뭐가 있는지는 몰라요.' } ] } ] },
 
-  panelChk: { e: '☀️', n: '태양광 판이 먼지투성이예요', sub: '문질러서 닦아요', view: 'tap',
+  /* --- 살림과 되살려 쓰기 --- */
+  battery: { e: '🔋', n: '다 쓴 건전지가 모였어요', sub: '어디에 낼까요', view: 'quiz', on: ['school', 'shop', 'apt', 'library'], qs: [
+    { q: '다 쓴 건전지를 어떻게 버릴까요?', opts: [
+      { e: '🔋', n: '전용 수거함에 따로 낸다', ok: true, why: '건전지 안에는 몸에 해로운 금속이 들어 있어요. 따로 모아야 그 금속을 다시 꺼내 쓸 수 있어요.' },
+      { e: '🗑️', n: '작으니까 일반 쓰레기로', ok: false, why: '땅에 묻히면 해로운 금속이 흙과 물로 새어 나와요.' },
+      { e: '♻️', n: '캔이랑 같이 금속함에', ok: false, why: '섞이면 선별장에서 터지거나 불이 나요. 건전지는 꼭 따로예요.' } ] },
+    { q: '수명이 다한 형광등은요?', opts: [
+      { e: '💡', n: '깨뜨리지 말고 형광등 수거함에', ok: true, why: '안에 수은이 들어 있어요. 깨지면 그대로 공기 중으로 날아가요.' },
+      { e: '🔨', n: '부피를 줄이려고 깨서 버린다', ok: false, why: '깨는 순간이 가장 위험해요. 통째로 내야 해요.' } ] } ] },
+
+  fixIt: { e: '🪛', n: '물건이 고장 났어요', sub: '버릴까요, 고칠까요', view: 'quiz', on: ['shop', 'house', 'school'], qs: [
+    { q: '선풍기가 잘 안 돌아가요. 먼저 무엇을 해 볼까요?', opts: [
+      { e: '🪛', n: '수리 센터에 가져가 고칠 수 있는지 물어본다', ok: true, why: '고쳐 쓰는 것이 새로 사는 것보다 훨씬 적은 자원을 써요. 「수리할 권리」라는 말이 생긴 까닭이에요.' },
+      { e: '🛒', n: '새것을 산다', ok: false, why: '새 선풍기 하나를 만드는 데 드는 자원이, 고치는 데 드는 것보다 수십 배 많아요.' },
+      { e: '🗑️', n: '고장 났으니 바로 버린다', ok: false, why: '버리기 전에 고칠 수 있는지 보는 것이 순서예요.' } ] },
+    { q: '고칠 수 없는 가전제품은 어떻게 할까요?', opts: [
+      { e: '📞', n: '폐가전 무상 수거를 신청한다', ok: true, why: '집 앞까지 와서 공짜로 가져가요. 안에 든 금속을 거의 다 되살려 써요.' },
+      { e: '🌃', n: '밤에 길가에 내놓는다', ok: false, why: '가져갈 사람이 없어 그대로 쓰레기가 돼요.' } ] } ] },
+
+  clothes: { e: '👕', n: '옷장을 정리해요', sub: '작아진 옷을 어떻게 할까요', view: 'quiz', on: ['house', 'apt', 'shop'], qs: [
+    { q: '작아졌지만 멀쩡한 옷이 잔뜩 나왔어요.', opts: [
+      { e: '🤝', n: '필요한 사람에게 물려주거나 헌 옷 수거함에 넣는다', ok: true, why: '옷 한 벌을 1년 더 입으면 그 옷이 만든 탄소의 4분의 1이 줄어요.' },
+      { e: '🗑️', n: '유행이 지났으니 버린다', ok: false, why: '버린 옷은 거의 태워요. 옷은 썩는 데도 아주 오래 걸려요.' },
+      { e: '📦', n: '옷장 깊이 그냥 쌓아 둔다', ok: false, why: '쌓아 두면 결국 못 쓰게 돼요. 입을 수 있을 때 넘겨야 해요.' } ] },
+    { q: '티셔츠 한 장을 만드는 데 드는 물은 얼마나 될까요?', opts: [
+      { e: '🛁', n: '2,700L — 한 사람이 3년 마실 물', ok: true, why: '목화를 키우고 물들이는 데 이만큼 들어요. 옷을 오래 입는 것이 물을 아끼는 일이에요.' },
+      { e: '🥛', n: '2L 쯤', ok: false, why: '훨씬 많아요. 2,700L 예요.' } ] } ] },
+
+  book: { e: '📚', n: '읽고 싶은 책이 생겼어요', sub: '어떻게 볼까요', view: 'quiz', on: ['library', 'school'], qs: [
+    { q: '한 번 읽을 책이에요. 어떻게 할까요?', opts: [
+      { e: '📖', n: '도서관에서 빌려 읽는다', ok: true, why: '책 한 권을 여러 사람이 돌려 읽는 것이 도서관이에요. 나눠 쓰기의 가장 오래된 방법이죠.' },
+      { e: '🛒', n: '새 책을 산다', ok: false, why: '사도 괜찮지만, 한 번 읽을 거라면 빌리는 쪽이 나무를 아껴요.' } ] },
+    { q: '다 읽어서 안 볼 책은요?', opts: [
+      { e: '🎁', n: '도서관이나 동생에게 준다', ok: true, why: '책은 물려줄수록 값이 커져요.' },
+      { e: '♻️', n: '바로 종이 재활용', ok: false, why: '읽을 수 있는 책을 녹이는 건 아까워요. 재활용은 마지막 차례예요.' } ] } ] },
+
+  tree: { e: '🌳', n: '빈 땅에 무엇을 심을까요', sub: '그늘과 공기를 만들어요', view: 'quiz', on: ['school', 'house', 'apt'], qs: [
+    { q: '건물 남쪽에 나무를 심으면 좋은 까닭은?', opts: [
+      { e: '🌳', n: '여름엔 그늘을 만들고 겨울엔 잎이 져서 햇빛이 든다', ok: true, why: '잎이 지는 나무를 남쪽에 심는 건 오래된 지혜예요. 여름 냉방과 겨울 난방을 한꺼번에 줄여요.' },
+      { e: '🌲', n: '사철 푸른 나무를 심어 늘 가려 준다', ok: false, why: '겨울에도 해를 가려서 난방이 더 들어요. 겨울 햇빛은 들어와야 해요.' } ] },
+    { q: '나무 한 그루가 여름에 하는 일은?', opts: [
+      { e: '💧', n: '잎에서 물을 내보내며 둘레를 시원하게 한다', ok: true, why: '나무 한 그루가 에어컨 한 대 몫을 해요. 그늘과 증발이 함께 식혀 줘요.' },
+      { e: '🌬️', n: '바람을 막아 더 덥게 한다', ok: false, why: '나무 아래는 그늘 밖보다 훨씬 시원해요.' } ] } ] },
+
+  cool: { e: '🧊', n: '냉장고를 살펴봐요', sub: '전기를 가장 많이 쓰는 가전', view: 'quiz', on: ['house', 'apt', 'shop'], qs: [
+    { q: '냉장고를 어떻게 쓰면 전기를 아낄까요?', opts: [
+      { e: '📦', n: '60~70%만 채우고, 문을 오래 열지 않는다', ok: true, why: '너무 꽉 차면 찬 공기가 못 돌아요. 냉장실은 여유 있게, 냉동실은 꽉 채우는 게 좋아요.' },
+      { e: '🧺', n: '빈틈없이 꽉 채운다', ok: false, why: '냉장실이 꽉 차면 찬 공기가 안 돌아 전기를 더 써요.' },
+      { e: '🚪', n: '무엇이 있나 자주 열어 본다', ok: false, why: '한 번 열 때마다 찬 공기가 빠져나가요. 열기 전에 생각하고 여는 습관을 들여요.' } ] },
+    { q: '냉장고 뒤쪽은 어떻게 둘까요?', opts: [
+      { e: '📏', n: '벽에서 10cm 띄운다', ok: true, why: '뒤에서 열을 내보내야 해요. 붙여 두면 전기를 훨씬 많이 써요.' },
+      { e: '🧱', n: '자리를 아끼려고 벽에 딱 붙인다', ok: false, why: '열이 갇혀서 냉장고가 계속 더 돌아요.' } ] } ] },
+
+  /* --- 손으로 하는 일 — 실제로 몸을 쓴다 --- */
+  panelChk: { e: '☀️', n: '태양광 판이 먼지투성이예요', sub: '문질러서 닦아요', work: 'panel',
     okAt: b => !!(b.d && (b.d.use || []).includes('solar')) },
+  gutter: { e: '🍂', n: '하수구가 낙엽으로 막혔어요', sub: '긁어내서 물길을 열어요', work: 'leaf',
+    on: ['dam', 'school', 'apt', 'bike', 'bridge', 'library'] },
+  bolt: { e: '🔩', n: '풍력 날개 볼트가 헐거워졌어요', sub: '꾹 눌러 조여요', work: 'bolt', on: ['wind'] },
+  weed: { e: '🌿', n: '옥상 정원에 잡초가 자랐어요', sub: '뽑아 줘요', work: 'weed',
+    okAt: b => !!(b.d && (b.d.use || []).includes('garden')) },
+  leak: { e: '🚰', n: '어디선가 물이 새요', sub: '새는 자리를 찾아 막아요', work: 'seal',
+    on: ['house', 'apt', 'school', 'dam', 'shop'] },
+  snowClr: { e: '🧹', n: '눈이 두껍게 쌓였어요', sub: '길을 치워요', work: 'snow',
+    on: ['house', 'apt', 'school', 'shop', 'library', 'bridge', 'bike'] },
 };
 const EV_EVERY = 30000, EV_MAX = 5;
 
@@ -455,11 +577,13 @@ const EV_EVERY = 30000, EV_MAX = 5;
    재난 — 갑자기 오지만, 아이가 고르기 전에는 아무 일도 안 일어난다
    (태블릿을 덮어 두면 재난은 시작되지 않는다)
    kind  break=구조물이 다침 · check=점검만 · power=잠깐 정전 · heat=냉방 급증 · smog=태양광 절반
+         chore=할 일이 한꺼번에 생긴다(눈 치우기 · 분리배출 · 누수 찾기)
    can   이 구조물이 다칠 수 있나      safe  이 설계면 지켜진다
+   fix   다친 뒤 직접 고치는 방법(FIX 의 열쇠) — 재난마다 손에 쥐는 연장이 다르다
    --------------------------------------------------------------------- */
 const DIS = {
   typhoon: { e: '🌀', n: '태풍', warn: '아주 센 바람과 비가 몰려오고 있어요.',
-    ask: '태풍이 닥치기 전에 무엇을 먼저 할까요?', kind: 'break', hits: 2, need: 3,
+    ask: '태풍이 닥치기 전에 무엇을 먼저 할까요?', kind: 'break', hits: 2, need: 3, fix: 'break',
     opts: [
       { n: '창문을 꼭 닫아 잠그고, 밖에 둔 화분과 간판을 안으로 들인다', ok: true, why: '태풍 때 다치는 일은 날아다니는 물건에 맞아서 생겨요. 창문은 꼭 닫아 잠가요.' },
       { n: '창문을 조금 열어 바람이 지나가게 한다', ok: false, why: '바람이 안으로 들어오면 지붕을 아래에서 위로 들어 올려요. 지붕이 통째로 날아가는 까닭이에요.' },
@@ -469,7 +593,7 @@ const DIS = {
     safeSay: '🪟 단열창은 두 겹이라 날아온 물건에도 잘 안 깨졌어요.' },
 
   flood: { e: '🌊', n: '집중 호우', warn: '한 시간에 70mm 가 넘는 비가 쏟아지고 있어요.',
-    ask: '물이 차오르기 전에 무엇을 할까요?', kind: 'break', hits: 2, need: 4,
+    ask: '물이 차오르기 전에 무엇을 할까요?', kind: 'break', hits: 2, need: 4, fix: 'flood',
     opts: [
       { n: '하수구 덮개에 쌓인 낙엽을 걷어 물길을 열어 둔다', ok: true, why: '물난리의 절반은 하수구가 막혀서 나요. 물이 빠질 길부터 열어야 해요.' },
       { n: '강에 가서 물이 얼마나 찼는지 보고 온다', ok: false, why: '불어난 강물은 어른도 순식간에 휩쓸려요. 절대 가까이 가지 않아요.' },
@@ -510,7 +634,7 @@ const DIS = {
       { n: '운동장에 물을 뿌려 먼지를 가라앉힌다', ok: false, why: '운동장 흙먼지가 아니라 멀리서 날아온 아주 작은 먼지예요. 물로는 못 잡아요.' } ] },
 
   cold: { e: '🥶', n: '한파', warn: '아침 기온이 영하 15℃ 까지 떨어졌어요.',
-    ask: '수도관이 얼지 않게 하려면 어떻게 할까요?', kind: 'break', hits: 1, need: 5,
+    ask: '수도관이 얼지 않게 하려면 어떻게 할까요?', kind: 'break', hits: 1, need: 5, fix: 'ice',
     opts: [
       { n: '수도를 아주 조금 틀어 물이 계속 흐르게 하고 관을 헌 옷으로 감싼다', ok: true, why: '흐르는 물은 잘 안 얼어요. 감싸 두면 찬 공기가 관에 바로 닿지 않아요.' },
       { n: '수도를 꽉 잠가 둔다', ok: false, why: '멈춘 물이 얼면서 부피가 늘어 관이 터져요. 얼음은 물보다 부피가 커요.' },
@@ -520,7 +644,7 @@ const DIS = {
     safeSay: '🪟 단열이 잘 돼 있어서 관이 얼지 않았어요.' },
 
   fire: { e: '🔥', n: '화재', warn: '마을 건물 한 곳에서 불이 났어요.',
-    ask: '연기가 가득한 복도에서 어떻게 나갈까요?', kind: 'break', hits: 1, need: 6,
+    ask: '연기가 가득한 복도에서 어떻게 나갈까요?', kind: 'break', hits: 1, need: 6, fix: 'burn',
     opts: [
       { n: '젖은 수건으로 입을 막고 몸을 낮춰 벽을 짚으며 나간다', ok: true, why: '불보다 연기가 더 무서워요. 연기는 위로 뜨니까 낮은 곳에 숨 쉴 공기가 있어요.' },
       { n: '가방과 물건을 챙겨서 나간다', ok: false, why: '물건은 다시 살 수 있어요. 사람이 먼저 나가야 해요.' },
@@ -528,19 +652,144 @@ const DIS = {
     can: b => ST[b.k].kind === 'bld',
     safe: b => !!(b.d && b.d.build === 'rebrick'),
     safeSay: '🧱 재활용 벽돌로 쌓은 벽이 불길을 막아 줬어요.' },
+
+  snow: { e: '❄️', n: '폭설', warn: '밤새 눈이 30cm 넘게 쌓였어요.',
+    ask: '아침에 눈 쌓인 길, 무엇을 먼저 할까요?', kind: 'chore', chore: 'snowClr', hits: 3, need: 4,
+    opts: [
+      { n: '얼어붙기 전에 집 앞과 골목을 이웃과 함께 치운다', ok: true, why: '내 집 앞 눈은 내가 치우는 것이 원칙이에요. 밟히기 전에 치워야 훨씬 쉽고, 넘어지는 사람도 없어요.' },
+      { n: '해가 나면 녹을 테니 그냥 둔다', ok: false, why: '밟힌 눈은 얼음이 돼요. 겨울에 다치는 사람이 가장 많은 날이 눈 온 다음 날이에요.' },
+      { n: '뜨거운 물을 부어 빨리 녹인다', ok: false, why: '식으면서 곧바로 다시 얼어 빙판이 돼요. 가장 미끄럽게 만드는 방법이에요.' } ],
+    note: '🧹 길마다 <b>눈 치우기</b> 할 일이 생겼어요. 삽질은 힘들지만 마을이 안 다쳐요.' },
+
+  drought: { e: '🏜️', n: '가뭄', warn: '한 달 넘게 비가 오지 않아 저수지가 바닥을 보여요.',
+    ask: '물이 모자란 마을에서 가장 먼저 할 일은?', kind: 'chore', chore: 'leak', hits: 2, need: 5,
+    mins: 3, flag: 'dryOff',
+    opts: [
+      { n: '새는 수도관부터 찾아 막는다', ok: true, why: '우리나라는 보낸 수돗물의 10분의 1쯤이 새는 관에서 사라져요. 아끼기 전에 새는 것부터 막아야 해요.' },
+      { n: '물을 미리 잔뜩 받아 쌓아 둔다', ok: false, why: '먼저 받아 둔 사람만 쓰게 돼요. 새는 것을 막아야 모두에게 돌아가요.' },
+      { n: '땅을 더 깊이 파서 지하수를 끌어 쓴다', ok: false, why: '지하수도 언젠가 마르고, 너무 빼내면 땅이 꺼져요. 급할 때만 쓰는 마지막 방법이에요.' } ],
+    note: '💧 저수지가 낮아져 <b>수력 발전이 줄었어요.</b> 비가 올 때까지 조금만 참아요.' },
+
+  sink: { e: '🕳️', n: '땅꺼짐', warn: '큰길 한복판이 갑자기 푹 꺼졌어요.',
+    ask: '왜 멀쩡하던 땅이 꺼졌을까요?', kind: 'break', hits: 1, need: 6, fix: 'crack',
+    opts: [
+      { n: '땅속 낡은 물관이 새면서 흙이 조금씩 쓸려 나갔다', ok: true, why: '땅꺼짐은 거의 다 이렇게 생겨요. 새는 물이 흙을 씻어 가 빈 굴이 되고, 그 위 땅이 어느 날 내려앉아요.' },
+      { n: '차가 너무 많이 지나다녀서 눌렸다', ok: false, why: '무게도 보태지만, 아래에 빈 굴이 먼저 있어야 꺼져요. 그 굴을 만드는 건 새는 물이에요.' },
+      { n: '땅속에 있던 큰 돌이 저절로 빠져나가서', ok: false, why: '돌은 스스로 빠져나가지 않아요. 흙을 쓸어 가는 것은 물이에요.' } ],
+    can: b => ST[b.k].kind !== 'bld',
+    checkSay: '🔎 땅속은 눈에 안 보여요. <b>보이지 않는 곳을 미리 살피는 것</b>이 건설 기술에서 가장 어려운 일이에요.' },
+
+  trash: { e: '🗑️', n: '쓰레기 대란', warn: '처리장이 꽉 차서 쓰레기를 가져가지 못해요.',
+    ask: '마을이 할 수 있는 일은?', kind: 'chore', chore: 'sort', hits: 3, need: 5,
+    opts: [
+      { n: '나오는 쓰레기를 줄이고, 낼 것은 제대로 갈라서 낸다', ok: true, why: '섞여 있으면 전부 묻거나 태워야 해요. 제대로 가르면 절반 넘게 다시 쓸 수 있어요.' },
+      { n: '처리장을 더 크게 짓는다', ok: false, why: '지어도 또 찹니다. 나오는 양을 줄이지 않으면 끝이 없어요.' },
+      { n: '다른 동네로 보낸다', ok: false, why: '내 쓰레기를 남에게 미루는 거예요. 실제로 이 문제로 동네끼리 자주 다퉈요.' } ],
+    note: '🗑️ 집집마다 <b>분리배출</b> 할 일이 생겼어요. 제대로 가른 만큼 처리장이 숨을 돌려요.' },
 };
 const DIS_FIRST = 150000, DIS_EVERY = 200000;
 
-/* 수리 — 다친 구조물을 직접 고치는 법 */
+/* =====================================================================
+   노동 — 손으로 하는 일
+   scrub  문질러 지우기(끌면서 문지른다 · 여러 겹)   hold  꾹 눌러 채우기
+   pump   연타로 퍼내기(가만 있으면 도로 찬다)
+   고르기와 달리 「아는 것」으로는 못 넘어간다 — 실제로 손을 움직여야 끝난다
+   ===================================================================== */
+const WORK = {
+  panel: { view: 'scrub', skin: 'solar', e: '☀️', t: '태양광 판 닦기', cells: 12, dirt: 2, p: .8,
+    sub: '먼지 앉은 칸을 손가락으로 <b>문질러</b> 닦아요. 두껍게 앉은 곳은 여러 번 문질러야 벗겨져요.',
+    unit: '더러운 칸', end: '✅ 다 닦았어요! 판이 깨끗하면 같은 햇빛으로 전기를 더 많이 만들어요.',
+    note: '판이 더러우면 전기가 3분의 1까지 줄어요. 태양광은 세워 두면 끝이 아니라 <b>계속 닦아 줘야</b> 해요.' },
+  snow: { view: 'scrub', skin: 'snow', e: '🧹', t: '눈 치우기', cells: 12, dirt: 3, p: .95,
+    sub: '쌓인 눈을 손가락으로 <b>밀어서</b> 치워요. 두껍게 쌓인 곳은 여러 번 밀어야 해요.',
+    unit: '남은 눈', end: '✅ 길이 열렸어요! 얼기 전에 치워서 아무도 안 넘어졌어요.',
+    note: '제설제를 뿌리면 편하지만 가로수와 콘크리트를 상하게 해요. <b>삽으로 먼저 치우고</b> 남은 곳에만 조금 뿌려요.' },
+  leaf: { view: 'scrub', skin: 'leaf', e: '🍂', t: '하수구 낙엽 걷기', cells: 12, dirt: 2, p: .85,
+    sub: '쌓인 낙엽을 <b>긁어내요.</b> 겹겹이 쌓인 곳은 여러 번 긁어야 해요.',
+    unit: '막힌 칸', end: '✅ 물길이 열렸어요! 이제 비가 와도 물이 잘 빠져요.',
+    note: '물난리의 절반은 하수구가 막혀서 나요. <b>비 오기 전에</b> 걷어 두는 것이 가장 싼 방법이에요.' },
+  weed: { view: 'scrub', skin: 'weed', e: '🌿', t: '옥상 정원 손질', cells: 12, dirt: 2, p: .75,
+    sub: '웃자란 풀을 <b>문질러</b> 뽑아요. 뿌리 깊은 것은 여러 번 해야 뽑혀요.',
+    unit: '손볼 자리', end: '✅ 말끔해졌어요! 옥상 정원은 손이 가야 오래가요.',
+    note: '옥상 정원은 여름에 건물 안 온도를 몇 도나 낮춰 줘요. 대신 <b>돌보는 사람</b>이 있어야 유지돼요.' },
+  soot: { view: 'scrub', skin: 'soot', e: '🧽', t: '그을음 걷어내기', cells: 12, dirt: 3, p: 1,
+    sub: '새까맣게 탄 자리를 <b>문질러</b> 걷어내요. 깊이 밴 곳은 여러 번 해야 해요.',
+    unit: '남은 자리', end: '✅ 벽이 드러났어요. 이제 어디를 새로 쌓아야 할지 보여요.',
+    note: '불이 난 뒤에는 먼저 걷어내야 <b>어디가 상했는지</b>가 보여요. 덮어 버리면 상한 곳을 놓쳐요.' },
+  wall: { view: 'scrub', skin: 'wall', e: '🔎', t: '벽 먼지 닦고 금 찾기', cells: 12, dirt: 2, p: .9, crack: 2,
+    sub: '벽을 <b>문질러</b> 먼지를 걷어내며 금이 갔는지 봐요.',
+    unit: '안 본 자리', end: '✅ 벽을 다 살펴봤어요. 찾은 금은 자리를 적어 두었어요.',
+    note: '흔들린 뒤에는 겉에서 안 보여도 금이 가 있을 수 있어요. <b>먼지를 걷어내야</b> 비로소 보여요.' },
+
+  bolt: { view: 'hold', e: '🔩', t: '볼트 조이기', pts: 4, ms: 2000, icon: '🔩', lb: '볼트',
+    sub: '볼트를 <b>하나씩 꾹 눌러</b> 조여요. 다 조여질 때까지 손을 떼지 말아요.',
+    end: '✅ 네 개 다 조였어요! 날개가 흔들리지 않아요.',
+    note: '풍력 날개 끝은 시속 300km 로 돌아요. 볼트 하나가 헐거워도 큰 사고가 나서, <b>사람이 올라가 일일이 조여요.</b>' },
+  board: { view: 'hold', e: '🔨', t: '뜯긴 곳에 판 대기', pts: 4, ms: 2200, icon: '🔨', lb: '못 박을 곳',
+    sub: '판을 대고 <b>꾹 눌러</b> 못을 박아요. 네 귀퉁이를 다 박아야 붙어요.',
+    end: '✅ 판을 다 붙였어요! 이제 비바람이 안 들어와요.',
+    note: '부서진 곳은 덮기만 하면 다시 뜯겨요. <b>네 귀퉁이를 다 고정</b>해야 버텨요.' },
+  crack: { view: 'hold', e: '🩹', t: '금 메우기', pts: 5, ms: 2600, icon: '🩹', lb: '금 간 자리',
+    sub: '갈라진 자리마다 <b>꾹 눌러</b> 보수재를 밀어 넣어요. 천천히 스며야 빈틈이 안 남아요.',
+    end: '✅ 다 메웠어요! 이제 굳기를 기다려야 해요.',
+    note: '메운 보수재는 <b>굳는 데 시간이 걸려요.</b> 굳기 전에 쓰면 그대로 다시 갈라져요 — 그래서 다리는 며칠씩 막아 둬요.' },
+  thaw: { view: 'hold', e: '🧣', t: '언 수도관 녹이기', pts: 3, ms: 2400, icon: '🧣', lb: '언 곳',
+    sub: '미지근한 물수건을 대고 <b>꾹 누른 채</b> 기다려요. 천천히 해야 관이 안 깨져요.',
+    end: '✅ 물이 다시 흘러요! 관도 안 깨졌어요.',
+    note: '뜨거운 물을 부으면 관이 깨져요. <b>천천히 녹이는 것</b>말고 빠른 방법은 없어요.' },
+  seal: { view: 'hold', e: '🚰', t: '새는 곳 막기', pts: 3, ms: 2000, icon: '💧', lb: '새는 자리',
+    sub: '물이 새는 자리를 <b>꾹 눌러</b> 테이프를 감아요.',
+    end: '✅ 다 막았어요! 하루에 물 몇 통이 도로 살아났어요.',
+    note: '똑똑 떨어지는 물도 하루면 한 통이 넘어요. <b>새는 것부터 막는 것</b>이 물 아끼기의 첫걸음이에요.' },
+
+  pump: { view: 'pump', e: '🪣', t: '물 퍼내기', need: 42, drain: 1.6,
+    sub: '단추를 <b>빠르게 계속</b> 눌러 물을 퍼내요. 손을 쉬면 물이 도로 차올라요.',
+    end: '✅ 물을 다 퍼냈어요! 이제 말리면 돼요.',
+    note: '물에 잠긴 건물은 물만 빼면 끝이 아니에요. <b>속까지 말려야</b> 곰팡이가 안 슬어요.' },
+};
+
+/* 수리 — 다친 구조물을 직접 고치는 법
+   work  손으로 하는 일(위 WORK)   cure  고친 뒤 굳거나 마르는 데 걸리는 시간(초)
+   맡기면 굳는 시간이 3분의 1이다 — 돈이냐 시간이냐를 아이가 고른다 */
 const FIX = {
-  break: { n: '부서진 곳 고치기', qs: [
+  crack: { n: '금 메우기', work: 'crack', cure: 120, qs: [
+    { q: '메운 자리는 바로 써도 될까요?', opts: [
+      { e: '⏳', n: '굳을 때까지 막아 두고 기다린다', ok: true, why: '보수재가 굳기 전에 차가 지나가면 그대로 다시 갈라져요. 기다리는 것도 공사의 한 부분이에요.' },
+      { e: '🚗', n: '메웠으니 바로 지나다닌다', ok: false, why: '굳지 않은 자리에 무게가 실리면 처음보다 더 크게 갈라져요.' },
+      { e: '🔥', n: '불로 지져서 빨리 굳힌다', ok: false, why: '겉만 굳고 속은 무른 채로 남아요. 오히려 더 약해져요.' } ] },
+    { q: '같은 자리가 또 갈라지지 않게 하려면?', opts: [
+      { e: '💧', n: '물이 스미지 않게 위를 덮고 물길을 내 준다', ok: true, why: '갈라짐의 시작은 거의 물이에요. 물이 못 스미게 하는 것이 가장 오래가는 수리예요.' },
+      { e: '🎨', n: '보기 좋게 색을 칠한다', ok: false, why: '색은 금을 못 막아요. 오히려 금이 자라는 걸 가려요.' } ] } ] },
+  flood: { n: '물 빼고 말리기', work: 'pump', cure: 60, qs: [
+    { q: '물을 퍼낸 뒤 가장 먼저 할 일은?', opts: [
+      { e: '🔌', n: '전기부터 내리고 젖은 콘센트는 만지지 않는다', ok: true, why: '물과 전기가 만나면 감전돼요. 물난리 뒤 사고는 대부분 이때 나요.' },
+      { e: '💡', n: '어두우니까 불부터 켠다', ok: false, why: '젖은 전선에 전기를 넣는 건 아주 위험해요. 전기를 내린 뒤 손전등을 써요.' },
+      { e: '🧹', n: '바로 걸레질부터 한다', ok: false, why: '치우는 건 그다음이에요. 전기를 먼저 내려야 해요.' } ] },
+    { q: '잠겼던 벽은 어떻게 할까요?', opts: [
+      { e: '🌬️', n: '속까지 마를 때까지 열어 두고 말린다', ok: true, why: '겉만 마른 채 덮으면 안에서 곰팡이가 자라요. 잠긴 건물은 며칠씩 말려요.' },
+      { e: '🎨', n: '젖은 채로 새 벽지를 바른다', ok: false, why: '안에 물이 갇혀 곰팡이가 슬고 결국 다시 뜯어내야 해요.' } ] } ] },
+  ice: { n: '언 수도관 녹이기', work: 'thaw', cure: 30, qs: [
+    { q: '녹인 뒤에 또 얼지 않게 하려면?', opts: [
+      { e: '🧣', n: '관을 감싸 두고, 아주 추운 날엔 물을 조금 틀어 둔다', ok: true, why: '흐르는 물은 잘 안 얼어요. 감싸 두면 찬 공기가 관에 바로 닿지 않고요.' },
+      { e: '🚰', n: '꽉 잠가 둔다', ok: false, why: '멈춘 물이 얼면서 부피가 늘어 관을 터뜨려요.' } ] },
+    { q: '관이 이미 터졌다면?', opts: [
+      { e: '🔧', n: '집 안 수도 밸브를 먼저 잠근다', ok: true, why: '잠그지 않으면 물이 계속 쏟아져 집이 잠겨요. 밸브가 어디 있는지 미리 알아 두어야 해요.' },
+      { e: '🪣', n: '양동이를 받쳐 두고 기다린다', ok: false, why: '받치는 속도보다 나오는 물이 훨씬 많아요.' } ] } ] },
+  burn: { n: '그을음 걷고 다시 쌓기', work: 'soot', cure: 90, qs: [
+    { q: '불이 지나간 벽은 어떻게 할까요?', opts: [
+      { e: '🔎', n: '걷어내고 속까지 상했는지 살펴본 뒤 상한 곳만 새로 쌓는다', ok: true, why: '불은 겉보다 속을 더 상하게 해요. 살펴보지 않고 덮으면 언제 무너질지 몰라요.' },
+      { e: '🎨', n: '그을음 위에 페인트를 칠해 가린다', ok: false, why: '냄새도 안 빠지고, 상한 곳이 그대로 남아요.' } ] },
+    { q: '다시 쌓을 때 어떤 재료가 좋을까요?', opts: [
+      { e: '🧱', n: '불에 잘 안 타는 벽돌·콘크리트', ok: true, why: '같은 일이 또 나도 불길이 옆으로 번지지 않아요. 이걸 「방화 구획」이라고 해요.' },
+      { e: '🪵', n: '값싼 얇은 합판', ok: false, why: '빨리 지을 수는 있지만 다음 불에 그대로 또 타요.' } ] } ] },
+  break: { n: '부서진 곳 고치기', work: 'board', cure: 60, qs: [
     { q: '지붕과 벽이 뜯겼어요. 고칠 때 어떤 재료를 쓸까요?', opts: [
       { e: '♻️', n: '뜯어낸 것 중 쓸 만한 것을 골라 다시 쓴다', ok: true, why: '망가졌다고 다 못 쓰는 건 아니에요. 고를 수 있는 건 골라 쓰는 게 수리의 첫걸음이에요.' },
       { e: '🗑️', n: '다 버리고 전부 새것으로 바꾼다', ok: false, why: '빠르지만 쓰레기가 한꺼번에 나오고 돈도 더 들어요.' } ] },
     { q: '고치면서 같이 해 두면 좋은 것은?', opts: [
       { e: '🔩', n: '다음에 또 떨어지지 않게 더 튼튼히 고정한다', ok: true, why: '같은 곳이 또 부서지지 않게 하는 것을 「보강」이라고 해요.' },
       { e: '🎨', n: '보기 좋게 색만 새로 칠한다', ok: false, why: '색은 나중에 칠해도 돼요. 안 보이는 곳부터 튼튼히 해야 해요.' } ] } ] },
-  check: { n: '안전 점검하기', qs: [
+  check: { n: '안전 점검하기', work: 'wall', cure: 0, qs: [
     { q: '흔들린 뒤에 가장 먼저 살펴볼 곳은?', opts: [
       { e: '🏛️', n: '건물을 떠받치는 기둥과 벽', ok: true, why: '무게를 받치는 곳이 상하면 건물이 무너져요. 여기부터 봐요.' },
       { e: '🪟', n: '창문 유리', ok: false, why: '깨진 유리는 눈에 잘 띄지만, 건물이 서 있는 것과는 상관이 적어요.' } ] },
@@ -557,7 +806,7 @@ const KEY = 'gv.state';
 function fresh() {
   return { v: 1, name: '', coins: 400, map: Array(COLS * ROWS).fill(null), permits: 0, acts: 0, level: 1,
            goal: 0, catKnown: {}, events: [], nextEv: 0, last: Date.now(), snd: true, seenLv: 1, cert: false,
-           nextDis: 0, dis: null, powerOff: 0, heatOff: 0, smogOff: 0, fixes: 0, survived: 0, seenDis: {} };
+           nextDis: 0, dis: null, powerOff: 0, heatOff: 0, smogOff: 0, dryOff: 0, fixes: 0, survived: 0, seenDis: {} };
 }
 function loadS() {
   try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.v === 1 && Array.isArray(s.map) && s.map.length === COLS * ROWS) return Object.assign(fresh(), s); } catch (e) { }
@@ -604,6 +853,8 @@ const isEast = i => i % COLS > RIVER;
 const nearRiver = i => { const c = i % COLS; return c === RIVER - 1 || c === RIVER + 1; };
 function josa(w, a, b) { const c = w.charCodeAt(w.length - 1) - 0xAC00; return c >= 0 && c <= 11171 && c % 28 ? a : b; }
 function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+/* 보기 섞기 — 정답이 늘 첫 줄에 오지 않게. 데이터는 안 건드리고 사본을 섞는다 */
+const shufQ = qs => qs.map(q => Object.assign({}, q, { opts: shuffle(q.opts.slice()) }));
 const countDone = k => S.map.filter(b => b && b.k === k && b.done).length;
 const countAll = k => S.map.filter(b => b && b.k === k).length;
 const bridgeDone = () => countDone('bridge') > 0;
@@ -624,6 +875,8 @@ function effOf(b, i) {
   if (S.heatOff > now && !DIS.heat.safe(b)) use = Math.round(use * 1.6);
   // 미세먼지 — 판이 더러워져 태양광이 줄어든다
   if (S.smogOff > now && b.d && (b.d.use || []).includes('solar')) prod = Math.max(0, prod - 2);
+  // 가뭄 — 저수지가 낮아져 수력이 줄어든다
+  if (S.dryOff > now && b.k === 'dam') prod = Math.max(0, Math.round(prod * .4));
   return { use: Math.max(0, use), prod, res: s.res || 0, jobs: s.jobs || 0, bonus: s.bonus || 0, save: s.save || 0 };
 }
 function town() {
@@ -687,7 +940,7 @@ function renderMap() {
     if (!b && FLOWERS[i] && !isRiver(i)) inner += `<span class="flower" style="left:${FLOWERS[i]}px;top:${(FLOWERS[i] * 7) % 60 + 10}px">🌼</span>`;
     if (b) {
       if (!b.done) {
-        inner += `<div class="bld cons">🏗️<div class="left" data-left="${i}"></div><div class="bar"><i data-bar="${i}"></i></div></div>`;
+        inner += `<div class="bld cons">${b.re ? '🧱' : '🏗️'}<div class="left" data-left="${i}"></div><div class="bar"><i data-bar="${i}"></i></div></div>`;
       } else {
         const badges = b.d ? [b.d.build, ...(b.d.use || []), b.d.end].filter(k => k && OPTM[k].eco).map(k => OPTM[k].e).join('') : '';
         inner += `<div class="bld">${icon(b.k)}<span class="badges">${badges}</span></div>`;
@@ -709,7 +962,7 @@ function updateBars() {
   S.map.forEach((b, i) => {
     if (!b || b.done) return;
     const bar = document.querySelector(`[data-bar="${i}"]`), left = document.querySelector(`[data-left="${i}"]`);
-    const total = ST[b.k].time * 1000, p = 1 - (b.endAt - now) / total;
+    const total = b.total || ST[b.k].time * 1000, p = 1 - (b.endAt - now) / total;
     if (bar) bar.style.width = Math.min(100, Math.max(0, p * 100)) + '%';
     if (left) left.textContent = mmss((b.endAt - now) / 1000);
   });
@@ -730,6 +983,7 @@ function renderTop() {
   if (S.powerOff > nw) on.push(['⚡ 정전', S.powerOff]);
   if (S.heatOff > nw) on.push(['🥵 폭염', S.heatOff]);
   if (S.smogOff > nw) on.push(['😷 미세먼지', S.smogOff]);
+  if (S.dryOff > nw) on.push(['🏜️ 가뭄', S.dryOff]);
   const nowEl = $('nowDis');
   nowEl.hidden = !on.length;
   if (on.length) nowEl.innerHTML = on.map(([t, e]) => `${t} <b>${mmss((e - nw) / 1000)}</b>`).join(' · ');
@@ -763,7 +1017,7 @@ function renderPanel() {
         continue;
       }
       const d = EV[ev.type];
-      h += `<div class="todo"><div class="te">${d.e}</div><div class="tt">${b ? ST[b.k].n : ''} — ${d.n}<small>${d.sub} · 보상 🪙${reward(ev.type)}</small></div><button class="gbtn" data-act="event" data-id="${ev.id}">하러 가기</button></div>`;
+      h += `<div class="todo"><div class="te">${d.e}</div><div class="tt">${b ? ST[b.k].n : ''} — ${d.n}<small>${d.work ? '🖐️ 손으로 하는 일 · ' : ''}${d.sub} · 보상 🪙${reward(ev.type)}</small></div><button class="gbtn" data-act="event" data-id="${ev.id}">${d.work ? '일하러 가기' : '하러 가기'}</button></div>`;
     }
   } else {
     const L = S.level;
@@ -842,14 +1096,17 @@ const VIEWS = {
       return `<div><b style="color:var(--ink);flex-basis:130px">${t}</b><span>${names}</span></div>`;
     }).join('');
     const status = b.done ? [e.res && `👥 주민 ${e.res}명`, e.jobs && `💼 일자리 ${e.jobs}`, e.bonus && `📈 수입 +${e.bonus * 100}%`, `⚡ 만듦 ${e.prod} · 씀 ${e.use}`, s.save && `🚲 마을 에너지 -${s.save}`].filter(Boolean).join(' · ')
+                        : b.re ? `🧱 고친 자리가 굳는 중 — ${mmss((b.endAt - Date.now()) / 1000)} 남았어요`
                         : `🏗️ 공사 중 — ${mmss((b.endAt - Date.now()) / 1000)} 남았어요`;
     const refund = b.done ? (b.d && b.d.end === 'prefab' ? Math.round(b.paid / 2) : 0) : b.paid;
     return `<h2>${icon(b.k, true)} ${s.n}</h2><div class="sub">${status}</div>
       ${rows ? `<div class="rej">${rows}</div>` : ''}
       ${m.msg ? `<div class="msg ${m.msgc || 'info'}">${m.msg}</div>` : ''}
+      ${b.re ? '<div class="msg info">굳는 동안은 손댈 수 없어요. 그동안 다른 일을 하고 있으면 저절로 끝나요.</div>' : ''}
       <div class="foot"><div class="grow"></div>
-        ${m.armed ? `<button class="gbtn red" data-act="demolish">${b.done ? `정말 허물기 (🪙${refund} 돌려받기)` : `공사 취소 (🪙${refund} 돌려받기)`}</button>`
-                  : `<button class="gbtn ghost" data-act="arm">${b.done ? '🧹 허물기' : '공사 취소'}</button>`}
+        ${b.re ? ''
+          : m.armed ? `<button class="gbtn red" data-act="demolish">${b.done ? `정말 허물기 (🪙${refund} 돌려받기)` : `공사 취소 (🪙${refund} 돌려받기)`}</button>`
+                    : `<button class="gbtn ghost" data-act="arm">${b.done ? '🧹 허물기' : '공사 취소'}</button>`}
         <button class="gbtn" data-act="close">닫기</button></div>`;
   },
   /* ---- 친환경 행동: 분리배출 ---- */
@@ -901,7 +1158,8 @@ const VIEWS = {
     if (S.dis.phase === 'warn') {
       return `<div class="dishd"><div class="dise">${d.e}</div><div><h2>${d.n} 경보</h2><div class="sub">${d.warn}</div></div></div>
         <div class="disask">${d.ask}</div>
-        <div class="disopts">${d.opts.map((o, i) => `<button class="disopt${m.outI === i ? ' no' : ''}" data-act="disPick" data-i="${i}"${m.outI === i ? ' disabled' : ''}>${o.n}</button>`).join('')}</div>
+        <div class="disopts">${(S.dis.ord || d.opts.map((_, i) => i)).map(i => { const o = d.opts[i];
+          return `<button class="disopt${m.outI === i ? ' no' : ''}" data-act="disPick" data-i="${i}"${m.outI === i ? ' disabled' : ''}>${o.n}</button>`; }).join('')}</div>
         ${m.msg ? `<div class="msg bad">🤔 ${m.msg}</div>` : '<div class="sub" style="margin-top:14px">셋 중 하나를 골라야 이야기가 이어져요.</div>'}`;
     }
     const rp = S.dis.rp, lines = [];
@@ -946,12 +1204,35 @@ const VIEWS = {
       <div class="foot"><button class="gbtn ghost" data-act="close">나중에</button><div class="grow"></div>
         <div style="font-size:17px;color:var(--muted)">${m.n + 1} / ${m.qs.length}</div></div>`;
   },
-  /* ---- 문질러 닦기 ---- */
-  tap(m) {
-    const left = m.cells.filter(Boolean).length;
-    return `<h2>☀️ 태양광 판 닦기</h2><div class="sub">먼지가 앉은 칸을 눌러서 닦아요. 판이 더러우면 전기가 3분의 1까지 줄어요.</div>
-      <div class="panelg">${m.cells.map((c, i) => `<button class="pcell${c ? ' dirty' : ''}" data-act="rub" data-i="${i}"></button>`).join('')}</div>
-      <div class="msg ${left ? 'info' : 'good'}">${left ? '남은 칸 ' + left + '개' : '✅ 다 닦았어요! 판이 깨끗하면 같은 햇빛으로 전기를 더 많이 만들어요.'}</div>
+  /* ---- 노동 ① 문질러 지우기 — 끌면서 문지른다 ---- */
+  scrub(m) {
+    const w = m.w, left = m.cells.filter(Boolean).length;
+    return `<h2>${w.e} ${w.t}</h2><div class="sub">${w.sub}</div>
+      <div class="scrubg ${w.skin}" id="scrubg">${m.cells.map((c, i) =>
+        `<div class="scell${c ? ' d' + c : ''}${m.crack && m.crack.includes(i) && !c ? ' crack' : ''}" data-act="rub" data-i="${i}"></div>`).join('')}</div>
+      <div class="msg ${left ? 'info' : 'good'}" id="workmsg">${left ? w.unit + ' ' + left + '개 남았어요 — 문지르세요' : w.end}</div>
+      <div class="worknote">💡 ${w.note}</div>
+      <div class="foot"><button class="gbtn ghost" data-act="close">나중에</button></div>`;
+  },
+  /* ---- 노동 ② 꾹 눌러 채우기 — 손을 떼면 멈춘다 ---- */
+  hold(m) {
+    const w = m.w, done = m.pts.filter(p => p >= 1).length;
+    return `<h2>${w.e} ${w.t}</h2><div class="sub">${w.sub}</div>
+      <div class="holdw"><div class="holdg" id="holdg">${m.pts.map((p, i) =>
+        `<div class="hpt${p >= 1 ? ' full' : ''}" data-i="${i}"><div class="hfill" style="height:${Math.round(p * 100)}%"></div>
+          <div class="hin">${p >= 1 ? '✅' : w.icon}</div><div class="hlb">${p >= 1 ? '끝' : w.lb + ' ' + (i + 1)}</div></div>`).join('')}</div></div>
+      <div class="msg ${done >= m.pts.length ? 'good' : 'info'}" id="workmsg">${done >= m.pts.length ? w.end : `${done} / ${m.pts.length} 끝냈어요 — 남은 곳을 꾹 누르고 계세요`}</div>
+      <div class="worknote">💡 ${w.note}</div>
+      <div class="foot"><button class="gbtn ghost" data-act="close">나중에</button></div>`;
+  },
+  /* ---- 노동 ③ 연타 — 쉬면 도로 찬다 ---- */
+  pump(m) {
+    const w = m.w, pct = Math.min(100, Math.round(m.have / w.need * 100));
+    return `<h2>${w.e} ${w.t}</h2><div class="sub">${w.sub}</div>
+      <div class="pumpw"><div class="pumpbar"><i id="pumpfill" style="width:${pct}%"></i></div>
+        <button class="pumpbtn" data-act="pumpTap">🪣 퍼내기</button></div>
+      <div class="msg info" id="workmsg">퍼낸 만큼 ${pct}%</div>
+      <div class="worknote">💡 ${w.note}</div>
       <div class="foot"><button class="gbtn ghost" data-act="close">나중에</button></div>`;
   },
   settings() {
@@ -980,6 +1261,11 @@ function startPermit(k, i) {
 function complete(b, i) {
   const s = ST[b.k];
   SND.ding();
+  if (b.re) {   // 수리한 뒤 굳기를 기다리던 것
+    b.re = false; b.total = 0;
+    toast(`${s.e || '🌀'} ${s.n} 수리 완료! 굳었어요 — 다시 돌아가요${s.res ? ` · 주민 ${s.res}명이 돌아왔어요` : ''}`, 4200);
+    return;
+  }
   let m = `${s.e || '🌀'} ${s.n} 완공!`;
   if (s.res) m += ` 주민 ${s.res}명이 이사 왔어요`;
   else if (s.jobs) m += ` 일자리 ${s.jobs}개가 생겼어요`;
@@ -995,10 +1281,13 @@ function reward(type) {
   const t = town();
   let r = Math.min(70, 25 + t.res);
   if (type === 'sort' && countDone('recycle')) r *= 2;
+  if (EV[type] && EV[type].work) r = Math.round(r * 1.4);   // 몸으로 한 일은 더 쳐 준다
   return r;
 }
 const evFits = (d, b, i) => d.okAt ? d.okAt(b, i) : d.on.includes(b.k);
-const chores = () => S.events.filter(e => e.type !== 'repair').length;
+/* 저절로 생기는 할 일만 5개 한도에 센다 — 수리와 재난이 뿌린 것은 따로 쌓인다
+   (재난이 왔는데 할 일이 꽉 차서 못 치우는 일이 없어야 한다) */
+const chores = () => S.events.filter(e => e.type !== 'repair' && !e.urgent).length;
 function spawnEvents(now) {
   if (!S.nextEv) S.nextEv = now + 20000;
   while (now >= S.nextEv) {
@@ -1021,8 +1310,8 @@ function openEvent(id) {
   const base = { ev: id, wrong: 0, msg: '' };
   if (ev.type === 'repair') { openModal({ view: 'repair', i: ev.at, ev: id }); return; }
   const d = EV[ev.type];
-  if (d.view === 'quiz') { openModal(Object.assign(base, { view: 'quiz', mode: 'ev', e: d.e, title: d.n, sub: d.sub, qs: d.qs, n: 0 })); return; }
-  if (d.view === 'tap') { openModal(Object.assign(base, { view: 'tap', cells: Array(12).fill(0).map(() => Math.random() < .7 ? 1 : 0) })); return; }
+  if (d.work) { openWork(d.work, base, w => finishEvent(w)); return; }
+  if (d.view === 'quiz') { openModal(Object.assign(base, { view: 'quiz', mode: 'ev', e: d.e, title: d.n, sub: d.sub, qs: shufQ(d.qs), n: 0 })); return; }
   if (ev.type === 'sort') openModal(Object.assign(base, { view: 'sort', items: shuffle(ITEMS.slice()).slice(0, 3), n: 0 }));
   else if (ev.type === 'light') {
     const rooms = shuffle(['empty', 'empty', 'empty', 'empty', 'people', 'people', 'dark', 'dark', 'dark']);
@@ -1036,15 +1325,98 @@ function openEvent(id) {
     openModal(Object.assign(base, { view: 'temp', season, v: season === 'summer' ? 21 : 25 }));
   }
 }
-function doneFix(i, evId, how) {
+/* =====================================================================
+   노동 엔진 — 화면을 다시 그리지 않고 손이 닿은 칸만 고친다
+   (drawModal 은 innerHTML 을 통째로 갈아서, 끌고 있는 중에 부르면 손이 떨어진다)
+   ===================================================================== */
+function openWork(key, extra, after) {
+  const w = WORK[key]; if (!w) { after && after(); return; }
+  const st = Object.assign({ view: w.view, w, wk: key, after, wrong: 0, msg: '' }, extra || {});
+  if (w.view === 'scrub') {
+    st.cells = Array(w.cells).fill(0).map(() => Math.random() < w.p ? 1 + Math.floor(Math.random() * w.dirt) : 0);
+    if (!st.cells.some(Boolean)) st.cells[Math.floor(Math.random() * w.cells)] = w.dirt;
+    if (w.crack) st.crack = shuffle(st.cells.map((_, i) => i)).slice(0, w.crack);
+  } else if (w.view === 'hold') st.pts = Array(w.pts).fill(0);
+  else if (w.view === 'pump') { st.have = 0; st.at = Date.now(); }
+  openModal(st);
+}
+function workDone(m) {
+  if (m.finished) return;                  // 두 번 넘어가지 않게
+  m.finished = true; SND.ok();
+  const el = $('workmsg'); if (el) { el.className = 'msg good'; el.innerHTML = m.w.end; }
+  setTimeout(() => { if (M === m && m.after) m.after(m); }, 1200);
+}
+/* --- ① 문지르기: 끌고 다니면 지나간 칸이 한 겹씩 벗겨진다 --- */
+let rubbing = false, lastRub = 0, lastCell = -1;
+function rubAt(e) {
+  const m = M; if (!m || m.view !== 'scrub' || m.finished) return;
+  const t = document.elementFromPoint(e.clientX, e.clientY) || e.target;
+  const cell = t && t.closest ? t.closest('.scell') : null; if (!cell) return;
+  const i = +cell.dataset.i, now = Date.now();
+  if (i === lastCell && now - lastRub < 130) return;
+  lastCell = i; lastRub = now;
+  if (!m.cells[i]) return;
+  m.cells[i]--; SND.rub();
+  cell.className = 'scell' + (m.cells[i] ? ' d' + m.cells[i] : '') + (m.crack && m.crack.includes(i) && !m.cells[i] ? ' crack' : '');
+  const left = m.cells.filter(Boolean).length, msg = $('workmsg');
+  if (left) { if (msg) msg.textContent = m.w.unit + ' ' + left + '개 남았어요 — 문지르세요'; }
+  else workDone(m);
+}
+/* --- ② 꾹 누르기: 누르고 있는 동안만 찬다 --- */
+let holdI = -1, holdT = null;
+function holdStart(e) {
+  const m = M; if (!m || m.view !== 'hold' || m.finished) return;
+  const t = document.elementFromPoint(e.clientX, e.clientY) || e.target;
+  const pt = t && t.closest ? t.closest('.hpt') : null; if (!pt) return;
+  const i = +pt.dataset.i; if (m.pts[i] >= 1) return;
+  holdI = i; pt.classList.add('on');
+  clearInterval(holdT);
+  holdT = setInterval(() => {
+    if (!M || M !== m || holdI < 0) return holdStop();
+    m.pts[holdI] = Math.min(1, m.pts[holdI] + 80 / m.w.ms);
+    const el = document.querySelector(`.hpt[data-i="${holdI}"]`); if (!el) return holdStop();
+    const f = el.querySelector('.hfill'); if (f) f.style.height = Math.round(m.pts[holdI] * 100) + '%';
+    if (m.pts[holdI] % .34 < .05) SND.tone(300 + m.pts[holdI] * 260, .05, 'square', .05);
+    if (m.pts[holdI] >= 1) {
+      SND.ding(); el.classList.add('full'); el.classList.remove('on');
+      el.querySelector('.hin').textContent = '✅'; el.querySelector('.hlb').textContent = '끝';
+      holdStop();
+      const done = m.pts.filter(p => p >= 1).length, msg = $('workmsg');
+      if (done >= m.pts.length) workDone(m);
+      else if (msg) msg.textContent = `${done} / ${m.pts.length} 끝냈어요 — 남은 곳을 꾹 누르고 계세요`;
+    }
+  }, 80);
+}
+function holdStop() {
+  clearInterval(holdT); holdT = null;
+  if (holdI >= 0) { const el = document.querySelector(`.hpt[data-i="${holdI}"]`); if (el) el.classList.remove('on'); }
+  holdI = -1;
+}
+/* --- ③ 연타: 쉬면 도로 찬다 (0 아래로는 안 내려간다) --- */
+function pumpDrain() {
+  const m = M; if (!m || m.view !== 'pump' || m.finished) return;
+  const now = Date.now();
+  m.have = Math.max(0, m.have - (now - m.at) / 1000 * m.w.drain); m.at = now;
+  pumpDraw(m);
+}
+function pumpDraw(m) {
+  const pct = Math.min(100, Math.round(m.have / m.w.need * 100));
+  const f = $('pumpfill'); if (f) f.style.width = pct + '%';
+  const msg = $('workmsg'); if (msg && !m.finished) msg.textContent = `퍼낸 만큼 ${pct}%`;
+}
+
+function doneFix(i, evId, how, cure) {
   const b = S.map[i]; if (!b || !b.hurt) { closeModal(); renderAll(); return; }
   const back = ST[b.k].res || 0, soft = b.hurt.soft;
   b.hurt = null; S.fixes++;
   S.events = S.events.filter(e => e.id !== evId && e.at !== i);
+  // 굳거나 마르는 시간 — 그동안은 아직 안 돌아간다. 공사 진행 막대를 그대로 쓴다
+  if (cure > 0) { b.done = false; b.re = true; b.total = cure * 1000; b.endAt = Date.now() + cure * 1000; }
   SND.get(); save();
   setTimeout(() => {
     closeModal(); renderAll();
-    toast(how + (back ? ` · 주민 ${back}명이 돌아왔어요` : (soft ? ' · 이상 없어요' : '')), 4000);
+    toast(cure > 0 ? `${how} · 🧱 굳는 데 ${mmss(cure)} 걸려요`
+                   : how + (back ? ` · 주민 ${back}명이 돌아왔어요` : (soft ? ' · 이상 없어요' : '')), 4200);
   }, soft ? 200 : 600);
 }
 function finishEvent(m) {
@@ -1066,6 +1438,8 @@ function disPool() {
     if (t.built < d.need) return false;
     if (d.kind === 'break' && !S.map.some((b, i) => b && b.done && !b.hurt && (!d.can || d.can(b, i)))) return false;
     if (d.kind === 'check' && !S.map.some(b => b && b.done && !b.hurt)) return false;
+    // 할 일을 뿌리는 재난은 앉을 자리가 있어야 한다
+    if (d.kind === 'chore' && !S.map.some((b, i) => b && b.done && !b.hurt && evFits(EV[d.chore], b, i) && !S.events.some(e => e.at === i))) return false;
     if (k === 'smog' && !S.map.some(b => b && b.done && b.d && (b.d.use || []).includes('solar'))) return false;
     if (k === 'heat' && !S.map.some(b => b && b.done && ST[b.k].use)) return false;
     return true;
@@ -1078,7 +1452,8 @@ function startDis(now) {
   const p = unseen.length ? unseen : pool;
   const k = p[Math.floor(Math.random() * p.length)];
   S.seenDis[k] = true;
-  S.dis = { k, phase: 'warn', first: -1 };
+  // 보기 차례를 재난마다 새로 섞는다 — 골라 둔 차례는 저장해 두어야 다시 열어도 안 흔들린다
+  S.dis = { k, phase: 'warn', first: -1, ord: shuffle(DIS[k].opts.map((_, n) => n)) };
   S.nextDis = now + DIS_EVERY;
   save(); SND.alarm();
   openModal({ view: 'dis' });
@@ -1097,11 +1472,22 @@ function applyDis(good) {
       if (left <= 0) break;
       const b = S.map[i];
       if (d.safe && d.safe(b)) { if (rp.safed.length < 3) rp.safed.push(i); continue; }
-      b.hurt = { k, fix: 'break', cost: Math.round(ST[b.k].cost * .25) };
+      b.hurt = { k, fix: d.fix || 'break', cost: Math.round(ST[b.k].cost * .25) };
       rp.hurt.push(i); left--;
     }
   } else if (d.kind === 'check') {
     for (const i of pickable.slice(0, good ? 1 : 2)) { S.map[i].hurt = { k, fix: 'check', cost: 40, soft: true }; rp.hurt.push(i); }
+  } else if (d.kind === 'chore') {
+    // 다치지는 않는다 — 대신 손으로 해야 할 일이 한꺼번에 생긴다
+    const ty = d.chore, spots = [];
+    S.map.forEach((b, i) => { if (b && b.done && !b.hurt && evFits(EV[ty], b, i) && !S.events.some(e => e.at === i)) spots.push(i); });
+    const want = good ? Math.max(1, d.hits - 1) : d.hits;
+    const got = shuffle(spots).slice(0, want);
+    got.forEach(i => S.events.push({ id: Date.now() + Math.random(), type: ty, at: i, urgent: true }));
+    if (d.flag && d.mins) S[d.flag] = now + (good ? d.mins - 1 : d.mins) * 60000;
+    if (d.note) rp.notes.push(d.note);
+    if (got.length) rp.notes.push(`🧰 <b>${EV[ty].n}</b> — ${got.length}곳에 할 일이 생겼어요.`
+      + (EV[ty].work ? ' 이건 골라서 넘어가는 게 아니라 <b>직접 손으로</b> 해야 해요.' : ' 할 일 칸에서 하나씩 해 주세요.'));
   } else if (d.kind === 'power') {
     const t = town();
     if (t.prod >= t.use) rp.notes.push('⚡ 우리가 만든 에너지가 쓰는 만큼 되어서 <b>마을이 그대로 돌아갔어요!</b> 스스로 전기를 만드는 마을은 정전에도 버텨요.');
@@ -1162,7 +1548,8 @@ function tick() {
     if (!GOALS[S.goal]) S.certDue = true;
     else toast(`🎯 목표 달성: ${g.t}${g.pay ? ` · 🪙${g.pay}` : ''}`, 3500);
   }
-  for (const [key, msg] of [['powerOff', '💡 전기가 다시 들어왔어요!'], ['heatOff', '🌤️ 더위가 한풀 꺾였어요.'], ['smogOff', '😮‍💨 공기가 맑아졌어요.']]) {
+  if (M && M.view === 'pump') pumpDrain();      // 손을 쉬면 물이 도로 차오른다
+  for (const [key, msg] of [['powerOff', '💡 전기가 다시 들어왔어요!'], ['heatOff', '🌤️ 더위가 한풀 꺾였어요.'], ['smogOff', '😮‍💨 공기가 맑아졌어요.'], ['dryOff', '🌧️ 비가 내려 저수지가 다시 찼어요.']]) {
     if (S[key] && S[key] <= now) { S[key] = 0; changed = true; toast(msg, 3500); SND.ding(); }
   }
   if (changed) { renderMap(); renderPanel(); renderGoal(); save(); }
@@ -1254,7 +1641,7 @@ function act(name, el) {
     }
     case 'arm': SND.click(); m.armed = true; drawModal(); break;
     case 'demolish': {
-      const b = S.map[m.i]; if (!b) { closeModal(); return; }
+      const b = S.map[m.i]; if (!b || b.re) { closeModal(); return; }
       if (b.k === 'bridge' && b.done && countDone('bridge') === 1 && S.map.some((x, j) => x && isEast(j))) {
         SND.bad(); m.armed = false; m.msg = '강 건너 마을이 이 다리를 쓰고 있어요. 건너편 구조물을 먼저 허물어야 해요.'; m.msgc = 'bad'; drawModal(); return;
       }
@@ -1331,14 +1718,19 @@ function act(name, el) {
     /* 수리 */
     case 'payFix': {
       const b = S.map[m.i]; if (!b || !b.hurt || S.coins < b.hurt.cost) return;
-      S.coins -= b.hurt.cost; doneFix(m.i, m.ev, '🚚 업체가 와서 고쳤어요');
+      const f = FIX[b.hurt.fix] || FIX.break;
+      S.coins -= b.hurt.cost;
+      // 맡겨도 굳는 시간은 있다 — 다만 빠른 재료를 써서 3분의 1이다
+      doneFix(m.i, m.ev, '🚚 업체가 와서 고쳤어요', Math.round((f.cure || 0) / 3));
       break;
     }
     case 'selfFix': {
       const b = S.map[m.i]; if (!b || !b.hurt) return;
-      const f = FIX[b.hurt.fix];
+      const f = FIX[b.hurt.fix] || FIX.break, fk = b.hurt.fix, i = m.i, ev = m.ev, soft = b.hurt.soft;
       SND.click();
-      openModal({ view: 'quiz', mode: 'fix', i: m.i, ev: m.ev, e: b.hurt.soft ? '🔎' : '🛠️', title: f.n, sub: ST[b.k].n, qs: f.qs, n: 0, wrong: 0, outs: [], msg: '' });
+      const quiz = () => openModal({ view: 'quiz', mode: 'fix', fk, i, ev, e: soft ? '🔎' : '🛠️', title: f.n,
+        sub: ST[b.k].n, qs: shufQ(f.qs), n: 0, wrong: 0, outs: [], msg: '' });
+      if (f.work) openWork(f.work, { mode: 'fix', fk, i, ev }, quiz); else quiz();
       break;
     }
     /* 고르기 */
@@ -1348,16 +1740,26 @@ function act(name, el) {
       if (!o.ok) { SND.bad(); m.wrong++; (m.outs = m.outs || []).push(+el.dataset.i); m.msg = '🤔 ' + o.why; m.msgc = 'bad'; drawModal(); return; }
       SND.ok(); m.msg = '✅ ' + o.why; m.msgc = 'good'; m.lock = true; drawModal();
       if (m.n + 1 >= m.qs.length) {
-        if (m.mode === 'fix') setTimeout(() => { if (M === m) doneFix(m.i, m.ev, '🛠️ 직접 고쳤어요'); }, 1500);
+        if (m.mode === 'fix') setTimeout(() => { if (M === m) doneFix(m.i, m.ev, '🛠️ 직접 고쳤어요', (FIX[m.fk] || {}).cure || 0); }, 1500);
         else finishEvent(m);
       } else setTimeout(() => { if (M === m) { m.n++; m.msg = ''; m.lock = false; m.outs = []; drawModal(); } }, 1600);
       break;
     }
-    /* 닦기 */
+    /* 닦기 — 끌지 않고 톡 누르기만 해도 한 겹은 벗겨진다 (pointer 가 안 먹는 기기 대비) */
     case 'rub': {
-      const i = +el.dataset.i; if (!m.cells[i]) return;
-      m.cells[i] = 0; SND.rub(); drawModal();
-      if (!m.cells.some(Boolean)) { SND.ok(); finishEvent(m); }
+      const i = +el.dataset.i; if (m.finished || !m.cells || !m.cells[i]) return;
+      if (i === lastCell && Date.now() - lastRub < 260) return;   // 끌기가 이미 벗긴 칸을 두 번 세지 않게
+      lastCell = i; lastRub = Date.now();
+      m.cells[i]--; SND.rub(); drawModal();
+      if (!m.cells.some(Boolean)) workDone(m);
+      break;
+    }
+    /* 연타 */
+    case 'pumpTap': {
+      if (m.finished) return;
+      pumpDrain(); m.have += 1; SND.rub(); SND.tone(180 + Math.min(1, m.have / m.w.need) * 220, .07, 'square', .06);
+      pumpDraw(m);
+      if (m.have >= m.w.need) workDone(m);
       break;
     }
     case 'event': SND.click(); openEvent(+el.dataset.id); break;
@@ -1368,6 +1770,16 @@ function act(name, el) {
 }
 $('bSet').addEventListener('click', e => { e.stopPropagation(); SND.init(); SND.click(); openModal({ view: 'settings' }); });
 $('modal').addEventListener('click', e => { if (e.target.id === 'modal' && M && !['result', 'level', 'cert', 'dis'].includes(M.view)) { closeModal(); renderAll(); } });
+
+/* 노동 입력 — 손가락을 끌고 다니는 동안은 화면을 다시 안 그린다.
+   터치는 처음 누른 칸으로 이벤트가 몰리므로 elementFromPoint 로 지금 닿은 칸을 찾는다 */
+$('modal').addEventListener('pointerdown', e => {
+  if (!M) return;
+  if (M.view === 'scrub') { rubbing = true; lastCell = -1; rubAt(e); }
+  else if (M.view === 'hold') holdStart(e);
+});
+$('modal').addEventListener('pointermove', e => { if (rubbing) rubAt(e); });
+for (const ev of ['pointerup', 'pointercancel', 'pointerleave']) addEventListener(ev, () => { rubbing = false; holdStop(); });
 
 /* =====================================================================
    화면 맞추기 · 시작
@@ -1392,7 +1804,7 @@ setInterval(() => { if ($('start').hidden) tick(); }, 1000);
 setInterval(save, 10000);
 document.addEventListener('visibilitychange', () => { if (document.hidden) save(); else if ($('start').hidden) tick(); });
 addEventListener('pagehide', save);
-window.__gv = { get S() { return S; }, town, priceOf, ST, EV, DIS, FIX, GOALS, tick, act, onTile, openEvent, openModal, closeModal, startDis, applyDis, disPool, doneFix, effOf, spawnEvents, VIEWS, get M() { return M; } };
+window.__gv = { get S() { return S; }, town, priceOf, ST, EV, DIS, FIX, WORK, GOALS, tick, act, onTile, openEvent, openModal, closeModal, startDis, applyDis, disPool, doneFix, effOf, spawnEvents, openWork, workDone, shufQ, chores, reward, VIEWS, get M() { return M; } };
 </script>
 </body>
 </html>

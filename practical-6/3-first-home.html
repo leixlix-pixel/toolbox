@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>첫 집 설계실</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f2f5f8; --ink:#26303a; --sub:#6c7b8a; --line:#d8e0e8;
+  --pri:#3d7ec4; --pri2:#2a5f9c;
+  --money:#c8841c; --fix:#8e9aa6; --var:#2f9472; --bad:#d15450; --save:#7a6bc4;
+}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--ink);
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;
+  font-size:16px;line-height:1.5;overscroll-behavior:none}
+#app{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;
+  background:var(--bg);position:relative}
+button{font-family:inherit;font-size:inherit;color:inherit;border:none;background:none;cursor:pointer}
+
+/* ── 상단 ── */
+#top{position:sticky;top:0;z-index:20;background:var(--bg);
+  border-bottom:2px solid var(--line);padding:8px 10px 7px}
+.hdline{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.hbadge{background:var(--pri);color:#fff;font-weight:900;font-size:13.5px;
+  padding:3px 10px;border-radius:99px;white-space:nowrap}
+.hsub{font-size:12.5px;color:var(--sub);font-weight:500;flex:1;min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mini{font-size:12px;color:var(--sub);background:#fff;border:1.5px solid var(--line);
+  border-radius:99px;padding:3px 9px;font-weight:700}
+.money3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.m3{background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:5px 3px;text-align:center}
+.m3 .v{font-size:15.5px;font-weight:900;line-height:1.2}
+.m3 .n{font-size:10px;color:var(--sub);font-weight:700;margin-top:1px}
+.m3.warn{border-color:var(--bad);background:#fff6f5}
+.m3.warn .v{color:var(--bad)}
+
+/* ── 본문 ── */
+#main{flex:1;padding:12px 10px 22px}
+.h2{font-size:17px;font-weight:900;margin:2px 0 7px;display:flex;align-items:center;gap:6px}
+.hint{font-size:13px;color:var(--sub);line-height:1.55;margin-bottom:10px}
+.hint b{color:var(--ink)}
+
+/* 고르는 카드 */
+.pickcard{display:flex;align-items:flex-start;gap:10px;background:#fff;border:2px solid var(--line);
+  border-radius:14px;padding:11px 12px;margin-bottom:8px;width:100%;text-align:left}
+.pickcard:active{background:#eef4fb}
+.pickcard.on{border-color:var(--pri);background:#eff6fd;border-width:3px}
+.pickcard .pi{font-size:26px;width:34px;text-align:center;flex-shrink:0}
+.pickcard .pt{flex:1;min-width:0}
+.pickcard .pt b{font-size:15.5px;font-weight:900;display:block;line-height:1.3}
+.pickcard .pt em{font-style:normal;font-size:12.5px;color:var(--sub);display:block;
+  line-height:1.45;margin-top:2px}
+.pickcard .pp{font-size:14px;font-weight:900;color:var(--money);flex-shrink:0;text-align:right;line-height:1.3}
+.pickcard .pp small{display:block;font-size:10.5px;color:var(--sub);font-weight:700}
+
+/* 물건 격자 */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.item{background:#fff;border:2px solid var(--line);border-radius:12px;padding:8px 8px 7px;
+  text-align:left;min-height:94px;display:flex;flex-direction:column;gap:2px}
+.item:active{background:#eef4fb}
+.item.on{border-color:var(--pri);background:#eff6fd}
+.item.dis{opacity:.42}
+.item .ii{font-size:22px;line-height:1.1}
+.item .inm{font-size:13.5px;font-weight:900;line-height:1.25}
+.item .ids{font-size:11px;color:var(--sub);line-height:1.35;flex:1}
+.item .ip{font-size:13px;font-weight:900;color:var(--money)}
+.item.on .ip::after{content:" 담음";color:var(--pri);font-size:11px}
+
+/* 예산 줄 */
+.brow{display:flex;align-items:center;gap:8px;background:#fff;border:1.5px solid var(--line);
+  border-radius:12px;padding:8px 9px;margin-bottom:6px}
+.brow.lock{background:#eaeef2;border-color:#dbe2e8}
+.brow .bi{font-size:20px;width:26px;text-align:center;flex-shrink:0}
+.brow .bn{flex:1;min-width:0}
+.brow .bn b{font-size:13.5px;font-weight:900;display:block;line-height:1.3}
+.brow .bn em{font-style:normal;font-size:11px;color:var(--sub);display:block;line-height:1.35}
+.bstep{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.bstep button{width:31px;height:31px;border-radius:8px;border:1.5px solid var(--line);
+  background:#fff;font-weight:900;font-size:17px;line-height:1}
+.bstep button:active{background:#e4ecf5}
+.bstep .bv{font-size:13.5px;font-weight:900;width:48px;text-align:right}
+.lockv{font-size:13.5px;font-weight:900;color:var(--fix);width:84px;text-align:right;flex-shrink:0}
+.gsep{font-size:12px;font-weight:900;color:var(--sub);margin:13px 0 5px;display:flex;
+  align-items:center;gap:5px}
+.gsep:first-child{margin-top:0}
+
+/* 나누기 분류(2판) */
+.bins{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0 6px}
+.bin{background:#fff;border:2px dashed var(--line);border-radius:13px;padding:8px;min-height:78px}
+.bin h5{font-size:12.5px;font-weight:900;text-align:center;margin-bottom:5px;color:var(--sub)}
+.bin.a{border-color:var(--var)} .bin.b{border-color:var(--money)}
+.tagwrap{display:flex;flex-wrap:wrap;gap:5px;justify-content:center}
+.tag{font-size:12.5px;font-weight:700;background:#f2f5f8;border:1.5px solid var(--line);
+  border-radius:99px;padding:5px 11px}
+.tag.a{border-color:var(--var);background:#eefaf5;color:#237056}
+.tag.b{border-color:var(--money);background:#fdf5e9;color:#94600f}
+
+/* 타임라인 */
+.tl{display:flex;flex-wrap:wrap;gap:3px;margin:2px 0 11px}
+.tl i{width:9px;height:15px;border-radius:2px;background:#dde4ea;display:block}
+.tl i.p{background:var(--var)} .tl i.e{background:var(--pri)} .tl i.x{background:var(--bad)}
+.logs{display:flex;flex-direction:column;gap:5px}
+.lg{display:flex;gap:8px;align-items:flex-start;background:#fff;border:1.5px solid var(--line);
+  border-radius:10px;padding:8px 10px;animation:pop .2s ease-out}
+@keyframes pop{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.lg .lt{font-size:11px;font-weight:900;color:var(--sub);width:34px;flex-shrink:0;padding-top:2px}
+.lg .li{font-size:18px;width:24px;text-align:center;flex-shrink:0}
+.lg .lx{flex:1;font-size:13.5px;line-height:1.45;min-width:0}
+.lg .lx b{font-weight:900}
+.lg .lc{font-size:12.5px;font-weight:900;flex-shrink:0;white-space:nowrap;padding-top:1px}
+.lg.bad{border-color:#f0c6c4;background:#fff7f6}
+.lg.block{border-color:var(--bad);border-width:2.5px;background:#fff1f0}
+.lg.good{border-color:#bfe3d3;background:#f3fbf8}
+.out{color:var(--bad)} .in{color:var(--var)}
+
+/* 결과 */
+.resbox{text-align:center;background:#fff;border:3px solid var(--pri);border-radius:18px;
+  padding:15px 12px;margin-bottom:11px}
+.resbox.fail{border-color:var(--bad)}
+.resbox .rt{font-size:12px;color:var(--sub);font-weight:700}
+.resbox .rv{font-size:26px;font-weight:900;color:var(--pri2);line-height:1.25;margin:2px 0}
+.resbox.fail .rv{color:var(--bad)}
+.resbox .rd{font-size:13.5px;color:var(--sub);line-height:1.5}
+.stars{font-size:25px;letter-spacing:4px;margin:5px 0 2px}
+.rev{background:#fff;border:2px solid var(--line);border-radius:14px;padding:11px 12px;margin-bottom:8px}
+.rev h4{font-size:14px;font-weight:900;margin-bottom:4px}
+.rev p{font-size:13.5px;color:var(--sub);line-height:1.6}
+.rev p b{color:var(--ink)}
+.quote{background:#fff;border:2px dashed var(--pri);border-radius:14px;padding:12px;
+  font-size:14px;line-height:1.65;margin:10px 0}
+.quote b{color:var(--pri2)}
+
+/* 판 고르기 */
+.stagecard{display:flex;align-items:center;gap:11px;background:#fff;border:2px solid var(--line);
+  border-radius:15px;padding:12px;margin-bottom:9px;width:100%;text-align:left}
+.stagecard:active{background:#eef4fb}
+.stagecard .si{font-size:29px;width:46px;text-align:center;flex-shrink:0;line-height:1.1}
+.stagecard .st{flex:1;min-width:0}
+.stagecard .st b{font-size:16px;font-weight:900;display:block}
+.stagecard .st em{font-style:normal;font-size:12.5px;color:var(--sub);display:block;line-height:1.45}
+.stagecard .ss{font-size:14px;flex-shrink:0;letter-spacing:1px;color:var(--money)}
+.stagecard.clear{border-color:var(--var);background:#f4fbf8}
+
+/* 버튼 */
+.btn{display:block;width:100%;background:var(--pri);color:#fff;font-weight:900;font-size:17px;
+  padding:14px;border-radius:13px;min-height:52px;box-shadow:0 3px 0 var(--pri2);margin-top:13px}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--pri2)}
+.btn.gray{background:#fff;color:var(--sub);border:2px solid var(--line);box-shadow:0 3px 0 #dbe3ea}
+.btn.sm{font-size:15px;padding:11px;min-height:46px;margin-top:8px}
+.btn.off{opacity:.45}
+
+/* 타이틀 */
+.title{text-align:center;padding:20px 6px 4px}
+.title .tm{font-size:56px;line-height:1}
+.title h1{font-size:30px;font-weight:900;margin:5px 0 4px;letter-spacing:-1px}
+.title .ts{font-size:14px;color:var(--sub);font-weight:700}
+.tcard{background:#fff;border:2px solid var(--line);border-radius:14px;padding:12px 13px;
+  margin-top:12px;font-size:13.5px;line-height:1.65}
+.tcard b{color:var(--pri2)}
+.qr{text-align:center;margin-top:15px}
+.qr svg{width:116px;height:116px;border:3px solid #fff;border-radius:10px;background:#fff;
+  box-shadow:0 2px 8px rgba(0,0,0,.09)}
+.qr div{font-size:11px;color:var(--sub);margin-top:5px;word-break:break-all}
+
+/* 모달 */
+#modal{position:fixed;inset:0;z-index:60;background:rgba(25,35,45,.55);
+  display:flex;align-items:flex-end;justify-content:center}
+#modal[hidden]{display:none}
+#mbox{background:var(--bg);width:100%;max-width:480px;max-height:92vh;overflow-y:auto;
+  border-radius:20px 20px 0 0;padding:16px 13px 20px;animation:up .24s ease-out}
+@keyframes up{from{transform:translateY(40px);opacity:.5}to{transform:none;opacity:1}}
+.mtitle{font-size:19px;font-weight:900;margin-bottom:4px;display:flex;align-items:center;gap:7px}
+.mdesc{font-size:14px;color:var(--sub);line-height:1.6;margin-bottom:10px}
+.why{background:#fff;border:2px solid var(--pri);border-radius:12px;padding:11px;
+  font-size:13.5px;line-height:1.6;margin:9px 0 2px}
+.why b{color:var(--pri2)}
+textarea{width:100%;border:2px solid var(--line);border-radius:11px;padding:10px;font-family:inherit;
+  font-size:15px;line-height:1.5;resize:none;background:#fff;color:var(--ink);user-select:text}
+textarea:focus{outline:none;border-color:var(--pri)}
+#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(16px);
+  background:rgba(25,32,40,.94);color:#fff;font-size:14px;font-weight:700;padding:11px 17px;
+  border-radius:99px;opacity:0;pointer-events:none;transition:.24s;z-index:90;max-width:90%;text-align:center}
+#toast.on{opacity:1;transform:translateX(-50%)}
+.foot{text-align:center;font-size:11px;color:#9fadba;padding:14px 0 4px;line-height:1.6}
+.foot button{text-decoration:underline;font-size:11px;color:#9fadba}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="top"></div>
+  <div id="main"></div>
+</div>
+<div id="modal" hidden><div id="mbox"></div></div>
+<div id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   첫 집 설계실 — 실과 5학년 6단원 「나의 생활 자원 관리」
+   폴리 브리지의 구조를 생활비로 옮긴 앱이다.
+   예산 안에서 설계 → 한 달을 돌려본다 → 어디서 막혔는지 보인다 → 그 자리로 돌아가 고친다.
+   설계 근거와 「하지 말 것」은 같은 폴더 PLAN-first-home.md.
+
+   ※ 금액은 전부 **만원 단위 정수**다. 원 단위로 바꾸지 말 것(0을 세다 내용이 안 보인다).
+   ※ 실패해도 다음 판을 막지 않는다. 세 번 막히면 힌트가 열릴 뿐이다.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── 1판 집 ──────────────────────────────────────────────────
+   반지하·고시원 같은 선택지는 넣지 않는다 — 교실에 그렇게 사는 아이가 있으면
+   그 아이를 겨냥한 화면이 된다. 같은 것을 거리와 넓이로 가르친다. */
+const HOMES = [
+  {k:'far',  i:'🚌', n:'회사에서 먼 집', rent:42, mng:5, road:10, room:12,
+   d:'버스로 50분 · 8평', e:'월세가 싼 대신 차비가 들어요'},
+  {k:'near', i:'🚶', n:'회사 가까운 집', rent:58, mng:8, road:0,  room:12,
+   d:'걸어서 10분 · 8평', e:'걸어다녀서 차비가 안 들어요'},
+  {k:'small',i:'📦', n:'좁은 집',        rent:45, mng:6, road:5,  room:8,
+   d:'버스로 20분 · 5평', e:'물건을 여덟 개까지만 넣을 수 있어요'},
+];
+
+/* ── 1판 물건 ────────────────────────────────────────────────
+   ⚠ 설명은 「무엇에 쓰는 물건인가」만 적는다. 「없으면 큰일 나요」·「없어도 돼요」를
+   적지 말 것 — 적는 순간 아이는 그 표시만 보고 고른다. 값은 한 달 살아 보면 나온다. */
+const STUFF = [
+  {k:'fridge', i:'🧊', n:'냉장고',       p:35, d:'음식을 며칠씩 두고 먹어요'},
+  {k:'wash',   i:'🌀', n:'세탁기',       p:40, d:'집에서 빨래를 해요'},
+  {k:'bed',    i:'🛏️', n:'침대·매트리스', p:25, d:'바닥 말고 여기서 자요'},
+  {k:'cook',   i:'🍳', n:'인덕션',       p:8,  d:'집에서 요리를 해요'},
+  {k:'rice',   i:'🍚', n:'밥솥',         p:8,  d:'밥을 지어 두고 먹어요'},
+  {k:'dry',    i:'🧺', n:'빨래 건조대',   p:2,  d:'빨래를 널어 말려요'},
+  {k:'micro',  i:'📻', n:'전자레인지',    p:10, d:'음식을 데워요'},
+  {k:'desk',   i:'🪑', n:'책상·의자',    p:15, d:'앉아서 무언가를 해요'},
+  {k:'shelf',  i:'🗄️', n:'수납장',       p:10, d:'물건을 넣어 둬요'},
+  {k:'curtain',i:'🪟', n:'커튼',         p:5,  d:'창을 가려요'},
+  {k:'vac',    i:'🧹', n:'청소기',       p:12, d:'바닥을 빨아들여요'},
+  {k:'table',  i:'🍽️', n:'식탁',         p:12, d:'앉아서 밥을 먹어요'},
+  {k:'tv',     i:'📺', n:'TV',           p:30, d:'화면으로 방송을 봐요'},
+  {k:'aircon', i:'❄️', n:'에어컨',       p:60, d:'더울 때 시원하게 해요'},
+];
+
+/* ── 2판 나누기 ──────────────────────────────────────────────
+   share:1 = 집에 하나뿐이라 반씩 낼 수 있는 것
+   share:0 = 사람마다 쓰는 것이 달라 각자 내야 맞는 것 */
+const SPLITS = [
+  {k:'rent',  n:'월세·관리비', share:1, w:'집은 하나예요. 반씩 내는 게 맞아요.'},
+  {k:'net',   n:'인터넷',     share:1, w:'선 하나로 둘이 써요. 따로 신청하면 두 배로 내요.'},
+  {k:'elec',  n:'전기·수도',   share:1, w:'누가 얼마나 썼는지 따로 잴 수 없어요.'},
+  {k:'sup',   n:'휴지·세제',   share:1, w:'같이 쓰는 물건이에요.'},
+  {k:'phone', n:'휴대폰 요금', share:0, w:'쓰는 만큼 달라요. 각자 내요.'},
+  {k:'cloth', n:'옷',        share:0, w:'내 옷값을 친구가 반 내 줄 이유가 없어요.'},
+  {k:'road',  n:'교통비',     share:0, w:'가는 곳이 달라요. 각자예요.'},
+  {k:'fun',   n:'취미·모임',   share:0, w:'좋아하는 것이 달라요. 각자예요.'},
+];
+
+/* ── 3·4판 식구 ──────────────────────────────────────────────
+   넷을 다 지키면 수입을 넘는다 — 하나는 반드시 골라 줄여야 한다.
+   「필요」를 줄이면 그 사람이 무너지고, 「원함」을 줄이면 아쉬울 뿐이다. */
+const FAMILY = [
+  {k:'dad',  i:'👨', n:'아빠',     need:'출퇴근 교통비', cost:10, kind:'필요', day:9,
+   ev:'차비가 없어 회사에 늦었어요', w:'회사에 못 가면 월급이 끊겨요. 여기를 줄이면 더 큰 것이 무너져요.'},
+  {k:'mom',  i:'👩', n:'엄마',     need:'매달 먹는 약',  cost:10, kind:'필요', day:13,
+   ev:'약이 떨어져 몸져누웠어요',   w:'약을 끊으면 몸이 먼저 무너져요. 돈으로 견줄 자리가 아니에요.'},
+  {k:'big',  i:'🧑', n:'큰아이',   need:'학원 두 곳',    cost:75, kind:'원함', day:0,
+   ev:'',                          w:'아쉽지만 <b>없어도 살 수는 있어요.</b> 그래서 여기가 먼저 줄어드는 자리예요.'},
+  {k:'small',i:'🧒', n:'작은아이', need:'아침밥',        cost:10, kind:'필요', day:16,
+   ev:'아침을 못 먹고 학교에서 쓰러졌어요', w:'아침을 거르면 학교에서 버티지 못해요.'},
+];
+
+/* ── 4판 사고 — 예고 없이 한 번 온다 ─────────────────────────
+   보험이 값을 하는 자리는 병원비 하나뿐이다. 나머지는 보험이 막아 주지 않는다 —
+   그래서 보험과 비상금은 서로를 대신하지 못한다. */
+const ACCIDENTS = [
+  {i:'🏥', n:'가족이 크게 아팠어요',       cost:35, insCost:10, ins:1},
+  {i:'🌀', n:'세탁기가 고장 났어요',       cost:40, insCost:40, ins:0},
+  {i:'🎒', n:'아이 수학여행비가 나왔어요', cost:30, insCost:30, ins:0},
+];
+
+/* ── 판 ─────────────────────────────────────────────────────
+   need = 한 달에 실제로 나가는 돈. util·life 는 예산을 적게 잡아도 이만큼 나간다.
+   그것이 「고정비」와 「예상보다 더 나오는 것」을 몸으로 아는 유일한 길이다. */
+const STAGES = [
+ { n:'원룸 · 혼자', i:'🚪', sub:'첫 직장 · 10월', months:1,
+   income:195, setup:120, tel:6, food:40, util:10, life:5,
+   goalSave:40, goalSpare:15, pick:['home','stuff'],
+   intro:'스물네 살, 첫 직장에 들어갔어요. 오늘부터 <b>혼자 살아요.</b><br>'+
+     '한 달에 <b>195만원</b>을 받고, 집을 꾸밀 돈 <b>120만원</b>이 따로 있어요.<br>'+
+     '<b>한 달을 막히지 않고 버티면</b> 이 판을 넘어요.',
+   learn:'고정비와 변동비 · 안 산 물건이 도로 돈이 되는 자리' },
+
+ { n:'투룸 · 둘이서', i:'🚪🚪', sub:'친구와 함께 · 1월', months:1,
+   income:318, tel:10, food:70, util:15, life:10,
+   home:{n:'투룸', rent:78, mng:12, road:15},
+   goalSave:60, goalSpare:20, pick:['split'],
+   intro:'친구와 <b>투룸</b>을 얻었어요. 둘이 벌어 한 달 <b>318만원</b>이에요.<br>'+
+     '집은 넓어졌는데 <b>월세도 커졌어요.</b><br>'+
+     '무엇을 <b>반씩 나누고</b> 무엇을 <b>각자 낼지</b> 먼저 정해요.',
+   learn:'나눌 수 있는 것과 없는 것' },
+
+ { n:'쓰리룸 · 넷이서', i:'🏠', sub:'가족 넷 · 3월', months:1,
+   income:410, tel:20, food:130, util:25, life:15,
+   home:{n:'쓰리룸', rent:95, mng:15, road:20},
+   goalSave:20, goalSpare:15, pick:['family'],
+   intro:'가족 넷이 사는 <b>쓰리룸</b>이에요. 둘이 벌어 <b>410만원</b>.<br>'+
+     '식구마다 <b>「이건 못 버려」</b>를 하나씩 들고 있어요.<br>'+
+     '그런데 <b>넷을 다 지키면 돈이 모자라요.</b>',
+   learn:'사람마다 필요가 다르다 · 필요와 원하는 것은 다르다' },
+
+ { n:'아파트 · 넷이서', i:'🏢', sub:'32평 · 12~1월 · 두 달', months:2,
+   income:460, tel:20, food:130, util:30, life:15,
+   home:{n:'아파트 32평', rent:120, mng:25, road:20},
+   goalSave:20, goalSpare:20, pick:['family'], accident:1,
+   intro:'가족은 그대로인데 <b>아파트로 옮겼어요.</b> 집을 키우려고 <b>엄마가 일을 늘려</b> 수입이 <b>460만원</b>이 됐어요.<br>'+
+     '그런데 넓어진 만큼 <b>월세·관리비·난방이 따라와요.</b><br>'+
+     '그리고 이 판은 <b>두 달</b>이에요 — 그 사이에 무슨 일이 날지 몰라요.',
+   learn:'넓으면 더 든다 · 비상금은 무엇으로도 대신 못 한다' },
+];
+
+/* ── 예산 칸 ─────────────────────────────────────────────────
+   lock 은 「줄일 수 없는 것」이다. 잠근 채로 숫자를 보여 주는 것이
+   고정비를 가르치는 가장 정직한 방법이다. 잠금을 풀지 말 것. */
+const BROWS = [
+  {k:'rent', i:'🏠', n:'주거비',        e:'월세와 관리비 — 줄일 수 없어요', lock:1},
+  {k:'tel',  i:'📱', n:'통신비',        e:'약정이 걸려 있어요 — 줄일 수 없어요', lock:1},
+  {k:'fam',  i:'👪', n:'식구를 위한 돈', e:'앞에서 정한 것이에요', lock:1, only:'family'},
+  {k:'food', i:'🍚', n:'식비',          e:'모자라게 잡으면 끼니를 거르게 돼요'},
+  {k:'road', i:'🚌', n:'교통비',        e:'모자라면 갈 곳에 못 가요'},
+  {k:'util', i:'💡', n:'공과금',        e:'전기·수도·가스 — 달마다 달라요'},
+  {k:'life', i:'🧻', n:'생활용품',      e:'휴지·세제·비누 같은 것'},
+  {k:'ins',  i:'🛡️', n:'보험',         e:'미리 조금씩 내 두면 큰일 날 때 적게 내요'},
+  {k:'fun',  i:'🙂', n:'문화·사람 만나기', e:'영화·모임·선물 같은 것'},
+  {k:'save', i:'🐷', n:'저축',          e:'앞날을 위해 모아 둬요', grp:'따로 떼어 두는 돈'},
+  {k:'spare',i:'🧯', n:'비상금',        e:'갑자기 큰돈이 나갈 때 쓸 돈'},
+];
+
+/* ── 상태 ─────────────────────────────────────────────────── */
+const KEY = 'fh.state';
+function fresh(){
+  return {phase:'title', stage:0, opened:0,
+    done:[0,0,0,0], stars:[0,0,0,0], tries:[0,0,0,0],
+    home:null, bought:[], split:{}, cut:null, budget:null,
+    day:0, log:[], wallet:0, spare:0, res:null, acc:null, wish:''};
+}
+let S, wiping=false;
+try{ S = JSON.parse(localStorage.getItem(KEY)) || fresh(); }catch(e){ S = fresh(); }
+if(!S || !S.done) S = fresh();
+function save(){ if(wiping) return; try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+
+/* ── 소리 (19 week-steward.html 과 같은 뼈대) ──────────────── */
+const SND = (()=>{
+  let ac=null;
+  const ctx=()=>{ try{ ac = ac || new (window.AudioContext||window.webkitAudioContext)();
+    if(ac.state==='suspended') ac.resume(); return ac; }catch(e){ return null; } };
+  function tone(f,t,dur,vol,delay){
+    const a=ctx(); if(!a) return;
+    const o=a.createOscillator(), g=a.createGain(), t0=a.currentTime+(delay||0);
+    o.type=t||'sine'; o.frequency.setValueAtTime(f,t0);
+    g.gain.setValueAtTime(0,t0); g.gain.linearRampToValueAtTime(vol||.15,t0+.012);
+    g.gain.exponentialRampToValueAtTime(.0001,t0+dur);
+    o.connect(g); g.connect(a.destination); o.start(t0); o.stop(t0+dur+.02);
+  }
+  return {
+    tap(){ tone(620,'sine',.07,.09); },
+    put(){ tone(520,'triangle',.09,.11); tone(780,'triangle',.09,.08,.05); },
+    coin(){ tone(1050,'triangle',.07,.09); tone(1400,'triangle',.12,.07,.05); },
+    ok(){ [523,659,784,1047].forEach((f,i)=>tone(f,'sine',.22,.1,i*.1)); },
+    no(){ tone(300,'sawtooth',.14,.07); tone(220,'sawtooth',.2,.06,.09); },
+    bust(){ tone(340,'square',.16,.08); tone(250,'square',.2,.08,.14); tone(170,'square',.32,.08,.3); },
+  };
+})();
+
+/* ── 잡다 ─────────────────────────────────────────────────── */
+const $ = id => document.getElementById(id);
+const won = n => (n<0?'−':'') + Math.abs(Math.round(n)) + '만원';
+const ST = () => STAGES[S.stage];
+let toT=null;
+function toast(m,ms){ const t=$('toast'); t.innerHTML=m; t.classList.add('on');
+  clearTimeout(toT); toT=setTimeout(()=>t.classList.remove('on'), ms||2400); }
+
+/* 이 판의 집 — 1판은 아이가 고르고, 나머지는 주어진다 */
+function homeOf(){
+  const st = ST();
+  if(st.home) return st.home;
+  return HOMES.find(h=>h.k===S.home) || null;
+}
+function has(k){ return S.bought.includes(k); }
+function boughtSum(){ return S.bought.reduce((a,k)=>a + STUFF.find(s=>s.k===k).p, 0); }
+
+/* ── 실제로 나가는 돈 ───────────────────────────────────────
+   아이가 잡은 예산과 다르다. 그 차이가 이 앱이 가르치는 것의 절반이다. */
+function needs(){
+  const st = ST(), h = homeOf(), n = {};
+  n.rent = h ? h.rent + h.mng : 0;
+  n.tel  = st.tel;
+  n.road = h ? h.road : 0;
+  n.food = st.food;
+  n.util = st.util;
+  n.life = st.life;
+
+  if(S.stage===0){
+    /* 안 산 물건이 다달이 돈으로 돌아온다 — 손익분기가 물건마다 다르다 */
+    if(!has('fridge')) n.food += 10;
+    if(!has('cook'))   n.food += 5;
+    if(!has('rice'))   n.food += 5;
+    if(!has('wash'))   n.life += 5;
+    else if(!has('dry')) n.life += 5;
+  }
+  if(S.stage===1){
+    /* 나누기를 옳게 갈랐으면 같이 사는 값이 나온다. 틀린 칸마다 돈이 샌다 */
+    let wrong = 0;
+    SPLITS.forEach(s=>{ const v = S.split[s.k]; if(v===undefined || v!==s.share) wrong++; });
+    n.wrongSplit = wrong;
+    n.util += wrong * 3;
+    n.life += wrong * 2;
+    if(S.split.market) n.food -= 10;   /* 같이 장보기 */
+  }
+  n.fam = 0;
+  if(ST().pick.includes('family')){
+    FAMILY.forEach(f=>{ if(f.k !== S.cut) n.fam += f.cost; });
+  }
+  return n;
+}
+
+function budgetFresh(){
+  const n = needs();
+  return {rent:n.rent, tel:n.tel, fam:n.fam,
+          food:20, road:5, util:5, life:5, ins:0, fun:0, save:0, spare:0};
+}
+function rowsOf(){
+  return BROWS.filter(r=>!r.only || ST().pick.includes(r.only));
+}
+function budgetSum(){
+  return rowsOf().reduce((a,r)=>a + (S.budget[r.k]||0), 0);
+}
+const budgetLeft = () => ST().income - budgetSum();
+
+/* ── 한 달(또는 두 달) 장부 만들기 ─────────────────────────
+   날짜별로 굴린다. 「나중에 들어올 돈이 있어도 지금 없으면 못 낸다」를
+   보이려면 월 합계가 아니라 날짜여야 한다 — 비상금이 필요한 이유가 거기서 나온다. */
+function buildBook(){
+  const st = ST(), n = needs(), b = S.budget, days = [];
+  const N = 30 * st.months;
+  for(let d=1; d<=N; d++) days.push({d, ev:[], daily:0});
+
+  const daily = (b.food + b.road + b.life + b.fun) / 30;
+  days.forEach(x=>{ x.daily = daily; });
+
+  const put = (d,i,nm,cost,cls,blockKey) => {
+    if(days[d-1]) days[d-1].ev.push({i, n:nm, cost:cost||0, cls, block:blockKey});
+  };
+  for(let m=0; m<st.months; m++){
+    const o = m*30;
+    put(o+1, '💰', (m?'둘째 달 ':'') + '월급이 들어왔어요', +st.income, 'good');
+    put(o+1, '🏠', '월세와 관리비', -n.rent, '');
+    if(b.save)  put(o+1, '🐷', '저축을 떼어 놓았어요', -b.save, '');
+    if(b.spare) put(o+1, '🧯', '비상금을 떼어 놓았어요', -b.spare, '');
+    if(n.fam)   put(o+1, '👪', '식구를 위한 돈', -n.fam, '');
+    if(b.ins)   put(o+10, '🛡️', '보험료', -b.ins, '');
+    put(o+19, '🧾', '공과금 고지서', -n.util, n.util > b.util ? 'bad' : '');
+    put(o+25, '📱', '통신비', -n.tel, '');
+  }
+
+  /* 판마다 걸리는 자리 — 값을 치르는 곳이지 벌을 주는 곳이 아니다 */
+  if(S.stage===0){
+    if(!has('bed'))     put(17, '😴', '바닥에서 자다 허리가 아파 병원에 갔어요', -5, 'bad');
+    if(!has('curtain')) put(6,  '🌅', '커튼이 없어 아침 해에 일찍 깼어요', 0, 'bad');
+    if(!has('shelf'))   put(11, '📦', '수납장이 없어 짐이 바닥에 쌓였어요', 0, 'bad');
+    if(!has('wash'))    put(3,  '🧺', '빨래방에 다녀왔어요', 0, 'bad');
+    if(!has('fridge'))  put(5,  '🛒', '냉장고가 없어 오늘 먹을 것만 샀어요', 0, 'bad');
+  }
+  if(S.stage===1 && n.wrongSplit)
+    put(8, '🤝', '나누기로 한 것 때문에 친구와 이야기를 했어요', 0, 'bad');
+  if(S.cut){
+    const f = FAMILY.find(x=>x.k===S.cut);
+    if(f && f.day) put(f.day, f.i, f.ev, 0, 'bad', 'family');
+  }
+  if(st.accident){
+    const a = ACCIDENTS[S.acc==null ? 0 : S.acc];
+    const c = (S.budget.ins > 0 && a.ins) ? a.insCost : a.cost;
+    put(6, a.i, a.n + ((S.budget.ins>0 && a.ins) ? ' — 보험이 있어서 덜 냈어요' : ''), -c, 'bad');
+  }
+
+  /* 예산이 모자라서 「안 하기로 한 것」이 되는 자리 */
+  if(b.food < n.food) put(28, '🍚', '먹을 것이 모자랐어요', 0, 'bad', 'food');
+  if(b.road < n.road) put(7,  '🚌', '차비가 모자라 갈 곳에 못 갔어요', 0, 'bad', 'road');
+  if(b.fun === 0)     put(22, '😞', '한 달 동안 아무도 만나지 않았어요', 0, 'bad', 'fun');
+  return days;
+}
+
+/* ── 돌려보기 ─────────────────────────────────────────────── */
+let runT = null;
+function startRun(){
+  S.phase = 'run'; S.day = 0; S.log = []; S.wallet = 0; S.spare = 0;
+  S.book = buildBook(); S.res = null;
+  S.usedSpare = 0;
+  save(); renderAll(); stepOn();
+}
+function stepOn(){ clearTimeout(runT); runT = setTimeout(step, 130); }
+function step(){
+  if(S.phase !== 'run') return;
+  const N = S.book.length;
+  if(S.day >= N){ finish(true, null); return; }
+  const cur = S.book[S.day];
+  S.day++;
+
+  for(const e of cur.ev){
+    if(e.cost > 0){ S.wallet += e.cost; SND.coin(); }
+    else if(e.cost < 0){
+      if(e.n.indexOf('비상금을 떼어') === 0 || e.i === '🧯'){ S.spare += -e.cost; }
+      S.wallet += e.cost;
+    }
+    S.log.push({d:cur.d, i:e.i, n:e.n, cost:e.cost, cls:e.cls});
+    if(e.block){ finish(false, e); return; }
+  }
+  S.wallet -= cur.daily;
+
+  /* 지갑이 비면 비상금이 대신 나선다. 비상금까지 없으면 거기서 막힌다 */
+  if(S.wallet < 0){
+    if(S.spare > 0){
+      const use = Math.min(S.spare, -S.wallet);
+      S.spare -= use; S.wallet += use; S.usedSpare += use;
+      S.log.push({d:cur.d, i:'🧯', n:'돈이 모자라 비상금을 꺼냈어요', cost:-0, cls:'bad', spare:use});
+    }
+    if(S.wallet < -0.5){
+      finish(false, {i:'💸', n:'쓸 돈이 다 떨어졌어요', block:'money'});
+      return;
+    }
+  }
+  save(); renderAll(); stepOn();
+}
+function finish(ok, ev){
+  clearTimeout(runT);
+  const st = ST(), b = S.budget;
+  let stars = 0;
+  if(ok){
+    stars = 1;
+    if(S.usedSpare === 0 && b.spare >= st.goalSpare) stars++;
+    if(b.save >= st.goalSave) stars++;
+  }
+  S.res = {ok, day: ev ? S.log[S.log.length-1].d : 30*st.months,
+           why: ev ? ev.block || 'money' : null,
+           evn: ev ? ev.n : null, evi: ev ? ev.i : null,
+           stars, left: Math.max(0, Math.round(S.wallet)), spare: Math.round(S.spare),
+           save: b.save, usedSpare: Math.round(S.usedSpare)};
+  if(ok){ S.done[S.stage] = 1; SND.ok(); }
+  else { S.tries[S.stage]++; SND.bust(); }
+  if(stars > S.stars[S.stage]) S.stars[S.stage] = stars;
+  S.phase = 'result'; save(); renderAll(); window.scrollTo(0,0);
+}
+
+/* ── 화면 ─────────────────────────────────────────────────── */
+function renderTop(){
+  const t = $('top');
+  if(S.phase==='title' || S.phase==='stages' || S.phase==='final'){
+    t.innerHTML=''; t.style.display='none'; return;
+  }
+  t.style.display='';
+  const st = ST();
+  let cells;
+  if(S.phase==='stuff'){
+    const h = homeOf(), left = st.setup - boughtSum();
+    cells = [['꾸밀 돈', won(st.setup), 0], ['쓴 돈', won(boughtSum()), 0],
+             ['남은 돈', won(left), left<0]];
+  }else if(S.phase==='run' || S.phase==='result'){
+    cells = [['날짜', (S.res? S.res.day : S.day)+'일', 0],
+             ['지갑', won(Math.max(0,S.wallet)), S.wallet<10],
+             ['비상금', won(S.spare), 0]];
+  }else if(S.phase==='budget'){
+    const left = budgetLeft();
+    cells = [['한 달 수입', won(st.income), 0], ['짠 돈', won(budgetSum()), 0],
+             ['남은 돈', won(left), left<0]];
+  }else{
+    cells = [['한 달 수입', won(st.income), 0],
+             ['집', homeOf()? won(homeOf().rent + homeOf().mng) : '—', 0],
+             ['꾸밀 돈', st.setup? won(st.setup) : '—', 0]];
+  }
+  t.innerHTML =
+    '<div class="hdline"><span class="hbadge">'+(S.stage+1)+'판 '+st.n+'</span>'+
+    '<span class="hsub">'+st.sub+'</span>'+
+    '<button class="mini" onclick="act(\'menu\')">⋯</button></div>'+
+    '<div class="money3">'+cells.map(c=>
+      '<div class="m3'+(c[2]?' warn':'')+'"><div class="v">'+c[1]+'</div><div class="n">'+c[0]+'</div></div>'
+    ).join('')+'</div>';
+}
+
+function renderTitle(){
+  $('main').innerHTML =
+    '<div class="title"><div class="tm">🏠</div><h1>첫 집 설계실</h1>'+
+    '<div class="ts">예산 안에서 집을 꾸리고 · 한 달을 살아 봐요</div></div>'+
+    '<div class="tcard">집을 고르고, 물건을 사고, <b>한 달 예산</b>을 짜요.<br>'+
+    '그다음 <b>「한 달 살아 보기」</b>를 누르면 그대로 살아 봐요.<br>'+
+    '막히면 <b>어디서 막혔는지</b>가 보여요. 고쳐서 다시 하면 돼요.</div>'+
+    '<button class="btn" onclick="act(\'go\')">'+
+      (S.opened ? '이어서 하기 ▶' : '시작하기 ▶')+'</button>'+
+    (S.opened ? '<button class="btn gray sm" onclick="act(\'wipe\')">처음부터 다시 하기</button>' : '')+
+    (QR ? '<div class="qr"><button id="qrbtn" onclick="act(\'qrbig\')" '+
+      'style="position:relative;display:inline-block;padding:0 0 12px">'+QR+
+      '<span style="position:absolute;left:50%;transform:translateX(-50%);bottom:-2px;'+
+      'background:var(--pri);color:#fff;font-size:10px;font-weight:900;border-radius:99px;'+
+      'padding:2px 9px;white-space:nowrap">🔍 크게</span></button>'+
+      '<div>leixlix-pixel.github.io/toolbox/practical-6/3-first-home.html</div></div>' : '');
+}
+
+function renderStages(){
+  const cards = STAGES.map((st,i)=>{
+    const s = S.stars[i];
+    return '<button class="stagecard'+(S.done[i]?' clear':'')+'" onclick="act(\'stage\','+i+')">'+
+      '<div class="si">'+st.i+'</div>'+
+      '<div class="st"><b>'+(i+1)+'판 · '+st.n+'</b><em>'+st.learn+'</em></div>'+
+      '<div class="ss">'+(s? '★★★'.slice(0,s) : (S.tries[i]? '다시' : '')) +'</div></button>';
+  }).join('');
+  const allDone = S.done.every(x=>x);
+  $('main').innerHTML =
+    '<div class="h2">🏠 어느 집부터 할까요?</div>'+
+    '<div class="hint">판은 <b>아무 때나 골라도 돼요.</b> 앞 판에서 막혀도 다음 판으로 갈 수 있어요.<br>'+
+    '금액은 전부 <b>만원</b>이에요.</div>'+ cards +
+    (allDone ? '<button class="btn" onclick="act(\'final\')">네 판을 다 봤어요 →</button>'
+             : '<div class="hint" style="text-align:center;margin-top:12px">네 판을 다 넘기면 마지막 이야기가 있어요</div>')+
+    '<div class="foot">기록은 이 태블릿에만 저장돼요 · 순위 없음<br>'+
+    '<button onclick="act(\'wipe\')">처음부터 다시 하기</button></div>';
+}
+
+function renderIntro(){
+  const st = ST();
+  $('main').innerHTML =
+    '<div class="h2">'+st.i+' '+(S.stage+1)+'판 · '+st.n+'</div>'+
+    '<div class="quote">'+st.intro+'</div>'+
+    '<div class="rev"><h4>이 판에서 볼 것</h4><p>'+st.learn+'</p></div>'+
+    (S.tries[S.stage]>=3 ? hintBox() : '')+
+    '<button class="btn" onclick="act(\'begin\')">설계 시작 →</button>'+
+    '<button class="btn gray sm" onclick="act(\'stages\')">← 판 고르기</button>';
+}
+function hintBox(){
+  const h = ['🧊 <b>냉장고·인덕션·밥솥이 없으면 식비가 다달이 늘어요.</b> 물건값은 한 번이지만 식비는 매달이에요. 그리고 <b>10월이에요</b> — 지금 꼭 필요한 물건인지 계절을 보세요.',
+             '🤝 <b>집에 하나뿐인 것</b>은 반씩 나눌 수 있어요. <b>사람마다 쓰는 양이 다른 것</b>은 각자예요.',
+             '👪 <b>「필요」와 「원하는 것」은 달라요.</b> 없으면 몸이나 일이 무너지는 것이 필요예요.',
+             '🧯 <b>큰돈은 월초에 옵니다.</b> 월급이 나중에 들어와도 지금 돈이 없으면 못 내요. 그래서 비상금이 따로 있어야 해요. 병원비는 보험이 덜어 주지만 고장·여행비는 아니에요.'][S.stage];
+  return '<div class="rev" style="border-color:var(--money)"><h4>💡 세 번 막혔으니 힌트를 열어요</h4><p>'+h+'</p></div>';
+}
+
+function renderHome(){
+  const cards = HOMES.map(h=>
+    '<button class="pickcard'+(S.home===h.k?' on':'')+'" onclick="act(\'home\',\''+h.k+'\')">'+
+    '<div class="pi">'+h.i+'</div>'+
+    '<div class="pt"><b>'+h.n+'</b><em>'+h.d+'<br>'+h.e+'</em></div>'+
+    '<div class="pp">'+(h.rent+h.mng)+'만<small>달마다</small></div></button>').join('');
+  $('main').innerHTML =
+    '<div class="h2">🔑 어느 집에서 살까요?</div>'+
+    '<div class="hint">월세와 관리비는 <b>달마다 꼬박꼬박</b> 나가요. 차비도 마찬가지예요.<br>'+
+    '집값만 보지 말고 <b>다 더해서</b> 보세요.</div>'+ cards +
+    '<button class="btn'+(S.home?'':' off')+'" onclick="act(\'toStuff\')">물건 고르러 →</button>'+
+    '<button class="btn gray sm" onclick="act(\'stages\')">← 판 고르기</button>';
+}
+
+function renderStuff(){
+  const h = homeOf(), left = ST().setup - boughtSum();
+  const cells = STUFF.map(s=>{
+    const on = has(s.k), full = !on && S.bought.length >= h.room, poor = !on && s.p > left;
+    return '<button class="item'+(on?' on':'')+((full||poor)?' dis':'')+'" onclick="act(\'buy\',\''+s.k+'\')">'+
+      '<div class="ii">'+s.i+'</div><div class="inm">'+s.n+'</div>'+
+      '<div class="ids">'+s.d+'</div><div class="ip">'+s.p+'만원</div></button>';
+  }).join('');
+  $('main').innerHTML =
+    '<div class="h2">📦 집에 무엇을 들일까요?</div>'+
+    '<div class="hint">꾸밀 돈은 <b>'+ST().setup+'만원</b>, 이 집에 들어가는 물건은 <b>'+h.room+'개</b>까지예요.<br>'+
+    '지금 담은 것 <b>'+S.bought.length+'개</b> · 남은 돈 <b>'+won(left)+'</b><br>'+
+    '무엇이 정말 있어야 하는지는 <b>한 달 살아 보면 알게 돼요.</b></div>'+
+    '<div class="grid">'+cells+'</div>'+
+    '<button class="btn" onclick="act(\'toBudget\')">예산 짜러 →</button>'+
+    '<button class="btn gray sm" onclick="act(\'back\')">← 집 다시 고르기</button>';
+}
+
+function renderSplit(){
+  const a = SPLITS.filter(s=>S.split[s.k]===1), b = SPLITS.filter(s=>S.split[s.k]===0);
+  const rest = SPLITS.filter(s=>S.split[s.k]===undefined);
+  const tag = (s,c) => '<button class="tag '+c+'" onclick="act(\'unsplit\',\''+s.k+'\')">'+s.n+'</button>';
+  const cards = rest.map(s=>
+    '<div class="pickcard"><div class="pi">📄</div>'+
+    '<div class="pt"><b>'+s.n+'</b><em>이건 어느 쪽일까요?</em></div>'+
+    '<div class="bstep"><button onclick="act(\'split\',\''+s.k+'\',1)">반반</button>'+
+    '<button onclick="act(\'split\',\''+s.k+'\',0)">각자</button></div></div>').join('');
+  $('main').innerHTML =
+    '<div class="h2">🤝 무엇을 반씩 나눌까요?</div>'+
+    '<div class="hint">둘이 살면 <b>같이 내도 되는 것</b>과 <b>각자 내야 맞는 것</b>이 섞여요.<br>'+
+    '여덟 개를 다 나눈 뒤에 <b>한 번에</b> 봐요. 놓는 동안에는 맞았는지 알려 주지 않아요.</div>'+
+    '<div class="bins">'+
+      '<div class="bin a"><h5>🤝 반씩 나눈다</h5><div class="tagwrap">'+
+        (a.map(s=>tag(s,'a')).join('') || '<span style="font-size:12px;color:#9fadba">여기로</span>')+'</div></div>'+
+      '<div class="bin b"><h5>🙋 각자 낸다</h5><div class="tagwrap">'+
+        (b.map(s=>tag(s,'b')).join('') || '<span style="font-size:12px;color:#9fadba">여기로</span>')+'</div></div>'+
+    '</div>'+
+    '<div class="hint" style="margin-top:4px">칸에 있는 것을 누르면 다시 꺼낼 수 있어요.</div>'+
+    cards +
+    '<div class="pickcard'+(S.split.market?' on':'')+'" onclick="act(\'market\')" style="cursor:pointer">'+
+      '<div class="pi">🛒</div><div class="pt"><b>장은 같이 볼까요?</b>'+
+      '<em>한 사람이 몰아서 사고 나눠 먹어요. 대신 메뉴를 맞춰야 해요.</em></div>'+
+      '<div class="pp">'+(S.split.market?'같이':'따로')+'</div></div>'+
+    '<button class="btn'+(rest.length?' off':'')+'" onclick="act(\'toBudget\')">예산 짜러 →</button>'+
+    '<button class="btn gray sm" onclick="act(\'stages\')">← 판 고르기</button>';
+}
+
+function renderFamily(){
+  const cards = FAMILY.map(f=>{
+    const cut = S.cut===f.k;
+    return '<button class="pickcard'+(cut?' on':'')+'" onclick="act(\'cut\',\''+f.k+'\')">'+
+      '<div class="pi">'+f.i+'</div>'+
+      '<div class="pt"><b>'+f.n+' · '+f.need+'</b>'+
+      '<em>'+(cut? '<b style="color:var(--pri2)">이걸 줄이기로 했어요</b>' : '눌러서 이걸 줄일 수 있어요')+'</em></div>'+
+      '<div class="pp">'+f.cost+'만<small>달마다</small></div></button>';
+  }).join('');
+  const all = FAMILY.reduce((a,f)=>a+f.cost,0);
+  const now = FAMILY.reduce((a,f)=>a + (f.k===S.cut?0:f.cost), 0);
+  $('main').innerHTML =
+    '<div class="h2">👪 식구들의 「이건 못 버려」</div>'+
+    '<div class="hint">넷을 다 지키면 달마다 <b>'+all+'만원</b>이 들어요. <b>하나는 줄여야 해요.</b><br>'+
+    '무엇을 줄일지는 <b>한 달 살아 보면</b> 알게 돼요.</div>'+ cards +
+    '<div class="rev"><h4>지금 식구를 위해 나가는 돈</h4><p><b>'+won(now)+'</b>'+
+      (S.cut? ' — '+FAMILY.find(f=>f.k===S.cut).n+'의 것을 줄였어요.' : ' — 아직 아무것도 안 줄였어요.')+'</p></div>'+
+    '<button class="btn" onclick="act(\'toBudget\')">예산 짜러 →</button>'+
+    '<button class="btn gray sm" onclick="act(\'stages\')">← 판 고르기</button>';
+}
+
+function renderBudget(){
+  const st = ST(), left = budgetLeft();
+  let out = '', lastGrp = '';
+  rowsOf().forEach(r=>{
+    if(r.grp && r.grp !== lastGrp){ out += '<div class="gsep">🔒 '+r.grp+'</div>'; lastGrp = r.grp; }
+    if(r.lock){
+      out += '<div class="brow lock"><div class="bi">'+r.i+'</div>'+
+        '<div class="bn"><b>'+r.n+'</b><em>'+r.e+'</em></div>'+
+        '<div class="lockv">'+won(S.budget[r.k])+'</div></div>';
+    }else{
+      out += '<div class="brow"><div class="bi">'+r.i+'</div>'+
+        '<div class="bn"><b>'+r.n+'</b><em>'+r.e+'</em></div>'+
+        '<div class="bstep"><button onclick="act(\'bm\',\''+r.k+'\')">－</button>'+
+        '<span class="bv">'+S.budget[r.k]+'만</span>'+
+        '<button onclick="act(\'bp\',\''+r.k+'\')">＋</button></div></div>';
+    }
+  });
+  const fixSum = rowsOf().filter(r=>r.lock).reduce((a,r)=>a+S.budget[r.k],0);
+  $('main').innerHTML =
+    '<div class="h2">📒 한 달 예산을 짜요</div>'+
+    '<div class="hint">한 달에 들어오는 돈은 <b>'+won(st.income)+'</b>이에요. 5만원씩 움직여요.<br>'+
+    '회색 칸 <b>'+won(fixSum)+'</b>은 <b>줄일 수 없는 돈</b>이에요 — 안 쓴다고 안 나가지 않아요.</div>'+
+    out +
+    '<div class="rev" style="'+(left<0?'border-color:var(--bad)':'')+'">'+
+      '<h4>아직 안 정한 돈</h4><p><b style="font-size:16px">'+won(left)+'</b>'+
+      (left<0? ' — <b style="color:var(--bad)">수입보다 많아요.</b> 어딘가를 줄여야 해요.'
+             : (left>0? ' — 남겨 두면 그냥 지갑에 있어요.' : ' — 딱 맞췄어요.'))+'</p></div>'+
+    '<button class="btn'+(left<0?' off':'')+'" onclick="act(\'run\')">한 달 살아 보기 ▶</button>'+
+    '<button class="btn gray sm" onclick="act(\'back\')">← 앞으로 돌아가기</button>';
+}
+
+function renderRun(){
+  const N = S.book.length;
+  let bars = '';
+  for(let i=0;i<N;i++){
+    const done = i < S.day, big = S.book[i].ev.length;
+    bars += '<i class="'+(done ? (big?'e':'p') : '')+'"></i>';
+  }
+  const rows = S.log.slice().reverse().map(l=>
+    '<div class="lg '+(l.cls||'')+'"><div class="lt">'+l.d+'일</div>'+
+    '<div class="li">'+l.i+'</div><div class="lx">'+l.n+'</div>'+
+    (l.cost ? '<div class="lc '+(l.cost>0?'in':'out')+'">'+(l.cost>0?'+':'')+won(l.cost)+'</div>'
+            : (l.spare? '<div class="lc out">−'+won(l.spare)+'</div>' : ''))+'</div>').join('');
+  $('main').innerHTML =
+    '<div class="h2">▶ '+(ST().months>1?'두 달':'한 달')+'을 살아 봐요</div>'+
+    '<div class="tl">'+bars+'</div>'+
+    '<div class="logs">'+rows+'</div>';
+}
+
+function renderResult(){
+  const r = S.res, st = ST(), n = needs(), b = S.budget;
+  const head = r.ok
+    ? '<div class="resbox"><div class="rt">'+(st.months>1?'두 달':'한 달')+'을</div>'+
+      '<div class="rv">버텼어요!</div>'+
+      '<div class="stars">'+'★★★'.slice(0,r.stars)+'<span style="color:#d8e0e8">'+'☆☆☆'.slice(0,3-r.stars)+'</span></div>'+
+      '<div class="rd">남은 돈 '+won(r.left)+' · 저축 '+won(r.save)+' · 비상금 '+won(r.spare)+'</div></div>'
+    : '<div class="resbox fail"><div class="rt">'+r.day+'일째</div>'+
+      '<div class="rv">막혔어요</div>'+
+      '<div class="rd">'+(r.evi||'')+' '+(r.evn||'')+'</div></div>';
+
+  const WHY = {
+    money:'<b>쓸 돈이 다 떨어졌어요.</b> 저축과 비상금을 너무 많이 떼어 놓으면 달 중간에 이런 일이 나요. '+
+          '<b>큰돈은 월초에 나가고 월급은 다음 달에 들어와요.</b>',
+    food:'<b>식비를 실제로 드는 것보다 적게 잡았어요.</b> 이번 달에 들어간 식비는 '+won(n.food)+'인데 '+won(b.food)+'만 잡았어요.'+
+         (S.stage===0 && (!has('fridge')||!has('cook')||!has('rice'))
+          ? ' <b>부엌 살림이 없으면 식비가 늘어요</b> — 사 먹거나 그날 먹을 것만 사게 되거든요.' : ''),
+    road:'<b>차비가 모자랐어요.</b> 이 집에서 다니려면 '+won(n.road)+'이 들어요.',
+    fun:'<b>문화·사람 만나기를 0으로 두었어요.</b> 돈은 아꼈지만 한 달 내내 아무도 만나지 않았어요. '+
+        '교과서 107쪽이 말해요 — <b>「무조건 아끼는 것이 최선은 아니랍니다.」</b>',
+    family: S.cut ? '<b>'+FAMILY.find(f=>f.k===S.cut).n+'의 '+FAMILY.find(f=>f.k===S.cut).need+'</b>을(를) 줄였어요.<br>'+
+            FAMILY.find(f=>f.k===S.cut).w : '',
+  };
+  let body = '';
+  if(!r.ok) body += '<div class="rev"><h4>왜 막혔나요?</h4><p>'+(WHY[r.why]||WHY.money)+'</p></div>';
+
+  /* 예산과 실제가 어긋난 자리 — 폴리 브리지가 부러진 부재를 보여 주는 자리다 */
+  const gaps = [];
+  if(n.util > b.util) gaps.push('공과금을 '+won(b.util)+'으로 잡았는데 <b>'+won(n.util)+'</b>이 나왔어요');
+  if(n.life > b.life) gaps.push('생활용품을 '+won(b.life)+'으로 잡았는데 <b>'+won(n.life)+'</b>이 들었어요');
+  if(n.food > b.food) gaps.push('식비가 실제로는 <b>'+won(n.food)+'</b> 들어요');
+  if(gaps.length) body += '<div class="rev"><h4>계획과 달랐던 것</h4><p>'+gaps.join('<br>')+'</p></div>';
+
+  if(S.stage===0){
+    const miss = [];
+    if(!has('fridge')) miss.push('냉장고(35만)가 없어 <b>식비가 달마다 10만</b> 더 들었어요 — <b>넉 달이면 냉장고 값</b>이에요');
+    if(!has('cook'))   miss.push('인덕션(8만)이 없어 <b>식비가 달마다 5만</b> 더 들었어요');
+    if(!has('rice'))   miss.push('밥솥(8만)이 없어 <b>식비가 달마다 5만</b> 더 들었어요');
+    if(!has('wash'))   miss.push('세탁기(40만)가 없어 빨래방에 <b>달마다 5만</b>을 썼어요');
+    else if(!has('dry')) miss.push('건조대(2만)가 없어 빨래를 맡기느라 <b>달마다 5만</b>을 썼어요');
+    if(miss.length) body += '<div class="rev"><h4>안 산 물건이 돌아온 자리</h4><p>'+miss.join('<br>')+'</p></div>';
+    const idle = ['micro','desk','shelf','curtain','vac','table','tv','aircon'].filter(k=>has(k));
+    if(r.ok && idle.length>=3) body += '<div class="rev"><h4>이번 달에 없어도 됐던 것</h4><p>'+
+      idle.map(k=>STUFF.find(s=>s.k===k).n).join(' · ')+' — <b>'+
+      won(idle.reduce((a,k)=>a+STUFF.find(s=>s.k===k).p,0))+'</b>어치예요. '+
+      '<b>나쁜 선택이라는 뜻은 아니에요</b> — 다만 <b>지금 꼭 필요했는지</b>는 한 번 생각해 볼 만해요.</p></div>';
+  }
+  if(S.stage===1){
+    const wrong = SPLITS.filter(s=>S.split[s.k]!==s.share);
+    body += '<div class="rev"><h4>나누기 채점</h4><p>'+
+      (wrong.length===0 ? '여덟 개를 <b>다 맞게</b> 갈랐어요.'
+        : '<b>'+wrong.length+'개</b>가 어긋났어요.<br>'+
+          wrong.map(s=>'· <b>'+s.n+'</b> — '+s.w).join('<br>'))+'</p></div>';
+  }
+  if(S.stage===2 || S.stage===3){
+    body += '<div class="rev"><h4>줄인 자리</h4><p>'+
+      (S.cut ? FAMILY.find(f=>f.k===S.cut).n+'의 <b>'+FAMILY.find(f=>f.k===S.cut).need+'</b>('+
+        FAMILY.find(f=>f.k===S.cut).kind+')<br>'+FAMILY.find(f=>f.k===S.cut).w
+             : '아무것도 줄이지 않았어요.')+'</p></div>';
+  }
+  if(S.stage===3 && r.ok){
+    body += '<div class="quote">🏢 <b>아파트는 쓰리룸과 같은 가족, 같은 수입이었어요.</b><br>'+
+      '집만 커졌는데 달마다 <b>'+won((120+25) - (95+15) + 5)+'</b>이 더 나갔어요.<br>'+
+      '<b>그래서 넓은 집이 더 나은 집일까요?</b> 정답은 없어요. 골라 보세요.</div>';
+  }
+  if(r.ok && r.stars < 3){
+    const miss = [];
+    if(!(b.save >= st.goalSave)) miss.push('저축 '+won(st.goalSave)+' 이상');
+    if(!(S.usedSpare===0 && b.spare >= st.goalSpare)) miss.push('비상금 '+won(st.goalSpare)+'을 <b>안 쓰고</b> 남기기');
+    body += '<div class="rev"><h4>별을 더 받으려면</h4><p>'+miss.join('<br>')+'</p></div>';
+  }
+  if(r.ok && S.usedSpare>0)
+    body += '<div class="rev"><h4>🧯 비상금이 일한 날</h4><p>지갑이 비었을 때 비상금 <b>'+won(r.usedSpare)+
+      '</b>이 대신 나갔어요. <b>비상금이 없었다면 거기서 막혔어요.</b></p></div>';
+
+  const nextIdx = S.stage+1;
+  $('main').innerHTML = head + body +
+    (r.ok
+      ? (nextIdx<4 ? '<button class="btn" onclick="act(\'stage\','+nextIdx+')">'+(nextIdx+1)+'판 · '+STAGES[nextIdx].n+' →</button>'
+                   : '<button class="btn" onclick="act(\'final\')">마지막 이야기 →</button>')
+      : '<button class="btn" onclick="act(\'fix\')">고치러 가기 →</button>')+
+    '<button class="btn gray sm" onclick="act(\'stages\')">판 고르기로</button>';
+}
+
+function renderFinal(){
+  const total = S.stars.reduce((a,b)=>a+b,0);
+  $('main').innerHTML =
+    '<div class="h2">🏁 네 집을 다 살아 봤어요</div>'+
+    '<div class="resbox"><div class="rt">모은 별</div><div class="rv">'+total+' / 12</div>'+
+    '<div class="rd">'+STAGES.map((st,i)=>(i+1)+'판 '+('★★★'.slice(0,S.stars[i])||'—')).join(' · ')+'</div></div>'+
+    '<div class="quote">💭 집이 커질수록 <b>나가는 돈</b>도 같이 커졌어요.<br><br>'+
+      '<b>돈을 관리한다는 것은 줄이는 것이 아니라 어디에 놓을지 고르는 것이에요.</b><br><br>'+
+      '문화비를 0으로 두면 돈은 남았지만 한 달 내내 아무도 만나지 못했고,<br>'+
+      '냉장고를 안 사면 그달은 아꼈지만 넉 달이면 냉장고 값을 식비로 썼어요.<br><br>'+
+      '교과서 107쪽이 이렇게 말해요 —<br>'+
+      '<b>「무조건 아끼는 것이 최선은 아니랍니다. 상황에 따라 생활 자원을 합리적으로 사용해야 합니다.」</b></div>'+
+    '<div class="h2" style="margin-top:16px">✍️ 마지막 한 가지</div>'+
+    '<div class="hint">네 판을 살아 보면서 <b>내가 가장 끝까지 못 버렸던 것</b>은 무엇이었나요? 하나만 적어요.</div>'+
+    '<textarea id="wish" rows="3" placeholder="예) 문화비를 0으로 두면 한 달이 너무 힘들어서 끝까지 못 버렸다" oninput="act(\'wish\')">'+(S.wish||'')+'</textarea>'+
+    '<button class="btn gray sm" onclick="act(\'stages\')">판 고르기로</button>'+
+    '<div class="foot">실과 5학년 6단원 「나의 생활 자원 관리」 · 교과서 90~107쪽</div>';
+  const w = $('wish'); if(w) w.value = S.wish||'';
+}
+
+function renderAll(){
+  renderTop();
+  const f = {title:renderTitle, stages:renderStages, intro:renderIntro, home:renderHome,
+    stuff:renderStuff, split:renderSplit, family:renderFamily, budget:renderBudget,
+    run:renderRun, result:renderResult, final:renderFinal}[S.phase];
+  (f||renderTitle)();
+}
+
+/* ── 모달 ─────────────────────────────────────────────────── */
+function openM(html){ $('modal').hidden=false; $('mbox').innerHTML=html; }
+function closeM(){ $('modal').hidden=true; $('mbox').innerHTML=''; }
+$('modal').addEventListener('click', e=>{ if(e.target.id==='modal') closeM(); });
+
+/* ── 동작 ─────────────────────────────────────────────────── */
+function firstPick(){ return ST().pick[0]; }
+function act(a, x, y){
+  switch(a){
+    case 'go': SND.tap(); S.opened=1; S.phase='stages'; save(); renderAll(); window.scrollTo(0,0); break;
+    case 'stages': SND.tap(); S.phase='stages'; save(); renderAll(); window.scrollTo(0,0); break;
+    case 'stage': {
+      SND.tap(); S.stage = x;
+      /* 판을 새로 열면 그 판의 설계만 비운다 — 다른 판의 결과는 그대로 둔다 */
+      S.home=null; S.bought=[]; S.split={}; S.cut=null; S.budget=null; S.res=null;
+      S.acc = STAGES[x].accident ? Math.floor(Math.random()*ACCIDENTS.length) : null;
+      S.phase='intro'; save(); renderAll(); window.scrollTo(0,0); break;
+    }
+    case 'begin': SND.tap(); S.phase = firstPick(); save(); renderAll(); window.scrollTo(0,0); break;
+    case 'home': SND.put(); S.home = x; save(); renderAll(); break;
+    case 'toStuff':
+      if(!S.home){ toast('먼저 집을 고르세요'); SND.no(); return; }
+      SND.tap(); S.phase='stuff'; save(); renderAll(); window.scrollTo(0,0); break;
+    case 'buy': {
+      const s = STUFF.find(v=>v.k===x), h = homeOf();
+      if(has(x)){ S.bought = S.bought.filter(k=>k!==x); SND.tap(); }
+      else{
+        if(S.bought.length >= h.room){ toast('이 집에는 '+h.room+'개까지만 들어가요'); SND.no(); return; }
+        if(boughtSum() + s.p > ST().setup){ toast('꾸밀 돈이 모자라요'); SND.no(); return; }
+        S.bought.push(x); SND.put();
+      }
+      save(); renderAll(); break;
+    }
+    case 'split': SND.put(); S.split[x] = y; save(); renderAll(); break;
+    case 'unsplit': SND.tap(); delete S.split[x]; save(); renderAll(); break;
+    case 'market': SND.coin(); S.split.market = !S.split.market; save(); renderAll(); break;
+    case 'cut': SND.put(); S.cut = (S.cut===x ? null : x); save(); renderAll(); break;
+    case 'toBudget': {
+      if(S.phase==='split' && SPLITS.some(s=>S.split[s.k]===undefined)){
+        toast('여덟 개를 다 나눠 주세요'); SND.no(); return;
+      }
+      SND.tap();
+      const b = budgetFresh();
+      if(S.budget){ ['food','road','util','life','ins','fun','save','spare'].forEach(k=>b[k]=S.budget[k]); }
+      S.budget = b; S.phase='budget'; save(); renderAll(); window.scrollTo(0,0); break;
+    }
+    case 'bp': case 'bm': {
+      const d = (a==='bp') ? 5 : -5;
+      const v = S.budget[x] + d;
+      if(v < 0){ SND.no(); return; }
+      if(d>0 && budgetLeft() < 5){ toast('남은 돈이 모자라요'); SND.no(); return; }
+      S.budget[x] = v; SND.coin(); save(); renderAll(); break;
+    }
+    case 'run':
+      if(budgetLeft() < 0){ toast('수입보다 많이 짰어요'); SND.no(); return; }
+      SND.tap(); startRun(); window.scrollTo(0,0); break;
+    case 'fix': SND.tap(); S.phase='budget'; S.res=null; save(); renderAll(); window.scrollTo(0,0); break;
+    case 'back': {
+      SND.tap();
+      const p = ST().pick;
+      if(S.phase==='budget') S.phase = p[p.length-1];
+      else if(S.phase==='stuff') S.phase = 'home';
+      else S.phase = 'stages';
+      save(); renderAll(); window.scrollTo(0,0); break;
+    }
+    case 'final': SND.ok(); S.phase='final'; save(); renderAll(); window.scrollTo(0,0); break;
+    case 'wish': { const w=$('wish'); if(w){ S.wish=w.value; save(); } break; }
+    case 'menu': SND.tap(); openM(
+      '<div class="mtitle">⋯ 설정</div>'+
+      '<div class="mdesc">'+(S.stage+1)+'판 '+ST().n+' · 모은 별 '+S.stars.reduce((a,b)=>a+b,0)+'개</div>'+
+      '<button class="btn gray sm" onclick="closeM()">돌아가기</button>'+
+      '<button class="btn gray sm" onclick="act(\'stages\');closeM()">판 고르기로</button>'+
+      '<button class="btn gray sm" onclick="act(\'wipe\')">처음부터 다시 하기</button>'); break;
+    case 'qrbig': SND.tap(); qrBig(); break;
+    case 'wipe':
+      wiping = true;
+      try{ localStorage.removeItem(KEY); }catch(e){}
+      S = fresh(); wiping = false; closeM(); save(); renderAll(); window.scrollTo(0,0); break;
+  }
+}
+
+/* ── QR — 배포 주소가 정해진 뒤 SVG 를 이 자리에 끼운다.
+   외부 QR 서비스를 부르지 말 것(학교 방화벽에 걸린다). 파일 이름을 바꾸면 다시 만들 것. */
+const QR = /*QR_INJECT*/"";
+function qrBig(){
+  const src = document.querySelector('#qrbtn svg'); if(!src) return;
+  const o = document.createElement('div');
+  o.style.cssText = 'position:fixed;inset:0;z-index:200;background:rgba(20,28,38,.93);'+
+    'display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:20px';
+  const c = src.cloneNode(true);
+  c.style.cssText = 'width:min(78vw,460px);height:min(78vw,460px);background:#fff;padding:14px;border-radius:14px';
+  const t = document.createElement('div');
+  t.style.cssText = 'color:#fff;font-size:14px;font-weight:700;text-align:center;line-height:1.6';
+  t.innerHTML = '폰 카메라로 찍으세요<br><span style="font-size:11px;opacity:.7">아무 데나 누르면 닫혀요</span>';
+  o.appendChild(c); o.appendChild(t);
+  o.onclick = ()=>o.remove();
+  document.body.appendChild(o);
+}
+
+/* ── 시작 ─────────────────────────────────────────────────── */
+/* 살아 보는 중에 앱이 닫혔다면 예산 화면으로 되돌린다 — 반쯤 굴러간 장부는 버린다 */
+if(S.phase==='run') S.phase = S.budget ? 'budget' : 'stages';
+if((S.phase==='budget' && !S.budget) || (S.phase==='result' && !S.res)) S.phase='stages';
+renderAll();
+document.addEventListener('visibilitychange', ()=>{ if(document.hidden) save(); });
+window.addEventListener('beforeunload', save);
+</script>
+</body>
+</html>

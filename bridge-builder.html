@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>다리 놓는 사람들</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{
+  font-family:'Noto Sans KR',sans-serif;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;-webkit-user-select:none;
+  background:#0e1726;color:#e8eef7;
+}
+:root{
+  --bg:#0e1726; --panel:#17243a; --panel2:#1f3050; --line:#2c4269;
+  --ink:#e8eef7; --muted:#8fa3c0;
+  --road:#f0c86a; --wood:#c98b52; --steel:#9fb6d4; --cable:#7fd8c8;
+  --ok:#5ad18a; --bad:#ff6b6b; --gold:#ffd24a;
+}
+canvas{display:block;position:absolute;inset:0;width:100%;height:100%}
+
+/* ---------- 공통 버튼 ---------- */
+.btn{
+  min-height:48px;padding:10px 18px;border:2px solid var(--line);border-radius:12px;
+  background:var(--panel2);color:var(--ink);font-family:inherit;font-size:16px;font-weight:700;
+  cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;
+}
+.btn:active{transform:translateY(1px)}
+.btn.primary{background:var(--ok);border-color:#3fae6d;color:#06301a}
+.btn.warn{background:var(--gold);border-color:#c79c17;color:#3a2b00}
+.btn.ghost{background:transparent}
+.btn[disabled]{opacity:.38}
+
+/* ---------- 화면 ---------- */
+.screen{position:absolute;inset:0;display:none;flex-direction:column;z-index:5}
+.screen.on{display:flex}
+
+/* 타이틀 */
+#title{align-items:center;justify-content:center;text-align:center;
+  background:radial-gradient(ellipse at 50% 35%,#24406b 0%,#0e1726 70%);overflow-y:auto;padding:24px}
+#title h1{font-size:44px;font-weight:900;letter-spacing:-1px;margin-bottom:6px}
+#title .sub{color:var(--muted);font-size:17px;margin-bottom:6px}
+#title .unit{color:#6f86a8;font-size:14px;margin-bottom:26px}
+#title .rowb{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+
+/* 판 고르기 */
+#pick{background:var(--bg)}
+.topbar{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--panel);
+  border-bottom:2px solid var(--line);flex:0 0 auto}
+.topbar h2{font-size:19px;font-weight:900;flex:1}
+#pickBody{flex:1;overflow-y:auto;padding:14px 14px 40px}
+.world{margin-bottom:22px}
+.world h3{font-size:16px;color:var(--gold);margin-bottom:4px;font-weight:900}
+.world p{font-size:13px;color:var(--muted);margin-bottom:10px;line-height:1.5}
+.lv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:10px}
+.lv{background:var(--panel);border:2px solid var(--line);border-radius:14px;padding:11px 12px;cursor:pointer;
+  display:flex;flex-direction:column;gap:5px;min-height:92px}
+.lv:active{transform:translateY(1px)}
+.lv .n{font-size:12px;color:var(--muted);font-weight:700}
+.lv .t{font-size:15px;font-weight:700;line-height:1.3;flex:1}
+.lv .s{font-size:15px;letter-spacing:2px;color:#40506b}
+.lv .s b{color:var(--gold);font-weight:400}
+.lv.locked{opacity:.4;cursor:default}
+.lv.clear{border-color:#3d6b52;background:#162a20}
+
+/* 게임 */
+#game{background:#0e1726}
+#hud{position:absolute;top:0;left:0;right:0;z-index:6;display:flex;align-items:center;gap:8px;
+  padding:8px 10px;background:linear-gradient(#0e1726f0,#0e172600);pointer-events:none}
+#hud>*{pointer-events:auto}
+#hud .name{font-size:15px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#hud .flex{flex:1;min-width:0}
+.money{font-size:15px;font-weight:900;font-variant-numeric:tabular-nums;
+  background:#17243ad9;border:2px solid var(--line);border-radius:10px;padding:6px 10px;white-space:nowrap}
+.money.over{border-color:var(--bad);color:var(--bad)}
+.icon{min-height:40px;min-width:40px;padding:6px 10px;font-size:18px;border-radius:10px;
+  border:2px solid var(--line);background:#17243ad9;color:var(--ink);font-family:inherit;cursor:pointer}
+
+#tools{position:absolute;left:0;right:0;bottom:0;z-index:6;display:flex;gap:7px;padding:9px 10px;
+  background:linear-gradient(#0e172600,#0e1726e8 32%);align-items:flex-end;flex-wrap:wrap;justify-content:center}
+.mat{min-height:52px;border:3px solid var(--line);border-radius:13px;background:var(--panel);
+  color:var(--ink);font-family:inherit;padding:6px 12px;cursor:pointer;display:flex;flex-direction:column;
+  align-items:center;gap:2px;min-width:74px}
+.mat .mn{font-size:14px;font-weight:900}
+.mat .mc{font-size:11px;color:var(--muted);font-weight:700}
+.mat.on{background:var(--panel2)}
+.mat[data-m="road"].on{border-color:var(--road)}  .mat[data-m="road"] .mn{color:var(--road)}
+.mat[data-m="wood"].on{border-color:var(--wood)}  .mat[data-m="wood"] .mn{color:var(--wood)}
+.mat[data-m="steel"].on{border-color:var(--steel)}.mat[data-m="steel"] .mn{color:var(--steel)}
+.mat[data-m="cable"].on{border-color:var(--cable)}.mat[data-m="cable"] .mn{color:var(--cable)}
+.mat[data-m="erase"].on{border-color:var(--bad)}  .mat[data-m="erase"] .mn{color:var(--bad)}
+
+/* 말풍선 안내 */
+#toast{position:absolute;left:50%;top:54px;transform:translateX(-50%);z-index:8;
+  background:#0b1220ee;border:2px solid var(--line);border-radius:12px;padding:9px 15px;
+  font-size:14px;font-weight:700;max-width:88%;text-align:center;display:none;line-height:1.5}
+#toast.on{display:block}
+
+/* 힘 범례 */
+#legend{position:absolute;right:10px;top:58px;z-index:6;background:#0b1220e8;border:2px solid var(--line);
+  border-radius:12px;padding:9px 11px;font-size:12px;line-height:1.8;display:none}
+#legend.on{display:block}
+#legend i{display:inline-block;width:20px;height:5px;border-radius:3px;vertical-align:middle;margin-right:6px}
+
+/* 모달 */
+.modal{position:absolute;inset:0;z-index:20;background:#060b14cc;display:none;
+  align-items:center;justify-content:center;padding:20px}
+.modal.on{display:flex}
+.card{background:var(--panel);border:3px solid var(--line);border-radius:20px;padding:22px;
+  max-width:560px;width:100%;max-height:88%;overflow-y:auto}
+.card h3{font-size:23px;font-weight:900;margin-bottom:12px}
+.card p{font-size:15px;line-height:1.75;color:#cfdcee;margin-bottom:11px}
+.card p b{color:var(--gold)}
+.card .stars{font-size:38px;text-align:center;letter-spacing:6px;color:#3a4a66;margin:6px 0 12px}
+.card .stars b{color:var(--gold);font-weight:400}
+.card .rowb{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:16px}
+.card ul{margin:0 0 12px 20px}
+.card li{font-size:15px;line-height:1.7;color:#cfdcee;margin-bottom:5px}
+.note{background:#0f1a2c;border-left:4px solid var(--gold);border-radius:0 10px 10px 0;
+  padding:11px 14px;font-size:14px;line-height:1.7;color:#cfdcee;margin-bottom:12px}
+.mini{font-size:13px;color:var(--muted);line-height:1.7}
+
+/* QR — 태블릿 카메라로 찍어서 여는 자리. 작게 줄이지 말 것(교실 뒤에서도 찍는다) */
+#qrBox{margin-top:30px;display:flex;flex-direction:column;align-items:center;gap:9px}
+#qrBox .qr{width:232px;height:232px;background:#fff;border-radius:16px;padding:12px;
+  border:4px solid var(--panel2);box-shadow:0 8px 28px #0006}
+#qrBox .qr svg{display:block;width:100%;height:auto}
+#qrBox .cap{font-size:15px;font-weight:700;color:#cfdcee}
+#qrBox .url{font-size:12px;color:#6f86a8;word-break:break-all;max-width:280px}
+@media (max-height:620px){ #qrBox .qr{width:150px;height:150px;padding:8px} #qrBox{margin-top:16px} }
+</style>
+</head>
+<body>
+
+<!-- ===================== 타이틀 ===================== -->
+<div class="screen on" id="title">
+  <div>
+    <h1>다리 놓는 사람들</h1>
+    <div class="sub">예산 안에서 다리를 놓고, 차를 건너보낸다</div>
+    <div class="unit">실과 5. 건설과 디지털 기술 · 20판</div>
+    <div class="rowb">
+      <button class="btn primary" onclick="goPick()">시작하기</button>
+      <button class="btn ghost" onclick="openHow()">어떻게 하나요</button>
+    </div>
+    <div class="unit" style="margin:18px 0 0">태블릿은 <b>가로로 눕혀서</b> 하면 다리가 크게 보인다</div>
+    <div id="qrBox">
+    <div class="qr"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 47 47" shape-rendering="crispEdges"><path fill="#ffffff" d="M0 0h47v47H0z"/><path stroke="#000000" d="M1 1.5h7m1 0h4m2 0h3m1 0h1m1 0h1m1 0h1m1 0h2m1 0h5m1 0h1m2 0h1m1 0h7M1 2.5h1m5 0h1m1 0h1m2 0h3m3 0h2m1 0h2m3 0h3m1 0h1m2 0h1m2 0h1m2 0h1m5 0h1M1 3.5h1m1 0h3m1 0h1m1 0h1m4 0h1m2 0h2m1 0h3m1 0h1m2 0h2m5 0h1m1 0h1m2 0h1m1 0h3m1 0h1M1 4.5h1m1 0h3m1 0h1m2 0h1m3 0h1m1 0h2m2 0h1m1 0h2m2 0h8m2 0h2m1 0h1m1 0h3m1 0h1M1 5.5h1m1 0h3m1 0h1m2 0h1m1 0h1m3 0h3m1 0h6m2 0h4m1 0h1m1 0h3m1 0h1m1 0h3m1 0h1M1 6.5h1m5 0h1m1 0h3m2 0h2m1 0h1m1 0h3m3 0h1m1 0h1m1 0h2m1 0h3m4 0h1m5 0h1M1 7.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M9 8.5h1m3 0h1m2 0h2m2 0h2m3 0h2m1 0h1m2 0h1m1 0h1m1 0h2M3 9.5h3m1 0h1m1 0h1m1 0h2m2 0h3m1 0h1m1 0h6m1 0h1m3 0h1m2 0h1m2 0h3m2 0h3M1 10.5h1m4 0h1m1 0h1m2 0h4m2 0h1m1 0h1m2 0h6m2 0h3m1 0h1m1 0h3m1 0h4m1 0h1M4 11.5h2m1 0h3m1 0h1m1 0h3m1 0h3m1 0h2m1 0h1m1 0h1m5 0h1m1 0h3m2 0h1m1 0h1m1 0h1M3 12.5h1m6 0h3m1 0h4m1 0h7m2 0h1m4 0h1m2 0h2m2 0h4M1 13.5h2m1 0h2m1 0h1m1 0h1m2 0h1m4 0h4m1 0h1m2 0h2m2 0h4m3 0h1m8 0h1M1 14.5h6m1 0h1m2 0h3m1 0h1m1 0h1m1 0h2m1 0h1m2 0h2m1 0h1m1 0h2m4 0h3m1 0h2m2 0h2M3 15.5h3m1 0h1m3 0h3m2 0h1m5 0h8m2 0h5m1 0h3m2 0h2M3 16.5h1m1 0h2m1 0h2m1 0h1m3 0h1m1 0h2m1 0h4m2 0h3m2 0h1m1 0h1m2 0h1m3 0h4M7 17.5h1m4 0h1m2 0h7m2 0h9m1 0h1m7 0h1m2 0h1M1 18.5h2m2 0h2m1 0h2m7 0h2m3 0h2m1 0h2m2 0h1m1 0h3m2 0h3m1 0h2m3 0h1M1 19.5h1m2 0h1m1 0h3m4 0h1m2 0h2m2 0h1m1 0h1m1 0h2m1 0h1m1 0h4m1 0h2m1 0h1m1 0h1m1 0h4M3 20.5h1m1 0h1m3 0h2m1 0h2m2 0h2m1 0h1m1 0h1m3 0h1m1 0h1m1 0h2m2 0h1m5 0h1m1 0h3M1 21.5h1m1 0h1m1 0h5m2 0h2m5 0h7m3 0h1m2 0h1m4 0h6m1 0h2M2 22.5h1m2 0h1m3 0h3m2 0h8m3 0h6m1 0h1m1 0h1m1 0h2m3 0h3m1 0h1M1 23.5h2m1 0h2m1 0h1m1 0h2m1 0h2m1 0h3m1 0h3m1 0h1m1 0h1m3 0h1m1 0h2m1 0h2m1 0h1m1 0h1m1 0h4M2 24.5h4m3 0h1m1 0h1m3 0h4m1 0h2m3 0h8m2 0h1m1 0h1m3 0h5M1 25.5h1m1 0h7m1 0h2m8 0h7m6 0h1m2 0h5m3 0h1M1 26.5h4m3 0h2m2 0h2m2 0h1m2 0h1m1 0h3m2 0h1m1 0h2m2 0h1m1 0h1m1 0h3m3 0h1m2 0h1M1 27.5h1m1 0h1m1 0h3m2 0h1m6 0h2m3 0h1m1 0h1m2 0h1m3 0h1m2 0h1m1 0h3m3 0h1m1 0h1M2 28.5h2m1 0h2m2 0h2m1 0h2m1 0h2m1 0h2m2 0h1m1 0h1m1 0h4m1 0h3m1 0h2m2 0h1m1 0h3M1 29.5h1m1 0h1m2 0h2m2 0h2m1 0h5m5 0h1m4 0h1m1 0h3m2 0h1m1 0h1m1 0h1m1 0h1m2 0h2M1 30.5h3m1 0h2m1 0h1m1 0h2m1 0h1m1 0h6m1 0h9m2 0h1m4 0h1m3 0h4M1 31.5h1m2 0h8m1 0h3m4 0h1m1 0h2m10 0h2m1 0h2m1 0h1m1 0h3M2 32.5h4m4 0h1m7 0h2m2 0h1m3 0h1m1 0h1m4 0h1m1 0h2m2 0h1m2 0h4M2 33.5h3m2 0h1m1 0h2m2 0h3m2 0h1m1 0h1m1 0h1m3 0h1m1 0h3m1 0h1m1 0h1m2 0h1m1 0h4m1 0h2M1 34.5h1m1 0h3m4 0h3m3 0h1m4 0h1m3 0h1m1 0h4m1 0h3m5 0h1m1 0h2m1 0h1M5 35.5h1m1 0h1m2 0h1m3 0h1m2 0h1m1 0h1m1 0h2m1 0h3m3 0h1m1 0h4m1 0h2m1 0h2m1 0h2M2 36.5h4m4 0h1m1 0h1m1 0h2m3 0h2m2 0h3m1 0h1m2 0h2m1 0h1m1 0h6m1 0h2M1 37.5h1m2 0h2m1 0h7m1 0h3m1 0h7m2 0h1m1 0h3m2 0h1m1 0h6m1 0h1M9 38.5h2m2 0h2m3 0h1m2 0h1m3 0h3m1 0h1m3 0h1m2 0h2m3 0h1m3 0h1M1 39.5h7m2 0h1m1 0h5m1 0h2m1 0h1m1 0h1m1 0h1m1 0h3m1 0h7m1 0h1m1 0h1m1 0h2M1 40.5h1m5 0h1m2 0h1m1 0h2m1 0h2m2 0h3m3 0h3m1 0h3m1 0h1m1 0h3m3 0h1m1 0h1M1 41.5h1m1 0h3m1 0h1m1 0h4m4 0h3m1 0h5m1 0h1m4 0h1m3 0h6m3 0h1M1 42.5h1m1 0h3m1 0h1m1 0h2m5 0h6m1 0h1m2 0h2m3 0h1m4 0h1m4 0h1m1 0h3M1 43.5h1m1 0h3m1 0h1m1 0h2m4 0h2m2 0h1m1 0h2m3 0h1m5 0h8M1 44.5h1m5 0h1m2 0h2m3 0h2m1 0h1m4 0h4m1 0h1m1 0h1m4 0h3m2 0h2m1 0h1M1 45.5h7m3 0h3m2 0h3m2 0h1m1 0h1m2 0h2m1 0h1m2 0h4m2 0h3m3 0h1"/></svg></div>
+    <div class="cap">📱 태블릿 카메라로 찍으면 바로 열린다</div>
+    <div class="url">https://leixlix-pixel.github.io/toolbox/bridge-builder.html</div>
+  </div>
+  </div>
+</div>
+
+<!-- ===================== 판 고르기 ===================== -->
+<div class="screen" id="pick">
+  <div class="topbar">
+    <button class="icon" onclick="show('title')">←</button>
+    <h2>판 고르기</h2>
+    <span class="mini" id="totStars"></span>
+    <button class="icon" onclick="askReset()">↺</button>
+  </div>
+  <div id="pickBody"></div>
+</div>
+
+<!-- ===================== 게임 ===================== -->
+<div class="screen" id="game">
+  <canvas id="cv"></canvas>
+  <div id="hud">
+    <button class="icon" onclick="quitLevel()">←</button>
+    <div class="flex"><div class="name" id="lvName"></div></div>
+    <div class="money" id="money"></div>
+    <button class="icon" id="undoBtn" onclick="undo()">↶</button>
+    <button class="icon" onclick="openHint()">?</button>
+  </div>
+  <div id="legend">
+    <div><i style="background:#5b8dff"></i>누르는 힘 (압축)</div>
+    <div><i style="background:#ff6b6b"></i>당기는 힘 (인장)</div>
+    <div class="mini" style="margin-top:4px">색이 진할수록 힘이 세다</div>
+  </div>
+  <div id="toast"></div>
+  <div id="tools"></div>
+</div>
+
+<!-- ===================== 모달 ===================== -->
+<div class="modal" id="modal"><div class="card" id="modalCard"></div></div>
+
+<script>
+/* =======================================================================
+   다리 놓는 사람들 — 실과 5단원 「건설과 디지털 기술」
+   -----------------------------------------------------------------------
+   구조는 딱 셋이다.
+     · LV      판 데이터 (땅 · 예산 · 재료 · 차)
+     · sim()   물리 — 질량점 + 막대 구속(베를레 적분)
+     · draw()  다시 그리기 하나
+   ======================================================================= */
+
+/* ---------------- 소리 : 파일 없이 Web Audio 로 ---------------- */
+const SND = {
+  ctx:null, vol:0.55,
+  init(){ if(this.ctx) return; try{ this.ctx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} },
+  tone(f,dur,type,vol,delay,slide){
+    if(!this.ctx||this.vol<=0) return;
+    const t0=this.ctx.currentTime+(delay||0);
+    const o=this.ctx.createOscillator(), g=this.ctx.createGain();
+    o.type=type||'square'; o.frequency.setValueAtTime(f,t0);
+    if(slide) o.frequency.exponentialRampToValueAtTime(Math.max(40,slide),t0+dur);
+    g.gain.setValueAtTime(0.0001,t0);
+    g.gain.exponentialRampToValueAtTime((vol??0.16)*this.vol,t0+0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
+    o.connect(g); g.connect(this.ctx.destination); o.start(t0); o.stop(t0+dur+0.05);
+  },
+  noise(dur,vol,delay,freq){
+    if(!this.ctx||this.vol<=0) return;
+    const t0=this.ctx.currentTime+(delay||0);
+    const len=Math.floor(this.ctx.sampleRate*dur);
+    const buf=this.ctx.createBuffer(1,len,this.ctx.sampleRate), d=buf.getChannelData(0);
+    for(let i=0;i<len;i++) d[i]=(Math.random()*2-1)*(1-i/len);
+    const src=this.ctx.createBufferSource(); src.buffer=buf;
+    const g=this.ctx.createGain(); g.gain.value=(vol??0.12)*this.vol;
+    const f=this.ctx.createBiquadFilter(); f.type='bandpass'; f.frequency.value=freq||1200;
+    src.connect(f); f.connect(g); g.connect(this.ctx.destination); src.start(t0);
+  },
+  click(){ this.tone(680,0.055,'square',0.09); },
+  place(){ this.tone(520,0.05,'triangle',0.10); this.tone(780,0.05,'triangle',0.06,0.035); },
+  erase(){ this.tone(300,0.07,'square',0.08,0,200); },
+  nope(){ this.tone(180,0.13,'sawtooth',0.10,0,120); },
+  snap(){ this.noise(0.18,0.20,0,420); this.tone(140,0.16,'sawtooth',0.09,0,60); },  /* 부러짐 */
+  splash(){ this.noise(0.5,0.16,0,700); this.tone(90,0.4,'sine',0.10,0,50); },
+  motor(){ this.tone(110,0.12,'sawtooth',0.03); },
+  win(){ [523,659,784,1047].forEach((f,i)=>this.tone(f,0.17,'triangle',0.15,i*0.075)); },
+  star(){ [784,1047,1319].forEach((f,i)=>this.tone(f,0.14,'sine',0.17,i*0.06)); },
+  fail(){ this.tone(220,0.24,'sawtooth',0.12,0,110); this.tone(160,0.28,'square',0.08,0.07,90); }
+};
+
+/* ---------------- 재료 ----------------
+   brk    끊어지는 변형률. 길이가 이 비율만큼 늘거나 줄면 부러진다.
+          나무 < 도로 < 강철 — 이게 「강철이 튼튼하다」의 정체다.
+   E      강성. 같은 힘에 얼마나 덜 늘어나는가.
+   dens   무게. 튼튼한 것은 무겁고, 무거우면 저를 지탱하는 데도 힘이 든다.
+   maxLen 한 개로 뻗을 수 있는 최대 길이(칸). 이것 때문에 삼각형을 잇게 된다.
+------------------------------------------------------------------ */
+const MAT = {
+  road : {key:'road', name:'도로',  cost:10, brk:0.0165, E:16200, dens:1.10, maxLen:4,  wv:0.34, col:'#f0c86a', drive:true,
+          tip:'차가 지나가는 길. 도로가 이어져 있지 않으면 건널 수 없다.'},
+  wood : {key:'wood', name:'나무',  cost:5,  brk:0.0155, E:12600, dens:0.55, maxLen:4,  wv:0.20, col:'#c98b52',
+          tip:'싸고 가볍지만 잘 부러진다. 받치고 buttress 엮는 데 쓴다.'},
+  steel: {key:'steel',name:'강철',  cost:18, brk:0.0380, E:39600, dens:1.45, maxLen:5,  wv:0.22, col:'#9fb6d4',
+          tip:'훨씬 튼튼하지만 비싸고 무겁다. 힘이 몰리는 곳에만.'},
+  cable: {key:'cable',name:'케이블',cost:2,  brk:0.0220, E:16200, dens:0.22, maxLen:14, wv:0.09, col:'#7fd8c8', tension:true,
+          tip:'당기는 힘만 받는다. 밀면 그냥 늘어진다. 매달 때만 쓸모가 있다.'}
+};
+MAT.wood.tip = '싸고 가볍지만 잘 부러진다. 받치고 엮는 데 쓴다.';
+
+/* ---------------- 차 ---------------- */
+/* 막대 하나마다 붙는 이음매 값. 이게 없으면 「1칸짜리로 잘게 쪼개기」가
+   같은 값에 더 튼튼해서 공짜 이득이 된다(실측). 0 으로 만들지 말 것. */
+const JOINT = 4;
+const beamCost = (m,L) => Math.round(L*MAT[m].cost) + JOINT;
+
+const VEH = {
+  car  : {name:'승용차', r:0.40, wb:1.9, bh:0.95, mass:6.5, speed:5.4, col:'#ff8f5e'},
+  truck: {name:'트럭',   r:0.52, wb:2.9, bh:1.35, mass:17, speed:4.2, col:'#6fb2ff'}
+};
+
+/* =======================================================================
+   판 데이터
+   좌표는 「칸」. x 는 오른쪽, y 는 아래쪽이 크다(화면과 같다).
+   ground 사각형의 윗면에 놓인 격자점은 자동으로 고정점(앵커)이 된다.
+   ======================================================================= */
+function L(o){ return Object.assign({w:30,h:18,water:13,mats:['road','wood'],veh:[{t:'car',d:0}],star:[0.80,0.60]},o); }
+
+const LV = [
+/* ─────────────── 1. 개울 — 놓아 보기 ─────────────── */
+L({ id:1, name:'첫 다리', sub:'개울 4칸',
+  ground:[[0,11,13,7],[17,11,13,7],[13,15,4,3]], water:14,
+  budget:90, mats:['road'], star:[0.8,0.55],
+  teach:{t:'다리를 놓는 법',
+    b:'격자의 <b>점과 점을 손가락으로 이으면</b> 재료 한 개가 놓인다. 잘못 놓았으면 <b>지우개</b>로 지우거나 <b>↶</b> 로 되돌린다.<br><br>땅 위에 <b>하얗게 테두리 친 점</b>은 <b>고정점</b>이다. 움직이지 않는다. 다리는 반드시 고정점에서 시작해야 한다.<br><br>다 놓았으면 <b>▶ 출발</b> 을 눌러 차를 보낸다.'},
+  hints:['개울 양쪽 끝의 고정점을 찾아봐. 하얀 테두리가 쳐져 있어.',
+         '도로 하나는 4칸까지 뻗을 수 있어. 개울이 딱 4칸이야.',
+         '왼쪽 고정점에서 오른쪽 고정점까지 도로 하나로 곧장 이으면 된다.']}),
+
+L({ id:2, name:'기둥을 세워라', sub:'개울 6칸 · 바닥이 있다',
+  ground:[[0,11,12,7],[18,11,12,7],[12,15,6,3]], water:14,
+  budget:190, mats:['road','wood'], star:[0.85,0.66],
+  teach:{t:'길게 놓으면 처진다',
+    b:'도로 한 개는 <b>4칸까지</b>만 뻗는다. 6칸을 건너려면 <b>가운데에 점을 하나 두고</b> 도로 두 개로 나눠 놓아야 한다.<br><br>그런데 가운데 점은 허공에 떠 있다. 차가 올라타면 그대로 내려앉는다. <b>개울 바닥까지 나무로 기둥을 세워</b> 그 점을 받쳐 줘.'},
+  hints:['도로를 두 개로 나눠 놓으면 가운데에 점이 하나 생겨.',
+         '그 점이 아래로 처진다. 무엇이 받쳐 주면 될까?',
+         '개울 바닥(y가 가장 아래인 땅)도 고정점이다. 가운데 점에서 바닥까지 나무로 기둥을 세워라.']}),
+
+L({ id:3, name:'네모는 찌그러진다', sub:'계곡 8칸 · 바닥이 없다',
+  ground:[[0,11,11,7],[19,11,11,7]], water:13,
+  budget:340, mats:['road','wood'], star:[0.85,0.66],
+  teach:{t:'왜 하필 삼각형인가',
+    b:'이번에는 바닥이 없다. 기둥을 세울 데가 없으니 <b>위나 아래로 엮어서</b> 버텨야 한다.<br><br>막대 네 개로 <b>네모</b>를 만들고 옆에서 밀어 보면 마름모로 <b>찌그러진다</b>. 길이는 그대로인데 모양이 변한다.<br><br>그런데 <b>삼각형</b>은 세 변의 길이가 정해지면 모양이 단 하나뿐이다. <b>찌그러질 수가 없다.</b> 네모에 대각선 하나만 그으면 삼각형 둘이 되고, 그 순간 안 찌그러진다.'},
+  hints:['도로만 길게 이으면 가운데가 처지면서 부러진다.',
+         '도로 위(또는 아래)에 점을 만들고 나무로 엮어 봐. 네모로 엮으면 찌그러진다.',
+         '엮은 칸마다 대각선을 하나씩 그어 삼각형으로 만들어라. 그게 트러스다.']}),
+
+L({ id:4, name:'삼각형을 이어 붙이면', sub:'계곡 10칸',
+  ground:[[0,11,11,7],[21,11,11,7]], w:32, water:13,
+  budget:490, mats:['road','wood'], star:[0.85,0.66],
+  hints:['3번 판에서 만든 삼각형을 옆으로 계속 이어 붙이면 된다.',
+         '도로는 아래에 깔고, 삼각형은 위로 세우는 쪽이 재료가 덜 든다.',
+         '위에 점을 두 개 두고, 각 점에서 도로 쪽으로 빗변을 내려 W 모양으로 엮어 봐.']}),
+
+L({ id:5, name:'트러스', sub:'계곡 12칸 · 강철이 들어온다',
+  ground:[[0,11,11,7],[23,11,11,7]], w:34, water:13,
+  budget:530, mats:['road','wood','steel'], star:[0.85,0.66],
+  teach:{t:'어디에 강철을 쓸까',
+    b:'강철은 나무보다 <b>세 배 넘게 비싸고 더 무겁다.</b> 다 강철로 지으면 예산이 남아나지 않고, 제 무게 때문에 오히려 더 힘들어진다.<br><br><b>▶ 출발</b> 을 누르면 막대에 색이 들어온다. <b>파랑은 누르는 힘(압축), 빨강은 당기는 힘(인장)</b>이고 색이 진할수록 세다. 진한 곳 몇 군데만 강철로 바꿔 보자.'},
+  hints:['먼저 나무로만 지어 보고, 어디가 먼저 부러지는지 봐라.',
+         '출발시켰을 때 색이 가장 진해지는 막대가 가장 위험한 막대다.',
+         '가운데 아래쪽 도로와, 거기서 위로 올라가는 빗변에 힘이 제일 몰린다.']}),
+
+/* ─────────────── 2. 계곡 — 기둥과 아치 ─────────────── */
+L({ id:6, name:'깊은 계곡', sub:'골짜기 바닥까지 8칸',
+  ground:[[0,9,11,9],[19,9,11,9],[11,16,8,2]], water:15.4,
+  budget:270, mats:['road','wood','steel'], star:[0.85,0.66],
+  teach:{t:'긴 기둥은 휜다',
+    b:'골짜기 바닥이 저 아래 있다. 기둥을 세울 수는 있는데 <b>7칸이나 된다.</b><br><br>긴 기둥은 위에서 누르면 가운데가 <b>옆으로 휘면서</b> 부러진다. 그래서 진짜 다리의 교각에는 늘 <b>가로 버팀대</b>가 들어가 있다. 기둥 둘을 가로로 묶고 대각선을 그어 주면 훨씬 오래 버틴다.'},
+  hints:['기둥 한 개를 길게 세우면 옆으로 휘어 버린다.',
+         '기둥을 두 개 세우고 서로 묶어 봐.',
+         '두 기둥 사이를 가로대와 대각선으로 엮어 사다리꼴이 아니라 삼각형이 되게 해라.']}),
+
+L({ id:7, name:'아치', sub:'로마 사람들의 방법 · 10칸',
+  ground:[[0,9,11,9],[21,9,11,9],[11,16,10,2]], w:32, water:15.4,
+  budget:360, mats:['road','wood','steel'], star:[0.85,0.66],
+  teach:{t:'아치는 힘을 옆으로 흘려보낸다',
+    b:'로마의 수도교는 철근 없이 <b>2000년째</b> 서 있다. 비밀은 아치다.<br><br>평평한 다리는 무게가 <b>아래로</b> 눌러서 가운데를 부러뜨린다. 아치는 그 무게를 <b>곡선을 따라 옆으로</b> 흘려보내 양쪽 땅이 받아 내게 만든다. 아치에는 <b>당기는 힘이 거의 없다.</b><br><br>출발시켜서 아치 부분이 <b>온통 파랗게</b> 되면 제대로 만든 것이다.'},
+  hints:['기둥을 세우지 말고, 양쪽 땅에서 시작해 둥글게 올려 봐.',
+         '아치 꼭대기는 도로보다 아래에 두고, 아치에서 도로로 짧은 받침을 여러 개 세운다.',
+         '양끝 고정점에서 한 칸씩 올라가며 곡선을 만들어라. 가운데가 가장 높다.']}),
+
+L({ id:8, name:'무거운 트럭', sub:'같은 계곡 · 세 배 무겁다',
+  ground:[[0,9,11,9],[19,9,11,9],[11,16,8,2]], water:15.4,
+  budget:450, mats:['road','wood','steel'], star:[0.85,0.66],
+  veh:[{t:'truck',d:0}],
+  hints:['승용차용으로 지은 다리는 트럭 밑에서 그대로 부러진다.',
+         '트럭은 바퀴 사이가 넓다. 도로 한 칸에 무게가 통째로 실린다.',
+         '도로 아래에 받침을 촘촘히 넣고, 가장 진한 빨강·파랑만 강철로 바꿔라.']}),
+
+L({ id:9, name:'바닥이 없다', sub:'12칸 · 아무것도 세울 수 없다',
+  ground:[[0,10,11,8],[23,10,11,8]], w:34, water:14,
+  budget:530, mats:['road','wood','steel'], star:[0.85,0.66],
+  hints:['바닥이 없으니 기둥도 아치도 못 쓴다. 위로 가야 한다.',
+         '도로를 아래에 깔고 삼각형 뼈대를 도로 위로 높게 세워라.',
+         '뼈대가 높을수록 같은 무게를 더 적은 힘으로 버틴다. 다만 재료는 더 든다.']}),
+
+L({ id:10, name:'두 개의 틈', sub:'가운데 섬',
+  ground:[[0,11,9,7],[15,11,4,7],[25,11,9,7]], w:34, water:13,
+  budget:380, mats:['road','wood','steel'], star:[0.85,0.66],
+  hints:['가운데 섬은 땅이다. 윗면이 전부 고정점이야.',
+         '왼쪽 틈 5칸, 오른쪽 틈 5칸. 짧은 다리 두 개를 만드는 셈이다.',
+         '섬 위로 도로를 한 칸 올려 잇지 말고, 섬 높이에 맞춰 양쪽을 내려오게 하면 재료가 덜 든다.']}),
+
+/* ─────────────── 3. 강 — 케이블과 현수교 ─────────────── */
+L({ id:11, name:'케이블은 당기기만 한다', sub:'절벽에 매달아라',
+  ground:[[0,11,10,7],[0,5,5,13],[22,11,10,7],[27,5,5,13]], w:32, water:14,
+  budget:370, mats:['road','cable'], star:[0.85,0.66],
+  teach:{t:'밀면 늘어지고 당기면 버틴다',
+    b:'케이블은 <b>아주 싸고(칸당 2원) 아주 길게(14칸)</b> 뻗는다. 대신 <b>당기는 힘만</b> 받는다.<br><br>줄넘기 줄을 생각해 봐. 양쪽에서 당기면 팽팽해지지만, 밀면 그냥 <b>축 늘어진다.</b> 케이블로는 기둥을 세울 수 없고 아치도 못 만든다. <b>위에서 매다는 것</b>만 된다.<br><br>이 판에는 나무도 강철도 없다. <b>양옆 높은 절벽 꼭대기</b>에서 도로로 케이블을 내려 매달아 보자.'},
+  hints:['케이블로 기둥을 세우려 하면 그냥 접힌다. 위에서 내려와야 한다.',
+         '양옆에 낮은 턱(도로를 놓는 곳)과 높은 절벽(케이블을 거는 곳)이 따로 있다.',
+         '도로를 4개쯤 이어 깔고, 이음매마다 좌우 절벽 꼭대기에서 케이블을 한 가닥씩 내려라. 한 점에 양쪽에서 당겨야 안 흔들린다.']}),
+
+L({ id:12, name:'탑을 세우고 매달아라', sub:'강 12칸',
+  ground:[[0,11,10,7],[22,11,10,7]], w:32, water:13,
+  budget:520, mats:['road','wood','steel','cable'], star:[0.85,0.66],
+  teach:{t:'현수교의 생김새',
+    b:'절벽이 없으면 <b>직접 탑을 세운다.</b> 그게 현수교다.<br><br>① 양쪽 땅에 <b>탑</b>을 세우고 ② 탑 꼭대기끼리 <b>주케이블</b>을 건 다음 ③ 주케이블에서 도로로 <b>세로 케이블</b>을 촘촘히 내린다.<br><br>도로 무게는 세로 케이블 → 주케이블 → 탑 → 땅으로 흘러간다. 탑은 <b>아래로만</b> 눌리므로 강철 몇 개면 된다.'},
+  hints:['먼저 양쪽 고정점 위로 탑을 4~5칸 세워라. 탑은 나무나 강철이다.',
+         '탑 꼭대기 둘을 케이블로 잇고, 탑 바깥쪽은 땅으로 내려 고정해라.',
+         '주케이블을 곧게 걸지 말고, 가운데가 아래로 처진 모양으로 여러 점을 거쳐 걸면 훨씬 잘 버틴다.']}),
+
+L({ id:13, name:'현수교', sub:'강 16칸',
+  ground:[[0,11,9,7],[25,11,9,7]], w:34, water:13,
+  budget:680, mats:['road','wood','steel','cable'], star:[0.85,0.66],
+  hints:['12번 판과 똑같은 방법이다. 탑을 더 높게.',
+         '탑이 높을수록 케이블이 무게를 위로 들어 올리는 몫이 커진다.',
+         '탑 바깥쪽 케이블을 땅에 단단히 고정하지 않으면 탑이 안쪽으로 넘어진다.']}),
+
+L({ id:14, name:'배가 지나간다', sub:'가운데 물길에는 기둥을 못 세운다',
+  ground:[[0,10,11,8],[23,10,11,8],[11,15,12,3]], w:34, water:14,
+  budget:640, mats:['road','wood','steel','cable'], star:[0.85,0.66],
+  noBuild:[[14,10.4,6,5.2]],
+  teach:{t:'세울 수 있는 곳에만 세운다',
+    b:'강바닥은 있는데 <b>가운데 6칸</b>에는 아무것도 놓을 수 없다. 배가 지나가는 물길이기 때문이다.<br><br>진짜 다리도 똑같다. 한강 다리의 교각 간격은 배가 다니는 물길에 맞춰 정해진다.<br><br><b>놓을 수 있는 곳에는 기둥을 세우고</b>, 못 세우는 가운데는 <b>한 번에 건너뛴다.</b> 어디까지 기둥을 세울 수 있는지부터 세어 봐.'},
+  hints:['빗금 친 칸에는 아무것도 놓을 수 없다. 배가 지나가는 물길이다.',
+         '빗금 바깥쪽 강바닥에는 기둥을 세울 수 있다. 거기까지 기둥을 끌고 나와라.',
+         '기둥 둘을 물길 양옆에 세우고, 그 사이 6칸만 도로 위로 삼각형을 엮어 건너뛰어라.']}),
+
+L({ id:15, name:'긴 현수교', sub:'강 20칸',
+  ground:[[0,11,8,7],[28,11,8,7]], w:36, water:13,
+  budget:740, mats:['road','wood','steel','cable'], star:[0.85,0.66],
+  hints:['20칸이면 도로만 다섯 개다. 이음매마다 매달아야 한다.',
+         '탑을 땅 바로 옆이 아니라 조금 안쪽에 세우면 가운데 거리가 줄어든다.',
+         '케이블은 싸다. 아까워하지 말고 촘촘히 내려라. 비싼 것은 도로와 강철이다.']}),
+
+/* ─────────────── 4. 도전 — 예산과 제한 ─────────────── */
+L({ id:16, name:'가장 싸게 지어라', sub:'같은 계곡 · 돈이 빠듯하다',
+  ground:[[0,11,11,7],[23,11,11,7]], w:34, water:13,
+  budget:430, mats:['road','wood','steel'], star:[0.95,0.82],
+  teach:{t:'적게 써서 버티기',
+    b:'5번 판과 같은 계곡인데 돈이 <b>훨씬 적다.</b> 지금까지처럼 촘촘히 엮으면 예산이 모자란다.<br><br>막대 하나마다 <b>이음매 값 4원</b>이 따로 붙는다는 것을 기억해. 그래서 <b>짧은 막대 여러 개보다 긴 막대 몇 개</b>가 싸다.<br><br>삼각형을 크게 잡아라. 같은 넓이를 덮는 데 막대가 훨씬 덜 든다.'},
+  hints:['지금까지 쓰던 것보다 삼각형을 크게 잡아 봐.',
+         '나무는 4칸까지 뻗는다. 3칸씩 나누면 삼각형이 네 개로 끝난다.',
+         '도로 3칸 + 높이 2칸이면 빗변이 3.6칸이라 나무로 닿는다. 그 모양이 가장 싸다.']}),
+
+L({ id:17, name:'나무만으로', sub:'강철도 케이블도 없다',
+  ground:[[0,11,10,7],[22,11,10,7]], w:32, water:13,
+  budget:530, mats:['road','wood'], star:[0.85,0.66],
+  hints:['나무는 변형률 0.022 에서 부러진다. 도로보다도 약하다.',
+         '약한 재료로 버티는 방법은 하나뿐이다 — 힘을 여러 막대로 나눈다.',
+         '삼각형을 작게 여러 개 만들면 한 막대에 걸리는 힘이 줄어든다. 12번이 아니라 이번엔 촘촘히.']}),
+
+L({ id:18, name:'강철은 비싸다', sub:'강철과 도로만 · 예산이 빠듯하다',
+  ground:[[0,11,11,7],[21,11,11,7]], w:32, water:13,
+  budget:870, mats:['road','steel'], star:[0.9,0.7],
+  hints:['강철은 칸당 18원이다. 한 칸도 헛되이 쓸 수 없다.',
+         '강철은 5칸까지 뻗는다. 짧은 막대 여럿보다 긴 막대 몇 개가 싸다.',
+         '삼각형을 최대한 크게 — 큰 삼각형 두세 개로 10칸을 덮어라.']}),
+
+L({ id:19, name:'트럭 두 대', sub:'한 대가 건너기 전에 다음이 온다',
+  ground:[[0,11,10,7],[24,11,10,7]], w:34, water:13,
+  budget:930, mats:['road','wood','steel','cable'], star:[0.9,0.7],
+  veh:[{t:'truck',d:0},{t:'truck',d:2.6}],
+  hints:['두 대가 동시에 다리 위에 올라간다. 무게가 두 배다.',
+         '한 곳에 몰리는 것이 아니라 다리 전체에 넓게 실린다.',
+         '가운데만 튼튼하게 해선 안 된다. 양쪽 4분의 1 지점도 똑같이 받쳐라.']}),
+
+L({ id:20, name:'마지막 협곡', sub:'20칸 · 트럭 · 가운데 바위 하나',
+  ground:[[0,10,9,8],[29,10,9,8],[17,14,4,4]], w:38, water:13.6,
+  budget:2170, mats:['road','wood','steel','cable'], star:[0.9,0.68],
+  veh:[{t:'truck',d:0}],
+  hints:['여기까지 온 방법을 전부 써야 한다. 20칸을 한 번에 건너는 방법은 없다.',
+         '강 한가운데 바위가 솟아 있다. 바위 윗면도 고정점이다.',
+         '바위에서 도로까지 기둥을 세워 20칸을 둘로 나눠라. 그러면 10칸짜리 다리 두 개다.']})
+];
+
+const WORLDS = [
+  {n:'1. 개울',   t:'놓아 보기 · 삼각형은 왜 안 찌그러지나', a:0, b:5},
+  {n:'2. 계곡',   t:'기둥과 아치 · 힘을 어디로 흘려보내나', a:5, b:10},
+  {n:'3. 강',     t:'케이블과 현수교 · 당기는 힘만 받는 재료', a:10, b:15},
+  {n:'4. 도전',   t:'예산과 제한 · 가장 적게 써서 버티기',   a:15, b:20}
+];
+
+/* ---------------- 저장 ---------------- */
+const SAVE_KEY = 'bridge_builders_v1';
+let SAVE = {stars:{}, best:{}};
+function loadSave(){ try{ const s=localStorage.getItem(SAVE_KEY); if(s) SAVE=JSON.parse(s); }catch(e){}
+  if(!SAVE.stars) SAVE.stars={}; if(!SAVE.best) SAVE.best={}; }
+function putSave(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(SAVE)); }catch(e){} }
+function starsOf(id){ return SAVE.stars[id]||0; }
+function totalStars(){ let n=0; for(const k in SAVE.stars) n+=SAVE.stars[k]; return n; }
+function unlocked(i){ if(i===0) return true;
+  /* 앞 판을 깼거나, 그 월드의 첫 판이면 열린다 — 한 판에 막혀 전부 멈추지 않게 */
+  if(starsOf(LV[i-1].id)>0) return true;
+  for(const w of WORLDS) if(w.a===i) return totalStars()>=Math.max(0,(w.a-2));
+  return false;
+}
+
+/*==PHYSICS-START== (이 구간만 떼어 node 로 돌려 20판을 검증한다 — search.cjs) */
+const G = 15.0;          /* 중력 (칸/s²) */
+const CAR_ITER = 8;      /* 차 뼈대를 굳히는 반복 횟수 */
+const HIT_ITER = 3;      /* 부딪힘 밀어내기 반복 횟수 */
+const SIM_LIMIT = 30;    /* 한 판 시험 최대 초 */
+const SMOOTH = 0.975;    /* 변형률 평활 — 아래 6) 참고 */
+
+function segRect(x1,y1,x2,y2,r,pad){
+  pad = pad||0.02;
+  const rx=r[0]+pad, ry=r[1]+pad, rw=r[2]-pad*2, rh=r[3]-pad*2;
+  if(rw<=0||rh<=0) return false;
+  let t0=0,t1=1; const dx=x2-x1, dy=y2-y1;
+  const p=[-dx,dx,-dy,dy], q=[x1-rx, rx+rw-x1, y1-ry, ry+rh-y1];
+  for(let i=0;i<4;i++){
+    if(Math.abs(p[i])<1e-9){ if(q[i]<0) return false; }
+    else { const t=q[i]/p[i];
+      if(p[i]<0){ if(t>t1) return false; if(t>t0) t0=t; }
+      else      { if(t<t0) return false; if(t<t1) t1=t; } }
+  }
+  return t1>t0;
+}
+function closestOnSeg(px,py,ax,ay,bx,by){
+  const dx=bx-ax, dy=by-ay, L2=dx*dx+dy*dy;
+  let t = L2>1e-9 ? ((px-ax)*dx+(py-ay)*dy)/L2 : 0;
+  t = t<0?0:(t>1?1:t);
+  return {t, x:ax+dx*t, y:ay+dy*t};
+}
+
+function makeWorld(lv, nodes, beams){
+  const W = {
+    lv, ground:lv.ground, water:lv.water, h:lv.h,
+    goal:lv._goal, t:0, state:'run', reason:'', shards:[],
+    nodes:[], beams:[], cars:[], queue:[]
+  };
+  /* 절점 — 붙어 있는 막대 무게의 절반씩을 나눠 가진다 */
+  W.nodes = nodes.map(n=>({x:n.x, y:n.y, px:n.x, py:n.y, fix:n.fix, m:0.10, inv:0}));
+  W.beams = beams.map(b=>{
+    const A=W.nodes[b.a], B=W.nodes[b.b];
+    const L=Math.hypot(B.x-A.x, B.y-A.y), M=MAT[b.m];
+    const mass = L*M.dens*0.22;
+    A.m+=mass/2; B.m+=mass/2;
+    return {a:b.a, b:b.b, L, m:b.m, brk:M.brk, E:M.E, tension:!!M.tension,
+            s:0, cur:0, peak:0, dead:false};
+  });
+  W.nodes.forEach(n=>{ n.inv = n.fix ? 0 : 1/n.m; });
+  (lv.veh||[{t:'car',d:0}]).forEach(v=>W.queue.push({t:v.t, d:v.d||0}));
+  return W;
+}
+
+function spawnCar(W, kind){
+  const V = VEH[kind], x0 = W.lv._startX, gy = W.lv._startY;
+  const r=V.r, wb=V.wb, bh=V.bh, M=V.mass;
+  const mk=(x,y,m)=>({x,y,px:x,py:y,m,inv:1/m,hit:false});
+  const w0=mk(x0, gy-r, M*0.34), w1=mk(x0+wb, gy-r, M*0.34), bd=mk(x0+wb/2, gy-r-bh, M*0.32);
+  W.cars.push({kind, V, r, p:[w0,w1,bd], done:false, dead:false,
+    cons:[ [0,1,wb], [0,2,Math.hypot(wb/2,bh)], [1,2,Math.hypot(wb/2,bh)] ],
+    lastX:x0, stall:0});
+}
+
+/* 바퀴(원) 하나를 땅과 도로에서 밀어낸다 */
+function pushOut(W, c, pi){
+  const p=c.p[pi], rr = pi<2 ? c.r : c.r*0.75, N=W.nodes;
+  for(const g of W.ground){
+    const cx=Math.max(g[0],Math.min(p.x,g[0]+g[2]));
+    const cy=Math.max(g[1],Math.min(p.y,g[1]+g[3]));
+    let dx=p.x-cx, dy=p.y-cy, d=Math.hypot(dx,dy);
+    if(d<1e-6){ p.y=g[1]-rr; p.py=p.y+(p.py-p.y)*0.2; p.hit=true; continue; }
+    if(d<rr){ const n=(rr-d)/d; p.x+=dx*n; p.y+=dy*n; p.hit=true;
+      if(dy<0) p.px += (p.x-p.px)*0.06; }
+  }
+  /* 차는 **도로하고만** 부딪힌다. 나무·강철·케이블은 도로 옆에 선 것으로 친다.
+     여기를 모든 막대로 넓히지 말 것 — 제가 세운 탑과 빗변에 제 차가 처박힌다. */
+  for(const b of W.beams){
+    if(b.dead || !MAT[b.m].drive) continue;
+    const A=N[b.a], C=N[b.b];
+    const q=closestOnSeg(p.x,p.y,A.x,A.y,C.x,C.y);
+    let dx=p.x-q.x, dy=p.y-q.y, d=Math.hypot(dx,dy);
+    const R = rr+0.05;
+    if(d>=R) continue;
+    if(d<1e-6){ dx=0; dy=-1; d=1e-6; }
+    const push=(R-d)/d, nx=dx*push, ny=dy*push;
+    const wa=(1-q.t)*A.inv, wb=q.t*C.inv, tot=p.inv+wa+wb;
+    if(tot<=0) continue;
+    p.x += nx*(p.inv/tot); p.y += ny*(p.inv/tot);
+    A.x -= nx*(wa/tot);   A.y -= ny*(wa/tot);
+    C.x -= nx*(wb/tot);   C.y -= ny*(wb/tot);
+    p.hit=true;
+    if(dy<0) p.px += (p.x-p.px)*0.05;
+  }
+}
+
+function step(W, dt){
+  if(W.state!=='run') return;
+  W.t += dt;
+  for(let i=W.queue.length-1;i>=0;i--)
+    if(W.t >= W.queue[i].d){ spawnCar(W, W.queue[i].t); W.queue.splice(i,1); }
+
+  const N=W.nodes, B=W.beams, dt2=dt*dt;
+
+  /* 1) 적분 — 베를레 */
+  for(const n of N){
+    if(n.inv===0){ n.px=n.x; n.py=n.y; continue; }
+    const vx=(n.x-n.px)*0.988, vy=(n.y-n.py)*0.988;
+    n.px=n.x; n.py=n.y; n.x+=vx; n.y+=vy+G*dt2;
+  }
+  for(const c of W.cars){
+    if(c.dead) continue;
+    for(const p of c.p){
+      const vx=(p.x-p.px)*0.999, vy=(p.y-p.py)*0.999;
+      p.px=p.x; p.py=p.y; p.x+=vx; p.y+=vy+G*dt2; p.hit=false;
+    }
+  }
+
+  /* 2) 막대 = 용수철. 힘 = 강성 E × 변형률, 그 힘을 제 무게로 나눠 밀린다.
+     ── 길이를 곧바로 맞추는 방식(위치 구속)으로 되돌리지 말 것. ──
+     그 방식은 밀어내는 양이 두 점의 무게 **비율**로만 갈려서, 다리를 무겁게
+     지으면 차가 상대적으로 가벼워져 오히려 튼튼해진다. 실제로 그렇게 짰다가
+     「도로만 4칸씩 깐 20칸 다리」가 통과해서 20판이 전부 무의미해졌다. */
+  for(const b of B){
+    if(b.dead) continue;
+    const A=N[b.a], C=N[b.b];
+    let dx=C.x-A.x, dy=C.y-A.y;
+    let d=Math.hypot(dx,dy); if(d<1e-9) d=1e-9;
+    b.cur=(d-b.L)/b.L;
+    if(b.tension && b.cur<0) continue;          /* 케이블은 밀지 않는다 */
+    const f = b.E*b.cur*dt2/d;
+    A.x += dx*f*A.inv; A.y += dy*f*A.inv;
+    C.x -= dx*f*C.inv; C.y -= dy*f*C.inv;
+  }
+
+  /* 3) 차 뼈대는 단단하다 — 여기는 위치로 맞춘다 */
+  for(let it=0; it<CAR_ITER; it++)
+    for(const c of W.cars){
+      if(c.dead) continue;
+      for(const cc of c.cons){
+        const A=c.p[cc[0]], C=c.p[cc[1]];
+        let dx=C.x-A.x, dy=C.y-A.y, d=Math.hypot(dx,dy); if(d<1e-9) d=1e-9;
+        const diff=(d-cc[2])/d, w=A.inv+C.inv;
+        const fx=dx*diff*0.5, fy=dy*diff*0.5;
+        A.x+=fx*(A.inv/w); A.y+=fy*(A.inv/w);
+        C.x-=fx*(C.inv/w); C.y-=fy*(C.inv/w);
+      }
+    }
+
+  /* 4) 부딪힘 */
+  for(let it=0; it<HIT_ITER; it++)
+    for(const c of W.cars){ if(c.dead) continue; for(let pi=0;pi<3;pi++) pushOut(W,c,pi); }
+
+  /* 5) 구동 — 땅이나 다리에 닿아 있을 때만 민다 */
+  for(const c of W.cars){
+    if(c.dead||c.done) continue;
+    const target = c.V.speed*dt;
+    for(let i=0;i<2;i++){
+      const p=c.p[i]; if(!p.hit) continue;
+      const vx=p.x-p.px;
+      if(vx<target) p.px -= Math.min((target-vx)*0.45, target*0.5);
+    }
+  }
+
+  /* 6) 부러짐 — 변형률을 **많이** 고르게 편다.
+     짧게 잡으면 바퀴가 지나갈 때의 순간 충격이 그대로 잡혀서 제대로 지은
+     다리도 한계를 찍고 끊어진다. 그러면 설계를 바꿔도 결과가 다 같아져
+     게임이 안 된다(20판 훑어 확인). SMOOTH 를 낮추지 말 것. */
+  for(const b of B){
+    if(b.dead) continue;
+    b.s = b.s*SMOOTH + b.cur*(1-SMOOTH);
+    if(Math.abs(b.s)>Math.abs(b.peak)) b.peak=b.s;
+    const over = b.tension ? (b.s>b.brk) : (Math.abs(b.s)>b.brk);
+    if(over){
+      b.dead=true;
+      W.shards.push({x1:N[b.a].x,y1:N[b.a].y,x2:N[b.b].x,y2:N[b.b].y,m:b.m,life:0.6});
+      W.broke=true;
+    }
+  }
+
+  /* 7) 끝났나 */
+  for(const c of W.cars){
+    if(c.dead) continue;
+    const fx=Math.max(c.p[0].x, c.p[1].x);
+    const fy=Math.max(c.p[0].y, c.p[1].y, c.p[2].y);
+    if(fy > W.water+1.2){ c.dead=true; W.sank=true; continue; }
+    if(fx > W.goal) c.done=true;
+    /* 앞으로 0.4칸 나아갈 때마다 시계를 되돌린다 — 제자리면 쌓인다 */
+    if(!c.done){ if(fx > c.lastX+0.4){ c.lastX=fx; c.stall=0; } else c.stall += dt; }
+  }
+  for(const s of W.shards) s.life-=dt;
+  W.shards = W.shards.filter(s=>s.life>0);
+
+  const live = W.cars.filter(c=>!c.dead);
+  if(W.queue.length===0 && W.cars.length>0){
+    if(live.length===0){ W.state='fail'; W.reason='차가 물에 빠졌다.'; return; }
+    if(live.every(c=>c.done)){ W.state='win'; return; }
+    if(live.some(c=>c.stall>4.5)){ W.state='fail'; W.reason='차가 멈춰 버렸다.'; return; }
+  }
+  if(W.t>SIM_LIMIT){ W.state='fail'; W.reason='시간 안에 건너지 못했다.'; }
+}
+/*==PHYSICS-END==*/
+
+/* ======================= 판 준비 ======================= */
+function prep(lv){
+  if(lv._ok) return lv;
+  const eq=(a,b)=>Math.abs(a-b)<1e-6;
+  lv._anchor=(x,y)=>lv.ground.some(g=>eq(g[1],y)&&x>=g[0]-1e-6&&x<=g[0]+g[2]+1e-6);
+  lv._inside=(x,y)=>lv.ground.some(g=>x>g[0]+1e-6&&x<g[0]+g[2]-1e-6&&y>g[1]+1e-6&&y<g[1]+g[3]-1e-6);
+  const left =lv.ground.reduce((a,g)=>g[0]<a[0]?g:a);
+  const right=lv.ground.reduce((a,g)=>(g[0]+g[2])>(a[0]+a[2])?g:a);
+  lv._startX=left[0]+left[2]-3.4; lv._startY=left[1];
+  lv._goal  =right[0]+2.5;
+  lv._ok=true; return lv;
+}
+
+/* ======================= 상태 ======================= */
+let S = { li:0, lv:null, nodes:[], beams:[], mat:'road', sel:null,
+          drag:null, W:null, run:false, fast:false, undo:[], hintN:0 };
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+let VW={s:1,ox:0,oy:0}, DPR=1;
+
+function key(x,y){ return x+'|'+y; }
+function findNode(x,y){ return S.nodes.findIndex(n=>n.x===x&&n.y===y); }
+function cost(){ let c=0; for(const b of S.beams) c+=b.c; return c; }
+
+function snapshot(){ S.undo.push(JSON.stringify({n:S.nodes,b:S.beams})); if(S.undo.length>80) S.undo.shift(); }
+function undo(){ if(!S.undo.length||S.run) return; const o=JSON.parse(S.undo.pop());
+  S.nodes=o.n; S.beams=o.b; S.sel=null; SND.erase(); syncHUD(); }
+
+/* ======================= 판 열기 ======================= */
+function openLevel(i){
+  S.li=i; S.lv=prep(LV[i]); S.nodes=[]; S.beams=[]; S.sel=null; S.undo=[];
+  S.run=false; S.W=null; S.hintN=0; S.fast=false;
+  S.mat=S.lv.mats[0];
+  document.getElementById('lvName').textContent=(i+1)+'. '+S.lv.name;
+  buildTools(); syncHUD(); show('game'); resize();
+  const seen = SAVE['t'+S.lv.id];
+  if(S.lv.teach && !seen){ SAVE['t'+S.lv.id]=1; putSave(); showTeach(); }
+  else toast(S.lv.sub, 2200);
+}
+function quitLevel(){ S.run=false; show('pick'); renderPick(); }
+
+/* ======================= 도구 막대 ======================= */
+function buildTools(){
+  const el=document.getElementById('tools'); el.innerHTML='';
+  if(S.run){
+    el.innerHTML =
+      '<button class="btn warn" onclick="stopRun()">■ 멈추고 고치기</button>'+
+      '<button class="btn ghost" onclick="toggleFast()" id="fastBtn">'+(S.fast?'▶▶ 2배':'▶ 1배')+'</button>';
+    return;
+  }
+  S.lv.mats.forEach(m=>{
+    const M=MAT[m];
+    const b=document.createElement('button');
+    b.className='mat'+(S.mat===m?' on':''); b.dataset.m=m;
+    b.innerHTML='<span class="mn">'+M.name+'</span><span class="mc">'+M.cost+'원/칸</span>';
+    b.onclick=()=>{ S.mat=m; S.sel=null; SND.click(); buildTools(); toast(M.tip,2400); };
+    el.appendChild(b);
+  });
+  const e=document.createElement('button');
+  e.className='mat'+(S.mat==='erase'?' on':''); e.dataset.m='erase';
+  e.innerHTML='<span class="mn">지우개</span><span class="mc">눌러서 지움</span>';
+  e.onclick=()=>{ S.mat='erase'; S.sel=null; SND.click(); buildTools(); };
+  el.appendChild(e);
+  const g=document.createElement('button');
+  g.className='btn primary'; g.style.minHeight='52px'; g.textContent='▶ 출발';
+  g.onclick=startRun; el.appendChild(g);
+}
+function toggleFast(){ S.fast=!S.fast; SND.click(); buildTools(); }
+
+function syncHUD(){
+  const c=cost(), b=S.lv.budget;
+  const m=document.getElementById('money');
+  m.textContent = c+' / '+b+'원';
+  m.classList.toggle('over', c>b);
+  document.getElementById('undoBtn').disabled = !S.undo.length || S.run;
+}
+
+let toastT=null;
+function toast(msg,ms){
+  const t=document.getElementById('toast'); t.innerHTML=msg; t.classList.add('on');
+  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('on'), ms||1800);
+}
+
+/* ======================= 놓기 / 지우기 ======================= */
+function canPlaceNode(x,y){
+  if(x<0||y<0||x>S.lv.w||y>S.lv.h) return false;
+  if(S.lv._anchor(x,y)) return true;
+  if(S.lv._inside(x,y)) return false;
+  for(const g of S.lv.ground) if(x>g[0]&&x<g[0]+g[2]&&y>=g[1]&&y<g[1]+g[3]) return false;
+  return true;
+}
+function beamBlocked(x1,y1,x2,y2){
+  for(const g of S.lv.ground) if(segRect(x1,y1,x2,y2,g,0.06)) return '땅속으로는 놓을 수 없다.';
+  for(const nb of (S.lv.noBuild||[])) if(segRect(x1,y1,x2,y2,nb,0)) return '여기는 비워 둬야 하는 곳이다.';
+  return null;
+}
+function addBeam(ax,ay,bx,by){
+  const M=MAT[S.mat];
+  const L=Math.hypot(bx-ax,by-ay);
+  if(L<0.5){ return; }
+  if(L>M.maxLen+1e-6){ SND.nope(); toast(M.name+'은(는) <b>'+M.maxLen+'칸</b>까지만 뻗는다.',2200); return; }
+  const blocked=beamBlocked(ax,ay,bx,by);
+  if(blocked){ SND.nope(); toast(blocked,2000); return; }
+  if(!canPlaceNode(ax,ay)||!canPlaceNode(bx,by)){ SND.nope(); toast('거기엔 점을 둘 수 없다.',1800); return; }
+  const c=beamCost(S.mat,L);
+  if(cost()+c > S.lv.budget){ SND.nope(); toast('예산이 모자란다. <b>'+(cost()+c-S.lv.budget)+'원</b> 넘는다.',2400); return; }
+  if(S.beams.length>=240){ SND.nope(); toast('막대가 너무 많다.',1600); return; }
+  snapshot();
+  let ia=findNode(ax,ay); if(ia<0){ S.nodes.push({x:ax,y:ay,fix:S.lv._anchor(ax,ay)}); ia=S.nodes.length-1; }
+  let ib=findNode(bx,by); if(ib<0){ S.nodes.push({x:bx,y:by,fix:S.lv._anchor(bx,by)}); ib=S.nodes.length-1; }
+  /* 한 자리에 막대는 하나다. **다른 재료를 덧대는 것을 허용하지 말 것** —
+     도로에 나무를 덧대기만 하면 평평한 12칸 다리가 트러스보다 싸게 통과해서
+     이 게임의 전부인 「삼각형으로 엮기」가 통째로 필요 없어진다(20판 탐색에서 걸렸다). */
+  if(S.beams.some(b=>(b.a===ia&&b.b===ib)||(b.a===ib&&b.b===ia))){ S.undo.pop(); SND.nope(); toast('그 자리엔 이미 놓여 있다.',1500); return; }
+  S.beams.push({a:ia,b:ib,m:S.mat,c});
+  SND.place(); syncHUD();
+}
+function eraseAt(wx,wy){
+  let best=-1, bd=0.45;
+  S.beams.forEach((b,i)=>{
+    const A=S.nodes[b.a], B=S.nodes[b.b];
+    const q=closestOnSeg(wx,wy,A.x,A.y,B.x,B.y);
+    const d=Math.hypot(wx-q.x, wy-q.y);
+    if(d<bd){ bd=d; best=i; }
+  });
+  if(best<0) return false;
+  snapshot(); S.beams.splice(best,1); cleanNodes(); SND.erase(); syncHUD(); return true;
+}
+function cleanNodes(){
+  const used=new Set(); S.beams.forEach(b=>{used.add(b.a);used.add(b.b);});
+  const map={}, nn=[];
+  S.nodes.forEach((n,i)=>{ if(used.has(i)){ map[i]=nn.length; nn.push(n); } });
+  S.nodes=nn; S.beams.forEach(b=>{ b.a=map[b.a]; b.b=map[b.b]; });
+}
+
+/* ======================= 시험 주행 ======================= */
+function startRun(){
+  if(!S.beams.length){ SND.nope(); toast('아직 아무것도 놓지 않았다.',1800); return; }
+  SND.init(); S.sel=null;
+  S.W=makeWorld(S.lv, S.nodes, S.beams);
+  S.run=true; document.getElementById('legend').classList.add('on');
+  buildTools(); syncHUD(); SND.motor();
+}
+function stopRun(){
+  S.run=false; S.W=null; document.getElementById('legend').classList.remove('on');
+  buildTools(); syncHUD();
+}
+
+/* ======================= 결과 ======================= */
+function finish(win){
+  const lv=S.lv, c=cost(), ratio=c/lv.budget;
+  if(win){
+    let st=1; if(ratio<=lv.star[0]) st=2; if(ratio<=lv.star[1]) st=3;
+    const prev=starsOf(lv.id);
+    if(st>prev){ SAVE.stars[lv.id]=st; }
+    if(!SAVE.best[lv.id]||c<SAVE.best[lv.id]) SAVE.best[lv.id]=c;
+    putSave();
+    SND.win(); if(st===3) setTimeout(()=>SND.star(),500);
+    let extra='';
+    if(st<3){
+      const need=Math.floor(lv.budget*lv.star[st===1?0:1]);
+      extra='<p class="mini">별을 하나 더 받으려면 <b>'+need+'원</b> 아래로 지어야 한다. 지금은 '+c+'원.</p>';
+    } else extra='<p class="mini">이 판의 최고 기록은 '+SAVE.best[lv.id]+'원이다.</p>';
+    modal('<h3>건넜다!</h3>'+
+      '<div class="stars">'+[0,1,2].map(i=>i<st?'<b>★</b>':'☆').join('')+'</div>'+
+      '<p>쓴 돈 <b>'+c+'원</b> / 예산 '+lv.budget+'원 · 막대 '+S.beams.length+'개</p>'+extra+
+      '<div class="rowb">'+
+        '<button class="btn ghost" onclick="closeModal();stopRun()">더 줄여 보기</button>'+
+        (S.li+1<LV.length?'<button class="btn primary" onclick="closeModal();openLevel('+(S.li+1)+')">다음 판 →</button>'
+                         :'<button class="btn primary" onclick="closeModal();quitLevel()">판 고르기</button>')+
+      '</div>');
+  } else {
+    SND.fail();
+    const broke=S.W?S.W.beams.filter(b=>b.dead).length:0;
+    let why=S.W?S.W.reason:'';
+    if(broke) why='막대 <b>'+broke+'개</b>가 부러졌다.';
+    else if(S.W&&S.W.sank) why='차가 물에 빠졌다.';
+    modal('<h3>다시 해 보자</h3>'+
+      '<p>'+why+'</p>'+
+      '<div class="note">부러진 자리를 기억해 둬. <b>출발</b> 을 누르면 막대에 색이 들어온다 — '+
+      '<b style="color:#ff8b8b">빨강은 당기는 힘</b>, <b style="color:#89b0ff">파랑은 누르는 힘</b>이고 '+
+      '색이 진한 곳이 가장 위험한 곳이다.</div>'+
+      '<div class="rowb">'+
+        '<button class="btn ghost" onclick="closeModal();openHint()">힌트 보기</button>'+
+        '<button class="btn primary" onclick="closeModal();stopRun()">고치러 가기</button>'+
+      '</div>');
+  }
+}
+
+/* ======================= 모달 ======================= */
+function modal(html){ document.getElementById('modalCard').innerHTML=html;
+  document.getElementById('modal').classList.add('on'); }
+function closeModal(){ document.getElementById('modal').classList.remove('on'); }
+function showTeach(){
+  const t=S.lv.teach;
+  modal('<h3>'+t.t+'</h3><p>'+t.b+'</p>'+
+    '<div class="rowb"><button class="btn primary" onclick="closeModal()">알았다</button></div>');
+}
+function openHint(){
+  const hs=S.lv.hints||[];
+  if(!hs.length){ toast('이 판은 힌트가 없다.',1500); return; }
+  S.hintN=Math.min(S.hintN+1, hs.length);
+  let body='';
+  for(let i=0;i<S.hintN;i++) body+='<p><b>힌트 '+(i+1)+'.</b> '+hs[i]+'</p>';
+  const more = S.hintN<hs.length
+    ? '<button class="btn ghost" onclick="closeModal();openHint()">다음 힌트</button>' : '';
+  const teach = S.lv.teach ? '<button class="btn ghost" onclick="closeModal();showTeach()">설명 다시 보기</button>' : '';
+  modal('<h3>힌트</h3>'+body+
+    '<p class="mini">힌트는 마지막 것까지 봐도 답을 그려 주지는 않는다. 직접 놓아야 한다.</p>'+
+    '<div class="rowb">'+teach+more+'<button class="btn primary" onclick="closeModal()">닫기</button></div>');
+}
+function openHow(){
+  modal('<h3>어떻게 하나요</h3>'+
+    '<ul>'+
+    '<li><b>놓기</b> — 아래에서 재료를 고르고, 격자의 <b>점에서 점으로 손가락을 끌면</b> 막대 하나가 놓인다. 점을 하나 누르고 다른 점을 눌러도 된다.</li>'+
+    '<li><b>지우기</b> — <b>지우개</b>를 고르고 막대를 누른다. <b>↶</b> 로 되돌릴 수도 있다.</li>'+
+    '<li><b>고정점</b> — 땅 위의 <b>하얀 테두리 점</b>은 움직이지 않는다. 다리는 여기서 시작한다.</li>'+
+    '<li><b>예산</b> — 위에 쓴 돈이 나온다. 넘게는 못 놓는다. <b>적게 쓸수록 별을 더 받는다.</b></li>'+
+    '<li><b>출발</b> — 차를 보낸다. 이때 막대에 <b style="color:#ff8b8b">빨강(당김)</b>과 '+
+      '<b style="color:#89b0ff">파랑(누름)</b>이 들어온다. 힘이 어디로 흐르는지 바로 보인다.</li>'+
+    '</ul>'+
+    '<div class="note">차가 건너면 성공이다. 실패해도 잃는 것은 없다. '+
+    '<b>부러진 자리를 보고 고치는 것</b>이 이 게임의 전부다.</div>'+
+    '<div class="rowb"><button class="btn primary" onclick="closeModal()">닫기</button></div>');
+}
+function askReset(){
+  modal('<h3>기록을 지울까?</h3><p>모은 별과 최고 기록이 <b>모두</b> 사라진다. 되돌릴 수 없다.</p>'+
+   '<div class="rowb"><button class="btn ghost" onclick="closeModal()">그만두기</button>'+
+   '<button class="btn warn" onclick="doReset()">지운다</button></div>');
+}
+function doReset(){ SAVE={stars:{},best:{}}; putSave(); closeModal(); renderPick(); }
+
+/* ======================= 화면 전환 ======================= */
+function show(id){ document.querySelectorAll('.screen').forEach(e=>e.classList.toggle('on', e.id===id));
+  if(id==='game') setTimeout(resize,0); }
+function goPick(){ SND.init(); SND.click(); renderPick(); show('pick'); }
+
+function renderPick(){
+  const el=document.getElementById('pickBody'); el.innerHTML='';
+  document.getElementById('totStars').textContent='★ '+totalStars()+' / '+(LV.length*3);
+  WORLDS.forEach(w=>{
+    const d=document.createElement('div'); d.className='world';
+    let g='<h3>'+w.n+'</h3><p>'+w.t+'</p><div class="lv-grid">';
+    for(let i=w.a;i<w.b;i++){
+      const lv=LV[i], st=starsOf(lv.id), open=unlocked(i);
+      g+='<div class="lv'+(open?'':' locked')+(st>0?' clear':'')+'" '+(open?'onclick="openLevel('+i+')"':'')+'>'+
+         '<div class="n">'+(i+1)+'판'+(open?'':' · 잠김')+'</div>'+
+         '<div class="t">'+(open?lv.name:'?')+'</div>'+
+         '<div class="s">'+[0,1,2].map(k=>k<st?'<b>★</b>':'☆').join('')+'</div></div>';
+    }
+    d.innerHTML=g+'</div>'; el.appendChild(d);
+  });
+}
+
+/* ======================= 화면 맞추기 ======================= */
+function resize(){
+  DPR=Math.min(window.devicePixelRatio||1, 2);
+  cv.width=Math.floor(cv.clientWidth*DPR); cv.height=Math.floor(cv.clientHeight*DPR);
+  if(!S.lv) return;
+  const padT=54*DPR, padB=78*DPR, padS=8*DPR;
+  const s=Math.min((cv.width-padS*2)/S.lv.w, (cv.height-padT-padB)/S.lv.h);
+  VW.s=s;
+  VW.ox=(cv.width-S.lv.w*s)/2;
+  VW.oy=padT+((cv.height-padT-padB)-S.lv.h*s)/2;
+}
+window.addEventListener('resize',resize);
+const X=x=>VW.ox+x*VW.s, Y=y=>VW.oy+y*VW.s;
+const wX=p=>(p-VW.ox)/VW.s, wY=p=>(p-VW.oy)/VW.s;
+
+/* ======================= 그리기 ======================= */
+function stressCol(b){
+  const r=Math.max(-1,Math.min(1, b.s/b.brk)), a=Math.abs(r);
+  const base=[150,165,190];
+  const t = r>0 ? [255,64,64] : [72,132,255];
+  const k=Math.pow(a,0.65);
+  return 'rgb('+base.map((v,i)=>Math.round(v+(t[i]-v)*k)).join(',')+')';
+}
+
+function draw(){
+  const lv=S.lv; if(!lv) return;
+  const w=cv.width, h=cv.height, s=VW.s;
+  /* 하늘 */
+  const sky=ctx.createLinearGradient(0,0,0,h);
+  sky.addColorStop(0,'#1b3050'); sky.addColorStop(0.55,'#2a4a72'); sky.addColorStop(1,'#37628f');
+  ctx.fillStyle=sky; ctx.fillRect(0,0,w,h);
+
+  ctx.save(); ctx.beginPath();
+  ctx.rect(VW.ox-6*DPR, VW.oy-6*DPR, lv.w*s+12*DPR, lv.h*s+12*DPR); ctx.clip();
+
+  /* 물 */
+  ctx.fillStyle='#1d4d63';
+  ctx.fillRect(X(0),Y(lv.water),lv.w*s,(lv.h-lv.water)*s+8*DPR);
+  ctx.fillStyle='rgba(255,255,255,.07)';
+  for(let i=0;i<4;i++) ctx.fillRect(X(0),Y(lv.water)+i*7*DPR,lv.w*s,1.5*DPR);
+
+  /* 못 놓는 칸 */
+  (lv.noBuild||[]).forEach(r=>{
+    ctx.save();
+    ctx.beginPath(); ctx.rect(X(r[0]),Y(r[1]),r[2]*s,r[3]*s); ctx.clip();
+    ctx.fillStyle='rgba(255,90,90,.10)'; ctx.fill();
+    ctx.strokeStyle='rgba(255,120,120,.28)'; ctx.lineWidth=2*DPR;
+    for(let i=-r[3];i<r[2]+r[3];i+=0.8){
+      ctx.beginPath(); ctx.moveTo(X(r[0]+i),Y(r[1])); ctx.lineTo(X(r[0]+i+r[3]),Y(r[1]+r[3])); ctx.stroke();
+    }
+    ctx.restore();
+    ctx.strokeStyle='rgba(255,120,120,.55)'; ctx.lineWidth=2.5*DPR;
+    ctx.strokeRect(X(r[0]),Y(r[1]),r[2]*s,r[3]*s);
+    ctx.fillStyle='rgba(255,170,170,.9)'; ctx.font=(11*DPR)+'px "Noto Sans KR",sans-serif';
+    ctx.textAlign='center'; ctx.fillText('배가 지나가는 길', X(r[0]+r[2]/2), Y(r[1]+r[3]/2));
+  });
+
+  /* 땅 */
+  lv.ground.forEach(g=>{
+    ctx.fillStyle='#4a3a2a'; ctx.fillRect(X(g[0]),Y(g[1]),g[2]*s,g[3]*s);
+    ctx.fillStyle='#3e6b42'; ctx.fillRect(X(g[0]),Y(g[1]),g[2]*s,0.38*s);
+    ctx.fillStyle='rgba(0,0,0,.18)';
+    for(let i=0;i<g[2]*2;i++){
+      const x=g[0]+i*0.5+((i*37)%7)*0.03, y=g[1]+0.7+((i*53)%11)*0.35;
+      if(y<g[1]+g[3]) ctx.fillRect(X(x),Y(y),2.5*DPR,2.5*DPR);
+    }
+  });
+
+  /* 격자 · 고정점 */
+  if(!S.run){
+    for(let gx=0; gx<=lv.w; gx++) for(let gy=0; gy<=lv.h; gy++){
+      if(!canPlaceNode(gx,gy)) continue;
+      const an=lv._anchor(gx,gy);
+      ctx.beginPath(); ctx.arc(X(gx),Y(gy), an?4.6*DPR:1.6*DPR, 0, 6.2832);
+      if(an){ ctx.fillStyle='#fff'; ctx.fill();
+        ctx.beginPath(); ctx.arc(X(gx),Y(gy),7.5*DPR,0,6.2832);
+        ctx.strokeStyle='rgba(255,255,255,.55)'; ctx.lineWidth=2*DPR; ctx.stroke(); }
+      else { ctx.fillStyle='rgba(255,255,255,.22)'; ctx.fill(); }
+    }
+  }
+
+  /* 도착 깃발 */
+  const gx=lv._goal;
+  ctx.strokeStyle='#eee'; ctx.lineWidth=2.5*DPR;
+  ctx.beginPath(); ctx.moveTo(X(gx),Y(lv._gy||groundTopAt(gx))); ctx.lineTo(X(gx),Y((lv._gy||groundTopAt(gx))-2.2)); ctx.stroke();
+  ctx.fillStyle='#5ad18a'; ctx.beginPath();
+  const fy=(lv._gy||groundTopAt(gx))-2.2;
+  ctx.moveTo(X(gx),Y(fy)); ctx.lineTo(X(gx+1.5),Y(fy+0.45)); ctx.lineTo(X(gx),Y(fy+0.9)); ctx.fill();
+
+  /* 막대 */
+  const BB = S.run ? S.W.beams : S.beams;
+  const NN = S.run ? S.W.nodes : S.nodes;
+  BB.forEach(b=>{
+    if(b.dead) return;
+    const A=NN[b.a], C=NN[b.b], M=MAT[b.m];
+    ctx.lineCap='round';
+    ctx.lineWidth=M.wv*s;
+    ctx.strokeStyle = S.run ? stressCol(b) : M.col;
+    ctx.beginPath(); ctx.moveTo(X(A.x),Y(A.y)); ctx.lineTo(X(C.x),Y(C.y)); ctx.stroke();
+    if(M.key==='road'){
+      ctx.lineWidth=Math.max(1.2*DPR, M.wv*0.14*s); ctx.strokeStyle='rgba(0,0,0,.30)';
+      ctx.setLineDash([5*DPR,6*DPR]);
+      ctx.beginPath(); ctx.moveTo(X(A.x),Y(A.y)); ctx.lineTo(X(C.x),Y(C.y)); ctx.stroke();
+      ctx.setLineDash([]);
+    }
+  });
+  /* 부러진 조각 */
+  if(S.run) S.W.shards.forEach(sh=>{
+    ctx.globalAlpha=Math.max(0,sh.life/0.6); ctx.lineCap='round';
+    ctx.lineWidth=MAT[sh.m].wv*s; ctx.strokeStyle='#ff7b7b';
+    ctx.beginPath(); ctx.moveTo(X(sh.x1),Y(sh.y1)); ctx.lineTo(X(sh.x2),Y(sh.y2)); ctx.stroke();
+    ctx.globalAlpha=1;
+  });
+  /* 절점 */
+  NN.forEach(n=>{
+    ctx.beginPath(); ctx.arc(X(n.x),Y(n.y), (n.fix?4.2:3.0)*DPR, 0, 6.2832);
+    ctx.fillStyle=n.fix?'#fff':'#c9d6e8'; ctx.fill();
+  });
+
+  /* 고르는 중 · 끄는 중 */
+  if(!S.run){
+    if(S.sel){ ctx.beginPath(); ctx.arc(X(S.sel.x),Y(S.sel.y),9*DPR,0,6.2832);
+      ctx.strokeStyle=MAT[S.mat]?MAT[S.mat].col:'#fff'; ctx.lineWidth=3*DPR; ctx.stroke(); }
+    if(S.drag&&S.drag.to){
+      const M=MAT[S.mat]||MAT.road;
+      const L=Math.hypot(S.drag.to.x-S.drag.x, S.drag.to.y-S.drag.y);
+      const okL = L<=M.maxLen+1e-6 && L>0.4 && !beamBlocked(S.drag.x,S.drag.y,S.drag.to.x,S.drag.to.y);
+      ctx.globalAlpha=.62; ctx.lineCap="round"; ctx.lineWidth=M.wv*s;
+      ctx.strokeStyle= okL ? M.col : '#ff5c5c';
+      ctx.beginPath(); ctx.moveTo(X(S.drag.x),Y(S.drag.y)); ctx.lineTo(X(S.drag.to.x),Y(S.drag.to.y)); ctx.stroke();
+      ctx.globalAlpha=1;
+      if(L>0.4){
+        ctx.fillStyle='#fff'; ctx.font='900 '+(12*DPR)+'px "Noto Sans KR",sans-serif'; ctx.textAlign='center';
+        ctx.fillText(Math.round(L*M.cost)+'원', X((S.drag.x+S.drag.to.x)/2), Y((S.drag.y+S.drag.to.y)/2)-10*DPR);
+      }
+    }
+    /* 출발 자리 표시 */
+    drawCarShape(lv._startX+VEH[(lv.veh[0].t)].wb/2, lv._startY-VEH[lv.veh[0].t].r,
+                 VEH[lv.veh[0].t], 0, 0.35);
+  }
+
+  /* 차 */
+  if(S.run) S.W.cars.forEach(c=>{
+    if(c.dead) return;
+    const w0=c.p[0], w1=c.p[1], bd=c.p[2];
+    let dx=w1.x-w0.x, dy=w1.y-w0.y, L=Math.hypot(dx,dy)||1; dx/=L; dy/=L;
+    let nx=-dy, ny=dx;
+    if((bd.x-w0.x)*nx+(bd.y-w0.y)*ny > 0){} else { nx=-nx; ny=-ny; }
+    const r=c.r, bh=c.V.bh, col=c.V.col;
+    const p1=[w0.x+nx*r*0.5, w0.y+ny*r*0.5], p2=[w1.x+nx*r*0.5, w1.y+ny*r*0.5];
+    const p3=[w1.x+nx*(r*0.5+bh), w1.y+ny*(r*0.5+bh)], p4=[w0.x+nx*(r*0.5+bh), w0.y+ny*(r*0.5+bh)];
+    ctx.fillStyle=col; ctx.beginPath();
+    ctx.moveTo(X(p1[0]),Y(p1[1])); ctx.lineTo(X(p2[0]),Y(p2[1]));
+    ctx.lineTo(X(p3[0]),Y(p3[1])); ctx.lineTo(X(p4[0]),Y(p4[1])); ctx.closePath(); ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,.55)';
+    ctx.beginPath();
+    ctx.moveTo(X(p4[0]+dx*0.25),Y(p4[1]+dy*0.25));
+    ctx.lineTo(X(p3[0]-dx*0.25),Y(p3[1]-dy*0.25));
+    ctx.lineTo(X(p3[0]-dx*0.25-nx*bh*0.45),Y(p3[1]-dy*0.25-ny*bh*0.45));
+    ctx.lineTo(X(p4[0]+dx*0.25-nx*bh*0.45),Y(p4[1]+dy*0.25-ny*bh*0.45));
+    ctx.closePath(); ctx.fill();
+    [w0,w1].forEach(p=>{
+      ctx.beginPath(); ctx.arc(X(p.x),Y(p.y),r*s,0,6.2832); ctx.fillStyle='#22282f'; ctx.fill();
+      ctx.beginPath(); ctx.arc(X(p.x),Y(p.y),r*s*0.42,0,6.2832); ctx.fillStyle='#96a4b4'; ctx.fill();
+    });
+  });
+
+  ctx.restore();
+
+  /* 시험 중 시계 */
+  if(S.run){
+    ctx.fillStyle='rgba(255,255,255,.9)'; ctx.font='900 '+(13*DPR)+'px "Noto Sans KR",sans-serif';
+    ctx.textAlign='left'; ctx.fillText(S.W.t.toFixed(1)+'초', 14*DPR, cv.height-90*DPR);
+  }
+}
+function groundTopAt(x){
+  let best=S.lv.h;
+  S.lv.ground.forEach(g=>{ if(x>=g[0]&&x<=g[0]+g[2]) best=Math.min(best,g[1]); });
+  return best;
+}
+function drawCarShape(cx,cy,V,ang,alpha){
+  ctx.globalAlpha=alpha; const s=VW.s, r=V.r;
+  ctx.fillStyle=V.col;
+  ctx.fillRect(X(cx-V.wb/2-r*0.3), Y(cy-r*0.5-V.bh), (V.wb+r*0.6)*s, V.bh*s);
+  ctx.fillStyle='#22282f';
+  [-V.wb/2, V.wb/2].forEach(o=>{ ctx.beginPath(); ctx.arc(X(cx+o),Y(cy),r*s,0,6.2832); ctx.fill(); });
+  ctx.globalAlpha=1;
+}
+
+/* ======================= 손가락 ======================= */
+function evPt(e){
+  const r=cv.getBoundingClientRect();
+  return { x:wX((e.clientX-r.left)*DPR), y:wY((e.clientY-r.top)*DPR) };
+}
+function snap(p){
+  const gx=Math.round(p.x), gy=Math.round(p.y);
+  if(Math.hypot(p.x-gx,p.y-gy)>0.62) return null;
+  if(!canPlaceNode(gx,gy)) return null;
+  return {x:gx,y:gy};
+}
+cv.addEventListener('pointerdown',e=>{
+  if(S.run) return; SND.init();
+  cv.setPointerCapture(e.pointerId);
+  const p=evPt(e);
+  if(S.mat==='erase'){ eraseAt(p.x,p.y); S.drag=null; return; }
+  const g=snap(p);
+  if(!g){ S.sel=null; S.drag=null; return; }
+  S.drag={x:g.x,y:g.y,to:null,moved:false};
+});
+cv.addEventListener('pointermove',e=>{
+  if(S.run||!S.drag) return;
+  const p=evPt(e), g=snap(p);
+  if(g&&(g.x!==S.drag.x||g.y!==S.drag.y)){ S.drag.to=g; S.drag.moved=true; }
+  else S.drag.to=null;
+});
+cv.addEventListener('pointerup',e=>{
+  if(S.run||!S.drag) return;
+  const d=S.drag; S.drag=null;
+  if(d.to){ addBeam(d.x,d.y,d.to.x,d.to.y); S.sel=null; return; }
+  /* 제자리에서 뗐다 = 톡 누르기 */
+  if(S.sel && (S.sel.x!==d.x||S.sel.y!==d.y)){ addBeam(S.sel.x,S.sel.y,d.x,d.y); S.sel=null; }
+  else { S.sel = (S.sel&&S.sel.x===d.x&&S.sel.y===d.y) ? null : {x:d.x,y:d.y}; SND.click(); }
+});
+cv.addEventListener('pointercancel',()=>{ S.drag=null; });
+
+/* ======================= 돌림판 ======================= */
+let lastT=0;
+function loop(now){
+  requestAnimationFrame(loop);
+  if(!S.lv){ return; }
+  const dt=Math.min((now-lastT)/1000||0, 0.05); lastT=now;
+  if(S.run&&S.W){
+    const n = S.fast?8:4;
+    for(let i=0;i<n && S.W.state==='run';i++) step(S.W, 1/240);
+    if(S.W.broke){ S.W.broke=false; SND.snap(); }
+    if(S.W.sank){ S.W.sank=false; SND.splash(); }
+    /* 끝나도 S.run 은 그대로 둔다 — 화면이 멈춘 채 남아야 부러진 자리가 보인다.
+       stopRun() 이 불릴 때까지 얼려 둔다. 이 순서를 뒤집지 말 것. */
+    if(S.W.state!=='run' && !S.W.shown){
+      S.W.shown=true; const win=S.W.state==='win';
+      setTimeout(()=>finish(win), win?300:600);
+    }
+  }
+  draw();
+}
+
+/* ======================= 시작 ======================= */
+loadSave(); renderPick(); resize(); requestAnimationFrame(loop);
+document.getElementById('modal').addEventListener('click',e=>{
+  if(e.target.id==='modal') closeModal();
+});
+window.__bb=()=>S;   /* 콘솔에서 상태 보기 */
+</script>
+</body>
+</html>

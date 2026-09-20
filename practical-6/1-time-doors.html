@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>시간은 어디로 가는가</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1c2430; --navy:#123a63; --navy2:#1d5b95; --red:#c0392b;
+  --gold:#c8963e; --green:#2e7d5b; --plum:#7d4a86;
+  --paper:#f6f2e9; --line:#d9d2c4; --muted:#6d6b66; --sub:#8b8779;
+}
+html,body{min-height:100%;background:var(--paper);font-family:'Noto Sans KR',sans-serif;
+  color:var(--ink);touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+  user-select:none;-webkit-user-select:none}
+body{padding-bottom:86px}
+
+.wrap{max-width:1000px;margin:0 auto;padding:14px 14px 0}
+
+.top{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.top .st{font-size:14px;font-weight:900;color:#fff;background:var(--acc,var(--navy2));
+  padding:5px 13px;border-radius:999px}
+.top h1{font-size:23px;font-weight:900;color:var(--acc,var(--navy2));line-height:1.25;flex:1;min-width:200px}
+.lead{font-size:18px;line-height:1.55;font-weight:500;margin-bottom:12px}
+.lead b{font-weight:900;color:var(--red)}
+.lead b.n{color:var(--navy2)}
+.lead b.g{color:var(--green)}
+
+.box{background:#fff;border:2px solid var(--line);border-radius:14px;padding:13px 15px}
+.box+.box{margin-top:11px}
+
+/* ── 슬롯 표시 ───────────────────────────── */
+.slotbar{display:flex;align-items:center;gap:7px;background:#fff;border:2px solid var(--line);
+  border-radius:12px;padding:9px 13px;margin-bottom:11px;flex-wrap:wrap}
+.slotbar .lab{font-size:16px;font-weight:900}
+.dot{width:19px;height:19px;border-radius:50%;border:2px solid #b9c4cf;background:#fff;flex-shrink:0}
+.dot.f{background:var(--green);border-color:var(--green)}
+.slotbar .rt{margin-left:auto;font-size:16px;font-weight:900;color:var(--green)}
+
+.panes{display:grid;gap:12px;grid-template-columns:1fr}
+@media(min-width:780px){ .panes{grid-template-columns:minmax(0,1fr) minmax(0,1.08fr)} }
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.pk{position:relative;background:#fff;border:2px solid var(--line);border-radius:13px;
+  display:flex;align-items:center;gap:9px;padding:11px 10px;cursor:pointer;min-height:56px}
+.pk.hasv{border-color:var(--green);background:#f1f9f5}
+.pk .ic{font-size:25px;line-height:1}
+.pk .nm{font-size:17px;font-weight:900;line-height:1.2}
+.pk .cnt{margin-left:auto;font-size:20px;font-weight:900;color:var(--green);min-width:24px;text-align:right}
+.pk .minus{position:absolute;right:-7px;top:-7px;width:30px;height:30px;border-radius:50%;
+  background:var(--red);color:#fff;font-size:19px;font-weight:900;line-height:27px;
+  text-align:center;border:2px solid #fff;display:none}
+.pk.hasv .minus{display:block}
+
+.doorlist{display:flex;flex-direction:column;gap:8px}
+.dr{background:#fff;border:2px solid var(--line);border-radius:12px;padding:10px 13px;
+  display:flex;align-items:center;gap:11px;cursor:pointer;opacity:.6;min-height:56px}
+.dr.open{opacity:1;border-color:var(--gold);background:#fffaf0}
+.dr .ic{font-size:24px;line-height:1;filter:grayscale(1)}
+.dr.open .ic{filter:none}
+.dr .mid{flex:1;min-width:0;display:block}
+.dr .t{display:block;font-size:16px;font-weight:900;line-height:1.25}
+.dr .pg{display:block;height:8px;border-radius:5px;background:#e4e0d6;margin-top:6px;overflow:hidden}
+.dr .pg i{display:block;height:100%;background:var(--gold);border-radius:5px;width:0}
+.dr .cost{font-size:15px;font-weight:900;color:var(--muted);white-space:nowrap}
+.dr.open .cost{color:var(--gold)}
+
+.tip{margin-top:11px;background:var(--navy);color:#fff;border-radius:12px;padding:11px 14px;
+  font-size:16px;font-weight:600;line-height:1.45;min-height:52px;display:flex;align-items:center}
+
+/* ── 장부 ───────────────────────────────── */
+.scenes{display:grid;grid-template-columns:1fr;gap:10px}
+@media(min-width:560px){ .scenes{grid-template-columns:1fr 1fr} }
+@media(min-width:900px){ .scenes{grid-template-columns:1fr 1fr 1fr} }
+.sc{background:#fff;border:2px solid var(--line);border-radius:14px;padding:12px 13px;
+  display:flex;flex-direction:column}
+.sc .ic{font-size:30px;line-height:1}
+.sc .tx{font-size:17px;font-weight:900;line-height:1.3;margin-top:6px}
+.sc .sv{font-size:15px;font-weight:700;color:var(--red);margin-top:5px}
+.sc .me{font-size:15px;font-weight:700;color:var(--red);margin-top:6px;line-height:1.35}
+.sc .qq{font-size:15px;font-weight:600;color:var(--muted);line-height:1.35;margin-top:auto;padding-top:8px}
+.tapv{margin-top:9px;background:var(--plum);color:#fff;border:0;border-radius:11px;width:100%;
+  min-height:52px;font-size:21px;font-weight:900;font-family:inherit;cursor:pointer}
+.tapv.zero{background:#fff;color:var(--plum);border:2px dashed var(--plum);font-size:16px}
+.tapv.gr{background:var(--green)}
+.tapv.gr.zero{background:#fff;color:var(--green);border-color:var(--green)}
+
+.sums{display:grid;grid-template-columns:1fr;gap:10px;margin-top:11px}
+@media(min-width:560px){ .sums{grid-template-columns:1fr 1fr} }
+.sumbox{background:#fff;border:2px solid var(--line);border-radius:12px;padding:9px 14px}
+.sumbox .l{font-size:14px;font-weight:700;color:var(--muted)}
+.sumbox .v{font-size:23px;font-weight:900;line-height:1.2;margin-top:2px}
+.sumbox.r{border-color:var(--red)} .sumbox.r .v{color:var(--red)}
+.sumbox.g{border-color:var(--green);background:#f1f9f5} .sumbox.g .v{color:var(--green)}
+.peo{display:flex;align-items:center;gap:8px;margin-top:3px}
+.peo button{width:42px;height:42px;border-radius:10px;border:2px solid var(--navy2);background:#fff;
+  color:var(--navy2);font-size:21px;font-weight:900;font-family:inherit;cursor:pointer}
+
+.result{background:var(--plum);color:#fff;border-radius:13px;padding:13px 16px;margin-top:11px;
+  font-size:18px;font-weight:900;line-height:1.45}
+.result.n{background:var(--navy)}
+.result.wait{background:#fff;color:var(--muted);border:2px dashed var(--line);font-weight:700;font-size:16px}
+
+/* ── 비교 ───────────────────────────────── */
+.cmp{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:620px){ .cmp{grid-template-columns:1fr 1fr} }
+.cmpbox{background:#fff;border:3px solid var(--line);border-radius:14px;padding:13px 15px}
+.cmpbox h3{font-size:18px;font-weight:900;color:var(--navy2);margin-bottom:8px}
+.cmpbox .mix{font-size:16px;font-weight:700;line-height:1.5;color:var(--ink)}
+.cmpbox .cnt{font-size:31px;font-weight:900;color:var(--gold);margin:9px 0 5px}
+.cmpbox ul{list-style:none;font-size:15px;font-weight:700;line-height:1.5}
+.cmpbox li::before{content:"🔓 ";}
+.cmpbox li.x{color:var(--sub);font-weight:500}
+.cmpbox li.x::before{content:"🔒 ";}
+
+/* ── 마무리 ─────────────────────────────── */
+.note{background:#fff;border:3px dashed var(--green);border-radius:16px;padding:15px 17px;margin-top:12px}
+.note .h{font-size:17px;font-weight:900;color:var(--green);margin-bottom:8px}
+.note .line{font-size:19px;font-weight:700;line-height:1.7}
+.note .line b{color:var(--navy2);font-weight:900;
+  background:linear-gradient(transparent 62%,rgba(29,91,149,.20) 62%);padding:0 3px}
+
+.qr{text-align:center;margin-top:18px}
+.qr svg{width:150px;height:150px;border:4px solid #fff;border-radius:12px;background:#fff}
+.qr .u{font-size:12px;color:var(--sub);margin-top:6px;word-break:break-all}
+
+/* ── 아래 고정 바 ───────────────────────── */
+.foot{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:2px solid var(--line);
+  padding:11px 14px;display:flex;gap:10px;align-items:center;z-index:20;
+  box-shadow:0 -4px 14px rgba(30,25,15,.09)}
+.foot .in{max-width:1000px;margin:0 auto;width:100%;display:flex;gap:10px;align-items:center}
+.btn{background:var(--navy2);color:#fff;border:0;border-radius:12px;padding:13px 22px;
+  font-size:18px;font-weight:900;font-family:inherit;cursor:pointer;min-height:52px}
+.btn:disabled{background:#c7ccd2;color:#8d9399;cursor:default}
+.btn.gh{background:#fff;color:var(--navy2);border:2px solid var(--navy2);padding:11px 18px;font-size:16px}
+.btn.big{flex:1}
+.btn.g{background:var(--green)}
+.steps{font-size:14px;font-weight:900;color:var(--muted);white-space:nowrap}
+
+.hero{text-align:center;padding:22px 10px 10px}
+.hero .big{font-size:33px;font-weight:900;line-height:1.25;color:var(--navy)}
+.hero .sm{font-size:18px;font-weight:600;line-height:1.6;color:var(--muted);margin-top:12px}
+</style>
+</head>
+<body>
+
+<div class="wrap" id="app"></div>
+<div class="foot"><div class="in" id="foot"></div></div>
+
+<script>
+/* ═══════════════════════════════════════════════════
+   자료 — 교사용 PPT 「18 life-resource-intro.html」 과 같은 값이다.
+   한쪽만 고치지 말 것.
+   ═══════════════════════════════════════════════════ */
+const SLOTS = 7;
+const CARDS = [
+  {k:"study",  n:"공부·숙제",   i:"📚"},
+  {k:"sport",  n:"운동",        i:"⚽"},
+  {k:"music",  n:"악기",        i:"🎸"},
+  {k:"draw",   n:"그림",        i:"🎨"},
+  {k:"read",   n:"책 읽기",     i:"📗"},
+  {k:"friend", n:"친구랑 놀기", i:"👫"},
+  {k:"screen", n:"게임·영상",   i:"🎮"},
+  {k:"rest",   n:"그냥 쉬기",   i:"😌"}
+];
+/* 다 합치면 15칸 — 7칸으로는 절대 다 못 연다. 균일하게 만들지 말 것. */
+const DOORS = [
+  {i:"😌", t:"지치면 스스로 회복할 줄 안다",      need:1, from:["rest","screen","friend"]},
+  {i:"👫", t:"힘들 때 부를 친구가 있다",          need:1, from:["friend"]},
+  {i:"📗", t:"500쪽짜리 책을 끝까지 읽는다",      need:2, from:["read"]},
+  {i:"🏃", t:"10km 를 쉬지 않고 달린다",          need:2, from:["sport"]},
+  {i:"🎨", t:"내가 그린 것이 축제 포스터가 된다",  need:3, from:["draw"]},
+  {i:"🎸", t:"밴드에서 한 파트를 맡는다",         need:3, from:["music"]},
+  {i:"🔬", t:"하고 싶은 공부를 골라서 한다",       need:3, from:["study"]}
+];
+const STEPS = [0, 5, 10, 30, 60, 180, 300, 600];
+const LED = [
+  {i:"🥤", t:"페트병 라벨을 안 뗐다",        sv:5,   q:"분리하는 사람이 대신 쓰는 시간은?"},
+  {i:"💬", t:"단톡에 「ㅇㅇ?」만 보냈다",      sv:10,  q:"받은 사람이 되묻고 기다리는 시간은?"},
+  {i:"🧹", t:"내 자리 쓰레기를 두고 갔다",     sv:10,  q:"청소 당번이 대신 쓰는 시간은?"},
+  {i:"📦", t:"택배 상자를 안 접고 버렸다",     sv:15,  q:"수거하는 분이 대신 쓰는 시간은?"},
+  {i:"🎒", t:"준비물을 안 챙겨 와 빌렸다",     sv:60,  q:"빌려준 친구가 없이 지낸 시간은?"},
+  {i:"⏰", t:"모둠 약속에 5분 늦었다",        sv:300, q:"기다린 네 사람이 쓴 시간을 다 합치면?"}
+];
+const GIFT = [
+  {i:"🍎", t:"누군가 아침에 과일을 깎아 두었다",   me:"내가 쓴 시간 — 집어 먹기 5초",      q:"씻고 깎고 담는 데 쓴 시간은?"},
+  {i:"🔑", t:"누군가 먼저 와서 교실을 열어 두었다", me:"내가 쓴 시간 — 문 밀고 들어오기 2초", q:"문 열고 불 켜고 창 여는 데 쓴 시간은?"},
+  {i:"🖥️", t:"누군가 밤에 이 화면을 만들었다",    me:"내가 쓴 시간 — 손가락으로 누르기 1초", q:"이 한 화면을 만드는 데 쓴 시간은?"}
+];
+
+/* QR — 이 파일의 배포 주소. 파일 이름을 바꾸면 다시 만들 것.
+   외부 QR 서비스를 부르지 말 것(학교 방화벽에 걸린다). */
+const QR = /*QR_INJECT*/"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 53 53\" shape-rendering=\"crispEdges\"><path fill=\"#ffffff\" d=\"M0 0h53v53H0z\"/><path stroke=\"#0a1628\" d=\"M2 2.5h7m4 0h3m3 0h1m7 0h1m2 0h1m1 0h3m1 0h1m1 0h1m3 0h1m1 0h7M2 3.5h1m5 0h1m3 0h3m1 0h1m2 0h1m1 0h3m4 0h3m1 0h1m1 0h3m3 0h3m1 0h1m5 0h1M2 4.5h1m1 0h3m1 0h1m1 0h1m4 0h1m1 0h1m3 0h4m3 0h2m3 0h1m5 0h1m1 0h2m1 0h1m1 0h3m1 0h1M2 5.5h1m1 0h3m1 0h1m1 0h2m1 0h5m1 0h1m5 0h2m5 0h1m2 0h1m1 0h3m1 0h1m2 0h1m1 0h3m1 0h1M2 6.5h1m1 0h3m1 0h1m2 0h1m4 0h2m3 0h12m5 0h2m4 0h1m1 0h3m1 0h1M2 7.5h1m5 0h1m2 0h1m2 0h3m2 0h1m1 0h1m2 0h1m3 0h1m2 0h2m2 0h1m2 0h1m1 0h1m3 0h1m5 0h1M2 8.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M14 9.5h5m2 0h4m3 0h1m1 0h1m1 0h5m1 0h5M5 10.5h2m1 0h2m1 0h1m1 0h2m3 0h1m2 0h2m1 0h6m1 0h1m2 0h1m2 0h1m3 0h1m5 0h2M2 11.5h1m1 0h3m2 0h2m1 0h6m1 0h4m1 0h2m1 0h3m1 0h1m1 0h1m2 0h1m2 0h6m1 0h1M4 12.5h2m1 0h2m1 0h2m5 0h3m4 0h5m3 0h1m1 0h1m1 0h1m6 0h1m1 0h2m3 0h1M2 13.5h6m3 0h2m1 0h4m1 0h3m4 0h1m2 0h2m1 0h1m4 0h1m1 0h4m3 0h4M2 14.5h1m1 0h2m2 0h7m3 0h4m1 0h1m3 0h1m2 0h2m1 0h4m1 0h1m2 0h1m2 0h4m1 0h2M2 15.5h2m2 0h2m2 0h3m3 0h3m1 0h3m1 0h2m4 0h2m1 0h3m4 0h1m2 0h2M3 16.5h3m1 0h2m1 0h2m2 0h2m2 0h1m2 0h2m1 0h1m1 0h2m5 0h1m3 0h1m2 0h2m4 0h1m1 0h1m1 0h1M2 17.5h1m1 0h1m4 0h1m1 0h2m4 0h3m1 0h1m2 0h2m1 0h1m2 0h1m1 0h3m1 0h1m3 0h1m2 0h1m4 0h1M2 18.5h2m4 0h3m4 0h3m4 0h3m1 0h5m1 0h1m1 0h1m2 0h5m1 0h1m1 0h2m2 0h2M6 19.5h2m1 0h1m8 0h1m1 0h2m2 0h1m1 0h1m2 0h1m4 0h1m1 0h2m3 0h1M4 20.5h1m2 0h3m2 0h1m1 0h3m1 0h2m1 0h1m1 0h5m1 0h1m2 0h1m1 0h1m1 0h1m1 0h1m1 0h2m1 0h6m1 0h1M2 21.5h4m4 0h3m1 0h1m1 0h2m1 0h3m1 0h2m2 0h1m1 0h1m1 0h1m1 0h2m1 0h1m4 0h2m1 0h1m2 0h1m1 0h2M2 22.5h1m4 0h4m1 0h1m4 0h2m4 0h1m7 0h1m1 0h1m2 0h3m1 0h2m2 0h1M2 23.5h2m7 0h1m1 0h1m1 0h5m2 0h1m1 0h1m2 0h3m2 0h5m3 0h5m1 0h1M5 24.5h6m2 0h2m2 0h1m2 0h2m1 0h6m2 0h1m1 0h1m2 0h3m3 0h6m2 0h1M3 25.5h4m3 0h1m1 0h1m2 0h1m1 0h1m1 0h1m2 0h3m3 0h3m4 0h3m1 0h4m3 0h1m1 0h1m1 0h1M2 26.5h5m1 0h1m1 0h2m3 0h5m1 0h1m1 0h2m1 0h1m1 0h2m2 0h1m2 0h2m1 0h3m1 0h1m1 0h1m1 0h2m2 0h1M3 27.5h1m1 0h2m3 0h1m5 0h2m1 0h1m1 0h2m1 0h1m3 0h2m3 0h1m1 0h1m1 0h1m1 0h4m3 0h3m1 0h1M3 28.5h8m2 0h1m2 0h6m1 0h6m5 0h2m1 0h11m1 0h1M2 29.5h1m2 0h1m1 0h1m1 0h4m2 0h2m2 0h1m4 0h1m3 0h2m1 0h1m2 0h1m4 0h1m1 0h1m1 0h1m1 0h4M2 30.5h1m1 0h1m3 0h3m1 0h1m3 0h1m2 0h2m1 0h1m1 0h2m1 0h2m1 0h2m2 0h2m2 0h2m1 0h3m1 0h4M2 31.5h2m1 0h3m1 0h1m1 0h1m2 0h1m1 0h2m6 0h2m1 0h1m1 0h1m1 0h1m4 0h4m1 0h2m1 0h1m3 0h2M3 32.5h2m1 0h1m1 0h2m1 0h2m3 0h1m1 0h2m1 0h1m1 0h1m1 0h3m2 0h2m3 0h1m3 0h1m1 0h2m1 0h1m1 0h1m1 0h1m1 0h1M5 33.5h1m1 0h1m1 0h1m1 0h3m3 0h2m6 0h2m1 0h1m3 0h1m1 0h1m2 0h2m2 0h3m1 0h3m2 0h1M3 34.5h3m2 0h6m4 0h2m2 0h1m2 0h4m1 0h1m2 0h1m2 0h1m1 0h2m1 0h3m1 0h3m1 0h2M3 35.5h1m1 0h1m3 0h1m2 0h3m1 0h2m1 0h2m1 0h1m2 0h2m1 0h1m4 0h2m1 0h3m1 0h1m2 0h1m2 0h2m1 0h1M5 36.5h1m1 0h2m2 0h2m1 0h2m1 0h2m3 0h3m1 0h2m2 0h1m3 0h5m2 0h1m2 0h3m3 0h1M2 37.5h1m2 0h1m3 0h2m1 0h1m2 0h1m5 0h2m8 0h1m2 0h4m3 0h1m3 0h1m1 0h4M6 38.5h1m1 0h1m3 0h1m1 0h6m1 0h1m1 0h1m3 0h5m2 0h6m1 0h3m3 0h1m1 0h2M4 39.5h2m1 0h1m1 0h1m2 0h3m5 0h8m2 0h1m1 0h1m1 0h2m1 0h1m2 0h1m2 0h2m1 0h3M3 40.5h1m3 0h2m5 0h4m2 0h3m1 0h1m1 0h2m2 0h2m2 0h2m2 0h1m1 0h1m2 0h2m1 0h2m1 0h2M3 41.5h3m3 0h1m1 0h3m1 0h1m1 0h4m2 0h2m1 0h2m1 0h1m3 0h1m1 0h1m1 0h1m1 0h1m1 0h2m3 0h2m1 0h2M2 42.5h3m3 0h1m1 0h3m1 0h1m1 0h2m2 0h1m3 0h15m2 0h7m2 0h1M10 43.5h2m1 0h1m1 0h1m1 0h3m3 0h2m3 0h1m1 0h4m1 0h1m2 0h5m3 0h4M2 44.5h7m1 0h1m3 0h1m3 0h3m3 0h1m1 0h1m1 0h2m1 0h1m3 0h2m2 0h2m1 0h1m1 0h1m1 0h3m1 0h1M2 45.5h1m5 0h1m4 0h4m6 0h2m3 0h1m1 0h3m3 0h1m5 0h1m3 0h2m2 0h1M2 46.5h1m1 0h3m1 0h1m1 0h4m1 0h4m1 0h13m2 0h4m1 0h7m2 0h1M2 47.5h1m1 0h3m1 0h1m1 0h3m1 0h3m2 0h2m1 0h3m4 0h1m2 0h2m1 0h2m1 0h7m2 0h1m2 0h1M2 48.5h1m1 0h3m1 0h1m3 0h1m3 0h1m1 0h2m1 0h2m1 0h3m2 0h2m1 0h2m1 0h2m4 0h1m1 0h4m3 0h1M2 49.5h1m5 0h1m2 0h1m1 0h2m1 0h3m1 0h1m1 0h1m2 0h1m1 0h1m1 0h3m1 0h2m2 0h1m1 0h4m1 0h2m1 0h4M2 50.5h7m4 0h1m2 0h2m2 0h1m1 0h1m4 0h1m2 0h2m2 0h3m1 0h2m1 0h3m1 0h1m4 0h1\"/></svg>";
+const URL_TXT = "leixlix-pixel.github.io/toolbox/practical-6/1-time-doors.html";
+
+/* ═══════════════════════════════════════════════════ */
+const KEY = "pa6-timedoors-v1";
+let S = null;
+function blank(){
+  return { step:0, runs:[], pick:{}, led:LED.map(()=>0), gift:GIFT.map(()=>0), peo:24, tip:"" };
+}
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} }
+function load(){ try { return JSON.parse(localStorage.getItem(KEY)); } catch(e){ return null; } }
+
+function sum(){ return CARDS.reduce((a,c) => a + (S.pick[c.k]||0), 0); }
+function prog(d, p){ p = p || S.pick; return d.from.reduce((a,k) => a + (p[k]||0), 0); }
+function openList(p){ return DOORS.filter(d => prog(d, p) >= d.need); }
+function sameMix(a, b){ return CARDS.every(c => (a[c.k]||0) === (b[c.k]||0)); }
+function mixText(p){
+  return CARDS.filter(c => p[c.k]).map(c => c.i + " " + c.n + " " + p[c.k]).join(" · ");
+}
+function fmt(s){
+  if (!s) return "0초";
+  if (s < 60) return s + "초";
+  const m = Math.floor(s/60), r = s % 60;
+  return m + "분" + (r ? " " + r + "초" : "");
+}
+function fmtBig(s){
+  const h = s/3600;
+  if (h < 1) return Math.round(s/60) + "분";
+  if (h < 24) return Math.floor(h) + "시간" + (Math.round(s%3600/60) ? " " + Math.round(s%3600/60) + "분" : "");
+  return Math.floor(h/24) + "일 " + Math.round(h%24) + "시간";
+}
+function ledCost(){ return S.led.reduce((a,i) => a + STEPS[i], 0); }
+function ledSaved(){ return LED.reduce((a,x) => a + x.sv, 0); }
+function giftSum(){ return S.gift.reduce((a,i) => a + STEPS[i], 0); }
+
+/* ── 조작 ─────────────────────────────── */
+function add(k, d){
+  const cur = S.pick[k]||0;
+  if (d > 0 && sum() >= SLOTS) { S.tip = "7칸을 다 썼어. 바꾸려면 카드 오른쪽 위 빨간 − 를 눌러."; render(); return; }
+  if (d < 0 && cur <= 0) return;
+  S.pick[k] = cur + d;
+  S.tip = "";
+  save(); render();
+}
+function tapDoor(n){
+  const d = DOORS[n], p = prog(d);
+  S.tip = p >= d.need
+    ? "「" + d.t + "」 — 열렸다. " + d.need + "칸이 여기로 갔어."
+    : "「" + d.t + "」 — " + (d.need - p) + "칸이 더 있으면 열려. 지금 안 열어도 나중에 열 수 있어. 다만 그때는 더 오래 걸려.";
+  save(); render();
+}
+function lockIn(){
+  const p = Object.assign({}, S.pick);
+  if (S.runs.length === 1 && sameMix(S.runs[0], p)) {
+    S.tip = "아까랑 똑같아. 이번엔 다르게 넣어 보자 — 그래야 견줘 볼 수 있어.";
+    render(); return;
+  }
+  S.runs.push(p);
+  S.pick = {}; S.tip = "";
+  S.step = S.runs.length >= 2 ? 3 : 2;
+  save(); render();
+}
+function tapLed(n){ S.led[n] = (S.led[n] + 1) % STEPS.length; save(); render(); }
+function tapGift(n){ S.gift[n] = (S.gift[n] + 1) % STEPS.length; save(); render(); }
+function peo(d){ S.peo = Math.max(1, Math.min(40, S.peo + d)); save(); render(); }
+function goStep(n){ S.step = n; S.tip = ""; save(); scrollTo(0,0); render(); }
+function redo(){ S.runs=[]; S.pick={}; goStep(1); }
+function restart(){
+  S = blank(); save(); scrollTo(0,0); render();
+}
+
+/* ── 화면 ─────────────────────────────── */
+const el = document.getElementById("app"), ft = document.getElementById("foot");
+
+function doorPanes(){
+  const used = sum();
+  const dots = Array.from({length:SLOTS}, (_,n) =>
+    '<span class="dot' + (n < used ? ' f' : '') + '"></span>').join("");
+  const cards = CARDS.map(c => {
+    const v = S.pick[c.k]||0;
+    return '<div class="pk' + (v ? ' hasv' : '') + '" onclick="add(\'' + c.k + '\',1)">'
+      + '<span class="minus" onclick="event.stopPropagation();add(\'' + c.k + '\',-1)">−</span>'
+      + '<span class="ic">' + c.i + '</span><span class="nm">' + c.n + '</span>'
+      + '<span class="cnt">' + (v ? v : "·") + '</span></div>';
+  }).join("");
+  const doors = DOORS.map((d,n) => {
+    const p = Math.min(prog(d), d.need), op = p >= d.need;
+    return '<div class="dr' + (op ? ' open' : '') + '" onclick="tapDoor(' + n + ')">'
+      + '<span class="ic">' + d.i + '</span>'
+      + '<span class="mid"><span class="t">' + d.t + '</span>'
+      + '<span class="pg"><i style="width:' + (p/d.need*100) + '%"></i></span></span>'
+      + '<span class="cost">' + p + ' / ' + d.need + '칸</span></div>';
+  }).join("");
+  const nOpen = openList(S.pick).length;
+  const tip = S.tip || (used < SLOTS
+    ? "남은 칸 " + (SLOTS - used) + "개. 카드를 눌러서 넣어 보자."
+    : "7칸을 다 썼어 — 열린 문 " + nOpen + "개, 닫힌 문 " + (DOORS.length - nOpen) + "개. 닫힌 문을 눌러 보자.");
+
+  return '<div class="slotbar"><span class="lab">이번 주 자유 시간</span>' + dots
+    + '<span class="rt">남은 칸 ' + (SLOTS - used) + '</span></div>'
+    + '<div class="panes"><div><div class="grid2">' + cards + '</div></div>'
+    + '<div><div class="slotbar" style="margin-bottom:9px"><span class="lab">6년 뒤 — 18살의 나</span>'
+    + '<span class="rt" style="color:var(--gold)">열린 문 ' + nOpen + ' / ' + DOORS.length + '</span></div>'
+    + '<div class="doorlist">' + doors + '</div></div></div>'
+    + '<div class="tip">' + tip + '</div>';
+}
+
+function render(){
+  const st = S.step;
+
+  if (st === 0){
+    el.innerHTML = '<div class="hero">'
+      + '<div class="big">시간은<br>어디로 가는가</div>'
+      + '<div class="sm">오늘은 <b>시간을 아끼는 법</b>을 배우지 않아.<br>'
+      + '내 시간이 <b>어디로 가서 무엇이 되는지</b>를 볼 거야.</div></div>'
+      + '<div class="box" style="margin-top:16px"><div class="lead" style="margin:0">'
+      + '세 가지를 해 볼 거야.<br>① <b class="n">6년 뒤에 내가 고를 수 있는 것</b> — 두 번 해 본다<br>'
+      + '② <b class="n">내가 아낀 시간은 어디로 갔을까</b><br>'
+      + '③ <b class="n">그럼 나에게 온 시간은</b><br><br>'
+      + '<b>정답이 없어.</b> 고른 것이 무엇을 만드는지만 보면 돼.</div></div>'
+      + (QR ? '<div class="qr">' + QR + '<div class="u">' + URL_TXT + '</div></div>' : '');
+    ft.innerHTML = '<button class="btn big g" onclick="goStep(1)">시작하기 ▶</button>';
+    return;
+  }
+
+  if (st === 1 || st === 2){
+    const nth = st === 1 ? "첫 번째" : "두 번째";
+    el.innerHTML = '<div class="top" style="--acc:var(--green)"><span class="st">' + nth + ' 방법</span>'
+      + '<h1>6년 뒤, 내가 고를 수 있는 것</h1></div>'
+      + '<div class="lead">일주일 자유 시간은 <b>7칸</b>이야 — 학교·밥·잠을 빼고 남는 시간.<br>'
+      + (st === 1
+         ? '이 7칸을 어디에 넣을까? <b>7칸으로는 모든 문을 열 수 없어.</b>'
+         : '이번엔 <b>아까와 다르게</b> 넣어 보자. 같은 7칸이 어떻게 달라지는지 볼 거야.')
+      + '</div>' + doorPanes();
+    const done = sum() >= SLOTS;
+    ft.innerHTML = '<span class="steps">' + (st === 1 ? "1" : "2") + ' / 5</span>'
+      + '<button class="btn big g" onclick="lockIn()"' + (done ? '' : ' disabled') + '>'
+      + (done ? "이걸로 정했다 ▶" : "7칸을 다 써야 넘어가")
+      + '</button>';
+    return;
+  }
+
+  if (st === 3){
+    const [a, b] = S.runs;
+    const box = (p, ttl) => {
+      const op = openList(p), opk = op.map(d => d.t);
+      return '<div class="cmpbox"><h3>' + ttl + '</h3>'
+        + '<div class="mix">' + mixText(p) + '</div>'
+        + '<div class="cnt">열린 문 ' + op.length + '개</div><ul>'
+        + DOORS.map(d => '<li' + (opk.includes(d.t) ? '' : ' class="x"') + '>' + d.t + '</li>').join("")
+        + '</ul></div>';
+    };
+    const da = openList(a).length, db = openList(b).length;
+    const msg = da === db
+      ? "두 방법 다 문 " + da + "개가 열렸어. 그런데 <b>열린 문이 서로 달라.</b> 같은 7칸인데 6년 뒤에 남는 것이 다르다는 뜻이야."
+      : "같은 7칸인데 열린 문이 <b>" + da + "개와 " + db + "개</b>로 달라졌어.";
+    el.innerHTML = '<div class="top" style="--acc:var(--gold)"><span class="st">견주어 보기</span>'
+      + '<h1>같은 7칸, 다른 6년 뒤</h1></div>'
+      + '<div class="cmp">' + box(a, "첫 번째 방법") + box(b, "두 번째 방법") + '</div>'
+      + '<div class="result n">' + msg + '</div>'
+      + '<div class="box" style="margin-top:11px"><div class="lead" style="margin:0">'
+      + '한 가지에 7칸을 다 몰면 큰 문 하나가 열리고 <b>나머지가 전부 닫혀.</b><br>'
+      + '일곱 가지에 한 칸씩 골고루 뿌리면 가벼운 문만 열리고 <b>무거운 문은 하나도 안 열려.</b><br><br>'
+      + '<b class="g">그래서 정답이 없어.</b> 어느 문을 열지 내가 고르는 것뿐이야.<br>'
+      + '그리고 <b class="n">닫힌 문은 영영 닫힌 게 아니야</b> — 나중에도 열 수 있어. 다만 그때는 더 오래 걸려.'
+      + '</div></div>';
+    ft.innerHTML = '<span class="steps">3 / 5</span>'
+      + '<button class="btn gh" onclick="redo()">다시 해 보기</button>'
+      + '<button class="btn big" onclick="goStep(4)">다음 ▶</button>';
+    return;
+  }
+
+  if (st === 4){
+    const cards = LED.map((x,n) => {
+      const v = STEPS[S.led[n]];
+      return '<div class="sc"><div class="ic">' + x.i + '</div>'
+        + '<div class="tx">' + x.t + '</div>'
+        + '<div class="sv">내가 아낀 시간 ' + fmt(x.sv) + '</div>'
+        + '<div class="qq">' + x.q + '</div>'
+        + '<button class="tapv' + (v ? '' : ' zero') + '" onclick="tapLed(' + n + ')">'
+        + (v ? fmt(v) : "눌러서 어림하기") + '</button></div>';
+    }).join("");
+    const all = S.led.every(i => i !== 0);
+    el.innerHTML = '<div class="top" style="--acc:var(--plum)"><span class="st">두 번째</span>'
+      + '<h1>내가 아낀 시간은 어디로 갔을까</h1></div>'
+      + '<div class="lead">내가 안 쓴 시간을 <b>누군가는 대신 써.</b> 얼마나 될지 어림해 보자.<br>'
+      + '<b class="n">정답은 없어</b> — 네가 어림한 값을 그대로 쓸 거야. 누를 때마다 시간이 늘어나.</div>'
+      + '<div class="scenes">' + cards + '</div>'
+      + '<div class="sums"><div class="sumbox r"><div class="l">내가 아낀 시간 (여섯 장면 합)</div>'
+      + '<div class="v">' + fmt(ledSaved()) + '</div></div>'
+      + '<div class="sumbox g" style="border-color:var(--plum);background:#faf5fc">'
+      + '<div class="l">남이 대신 쓴 시간 (내가 어림한 합)</div>'
+      + '<div class="v" style="color:var(--plum)">' + (all ? fmt(ledCost()) : "—") + '</div></div></div>'
+      + '<div class="box" style="margin-top:11px"><div class="l" style="font-size:14px;font-weight:700;color:var(--muted)">우리 반 인원</div>'
+      + '<div class="peo"><button onclick="peo(-1)">−</button>'
+      + '<span style="font-size:23px;font-weight:900">' + S.peo + '</span>'
+      + '<span style="font-size:17px;font-weight:700">명</span><button onclick="peo(1)">＋</button></div></div>'
+      + (all
+        ? '<div class="result">우리 반 ' + S.peo + '명이 1년(365일) 동안 하루 한 번씩 그러면 — 남이 대신 쓴 시간 '
+          + fmtBig(ledCost() * S.peo * 365) + '.<br><span style="font-size:15px;font-weight:600">(하루 한 번으로 어림했을 때)</span></div>'
+        : '<div class="result wait">여섯 칸을 다 어림하면 — 우리 반이 1년 동안 하루 한 번씩 그랬을 때가 나와.</div>');
+    ft.innerHTML = '<span class="steps">4 / 5</span>'
+      + '<button class="btn big" onclick="goStep(5)"' + (all ? '' : ' disabled') + '>'
+      + (all ? "다음 ▶" : "여섯 칸을 다 어림해야 넘어가") + '</button>';
+    return;
+  }
+
+  if (st === 5){
+    const cards = GIFT.map((x,n) => {
+      const v = STEPS[S.gift[n]];
+      return '<div class="sc" style="border-color:#bcd9c9"><div class="ic">' + x.i + '</div>'
+        + '<div class="tx">' + x.t + '</div>'
+        + '<div class="me">' + x.me + '</div>'
+        + '<div class="qq">' + x.q + '</div>'
+        + '<button class="tapv gr' + (v ? '' : ' zero') + '" onclick="tapGift(' + n + ')">'
+        + (v ? fmt(v) : "눌러서 어림하기") + '</button></div>';
+    }).join("");
+    const all = S.gift.every(i => i !== 0);
+    el.innerHTML = '<div class="top" style="--acc:var(--green)"><span class="st">세 번째</span>'
+      + '<h1>그럼 반대쪽은 — 나에게 온 시간</h1></div>'
+      + '<div class="lead">오늘 아침, 누군가 <b class="g">나를 위해 미리 쓴 시간</b>을 어림해 보자.</div>'
+      + '<div class="scenes">' + cards + '</div>'
+      + '<div class="sums"><div class="sumbox r"><div class="l">내가 남에게 넘긴 시간 (앞 화면)</div>'
+      + '<div class="v">' + fmt(ledCost()) + '</div></div>'
+      + '<div class="sumbox g"><div class="l">남이 나에게 쓴 시간 (이 화면)</div>'
+      + '<div class="v">' + (all ? fmt(giftSum()) : "—") + '</div></div></div>'
+      + (all
+        ? '<div class="result n">어느 쪽이 큰지를 따지려는 게 아니야 — <b style="color:#ffe9b0">두 수 모두, 시간이 사라지지 않고 누군가에게 갔다</b>는 뜻이야.</div>'
+        : '<div class="result wait">세 칸을 어림하면 두 수가 나란히 놓여.</div>');
+    ft.innerHTML = '<span class="steps">5 / 5</span>'
+      + '<button class="btn big g" onclick="goStep(6)"' + (all ? '' : ' disabled') + '>'
+      + (all ? "마무리 ▶" : "세 칸을 다 어림해야 넘어가") + '</button>';
+    return;
+  }
+
+  /* 마무리 */
+  const best = S.runs.map(p => ({p, n:openList(p).length})).sort((a,b) => b.n - a.n)[0];
+  const top = CARDS.map(c => ({c, v:best.p[c.k] || 0})).sort((a,b) => b.v - a.v)[0];
+  const opened = openList(best.p);
+  /* 공책 줄에는 「제일 많이 넣은 카드가 연 문」을 적는다 — 없으면 가장 무거운 문 */
+  const mine = opened.filter(d => d.from.includes(top.c.k));
+  const myDoor = mine.length ? mine[mine.length-1] : opened[opened.length-1];
+  el.innerHTML = '<div class="top" style="--acc:var(--navy)"><span class="st">오늘의 정리</span>'
+    + '<h1>시간은 사라지지 않는다</h1></div>'
+    + '<div class="box"><div class="lead" style="margin:0">'
+    + '안 쓴 시간은 사라지지만, <b>쓴 시간은 사라지지 않아.</b><br>'
+    + '<b class="n">어디로 갈지 정해질 뿐이야</b> — 6년 뒤의 나에게 가거나, 다른 사람에게 넘어가거나.'
+    + '</div></div>'
+    + '<div class="note"><div class="h">✏️ 공책에 이렇게 한 줄 쓰자</div><div class="line">'
+    + '나는 7칸을 <b>' + (top.v ? top.c.n : "······") + '</b>에 <b>' + (top.v || "··") + '</b>칸 썼다.<br>'
+    + '그래서 <b>' + (myDoor ? myDoor.t : "······") + '</b> 문이 열렸다.<br>'
+    + '내가 아낀 시간 <b>' + fmt(ledCost()) + '</b>은 <b>다른 사람</b>에게 갔고,<br>'
+    + '<b>' + fmt(giftSum()) + '</b>은 누군가가 <b>나에게</b> 썼다.'
+    + '</div></div>'
+    + '<div class="box" style="margin-top:12px"><div class="lead" style="margin:0">'
+    + '마지막으로 하나만 더 생각해 보자 —<br><br>'
+    + '<b style="font-size:21px">그럼 아무것도 안 남는 시간은 버린 시간일까?</b><br><br>'
+    + '<span style="font-size:16px;color:var(--muted);font-weight:600">이 답은 오늘 내지 않아. 다음 시간에 앱으로 일주일을 살아 보고 나서 다시 이야기할 거야.</span>'
+    + '</div></div>';
+  ft.innerHTML = '<span class="steps">끝</span>'
+    + '<button class="btn gh" onclick="restart()">처음부터 다시</button>'
+    + '<button class="btn big" onclick="goStep(3)">◀ 견주어 보기로</button>';
+}
+
+/* ── 시작 ─────────────────────────────── */
+const old = load();
+if (old && old.step > 0){
+  S = blank();
+  el.innerHTML = '<div class="hero"><div class="big">하던 것이 있어</div>'
+    + '<div class="sm">지난번에 하던 자리가 남아 있어.<br>이어서 할까, 처음부터 할까?</div></div>';
+  ft.innerHTML = '<button class="btn big g" onclick="S=Object.assign(blank(),old);S.tip=\'\';save();render()">이어서 하기 ▶</button>'
+    + '<button class="btn gh" onclick="restart()">처음부터</button>';
+} else {
+  S = blank();
+  render();
+}
+</script>
+</body>
+</html>

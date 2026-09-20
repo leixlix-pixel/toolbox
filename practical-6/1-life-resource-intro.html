@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>시간은 어디로 가는가 — 생활 자원의 가치 있는 사용</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --ink:#1c2430; --navy:#123a63; --navy2:#1d5b95;
+  --red:#c0392b; --gold:#c8963e; --green:#2e7d5b; --plum:#7d4a86;
+  --paper:#f6f2e9; --line:#d9d2c4; --muted:#6d6b66;
+}
+
+html,body{height:100%;background:#0d1520;font-family:'Noto Sans KR',sans-serif;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;overflow:hidden}
+
+#stage{position:absolute;left:50%;top:calc(50% - 23px);width:1280px;height:720px;
+  transform-origin:center center;background:var(--paper);overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,.6)}
+
+.slide{position:absolute;inset:0;padding:34px 50px 30px;display:none;
+  flex-direction:column;background:var(--paper);--acc:var(--navy2)}
+.slide.on{display:flex}
+.slide::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(circle at 12% 8%,rgba(29,91,149,.10),transparent 45%),
+             radial-gradient(circle at 92% 95%,rgba(200,150,62,.10),transparent 45%)}
+.slide>*{position:relative;z-index:1}
+.slide.io{padding:18px 30px 14px}
+.slide.io::after{display:none}
+
+.eyebrow{display:inline-block;font-size:19px;font-weight:700;color:#fff;
+  background:var(--acc);padding:5px 17px;border-radius:999px;margin-bottom:9px;align-self:flex-start}
+h2.stitle{font-size:38px;font-weight:900;color:var(--acc);line-height:1.2;letter-spacing:-.02em}
+h2.stitle.sm{font-size:32px}
+.rule{width:90px;height:7px;border-radius:4px;
+  background:linear-gradient(90deg,var(--navy2),var(--gold));margin:9px 0 16px}
+p.body{font-size:25px;line-height:1.5;color:var(--ink);font-weight:500}
+p.body+p.body{margin-top:11px}
+.small{font-size:21px;line-height:1.5}
+.tiny{font-size:18px;line-height:1.5}
+.mt{margin-top:14px}
+.ctr{text-align:center}
+
+b.hl{font-weight:900;color:var(--red);background:linear-gradient(transparent 62%,rgba(192,57,43,.20) 62%);padding:0 2px}
+b.hn{font-weight:900;color:var(--navy2);background:linear-gradient(transparent 62%,rgba(29,91,149,.18) 62%);padding:0 2px}
+b.hg{font-weight:900;color:var(--green);background:linear-gradient(transparent 62%,rgba(46,125,91,.18) 62%);padding:0 2px}
+
+.cols{display:flex;gap:26px;flex:1;min-height:0;align-items:center}
+.col{flex:1;min-width:0}
+
+.term{background:#fff;border-left:9px solid var(--gold);border-radius:8px;padding:12px 16px;
+  box-shadow:0 6px 16px rgba(30,25,15,.10)}
+.term+.term{margin-top:11px}
+.term .t{font-size:22px;font-weight:900;color:var(--gold);margin-bottom:3px}
+.term .d{font-size:20px;font-weight:500;color:var(--ink);line-height:1.45}
+
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;
+  box-shadow:0 6px 16px rgba(30,25,15,.09)}
+.card h3{font-size:21px;font-weight:900;color:var(--acc);margin-bottom:6px}
+.card p{font-size:19px;line-height:1.42;font-weight:500;color:var(--ink)}
+.cardrow{display:flex;gap:14px}
+.cardrow>.card{flex:1}
+.cardgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+.act{background:#fff;border:3px dashed var(--red);border-radius:18px;padding:16px 20px}
+.act-h{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.act-badge{background:var(--red);color:#fff;font-weight:900;font-size:18px;
+  padding:5px 14px;border-radius:999px;white-space:nowrap}
+.act-t{font-size:24px;font-weight:900;color:var(--navy)}
+
+.ask{background:linear-gradient(135deg,#123a63,#1d5b95);color:#fff;border-radius:20px;
+  padding:26px 34px;box-shadow:0 12px 30px rgba(18,58,99,.30)}
+.ask .q{font-size:20px;font-weight:700;color:#9fc6ec;margin-bottom:8px}
+.ask .a{font-size:33px;font-weight:900;line-height:1.3}
+.ask .n{font-size:21px;font-weight:500;line-height:1.5;margin-top:12px;color:#dbe8f5}
+
+.cover{background:linear-gradient(140deg,#0f2f52,#1d5b95 55%,#2e7d5b);
+  align-items:flex-start;justify-content:center;padding:60px 70px;color:#fff}
+.cover .kicker{font-size:23px;font-weight:700;color:#ffe9b0;margin-bottom:14px}
+.cover h1{font-size:74px;font-weight:900;line-height:1.1;letter-spacing:-.03em}
+.cover .sub{font-size:26px;font-weight:500;margin-top:22px;line-height:1.5;color:#e6eef7}
+.cover2{background:linear-gradient(140deg,#123a63,#7d4a86);align-items:flex-start;
+  justify-content:center;padding:60px 70px;color:#fff}
+.cover2 .kicker{font-size:23px;font-weight:700;color:#ffe9b0;margin-bottom:14px}
+.cover2 h1{font-size:60px;font-weight:900;line-height:1.14;letter-spacing:-.03em}
+.cover2 .sub{font-size:24px;font-weight:500;margin-top:20px;line-height:1.55;color:#eadff2}
+
+.bigq{font-family:'Gaegu',sans-serif;font-size:56px;font-weight:700;color:var(--red);line-height:1.25}
+.scene{display:flex;gap:16px;flex-wrap:wrap}
+.scene .s{flex:1;min-width:0;background:#fff;border:2px solid var(--line);border-radius:16px;
+  padding:14px 16px;text-align:center;box-shadow:0 6px 16px rgba(30,25,15,.08)}
+.scene .s .ic{font-size:40px;line-height:1}
+.scene .s .tx{font-size:19px;font-weight:700;color:var(--ink);margin-top:7px;line-height:1.35}
+
+.steps{display:flex;gap:12px;align-items:stretch}
+.steps .st{flex:1;background:#fff;border:2px solid var(--line);border-radius:14px;padding:12px 13px;
+  box-shadow:0 5px 14px rgba(30,25,15,.08)}
+.steps .st .n{display:inline-block;background:var(--acc);color:#fff;font-weight:900;font-size:16px;
+  width:28px;height:28px;line-height:28px;text-align:center;border-radius:50%;margin-bottom:6px}
+.steps .st .t{font-size:20px;font-weight:900;color:var(--ink);margin-bottom:4px}
+.steps .st .d{font-size:17px;font-weight:500;color:var(--muted);line-height:1.4}
+
+/* ── 조작 화면 공통 ─────────────────────────────── */
+.iohead{display:flex;align-items:center;gap:14px;margin-bottom:10px;flex-shrink:0}
+.iohead .ttl{font-size:26px;font-weight:900;color:var(--acc)}
+.iohead .sub2{font-size:17px;font-weight:600;color:var(--muted)}
+.iohead .right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.btn{background:var(--acc);color:#fff;border:0;border-radius:10px;padding:9px 18px;
+  font-size:18px;font-weight:900;font-family:inherit;cursor:pointer;min-height:44px}
+.btn.gh{background:#fff;color:var(--acc);border:2px solid var(--acc)}
+.iofoot{flex-shrink:0;margin-top:10px;font-size:18px;font-weight:700;color:var(--ink);
+  background:#fff;border:2px solid var(--line);border-radius:12px;padding:10px 16px;line-height:1.4}
+
+/* 조작 ① 문 */
+#doorWrap{display:flex;gap:18px;flex:1;min-height:0}
+.dleft{width:470px;display:flex;flex-direction:column;min-height:0}
+.dright{flex:1;display:flex;flex-direction:column;min-height:0}
+.slotbar{display:flex;align-items:center;gap:8px;background:#fff;border:2px solid var(--line);
+  border-radius:12px;padding:8px 12px;margin-bottom:10px;flex-shrink:0}
+.slotbar .lab{font-size:17px;font-weight:900;color:var(--ink)}
+.dot{width:20px;height:20px;border-radius:50%;border:2px solid #b9c4cf;background:#fff}
+.dot.f{background:var(--green);border-color:var(--green)}
+.cardgrid2{display:grid;grid-template-columns:1fr 1fr;gap:9px;flex:1;min-height:0}
+.pk{position:relative;background:#fff;border:2px solid var(--line);border-radius:13px;
+  display:flex;align-items:center;gap:9px;padding:6px 10px;cursor:pointer}
+.pk.hasv{border-color:var(--green);background:#f1f9f5}
+.pk .ic{font-size:27px;line-height:1}
+.pk .nm{font-size:18px;font-weight:900;color:var(--ink);line-height:1.2}
+.pk .cnt{margin-left:auto;font-size:21px;font-weight:900;color:var(--green);min-width:26px;text-align:right}
+.pk .minus{position:absolute;right:-6px;top:-6px;width:26px;height:26px;border-radius:50%;
+  background:#c0392b;color:#fff;font-size:17px;font-weight:900;line-height:24px;text-align:center;
+  border:2px solid #fff;display:none}
+.pk.hasv .minus{display:block}
+.doorlist{display:flex;flex-direction:column;gap:7px;flex:1;min-height:0}
+.dr{background:#fff;border:2px solid var(--line);border-radius:12px;padding:7px 12px;
+  display:flex;align-items:center;gap:11px;cursor:pointer;opacity:.62}
+.dr.open{opacity:1;border-color:var(--gold);background:#fffaf0;
+  box-shadow:0 5px 14px rgba(200,150,62,.28)}
+.dr .ic{font-size:25px;line-height:1;filter:grayscale(1)}
+.dr.open .ic{filter:none}
+.dr .mid{flex:1;min-width:0;display:block}
+.dr .t{display:block;font-size:18px;font-weight:900;color:var(--ink);line-height:1.2}
+.dr .pg{display:block;height:8px;border-radius:5px;background:#e4e0d6;margin-top:5px;overflow:hidden}
+.dr .pg i{display:block;height:100%;background:var(--gold);border-radius:5px;width:0}
+.dr .cost{font-size:16px;font-weight:900;color:var(--muted);white-space:nowrap}
+.dr.open .cost{color:var(--gold)}
+#doorTip{margin-top:9px;background:#123a63;color:#fff;border-radius:11px;padding:9px 14px;
+  font-size:17px;font-weight:600;line-height:1.4;min-height:44px;display:flex;align-items:center}
+
+/* 조작 ② 장부 */
+#ledWrap{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px;flex:1;min-height:0}
+#ledWrap.three{grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr}
+.sc{background:#fff;border:2px solid var(--line);border-radius:15px;padding:11px 13px;
+  display:flex;flex-direction:column;min-height:0}
+.sc .ic{font-size:31px;line-height:1}
+.sc .tx{font-size:18px;font-weight:900;color:var(--ink);line-height:1.3;margin-top:5px}
+.sc .sv{font-size:16px;font-weight:700;color:var(--red);margin-top:5px}
+.sc .qq{font-size:16px;font-weight:600;color:var(--muted);line-height:1.35;margin-top:auto;padding-top:6px}
+#ledWrap2 .sc{justify-content:center}
+#ledWrap2 .ic{font-size:44px}
+#ledWrap2 .tx{font-size:22px}
+#ledWrap2 .qq{margin-top:12px}
+#ledWrap2 .me{font-size:17px;font-weight:700;color:var(--red);margin-top:8px;line-height:1.35}
+.tapv{margin-top:7px;background:var(--plum);color:#fff;border:0;border-radius:11px;width:100%;
+  min-height:50px;font-size:23px;font-weight:900;font-family:inherit;cursor:pointer}
+.tapv.zero{background:#fff;color:var(--plum);border:2px dashed var(--plum);font-size:18px}
+.sumbar{display:flex;gap:12px;align-items:stretch;margin-top:10px;flex-shrink:0}
+.sumbox{flex:1;background:#fff;border:2px solid var(--line);border-radius:12px;padding:8px 14px}
+.sumbox .l{font-size:15px;font-weight:700;color:var(--muted)}
+.sumbox .v{font-size:25px;font-weight:900;color:var(--ink);line-height:1.15}
+.sumbox.hot{border-color:var(--plum);background:#faf5fc}
+.sumbox.hot .v{color:var(--plum)}
+.peo{display:flex;align-items:center;gap:7px}
+.peo button{width:38px;height:38px;border-radius:9px;border:2px solid var(--acc);background:#fff;
+  color:var(--acc);font-size:20px;font-weight:900;font-family:inherit;cursor:pointer}
+#bigOut{background:#7d4a86;color:#fff;border-radius:12px;padding:9px 16px;margin-top:9px;
+  font-size:21px;font-weight:900;line-height:1.35;flex-shrink:0;min-height:52px;
+  display:flex;align-items:center}
+#bigOut.q{background:#fff;color:var(--muted);border:2px dashed var(--line);font-size:18px;font-weight:700}
+
+#qrstu svg{width:210px;height:210px;display:block}
+.qr{display:flex;flex-direction:column;align-items:center;gap:10px;background:#fff;
+  border:2px solid var(--line);border-radius:16px;padding:18px 20px;text-align:center;width:100%}
+.qr svg{width:170px;height:170px;flex-shrink:0}
+.qr .u{font-size:16px;color:var(--muted);font-weight:600;word-break:break-all;margin-top:6px}
+
+.bar{position:fixed;left:0;right:0;bottom:0;height:46px;background:#0f1a29;color:#cfd8e6;
+  display:flex;align-items:center;gap:10px;padding:0 14px;font-size:15px;z-index:50}
+.bar button{background:#1d3350;color:#e8eef7;border:0;border-radius:7px;padding:7px 13px;
+  font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+#prog{position:fixed;left:0;top:0;height:4px;background:var(--navy2);z-index:60;transition:width .18s}
+.zone{position:fixed;top:0;bottom:46px;width:12%;z-index:40;cursor:pointer}
+.zone.off{display:none}
+</style>
+</head>
+<body>
+
+<div id="prog"></div>
+<div id="stage"></div>
+<div class="zone" id="zl"></div>
+<div class="zone" id="zr"></div>
+<div class="bar">
+  <button onclick="go(-1)">◀ 이전</button>
+  <button onclick="go(1)">다음 ▶</button>
+  <span id="counter">1 / 1</span>
+  <span style="margin-left:18px;opacity:.7">← → 이동 · F 전체화면 · 조작 화면에서는 버튼으로 넘긴다</span>
+  <button style="margin-left:auto" onclick="fs()">⛶ 전체화면</button>
+</div>
+
+<script>
+/* ── QR — 앱 「일주일 살림꾼」 배포 주소. 외부 QR 서비스를 부르지 말 것(방화벽).
+   파일 이름을 바꾸면 QR 을 다시 만들 것. */
+const QR = /*QR_INJECT*/"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 39 39\" shape-rendering=\"crispEdges\"><path fill=\"#ffffff\" d=\"M0 0h39v39H0z\"/><path stroke=\"#000000\" d=\"M1 1.5h7m1 0h1m1 0h1m4 0h1m1 0h3m3 0h1m2 0h2m2 0h7M1 2.5h1m5 0h1m2 0h2m1 0h1m1 0h1m1 0h2m2 0h1m1 0h1m1 0h2m2 0h1m1 0h1m5 0h1M1 3.5h1m1 0h3m1 0h1m3 0h1m1 0h1m4 0h6m1 0h1m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1M1 4.5h1m1 0h3m1 0h1m1 0h3m1 0h1m2 0h1m2 0h2m4 0h3m1 0h1m1 0h1m1 0h3m1 0h1M1 5.5h1m1 0h3m1 0h1m1 0h2m1 0h1m2 0h2m2 0h1m2 0h1m1 0h1m3 0h1m2 0h1m1 0h3m1 0h1M1 6.5h1m5 0h1m1 0h1m4 0h1m1 0h1m2 0h3m4 0h1m4 0h1m5 0h1M1 7.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M9 8.5h4m1 0h2m1 0h3m1 0h4m2 0h3M1 9.5h1m3 0h1m1 0h3m2 0h1m1 0h2m3 0h2m1 0h4m2 0h1m1 0h5m2 0h1M1 10.5h3m1 0h1m3 0h3m5 0h2m1 0h7m1 0h2m2 0h3m1 0h1M2 11.5h1m2 0h5m1 0h1m1 0h3m1 0h1m1 0h1m1 0h4m3 0h1m2 0h1m1 0h3M4 12.5h3m3 0h3m1 0h1m3 0h2m2 0h4m2 0h1m1 0h1m1 0h1m2 0h2M5 13.5h3m1 0h3m1 0h2m1 0h3m1 0h1m1 0h2m1 0h1m3 0h4m2 0h3M1 14.5h1m2 0h3m1 0h1m3 0h3m1 0h4m3 0h2m1 0h4m3 0h2m1 0h1M1 15.5h2m2 0h1m1 0h1m3 0h2m2 0h3m1 0h1m1 0h2m1 0h3m1 0h1m2 0h5M3 16.5h1m1 0h1m2 0h2m1 0h1m1 0h5m2 0h4m1 0h1m1 0h3m1 0h3m1 0h1m1 0h1M3 17.5h3m1 0h1m6 0h2m1 0h1m3 0h3m1 0h1m2 0h1m2 0h1m2 0h2m1 0h1M1 18.5h4m8 0h2m3 0h3m3 0h1m3 0h3m1 0h2m1 0h2M1 19.5h1m3 0h3m1 0h1m3 0h2m1 0h1m1 0h3m1 0h1m1 0h1m3 0h1m3 0h1m2 0h1M2 20.5h1m1 0h1m3 0h3m1 0h3m1 0h3m1 0h3m4 0h2m3 0h2m1 0h2M1 21.5h1m1 0h1m3 0h1m1 0h1m1 0h5m1 0h2m2 0h3m1 0h1m4 0h3m2 0h1M1 22.5h1m1 0h2m7 0h1m1 0h4m1 0h1m1 0h2m1 0h1m1 0h1m1 0h2m2 0h2M1 23.5h1m1 0h8m1 0h1m1 0h1m1 0h1m1 0h1m2 0h2m1 0h1m2 0h4m1 0h4M1 24.5h1m1 0h2m1 0h1m1 0h1m3 0h1m2 0h1m2 0h5m2 0h1m2 0h1m1 0h4m1 0h1M2 25.5h2m2 0h3m2 0h1m1 0h4m2 0h1m2 0h3m3 0h1m2 0h2m1 0h2m1 0h1M1 26.5h1m3 0h1m4 0h1m1 0h1m2 0h1m1 0h1m2 0h2m2 0h1m2 0h3m2 0h2M3 27.5h3m1 0h1m1 0h4m1 0h1m2 0h1m3 0h1m1 0h3m2 0h1m1 0h2M3 28.5h2m1 0h1m1 0h1m2 0h1m2 0h1m3 0h1m3 0h3m7 0h2m1 0h1m1 0h1M1 29.5h3m1 0h1m1 0h1m1 0h2m1 0h1m1 0h1m1 0h1m1 0h1m1 0h3m2 0h1m3 0h5m1 0h3M9 30.5h2m1 0h3m1 0h1m1 0h2m2 0h1m1 0h4m1 0h1m3 0h1M1 31.5h7m1 0h2m5 0h2m1 0h1m1 0h2m1 0h1m2 0h1m1 0h1m1 0h1m1 0h1M1 32.5h1m5 0h1m2 0h2m1 0h5m4 0h4m1 0h1m1 0h1m3 0h5M1 33.5h1m1 0h3m1 0h1m1 0h1m1 0h1m4 0h2m3 0h1m2 0h2m3 0h7m1 0h1M1 34.5h1m1 0h3m1 0h1m2 0h1m1 0h2m4 0h3m1 0h1m1 0h1m1 0h1m3 0h3m4 0h1M1 35.5h1m1 0h3m1 0h1m2 0h1m1 0h1m1 0h3m2 0h2m3 0h2m1 0h2m2 0h1m3 0h1M1 36.5h1m5 0h1m3 0h1m1 0h1m2 0h8m1 0h1m1 0h1m3 0h1m1 0h1m1 0h2M1 37.5h7m1 0h2m1 0h1m2 0h1m1 0h2m2 0h3m1 0h1m2 0h1m1 0h3m2 0h3\"/></svg>";
+/* 학생용 앱 「시간은 어디로 가는가」 주소. 아이들이 ⑦번 화면에서 이걸 찍고 태블릿으로 들어간다. */
+const QR_STU = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 53 53\" shape-rendering=\"crispEdges\"><path fill=\"#ffffff\" d=\"M0 0h53v53H0z\"/><path stroke=\"#0a1628\" d=\"M2 2.5h7m4 0h3m3 0h1m7 0h1m2 0h1m1 0h3m1 0h1m1 0h1m3 0h1m1 0h7M2 3.5h1m5 0h1m3 0h3m1 0h1m2 0h1m1 0h3m4 0h3m1 0h1m1 0h3m3 0h3m1 0h1m5 0h1M2 4.5h1m1 0h3m1 0h1m1 0h1m4 0h1m1 0h1m3 0h4m3 0h2m3 0h1m5 0h1m1 0h2m1 0h1m1 0h3m1 0h1M2 5.5h1m1 0h3m1 0h1m1 0h2m1 0h5m1 0h1m5 0h2m5 0h1m2 0h1m1 0h3m1 0h1m2 0h1m1 0h3m1 0h1M2 6.5h1m1 0h3m1 0h1m2 0h1m4 0h2m3 0h12m5 0h2m4 0h1m1 0h3m1 0h1M2 7.5h1m5 0h1m2 0h1m2 0h3m2 0h1m1 0h1m2 0h1m3 0h1m2 0h2m2 0h1m2 0h1m1 0h1m3 0h1m5 0h1M2 8.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M14 9.5h5m2 0h4m3 0h1m1 0h1m1 0h5m1 0h5M5 10.5h2m1 0h2m1 0h1m1 0h2m3 0h1m2 0h2m1 0h6m1 0h1m2 0h1m2 0h1m3 0h1m5 0h2M2 11.5h1m1 0h3m2 0h2m1 0h6m1 0h4m1 0h2m1 0h3m1 0h1m1 0h1m2 0h1m2 0h6m1 0h1M4 12.5h2m1 0h2m1 0h2m5 0h3m4 0h5m3 0h1m1 0h1m1 0h1m6 0h1m1 0h2m3 0h1M2 13.5h6m3 0h2m1 0h4m1 0h3m4 0h1m2 0h2m1 0h1m4 0h1m1 0h4m3 0h4M2 14.5h1m1 0h2m2 0h7m3 0h4m1 0h1m3 0h1m2 0h2m1 0h4m1 0h1m2 0h1m2 0h4m1 0h2M2 15.5h2m2 0h2m2 0h3m3 0h3m1 0h3m1 0h2m4 0h2m1 0h3m4 0h1m2 0h2M3 16.5h3m1 0h2m1 0h2m2 0h2m2 0h1m2 0h2m1 0h1m1 0h2m5 0h1m3 0h1m2 0h2m4 0h1m1 0h1m1 0h1M2 17.5h1m1 0h1m4 0h1m1 0h2m4 0h3m1 0h1m2 0h2m1 0h1m2 0h1m1 0h3m1 0h1m3 0h1m2 0h1m4 0h1M2 18.5h2m4 0h3m4 0h3m4 0h3m1 0h5m1 0h1m1 0h1m2 0h5m1 0h1m1 0h2m2 0h2M6 19.5h2m1 0h1m8 0h1m1 0h2m2 0h1m1 0h1m2 0h1m4 0h1m1 0h2m3 0h1M4 20.5h1m2 0h3m2 0h1m1 0h3m1 0h2m1 0h1m1 0h5m1 0h1m2 0h1m1 0h1m1 0h1m1 0h1m1 0h2m1 0h6m1 0h1M2 21.5h4m4 0h3m1 0h1m1 0h2m1 0h3m1 0h2m2 0h1m1 0h1m1 0h1m1 0h2m1 0h1m4 0h2m1 0h1m2 0h1m1 0h2M2 22.5h1m4 0h4m1 0h1m4 0h2m4 0h1m7 0h1m1 0h1m2 0h3m1 0h2m2 0h1M2 23.5h2m7 0h1m1 0h1m1 0h5m2 0h1m1 0h1m2 0h3m2 0h5m3 0h5m1 0h1M5 24.5h6m2 0h2m2 0h1m2 0h2m1 0h6m2 0h1m1 0h1m2 0h3m3 0h6m2 0h1M3 25.5h4m3 0h1m1 0h1m2 0h1m1 0h1m1 0h1m2 0h3m3 0h3m4 0h3m1 0h4m3 0h1m1 0h1m1 0h1M2 26.5h5m1 0h1m1 0h2m3 0h5m1 0h1m1 0h2m1 0h1m1 0h2m2 0h1m2 0h2m1 0h3m1 0h1m1 0h1m1 0h2m2 0h1M3 27.5h1m1 0h2m3 0h1m5 0h2m1 0h1m1 0h2m1 0h1m3 0h2m3 0h1m1 0h1m1 0h1m1 0h4m3 0h3m1 0h1M3 28.5h8m2 0h1m2 0h6m1 0h6m5 0h2m1 0h11m1 0h1M2 29.5h1m2 0h1m1 0h1m1 0h4m2 0h2m2 0h1m4 0h1m3 0h2m1 0h1m2 0h1m4 0h1m1 0h1m1 0h1m1 0h4M2 30.5h1m1 0h1m3 0h3m1 0h1m3 0h1m2 0h2m1 0h1m1 0h2m1 0h2m1 0h2m2 0h2m2 0h2m1 0h3m1 0h4M2 31.5h2m1 0h3m1 0h1m1 0h1m2 0h1m1 0h2m6 0h2m1 0h1m1 0h1m1 0h1m4 0h4m1 0h2m1 0h1m3 0h2M3 32.5h2m1 0h1m1 0h2m1 0h2m3 0h1m1 0h2m1 0h1m1 0h1m1 0h3m2 0h2m3 0h1m3 0h1m1 0h2m1 0h1m1 0h1m1 0h1m1 0h1M5 33.5h1m1 0h1m1 0h1m1 0h3m3 0h2m6 0h2m1 0h1m3 0h1m1 0h1m2 0h2m2 0h3m1 0h3m2 0h1M3 34.5h3m2 0h6m4 0h2m2 0h1m2 0h4m1 0h1m2 0h1m2 0h1m1 0h2m1 0h3m1 0h3m1 0h2M3 35.5h1m1 0h1m3 0h1m2 0h3m1 0h2m1 0h2m1 0h1m2 0h2m1 0h1m4 0h2m1 0h3m1 0h1m2 0h1m2 0h2m1 0h1M5 36.5h1m1 0h2m2 0h2m1 0h2m1 0h2m3 0h3m1 0h2m2 0h1m3 0h5m2 0h1m2 0h3m3 0h1M2 37.5h1m2 0h1m3 0h2m1 0h1m2 0h1m5 0h2m8 0h1m2 0h4m3 0h1m3 0h1m1 0h4M6 38.5h1m1 0h1m3 0h1m1 0h6m1 0h1m1 0h1m3 0h5m2 0h6m1 0h3m3 0h1m1 0h2M4 39.5h2m1 0h1m1 0h1m2 0h3m5 0h8m2 0h1m1 0h1m1 0h2m1 0h1m2 0h1m2 0h2m1 0h3M3 40.5h1m3 0h2m5 0h4m2 0h3m1 0h1m1 0h2m2 0h2m2 0h2m2 0h1m1 0h1m2 0h2m1 0h2m1 0h2M3 41.5h3m3 0h1m1 0h3m1 0h1m1 0h4m2 0h2m1 0h2m1 0h1m3 0h1m1 0h1m1 0h1m1 0h1m1 0h2m3 0h2m1 0h2M2 42.5h3m3 0h1m1 0h3m1 0h1m1 0h2m2 0h1m3 0h15m2 0h7m2 0h1M10 43.5h2m1 0h1m1 0h1m1 0h3m3 0h2m3 0h1m1 0h4m1 0h1m2 0h5m3 0h4M2 44.5h7m1 0h1m3 0h1m3 0h3m3 0h1m1 0h1m1 0h2m1 0h1m3 0h2m2 0h2m1 0h1m1 0h1m1 0h3m1 0h1M2 45.5h1m5 0h1m4 0h4m6 0h2m3 0h1m1 0h3m3 0h1m5 0h1m3 0h2m2 0h1M2 46.5h1m1 0h3m1 0h1m1 0h4m1 0h4m1 0h13m2 0h4m1 0h7m2 0h1M2 47.5h1m1 0h3m1 0h1m1 0h3m1 0h3m2 0h2m1 0h3m4 0h1m2 0h2m1 0h2m1 0h7m2 0h1m2 0h1M2 48.5h1m1 0h3m1 0h1m3 0h1m3 0h1m1 0h2m1 0h2m1 0h3m2 0h2m1 0h2m1 0h2m4 0h1m1 0h4m3 0h1M2 49.5h1m5 0h1m2 0h1m1 0h2m1 0h3m1 0h1m1 0h1m2 0h1m1 0h1m1 0h3m1 0h2m2 0h1m1 0h4m1 0h2m1 0h4M2 50.5h7m4 0h1m2 0h2m2 0h1m1 0h1m4 0h1m2 0h2m2 0h3m1 0h2m1 0h3m1 0h1m4 0h1\"/></svg>";
+
+const SLIDES = [
+
+/* 0 표지 */
+`<section class="slide cover">
+  <div class="kicker">실과 6단원 · 나의 생활 자원 관리 · 1차시 (92~93쪽)</div>
+  <h1>시간은<br>어디로 가는가</h1>
+  <div class="sub">오늘은 <b style="color:#ffe9b0">시간을 아끼는 법</b>을 배우지 않는다.<br>시간이 <b style="color:#ffe9b0">어디로 가서 무엇이 되는지</b>를 본다.</div>
+</section>`,
+
+/* 1 92쪽 1분 — 도입 */
+`<section class="slide" style="--acc:var(--green)">
+  <span class="eyebrow">92쪽 · 생각이 반짝</span>
+  <h2 class="stitle">1분으로 소중한 사람을 기쁘게 하려면?</h2>
+  <div class="rule"></div>
+  <div class="scene mt">
+    <div class="s"><div class="ic">💃</div><div class="tx">춤을 좋아하는 친구와<br>함께 춤추기</div></div>
+    <div class="s"><div class="ic">💌</div><div class="tx">선생님께 감사의<br>마음 표현하기</div></div>
+    <div class="s"><div class="ic">🍱</div><div class="tx">동생에게 맛있는<br>반찬 양보하기</div></div>
+    <div class="s" style="border-style:dashed;border-color:var(--green)"><div class="ic">❓</div><div class="tx" style="color:var(--green)">또 무엇이 있을까<br>— 한 가지씩</div></div>
+  </div>
+  <p class="body mt">셋 다 <b class="hg">내 1분</b>을 썼다. 그런데 그 1분은 <b class="hl">사라졌을까?</b></p>
+</section>`,
+
+/* 2 생활 자원 */
+`<section class="slide">
+  <span class="eyebrow">92쪽 · 생활 자원이란</span>
+  <h2 class="stitle sm">형태가 있는 것과, 없는 것</h2>
+  <div class="rule"></div>
+  <div class="cardrow">
+    <div class="card" style="--acc:var(--gold)">
+      <h3>형태가 있는 것</h3>
+      <p>음식 · 옷 · 집 · 학용품 · 용돈<br><b class="hn">눈에 보이고 손에 잡힌다.</b></p>
+    </div>
+    <div class="card" style="--acc:var(--plum)">
+      <h3>형태가 없는 것</h3>
+      <p>시간 · 지식 · 기술<br><b class="hn">보이지 않지만 분명히 쓰인다.</b></p>
+    </div>
+  </div>
+  <div class="ask mt">
+    <div class="q">교과서 밖 · 형태가 없는 쪽에만 있는 성질</div>
+    <div class="a">형태가 없는 것은 빌려주거나 물려줄 수 없다</div>
+    <div class="n">연필은 빌려줄 수 있고 옷은 물려줄 수 있다. 그런데 <b style="color:#ffe9b0">내 시간을 친구에게 빌려줄 수는 없다</b> — 대신 <b style="color:#ffe9b0">그 시간에 친구를 위해 무언가를 할 수는 있다.</b> 아까 1분이 바로 그것이었다.</div>
+  </div>
+</section>`,
+
+/* 3 교과서 밖 ① */
+`<section class="slide" style="--acc:var(--plum)">
+  <span class="eyebrow">93쪽 + 교과서 밖 ①</span>
+  <h2 class="stitle sm">시간만은 아무도 더 가질 수 없다</h2>
+  <div class="rule"></div>
+  <div class="cardrow">
+    <div class="card"><h3>💰 돈</h3><p>일하면 <b class="hn">는다</b><br>은행에 <b class="hn">저장된다</b></p></div>
+    <div class="card"><h3>📦 물건</h3><p>사면 <b class="hn">는다</b><br>창고에 <b class="hn">저장된다</b></p></div>
+    <div class="card" style="border-color:var(--red);border-width:3px">
+      <h3 style="color:var(--red)">⏳ 시간</h3><p>누구든 하루 <b class="hl">24시간</b><br><b class="hl">저장되지 않는다</b></p></div>
+  </div>
+  <p class="body mt">교과서 93쪽이 그대로 말한다 — <b class="hn">「되돌릴 수 없고, 멈추거나 저장할 수도 없습니다.」</b></p>
+  <p class="body">그러니 <b class="hl">안 쓴 시간은 모이지 않는다.</b> 아껴 둔 한 시간은 내일 두 시간이 되지 않고, 그냥 없어진다.</p>
+</section>`,
+
+/* 4 되물음 — 아낄 수 있는가 */
+`<section class="slide" style="--acc:var(--red)">
+  <span class="eyebrow">되물음</span>
+  <div class="bigq">그러면 시간은<br>아낄 수 있는 걸까?</div>
+  <div class="ask mt" style="background:linear-gradient(135deg,#7d1f18,#c0392b)">
+    <div class="q" style="color:#ffd9d4">모아 둘 수 없다면</div>
+    <div class="a">아낄 수 없다. 바꿔 쓸 수 있을 뿐이다.</div>
+    <div class="n">시간은 늘 <b style="color:#ffe9b0">100% 쓰이고 있다.</b> 지금 이 순간에도 한 칸도 남김없이 쓰인다.<br>그래서 <b style="color:#ffe9b0">「시간을 아낀다」는 말은 사실 「무엇에 쓸지 고른다」는 뜻이다.</b></div>
+  </div>
+  <p class="body mt small">돈은 안 쓰면 통장에 남지만, 시간은 안 쓰는 방법이 <b class="hl">아예 없다.</b> 「아무것도 안 하기」도 시간을 쓰는 한 가지 방법이다.</p>
+</section>`,
+
+/* 5 93쪽 네 단계 */
+`<section class="slide">
+  <span class="eyebrow">93쪽 · 시간의 사용 가치를 높이는 방법</span>
+  <h2 class="stitle sm">교과서가 말하는 네 단계</h2>
+  <div class="rule"></div>
+  <div class="steps">
+    <div class="st"><span class="n">1</span><div class="t">목표 세우기</div><div class="d">구체적이며 실천 가능한 목표</div></div>
+    <div class="st"><span class="n">2</span><div class="t">계획하기</div><div class="d">중요도에 따라 우선순위를 정한다</div></div>
+    <div class="st"><span class="n">3</span><div class="t">실천하기</div><div class="d">미루지 않고, 예상치 못한 일이 생기면 수정</div></div>
+    <div class="st"><span class="n">4</span><div class="t">평가하기</div><div class="d">고칠 점은 다음 계획에 반영</div></div>
+  </div>
+  <div class="ask mt">
+    <div class="q">그런데 여기엔 한 가지가 빠져 있다</div>
+    <div class="a">이 네 단계는 전부 「하루 안에서 나누기」다</div>
+    <div class="n">오전 7시부터 밤 10시까지를 어떻게 쪼개느냐. 그것도 중요하다 — <b style="color:#ffe9b0">다음 시간에 앱으로 일주일을 직접 살아 본다.</b><br>하지만 오늘 남은 시간엔 <b style="color:#ffe9b0">하루를 넘어서 본다.</b> 오늘 쓴 시간이 <b style="color:#ffe9b0">몇 년 뒤 어디에 가 있는지.</b></div>
+  </div>
+</section>`,
+
+/* 6 조작 ① 안내 — 여기서 각자 태블릿을 연다 */
+`<section class="slide cover2">
+  <div style="display:flex;gap:44px;align-items:center;width:100%">
+    <div style="flex:1;min-width:0">
+      <div class="kicker">지금부터 · 각자 태블릿으로</div>
+      <h1>6년 뒤,<br>내가 고를 수 있는 것</h1>
+      <div class="sub">지금 5학년의 <b style="color:#ffe9b0">일주일 자유 시간은 7칸</b>이다. 학교·밥·잠을 빼고 남는 시간.<br>그 7칸을 어디에 넣느냐에 따라 <b style="color:#ffe9b0">6년 뒤 열리는 문이 달라진다.</b><br><br>미리 말해 둘 것 하나 — <b style="color:#ffe9b0">7칸으로는 모든 문을 열 수 없다.</b></div>
+    </div>
+    <div style="flex:0 0 268px;text-align:center">
+      <div id="qrstu" style="background:#fff;border-radius:16px;padding:14px;display:inline-block"></div>
+      <div style="font-size:19px;font-weight:900;color:#ffe9b0;margin-top:12px">📱 태블릿에서 열기</div>
+      <div style="font-size:13px;color:#d6c6e4;margin-top:5px;word-break:break-all;line-height:1.4">leixlix-pixel.github.io/<br>toolbox/practical-6/<br>1-time-doors.html</div>
+    </div>
+  </div>
+</section>`,
+
+/* 7 [조작 ①] */
+`<section class="slide io" style="--acc:var(--green)" data-io="doors">
+  <div class="iohead">
+    <div>
+      <div class="ttl">6년 뒤, 내가 고를 수 있는 것</div>
+      <div class="sub2">카드를 눌러 7칸을 나눈다 · 빨간 − 로 되돌린다 · 닫힌 문을 눌러 보자</div>
+    </div>
+    <div class="right">
+      <button class="btn gh" onclick="doorReset()">처음부터</button>
+      <button class="btn" onclick="go(1)">다음 ▶</button>
+    </div>
+  </div>
+  <div id="doorWrap">
+    <div class="dleft">
+      <div class="slotbar"><span class="lab">이번 주 자유 시간</span><span id="doorDots" style="display:flex;gap:6px"></span><span id="doorLeft" style="margin-left:auto;font-size:17px;font-weight:900;color:var(--green)"></span></div>
+      <div class="cardgrid2" id="doorCards"></div>
+    </div>
+    <div class="dright">
+      <div class="slotbar"><span class="lab">6년 뒤 — 18살의 나</span><span id="doorOpen" style="margin-left:auto;font-size:17px;font-weight:900;color:var(--gold)"></span></div>
+      <div class="doorlist" id="doorList"></div>
+    </div>
+  </div>
+  <div id="doorTip">7칸을 다 써 보자. 다 쓰고 나면 열린 문과 닫힌 문이 보인다.</div>
+</section>`,
+
+/* 8 조작 ① 정리 */
+`<section class="slide" style="--acc:var(--gold)">
+  <span class="eyebrow">함께 해 보기 ① — 정리</span>
+  <h2 class="stitle sm">시간은 없어진 게 아니라, 무언가로 바뀌어 있었다</h2>
+  <div class="rule"></div>
+  <div class="ask">
+    <div class="q">방금 화면에서 본 것</div>
+    <div class="a">지금 쓴 시간은 6년 뒤<br>「고를 수 있는 것의 개수」로 바뀐다</div>
+    <div class="n">이것이 92쪽이 말한 <b style="color:#ffe9b0">「시간의 사용 가치」</b>다. 알차게 보냈느냐가 아니라, <b style="color:#ffe9b0">그 시간이 나중에 무엇을 만들어 놓았느냐.</b></div>
+  </div>
+  <div class="cardrow mt">
+    <div class="card" style="--acc:var(--red)"><h3>한 곳에 다 몰아넣으면</h3><p>큰 문 하나가 열리고 <b class="hl">나머지가 전부 닫힌다.</b> 넓어진 게 아니다.</p></div>
+    <div class="card" style="--acc:var(--navy2)"><h3>골고루 한 칸씩 뿌리면</h3><p>가벼운 문만 열리고 <b class="hn">무거운 문은 하나도 안 열린다.</b></p></div>
+    <div class="card" style="--acc:var(--green)"><h3>그래서</h3><p><b class="hg">정답은 없다.</b> 어느 문을 열지 <b class="hg">내가 고르는 것</b>뿐이다.</p></div>
+  </div>
+  <p class="body small mt">그리고 <b class="hn">닫힌 문은 영영 닫힌 게 아니다.</b> 나중에도 열 수 있다 — 다만 그때는 더 오래 걸린다. 일찍 넣은 칸이 값이 싼 이유다.</p>
+</section>`,
+
+/* 9 조작 ② 안내 */
+`<section class="slide cover2" style="background:linear-gradient(140deg,#123a63,#c0392b)">
+  <div class="kicker">함께 해 보기 ②</div>
+  <h1>내가 아낀 시간은<br>어디로 갔을까</h1>
+  <div class="sub">아까 「아낀다」는 말은 <b style="color:#ffe9b0">「무엇에 쓸지 고른다」</b>는 뜻이라고 했다.<br>그런데 한 가지가 더 있다 — 내가 안 쓴 시간을 <b style="color:#ffe9b0">누군가는 대신 쓴다.</b><br><br>여섯 장면에서 <b style="color:#ffe9b0">남이 대신 쓰는 시간을 어림해 보자.</b></div>
+</section>`,
+
+/* 10 [조작 ②] */
+`<section class="slide io" style="--acc:var(--plum)" data-io="ledger">
+  <div class="iohead">
+    <div>
+      <div class="ttl">내가 아낀 시간 · 남이 대신 쓴 시간</div>
+      <div class="sub2">보라색 칸을 누를 때마다 시간이 늘어난다 · 정답은 없다, <b>너희가 어림한 값</b>을 쓴다</div>
+    </div>
+    <div class="right">
+      <button class="btn gh" onclick="ledReset()">처음부터</button>
+      <button class="btn" onclick="go(1)">다음 ▶</button>
+    </div>
+  </div>
+  <div id="ledWrap"></div>
+  <div class="sumbar">
+    <div class="sumbox"><div class="l">내가 아낀 시간 (여섯 장면 합)</div><div class="v" id="ledSaved">—</div></div>
+    <div class="sumbox hot"><div class="l">남이 대신 쓴 시간 (너희가 어림한 합)</div><div class="v" id="ledCost">—</div></div>
+    <div class="sumbox" style="flex:0 0 250px">
+      <div class="l">우리 반 인원</div>
+      <div class="peo"><button onclick="ledPeople(-1)">−</button><span class="v" id="ledPeo">24</span><span style="font-size:18px;font-weight:700">명</span><button onclick="ledPeople(1)">＋</button></div>
+    </div>
+  </div>
+  <div id="bigOut" class="q">여섯 칸을 모두 어림하면 — 우리 반이 1년 동안 하루 한 번씩 그랬을 때가 나온다.</div>
+</section>`,
+
+/* 11 [조작 ②-2] 뒤집기 */
+`<section class="slide io" style="--acc:var(--green)" data-io="gift">
+  <div class="iohead">
+    <div>
+      <div class="ttl">그럼 반대쪽은 — 나에게 온 시간</div>
+      <div class="sub2">오늘 아침, 누군가 나를 위해 미리 쓴 시간을 어림해 보자</div>
+    </div>
+    <div class="right">
+      <button class="btn gh" onclick="giftReset()">처음부터</button>
+      <button class="btn" onclick="go(1)">다음 ▶</button>
+    </div>
+  </div>
+  <div id="ledWrap2" class="three" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;flex:1;min-height:0"></div>
+  <div class="sumbar">
+    <div class="sumbox hot" style="border-color:var(--red)"><div class="l">내가 남에게 넘긴 시간 (앞 화면)</div><div class="v" id="gOut" style="color:var(--red)">—</div></div>
+    <div class="sumbox hot" style="border-color:var(--green);background:#f1f9f5"><div class="l">남이 나에게 쓴 시간 (이 화면)</div><div class="v" id="gIn" style="color:var(--green)">—</div></div>
+  </div>
+  <div id="bigOut2" class="q" style="background:#fff;color:var(--muted);border:2px dashed var(--line);border-radius:12px;padding:9px 16px;margin-top:9px;font-size:18px;font-weight:700;min-height:52px;display:flex;align-items:center">세 칸을 어림하면 두 수가 나란히 놓인다.</div>
+</section>`,
+
+/* 12 정리 — 시간은 사라지지 않는다 */
+`<section class="slide" style="--acc:var(--navy)">
+  <span class="eyebrow">함께 해 보기 ② — 정리</span>
+  <div class="bigq" style="color:var(--navy)">시간은 사라지지 않는다.<br>누구에게 갈지 정해질 뿐이다.</div>
+  <div class="cardrow mt">
+    <div class="card" style="--acc:var(--red)"><h3>내가 10초를 아끼면</h3><p>그 10초는 없어지는 게 아니라 <b class="hl">다른 사람의 10초</b>가 된다. 라벨을 떼는 사람, 기다리는 친구, 치우는 사람.</p></div>
+    <div class="card" style="--acc:var(--green)"><h3>남이 나를 위해 쓴 시간</h3><p>아침에 깎아 둔 과일, 미리 열어 둔 교실. <b class="hg">내가 편했던 만큼 누군가가 썼다.</b></p></div>
+  </div>
+  <div class="ask mt">
+    <div class="q">그래서 「아낀다」는 말을 다시 보면</div>
+    <div class="a">「누구의 시간에 넘겼는가」라는 질문이 된다</div>
+    <div class="n">어느 쪽 수가 더 큰지를 따지려는 게 아니다. <b style="color:#ffe9b0">양쪽 다 사라지지 않았다</b>는 것이 오늘의 요점이다.<br>분리배출 10초, 약속 시간 5분 — 이런 것들이 <b style="color:#ffe9b0">환경이나 예절 문제이기 전에 시간 문제</b>였던 것이다.</div>
+  </div>
+</section>`,
+
+/* 13 되물음 — 남는 게 없는 시간 */
+`<section class="slide" style="--acc:var(--red)">
+  <span class="eyebrow">마지막 되물음 · 답은 오늘 내지 않는다</span>
+  <div class="bigq">그럼 아무것도 안 남는 시간은<br>버린 시간일까?</div>
+  <div class="cardrow mt">
+    <div class="card"><h3>🎮 아무 생각 없이 논 두 시간</h3><p>문도 안 열리고 남한테 간 것도 없다. <b class="hl">버린 걸까?</b></p></div>
+    <div class="card"><h3>😌 멍하니 누워 있던 한 시간</h3><p>계획표의 어느 칸에도 안 들어간다. <b class="hl">낭비일까?</b></p></div>
+  </div>
+  <p class="body mt">교과서 107쪽에 이런 문장이 있다 — <b class="hn">「무조건 아끼는 것이 최선은 아니랍니다.」</b></p>
+  <p class="body">이 질문의 답은 <b class="hl">다음 시간 앱에서 직접 겪어 보고</b> 단원 마지막 시간에 다시 이야기한다. 오늘은 답을 내지 않는다.</p>
+</section>`,
+
+/* 14 마무리 + 앱 */
+`<section class="slide" style="--acc:var(--green)">
+  <span class="eyebrow">다음 시간 · 두 시간 연속</span>
+  <h2 class="stitle sm">앱으로 일주일을 직접 살아 본다</h2>
+  <div class="rule"></div>
+  <div class="cols" style="align-items:stretch">
+    <div class="col" style="display:flex;flex-direction:column;gap:12px;justify-content:space-between">
+      <div class="card"><h3>「일주일 살림꾼」</h3><p>화요일부터 다음 월요일까지 <b class="hn">7일</b>을 산다. 하루 16칸에 할 일을 놓고 「하루 시작」을 누르면 <b class="hg">고른 대로 살아 본다.</b></p></div>
+      <div class="card" style="--acc:var(--gold)"><h3>지표 넷이 서로 잡아당긴다</h3><p>🕐 시간 · 💛 마음 · 🪙 돈 · 🧺 정돈<br><b class="hl">한 축만 높으면 최고 등급이 안 나온다.</b></p></div>
+      <div class="card" style="--acc:var(--plum)"><h3>그 다음엔 — 「첫 집 설계실」</h3><p>용돈 계획을 세우기 <b class="hn">전에</b> 집 한 채를 굴려 본다. 한 달 살림에 드는 돈을 보고 나면 <b class="hl">용돈의 크기가 달라 보인다.</b></p></div>
+      <div class="act" style="border-color:var(--green);padding:12px 16px">
+        <p class="body small">오늘 화면에서 고른 것을 기억해 두자 — <b class="hg">공책에 한 줄.</b><br>「나는 7칸을 ( )에 ( )칸 썼다. 그래서 ( ) 문이 열렸다.」</p>
+      </div>
+    </div>
+    <div class="col" style="flex:0 0 340px;display:flex;align-items:center">
+      <div class="qr">
+        <div id="qrslot"></div>
+        <div>
+          <div style="font-size:20px;font-weight:900;color:var(--green)">📱 태블릿에서 열기</div>
+          <div class="u">leixlix-pixel.github.io/toolbox/practical-6/2-week-steward.html</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>`
+
+];
+
+const stage = document.getElementById("stage");
+stage.innerHTML = SLIDES.join("");
+const slides = [...stage.querySelectorAll(".slide")];
+
+/* QR 주입 */
+(function(){
+  const s = document.getElementById("qrslot"); if (s && QR) s.innerHTML = QR;
+  const t = document.getElementById("qrstu"); if (t && QR_STU) t.innerHTML = QR_STU;
+})();
+
+/* ══════════════════════════════════════════════════════
+   조작 ① — 6년 뒤 고를 수 있는 것
+   ══════════════════════════════════════════════════════ */
+const SLOTS = 7;
+const CARDS = [
+  {k:"study",  n:"공부·숙제",   i:"📚"},
+  {k:"sport",  n:"운동",        i:"⚽"},
+  {k:"music",  n:"악기",        i:"🎸"},
+  {k:"draw",   n:"그림",        i:"🎨"},
+  {k:"read",   n:"책 읽기",     i:"📗"},
+  {k:"friend", n:"친구랑 놀기", i:"👫"},
+  {k:"screen", n:"게임·영상",   i:"🎮"},
+  {k:"rest",   n:"그냥 쉬기",   i:"😌"}
+];
+/* 문마다 필요한 칸 수가 다르다. 다 합치면 15칸 — 7칸으로는 절대 다 못 연다. */
+const DOORS = [
+  {i:"😌", t:"지치면 스스로 회복할 줄 안다",     need:1, from:["rest","screen","friend"]},
+  {i:"👫", t:"힘들 때 부를 친구가 있다",         need:1, from:["friend"]},
+  {i:"📗", t:"500쪽짜리 책을 끝까지 읽는다",     need:2, from:["read"]},
+  {i:"🏃", t:"10km 를 쉬지 않고 달린다",         need:2, from:["sport"]},
+  {i:"🎨", t:"내가 그린 것이 축제 포스터가 된다", need:3, from:["draw"]},
+  {i:"🎸", t:"밴드에서 한 파트를 맡는다",        need:3, from:["music"]},
+  {i:"🔬", t:"하고 싶은 공부를 골라서 한다",      need:3, from:["study"]}
+];
+let pick = {};
+function doorSum(){ return CARDS.reduce((a,c) => a + (pick[c.k]||0), 0); }
+function doorReset(){ pick = {}; CARDS.forEach(c => pick[c.k] = 0); doorTip(null); doorRender(); }
+function doorAdd(k, d){
+  const cur = pick[k]||0;
+  if (d > 0 && doorSum() >= SLOTS) { doorTip("full"); return; }
+  if (d < 0 && cur <= 0) return;
+  pick[k] = cur + d;
+  doorTip(null);
+  doorRender();
+}
+function doorProg(dr){ return dr.from.reduce((a,k) => a + (pick[k]||0), 0); }
+function doorTip(mode, dr){
+  const el = document.getElementById("doorTip"); if (!el) return;
+  const left = SLOTS - doorSum();
+  if (mode === "full") { el.textContent = "7칸을 다 썼다. 바꾸고 싶으면 카드 오른쪽 위 빨간 − 를 눌러 되돌린다."; return; }
+  if (mode === "door") {
+    const p = doorProg(dr);
+    if (p >= dr.need) el.textContent = "「" + dr.t + "」 — 열렸다. " + dr.need + "칸이 여기로 갔다.";
+    else el.textContent = "「" + dr.t + "」 — " + (dr.need - p) + "칸이 더 있으면 열린다. 지금 안 열어도 나중에 열 수 있다. 다만 그때는 더 오래 걸린다.";
+    return;
+  }
+  if (left > 0) el.textContent = "남은 칸 " + left + "개. 카드를 눌러서 넣어 보자.";
+  else {
+    const open = DOORS.filter(d => doorProg(d) >= d.need).length;
+    el.textContent = "7칸을 다 썼다 — 열린 문 " + open + "개, 닫힌 문 " + (DOORS.length - open) + "개. 닫힌 문을 눌러 보자.";
+  }
+}
+function doorRender(){
+  const dots = document.getElementById("doorDots");
+  const used = doorSum();
+  dots.innerHTML = Array.from({length:SLOTS}, (_,n) =>
+    '<span class="dot' + (n < used ? ' f' : '') + '"></span>').join("");
+  document.getElementById("doorLeft").textContent = "남은 칸 " + (SLOTS - used);
+
+  document.getElementById("doorCards").innerHTML = CARDS.map(c => {
+    const v = pick[c.k]||0;
+    return '<div class="pk' + (v ? ' hasv' : '') + '" onclick="doorAdd(\'' + c.k + '\',1)">'
+      + '<span class="minus" onclick="event.stopPropagation();doorAdd(\'' + c.k + '\',-1)">−</span>'
+      + '<span class="ic">' + c.i + '</span><span class="nm">' + c.n + '</span>'
+      + '<span class="cnt">' + (v ? v : "·") + '</span></div>';
+  }).join("");
+
+  document.getElementById("doorList").innerHTML = DOORS.map((d,n) => {
+    const p = Math.min(doorProg(d), d.need), open = p >= d.need;
+    return '<div class="dr' + (open ? ' open' : '') + '" onclick="doorClick(' + n + ')">'
+      + '<span class="ic">' + d.i + '</span>'
+      + '<span class="mid"><span class="t">' + d.t + '</span>'
+      + '<span class="pg"><i style="width:' + (p/d.need*100) + '%"></i></span></span>'
+      + '<span class="cost">' + p + ' / ' + d.need + '칸</span></div>';
+  }).join("");
+
+  const open = DOORS.filter(d => doorProg(d) >= d.need).length;
+  document.getElementById("doorOpen").textContent = "열린 문 " + open + " / " + DOORS.length;
+}
+function doorClick(n){ doorTip("door", DOORS[n]); }
+
+/* ══════════════════════════════════════════════════════
+   조작 ② — 떠넘긴 시간 장부
+   정답을 두지 않는다. 아이가 어림한 값을 그대로 쓴다.
+   ══════════════════════════════════════════════════════ */
+const STEPS = [0, 5, 10, 30, 60, 180, 300, 600];
+const LED = [
+  {i:"🥤", t:"페트병 라벨을 안 뗐다",          sv:5,   q:"분리하는 사람이 대신 쓰는 시간은?"},
+  {i:"💬", t:"단톡에 「ㅇㅇ?」만 보냈다",        sv:10,  q:"받은 사람이 되묻고 기다리는 시간은?"},
+  {i:"🧹", t:"내 자리 쓰레기를 두고 갔다",       sv:10,  q:"청소 당번이 대신 쓰는 시간은?"},
+  {i:"📦", t:"택배 상자를 안 접고 버렸다",       sv:15,  q:"수거하는 분이 대신 쓰는 시간은?"},
+  {i:"🎒", t:"준비물을 안 챙겨 와 빌렸다",       sv:60,  q:"빌려준 친구가 없이 지낸 시간은?"},
+  {i:"⏰", t:"모둠 약속에 5분 늦었다",          sv:300, q:"기다린 네 사람이 쓴 시간을 다 합치면?"}
+];
+const GIFT = [
+  {i:"🍎", t:"누군가 아침에 과일을 깎아 두었다", me:"내가 쓴 시간 — 집어 먹기 5초", q:"씻고 깎고 담는 데 쓴 시간은?"},
+  {i:"🔑", t:"누군가 먼저 와서 교실을 열어 두었다", me:"내가 쓴 시간 — 문 밀고 들어오기 2초", q:"문 열고 불 켜고 창 여는 데 쓴 시간은?"},
+  {i:"🖥️", t:"누군가 밤에 이 화면을 만들었다",   me:"내가 쓴 시간 — 손가락으로 누르기 1초", q:"이 한 화면을 만드는 데 쓴 시간은?"}
+];
+let ledIdx = LED.map(() => 0), giftIdx = GIFT.map(() => 0), ledPeo = 24;
+
+function fmt(s){
+  if (!s) return "0초";
+  if (s < 60) return s + "초";
+  const m = Math.floor(s/60), r = s % 60;
+  return m + "분" + (r ? " " + r + "초" : "");
+}
+function fmtBig(s){
+  const h = s/3600;
+  if (h < 1) return Math.round(s/60) + "분";
+  if (h < 24) return Math.floor(h) + "시간" + (Math.round(s%3600/60) ? " " + Math.round(s%3600/60) + "분" : "");
+  return Math.floor(h/24) + "일 " + Math.round(h%24) + "시간";
+}
+function ledSumSaved(){ return LED.reduce((a,x) => a + x.sv, 0); }
+function ledSumCost(){ return ledIdx.reduce((a,i) => a + STEPS[i], 0); }
+function giftSum(){ return giftIdx.reduce((a,i) => a + STEPS[i], 0); }
+
+function ledTap(n){ ledIdx[n] = (ledIdx[n] + 1) % STEPS.length; ledRender(); }
+function ledReset(){ ledIdx = LED.map(() => 0); ledRender(); }
+function ledPeople(d){ ledPeo = Math.max(1, Math.min(40, ledPeo + d)); ledRender(); }
+function ledRender(){
+  const w = document.getElementById("ledWrap"); if (!w) return;
+  w.innerHTML = LED.map((x,n) => {
+    const v = STEPS[ledIdx[n]];
+    return '<div class="sc"><div class="ic">' + x.i + '</div>'
+      + '<div class="tx">' + x.t + '</div>'
+      + '<div class="sv">내가 아낀 시간 ' + fmt(x.sv) + '</div>'
+      + '<div class="qq">' + x.q + '</div>'
+      + '<button class="tapv' + (v ? '' : ' zero') + '" onclick="ledTap(' + n + ')">'
+      + (v ? fmt(v) : "눌러서 어림하기") + '</button></div>';
+  }).join("");
+  document.getElementById("ledSaved").textContent = fmt(ledSumSaved());
+  document.getElementById("ledCost").textContent = ledIdx.every(i => i === 0) ? "—" : fmt(ledSumCost());
+  document.getElementById("ledPeo").textContent = ledPeo;
+
+  const out = document.getElementById("bigOut");
+  if (ledIdx.some(i => i === 0)) {
+    out.className = "q";
+    out.textContent = "여섯 칸을 모두 어림하면 — 우리 반이 1년 동안 하루 한 번씩 그랬을 때가 나온다.";
+  } else {
+    const tot = ledSumCost() * ledPeo * 365;
+    out.className = "";
+    out.textContent = "우리 반 " + ledPeo + "명이 1년(365일) 동안 하루 한 번씩 그러면 — 남이 대신 쓴 시간 " + fmtBig(tot) + ". (하루 한 번으로 어림했을 때)";
+  }
+  const g = document.getElementById("gOut");
+  if (g) g.textContent = ledIdx.every(i => i === 0) ? "—" : fmt(ledSumCost());
+}
+
+function giftTap(n){ giftIdx[n] = (giftIdx[n] + 1) % STEPS.length; giftRender(); }
+function giftReset(){ giftIdx = GIFT.map(() => 0); giftRender(); }
+function giftRender(){
+  const w = document.getElementById("ledWrap2"); if (!w) return;
+  w.innerHTML = GIFT.map((x,n) => {
+    const v = STEPS[giftIdx[n]];
+    return '<div class="sc" style="border-color:#bcd9c9"><div class="ic">' + x.i + '</div>'
+      + '<div class="tx">' + x.t + '</div>'
+      + '<div class="me">' + x.me + '</div>'
+      + '<div class="qq">' + x.q + '</div>'
+      + '<button class="tapv' + (v ? '' : ' zero') + '" style="' + (v ? 'background:var(--green)' : 'color:var(--green);border-color:var(--green)') + '" onclick="giftTap(' + n + ')">'
+      + (v ? fmt(v) : "눌러서 어림하기") + '</button></div>';
+  }).join("");
+  document.getElementById("gIn").textContent = giftIdx.every(i => i === 0) ? "—" : fmt(giftSum());
+  document.getElementById("gOut").textContent = ledIdx.every(i => i === 0) ? "—" : fmt(ledSumCost());
+
+  const o = document.getElementById("bigOut2");
+  if (giftIdx.some(i => i === 0)) {
+    o.style.cssText = "background:#fff;color:var(--muted);border:2px dashed var(--line);border-radius:12px;padding:9px 16px;margin-top:9px;font-size:18px;font-weight:700;min-height:52px;display:flex;align-items:center";
+    o.textContent = "세 칸을 어림하면 두 수가 나란히 놓인다.";
+  } else {
+    o.style.cssText = "background:#123a63;color:#fff;border:0;border-radius:12px;padding:9px 16px;margin-top:9px;font-size:20px;font-weight:900;min-height:52px;display:flex;align-items:center;line-height:1.35";
+    o.textContent = "어느 쪽이 큰지를 따지려는 게 아니다 — 두 수 모두, 시간이 사라지지 않고 누군가에게 갔다는 뜻이다.";
+  }
+}
+
+/* ══════════════════════════════════════════════════════ */
+let cur = 0;
+function show(i){
+  cur = Math.max(0, Math.min(slides.length - 1, i));
+  slides.forEach((s,n) => s.classList.toggle("on", n === cur));
+  document.getElementById("counter").textContent = (cur+1) + " / " + slides.length;
+  const p = document.getElementById("prog");
+  p.style.width = ((cur+1)/slides.length*100) + "%";
+  p.style.background = getComputedStyle(slides[cur]).getPropertyValue("--acc");
+
+  /* 조작 화면에서는 좌우 탭존을 끈다 — 카드를 누르려다 넘어가 버린다 */
+  const io = slides[cur].dataset.io || "";
+  document.getElementById("zl").classList.toggle("off", !!io);
+  document.getElementById("zr").classList.toggle("off", !!io);
+  if (io === "ledger") ledRender();
+  if (io === "gift") giftRender();
+  history.replaceState(null, "", "#" + (cur+1));
+}
+function go(d){ show(cur + d); }
+function fit(){
+  const s = Math.min(window.innerWidth/1280, (window.innerHeight-46)/720);
+  stage.style.transform = "translate(-50%,-50%) scale(" + s + ")";
+}
+function fs(){
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+  else document.exitFullscreen();
+}
+document.addEventListener("keydown", e => {
+  if (["ArrowRight","PageDown"," "].includes(e.key)) { e.preventDefault(); go(1); }
+  if (["ArrowLeft","PageUp"].includes(e.key)) { e.preventDefault(); go(-1); }
+  if (e.key === "Home") show(0);
+  if (e.key === "End") show(slides.length-1);
+  if (e.key === "f" || e.key === "F") fs();
+});
+document.getElementById("zl").onclick = () => go(-1);
+document.getElementById("zr").onclick = () => go(1);
+let tx=0, ty=0;
+document.addEventListener("touchstart", e => { tx=e.touches[0].clientX; ty=e.touches[0].clientY; }, {passive:true});
+document.addEventListener("touchend", e => {
+  if (slides[cur].dataset.io) return;          /* 조작 화면에서는 스와이프를 끈다 */
+  const dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty;
+  if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) go(dx < 0 ? 1 : -1);
+}, {passive:true});
+window.addEventListener("resize", fit);
+doorReset();
+fit();
+const h = parseInt((location.hash||"").slice(1), 10);
+show(h > 0 ? h - 1 : 0);
+</script>
+</body>
+</html>

@@ -628,6 +628,7 @@ function step(W, dt){
      짧게 잡으면 바퀴가 지나갈 때의 순간 충격이 그대로 잡혀서 제대로 지은
      다리도 한계를 찍고 끊어진다. 그러면 설계를 바꿔도 결과가 다 같아져
      게임이 안 된다(20판 훑어 확인). SMOOTH 를 낮추지 말 것. */
+  let snapped=false;
   for(const b of B){
     if(b.dead) continue;
     b.s = b.s*SMOOTH + b.cur*(1-SMOOTH);
@@ -636,7 +637,25 @@ function step(W, dt){
     if(over){
       b.dead=true;
       W.shards.push({x1:N[b.a].x,y1:N[b.a].y,x2:N[b.b].x,y2:N[b.b].y,m:b.m,life:0.6});
-      W.broke=true;
+      W.broke=true; snapped=true;
+    }
+  }
+
+  /* 6-1) **차가 아직 건너는 중인데 끊어졌으면 그 자리에서 실패.**
+     이것이 없으면 다리가 반쯤 무너져 내려앉아도 차만 미끄러져 목표선을
+     넘으면 ★까지 줬다(2026-09-21 엘리 신고). 그러면 이 게임의 전부인
+     「삼각형으로 엮기」가 없어도 통과라서 단원 목표와 정반대가 된다.
+     **다 건넌 뒤에 무너지는 것은 통과로 둔다** — 차는 무사히 지나갔다.
+     이 검사를 지우지 말 것. */
+  if(snapped){
+    const crossing = W.queue.length>0 || W.cars.length===0 ||
+                     W.cars.some(c=>!c.dead && !c.done);
+    if(crossing){
+      W.state='fail';
+      W.reason = W.cars.length===0
+        ? '차가 오기도 전에 다리가 제 무게에 부러졌다.'
+        : '차가 건너는 중에 다리가 부러졌다.';
+      return;
     }
   }
 
@@ -837,7 +856,7 @@ function finish(win){
     SND.fail();
     const broke=S.W?S.W.beams.filter(b=>b.dead).length:0;
     let why=S.W?S.W.reason:'';
-    if(broke) why='막대 <b>'+broke+'개</b>가 부러졌다.';
+    if(broke) why=(why||'다리가 부러졌다.')+' 막대 <b>'+broke+'개</b>가 끊어졌다.';
     else if(S.W&&S.W.sank) why='차가 물에 빠졌다.';
     modal('<h3>다시 해 보자</h3>'+
       '<p>'+why+'</p>'+

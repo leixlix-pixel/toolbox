@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>고려 낱말 다지기</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef4f1; --card:#ffffff; --ink:#1d2b28; --muted:#5f716c; --line:#d4e2dc;
+  --celadon:#5f9e8f; --celadon2:#3d7a6c; --deep:#24524a; --gold:#b98a2e;
+  --ok:#2e8b57; --okbg:#e5f4ea; --bad:#c0463b; --badbg:#fbe9e6; --sel:#e3efe9;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink)}
+body{font-family:'Noto Sans KR',sans-serif;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;min-height:100vh}
+button{font-family:inherit;cursor:pointer;border:none}
+.wrap{max-width:760px;margin:0 auto;padding:16px 16px 40px}
+.hide{display:none!important}
+.qrbox{display:flex;align-items:center;gap:14px;margin-top:4px}
+.qrbtn{position:relative;background:#fff;border-radius:12px;padding:6px;width:118px;height:118px;flex:none;border:1px solid var(--line)}
+.qrbtn svg{width:100%;height:100%;display:block}
+.qrbtn .badge{position:absolute;right:-6px;bottom:-8px;background:var(--gold);color:#fff;font-size:12px;border-radius:8px;padding:2px 7px}
+.qrinfo{font-size:14px;color:var(--muted);line-height:1.5;word-break:break-all}
+#qrBig{position:fixed;inset:0;background:rgba(10,30,26,.8);display:flex;align-items:center;justify-content:center;z-index:9}
+#qrBig div{background:#fff;padding:18px;border-radius:18px;width:min(460px,90vw);height:min(460px,90vw)}
+#qrBig svg{width:100%;height:100%}
+
+/* 머리 */
+.top{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.top h1{font-size:20px;margin:0;color:var(--deep);font-weight:900;flex:1}
+.iconbtn{min-width:48px;min-height:48px;border-radius:12px;background:var(--card);border:1px solid var(--line);font-size:20px}
+
+/* 시작 */
+.hero{background:linear-gradient(160deg,#6aa99a,#2f6b5f);color:#fff;border-radius:20px;padding:26px 22px;margin-bottom:16px}
+.hero h2{margin:0 0 6px;font-size:30px;font-weight:900;letter-spacing:-.5px}
+.hero p{margin:0;font-size:17px;line-height:1.6;opacity:.95}
+.panel{background:var(--card);border-radius:16px;padding:18px;border:1px solid var(--line);margin-bottom:14px}
+.panel h3{margin:0 0 10px;font-size:18px;color:var(--deep)}
+.rule{font-size:17px;line-height:1.7;margin:0;padding-left:20px}
+.rule b{color:var(--celadon2)}
+.norow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.norow input{font-family:inherit;font-size:22px;width:120px;min-height:52px;border-radius:12px;border:2px solid var(--line);padding:6px 12px;text-align:center}
+.norow span{font-size:17px}
+.secs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sec{min-height:78px;border-radius:14px;background:#f6faf8;border:2px solid var(--line);text-align:left;padding:10px 14px;font-size:17px;color:var(--ink)}
+.sec.on{border-color:var(--celadon2);background:var(--sel)}
+.sec b{display:block;font-size:18px}
+.sec small{color:var(--muted);font-size:14px}
+.sec .bar{height:6px;background:#dde9e4;border-radius:3px;margin-top:6px;overflow:hidden}
+.sec .bar i{display:block;height:100%;background:var(--celadon)}
+.big{display:block;width:100%;min-height:58px;border-radius:14px;font-size:21px;font-weight:700;background:var(--celadon2);color:#fff;margin-top:6px}
+.big:disabled{background:#a9bdb7}
+.ghost{min-height:48px;border-radius:12px;padding:10px 16px;font-size:16px;background:transparent;border:1px solid var(--line);color:var(--muted)}
+.msg{font-size:15px;color:var(--bad);min-height:20px;margin-top:6px}
+
+/* 문제 */
+.prog{display:flex;align-items:center;gap:10px;margin-bottom:12px;font-size:15px;color:var(--muted)}
+.prog .track{flex:1;height:10px;background:#d9e6e1;border-radius:5px;overflow:hidden}
+.prog .track i{display:block;height:100%;background:var(--celadon);transition:width .3s}
+.qcard{background:var(--card);border-radius:18px;padding:20px 20px 18px;border:1px solid var(--line);box-shadow:0 2px 0 #d4e2dc;margin-bottom:14px}
+.qtag{display:inline-block;font-size:14px;font-weight:700;color:var(--celadon2);background:var(--sel);border-radius:8px;padding:3px 10px;margin-bottom:10px}
+.qtag.again{color:var(--bad);background:var(--badbg)}
+.qask{font-size:15px;color:var(--muted);margin-bottom:6px}
+.qtext{font-size:23px;line-height:1.6;font-weight:500;word-break:keep-all}
+.qtext .blank{display:inline-block;min-width:88px;border-bottom:3px solid var(--celadon2);margin:0 4px;height:1.1em;vertical-align:-2px}
+.qtext.word{font-size:34px;font-weight:900;color:var(--deep);text-align:center;padding:10px 0}
+.opts{display:grid;gap:10px}
+.opts.w2{grid-template-columns:1fr 1fr}
+.opt{min-height:64px;border-radius:14px;background:var(--card);border:2px solid var(--line);font-size:20px;color:var(--ink);padding:10px 14px;text-align:center;word-break:keep-all;line-height:1.45}
+.opts.long .opt{text-align:left;font-size:18px}
+.opt.sel{border-color:var(--celadon2);background:var(--sel);box-shadow:inset 0 0 0 1px var(--celadon2)}
+.opt.right{border-color:var(--ok);background:var(--okbg)}
+.opt.wrong{border-color:var(--bad);background:var(--badbg)}
+.opt:disabled{color:var(--ink);opacity:1}
+.act{display:flex;gap:10px;margin-top:14px}
+.act .big{margin-top:0}
+
+/* 해설 */
+.fb{border-radius:16px;padding:16px 18px;margin-top:14px;font-size:18px;line-height:1.65}
+.fb.ok{background:var(--okbg);border:1px solid #b9dfc6}
+.fb.bad{background:var(--badbg);border:1px solid #efc2bb}
+.fb h4{margin:0 0 6px;font-size:20px}
+.fb .kw{font-weight:900;color:var(--deep)}
+.fb .pg{font-size:15px;color:var(--muted)}
+.fb .yours{margin-top:10px;padding-top:10px;border-top:1px dashed #e0b1a9;font-size:17px}
+.fb .soon{margin-top:8px;font-size:15px;color:var(--bad);font-weight:700}
+
+/* 끝 */
+.stat{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.stat div{background:#f6faf8;border-radius:14px;padding:14px;text-align:center;border:1px solid var(--line)}
+.stat b{display:block;font-size:30px;color:var(--deep)}
+.stat span{font-size:15px;color:var(--muted)}
+.hardlist{margin:0;padding:0;list-style:none}
+.hardlist li{padding:10px 0;border-bottom:1px solid var(--line);font-size:17px;line-height:1.5}
+.hardlist li b{color:var(--deep)}
+.hardlist li em{font-style:normal;color:var(--bad);font-size:14px;margin-left:6px}
+.note{background:#fff8e6;border:1px solid #efd9a6;border-radius:14px;padding:14px 16px;font-size:17px;line-height:1.65;margin-bottom:12px}
+
+/* 연표 */
+.slots{display:grid;gap:8px;margin-bottom:14px}
+.slot{min-height:58px;border-radius:12px;border:2px dashed #b9cfc8;background:#f8fbfa;display:flex;align-items:center;gap:10px;padding:8px 12px;font-size:18px;text-align:left;color:var(--ink);width:100%}
+.slot .n{flex:none;width:30px;height:30px;border-radius:50%;background:var(--celadon);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:16px}
+.slot.full{border-style:solid;border-color:var(--celadon2);background:#fff}
+.slot.right{border-color:var(--ok);background:var(--okbg)}
+.slot.wrong{border-color:var(--bad);background:var(--badbg)}
+.pool{display:grid;gap:8px}
+.chip{min-height:56px;border-radius:12px;background:#fff;border:2px solid var(--line);font-size:18px;padding:8px 14px;text-align:left;color:var(--ink);word-break:keep-all}
+.chip.used{visibility:hidden}
+
+@media (max-width:520px){
+  .secs{grid-template-columns:1fr}
+  .opts.w2{grid-template-columns:1fr}
+  .qtext{font-size:21px}
+  .hero h2{font-size:26px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <h1>고려 낱말 다지기</h1>
+    <button class="iconbtn" id="snd" onclick="toggleSound()" aria-label="소리">🔊</button>
+    <button class="iconbtn hide" id="home" onclick="goHome()" aria-label="처음 화면">🏠</button>
+  </div>
+
+  <!-- 시작 화면 -->
+  <section id="vStart">
+    <div class="hero">
+      <h2>고려, 낱말로 다지기</h2>
+      <p>교과서 46~62쪽에 나오는 낱말만 나와요.<br>아는 낱말은 금방 지나가고, 헷갈리는 낱말은 계속 돌아와요.</p>
+    </div>
+
+    <div class="panel">
+      <h3>이렇게 해요</h3>
+      <ol class="rule">
+        <li>보기를 누르고 <b>확인</b>을 눌러요.</li>
+        <li>맞히면 그 낱말은 <b>한 번만 더</b> 나오고 끝나요.</li>
+        <li>틀리면 <b>두세 문제 뒤에 다시</b> 나와요. 두 번 연달아 맞혀야 끝나요.</li>
+        <li>모르면 찍지 말고 <b>교과서를 펴서 찾아봐도 돼요.</b> 찍으면 오히려 오래 걸려요.</li>
+      </ol>
+    </div>
+
+    <div class="panel">
+      <h3>내 번호</h3>
+      <div class="norow">
+        <input id="no" type="number" inputmode="numeric" min="1" max="40" placeholder="번호">
+        <span>번 · 같은 번호로 들어오면 이어서 해요</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>어디를 할까요? <small style="font-weight:400;color:var(--muted);font-size:14px">(여러 개 골라도 돼요)</small></h3>
+      <div class="secs" id="secs"></div>
+      <div class="msg" id="startMsg"></div>
+      <button class="big" id="goBtn" onclick="startRun()">시작하기</button>
+      <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
+        <button class="ghost" onclick="openTimeline()">📜 사건 순서 맞히기</button>
+        <button class="ghost" id="resetBtn" onclick="resetMine()">내 기록 지우기</button>
+      </div>
+    </div>
+
+    <div class="panel qrbox">
+      <button class="qrbtn" id="qrSmall" onclick="bigQR()" aria-label="QR 크게 보기"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 39 39" shape-rendering="crispEdges"><path fill="#ffffff" d="M0 0h39v39H0z"/><path stroke="#000000" d="M1 1.5h7m3 0h2m3 0h1m2 0h2m1 0h1m1 0h2m1 0h1m3 0h7M1 2.5h1m5 0h1m1 0h2m3 0h3m1 0h1m1 0h1m2 0h1m3 0h1m1 0h1m1 0h1m5 0h1M1 3.5h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h2m2 0h1m2 0h3m2 0h1m1 0h2m2 0h1m1 0h3m1 0h1M1 4.5h1m1 0h3m1 0h1m1 0h2m4 0h1m2 0h1m1 0h3m3 0h1m1 0h2m1 0h1m1 0h3m1 0h1M1 5.5h1m1 0h3m1 0h1m2 0h1m2 0h3m3 0h3m2 0h1m1 0h2m3 0h1m1 0h3m1 0h1M1 6.5h1m5 0h1m2 0h2m2 0h4m1 0h1m2 0h2m3 0h1m3 0h1m5 0h1M1 7.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M9 8.5h4m2 0h2m4 0h2m2 0h1M1 9.5h1m5 0h1m1 0h2m3 0h2m3 0h1m1 0h7m2 0h2m2 0h3M3 10.5h4m1 0h1m1 0h2m1 0h1m1 0h1m2 0h1m2 0h3m3 0h2m3 0h5M2 11.5h1m3 0h2m2 0h1m2 0h2m3 0h1m2 0h2m1 0h2m2 0h1m1 0h1m1 0h2m2 0h2M2 12.5h1m1 0h1m7 0h1m2 0h3m6 0h1m3 0h1m2 0h2m1 0h1m2 0h1M2 13.5h1m1 0h2m1 0h3m1 0h1m2 0h1m2 0h1m2 0h1m4 0h1m2 0h1m2 0h2m1 0h1m2 0h1M1 14.5h1m4 0h1m1 0h2m1 0h2m1 0h8m1 0h2m1 0h1m1 0h2m2 0h1m1 0h1M1 15.5h4m1 0h2m1 0h4m3 0h3m2 0h2m4 0h4m1 0h3m1 0h2M1 16.5h1m2 0h1m6 0h4m1 0h1m1 0h3m3 0h1m2 0h1m1 0h2m1 0h1m1 0h4M3 17.5h1m1 0h5m1 0h1m1 0h2m1 0h2m2 0h1m1 0h1m2 0h2m2 0h5m1 0h1M2 18.5h3m1 0h1m3 0h5m3 0h2m1 0h1m1 0h1m1 0h2m1 0h3m1 0h1m1 0h3M2 19.5h4m1 0h8m1 0h1m1 0h1m2 0h2m1 0h6m1 0h1m1 0h1m3 0h1M1 20.5h2m3 0h1m1 0h2m1 0h1m1 0h2m4 0h3m1 0h1m3 0h1m1 0h3m1 0h1m3 0h1M3 21.5h7m1 0h1m1 0h4m1 0h1m1 0h1m2 0h6m1 0h2m1 0h3M1 22.5h2m5 0h4m1 0h2m1 0h1m2 0h6m1 0h1m1 0h1m4 0h1m1 0h2M1 23.5h1m2 0h4m1 0h1m3 0h5m1 0h1m1 0h1m1 0h1m1 0h4m2 0h4m1 0h2M1 24.5h3m1 0h2m3 0h2m1 0h5m2 0h3m1 0h1m4 0h1m2 0h3M1 25.5h1m1 0h1m3 0h1m1 0h1m1 0h2m4 0h3m2 0h1m2 0h1m3 0h1m1 0h1m4 0h2M1 26.5h1m6 0h1m2 0h4m2 0h1m6 0h1m1 0h1m1 0h2m2 0h1m1 0h2M1 27.5h1m1 0h1m1 0h1m1 0h1m1 0h2m1 0h1m1 0h2m2 0h2m1 0h1m6 0h2m2 0h1m3 0h2M1 28.5h1m7 0h2m2 0h2m1 0h1m2 0h1m1 0h1m1 0h1m3 0h1m2 0h8M1 29.5h1m2 0h1m2 0h1m4 0h1m2 0h1m2 0h1m5 0h4m1 0h7m1 0h1M9 30.5h3m2 0h3m1 0h4m2 0h3m2 0h1m3 0h1m2 0h1M1 31.5h7m2 0h2m1 0h1m1 0h3m2 0h1m1 0h6m1 0h1m1 0h1m1 0h1m3 0h1M1 32.5h1m5 0h1m4 0h2m1 0h1m2 0h2m3 0h1m4 0h2m3 0h1m2 0h1M1 33.5h1m1 0h3m1 0h1m3 0h1m1 0h2m2 0h1m2 0h1m1 0h1m1 0h10m1 0h2M1 34.5h1m1 0h3m1 0h1m2 0h2m1 0h1m3 0h3m2 0h1m1 0h1m4 0h3m5 0h1M1 35.5h1m1 0h3m1 0h1m2 0h3m1 0h5m1 0h1m2 0h1m1 0h1m1 0h4m4 0h3M1 36.5h1m5 0h1m2 0h3m2 0h1m4 0h2m5 0h1m1 0h3m1 0h2m2 0h1M1 37.5h7m1 0h1m3 0h4m4 0h1m2 0h2m2 0h5m1 0h1m2 0h1"/></svg><span class="badge">🔍 크게</span></button>
+      <div class="qrinfo">📱 태블릿에서 바로 열기<br>leixlix-pixel.github.io/toolbox/<br>goryeo-keyword-drill.html</div>
+    </div>
+  </section>
+
+  <!-- 문제 화면 -->
+  <section id="vQuiz" class="hide">
+    <div class="prog"><span id="progTxt"></span><div class="track"><i id="progBar"></i></div></div>
+    <div class="qcard">
+      <div class="qtag" id="qtag"></div>
+      <div class="qask" id="qask"></div>
+      <div class="qtext" id="qtext"></div>
+    </div>
+    <div class="opts" id="opts"></div>
+    <div id="fb"></div>
+    <div class="act" id="actRow"><button class="big" id="checkBtn" onclick="check()" disabled>확인</button></div>
+  </section>
+
+  <!-- 끝 화면 -->
+  <section id="vEnd" class="hide">
+    <div class="hero"><h2 id="endTitle">다 익혔어요!</h2><p id="endSub"></p></div>
+    <div class="stat">
+      <div><b id="stFirst"></b><span>처음 보고 바로 맞힌 낱말</span></div>
+      <div><b id="stHard"></b><span>한 번 이상 틀린 낱말</span></div>
+    </div>
+    <div class="panel" id="hardPanel">
+      <h3>나를 오래 붙잡은 낱말</h3>
+      <div class="note">✏️ <b>공책에 쓰기</b> — 아래 낱말 중 <b>세 개</b>를 골라, 교과서를 보지 않고 <b>무엇인지 한 줄씩</b> 써 보세요. 다 쓰면 짝에게 설명해 주세요.</div>
+      <ul class="hardlist" id="hardList"></ul>
+    </div>
+    <div class="panel">
+      <h3>다음 층</h3>
+      <p style="font-size:17px;line-height:1.6;margin:0 0 10px">낱말을 다 익혔다면, 사건들이 <b>어떤 순서로</b> 일어났는지 맞혀 보세요.</p>
+      <button class="big" onclick="openTimeline()">📜 사건 순서 맞히기</button>
+      <button class="ghost" style="margin-top:10px" onclick="goHome()">다른 부분 하러 가기</button>
+    </div>
+  </section>
+
+  <!-- 연표 -->
+  <section id="vTime" class="hide">
+    <div class="panel">
+      <h3>📜 일어난 순서대로 놓아 보세요</h3>
+      <p style="font-size:16px;color:var(--muted);margin:0 0 12px;line-height:1.6">아래 사건을 <b>먼저 일어난 것부터</b> 차례로 누르세요. 잘못 놓았으면 칸을 눌러 빼면 돼요.<br>다 놓은 뒤에 한 번만 채점해요.</p>
+      <div class="slots" id="slots"></div>
+      <div class="pool" id="pool"></div>
+      <div class="act"><button class="big" id="tlBtn" onclick="checkTimeline()" disabled>채점하기</button></div>
+      <div id="tlFb"></div>
+      <p style="font-size:15px;color:var(--muted);margin:12px 0 0">맞힌 판: <b id="tlScore">0</b></p>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* ───────────── 낱말 (교과서 5-2 사회 46~62쪽에 나온 것만) ─────────────
+   w: 낱말  d: 설명(낱말을 쓰지 않는다)  s: 빈칸 문장(___ 자리)  p: 교과서 쪽
+   x: 이 낱말 문제에서 보기로 내면 안 되는 낱말(빈칸에 같이 들어맞는 것) */
+const SECS = [
+  {id:1, name:'고려의 건국', pages:'46~48쪽'},
+  {id:2, name:'고려 사회의 모습', pages:'49~52쪽'},
+  {id:3, name:'고려와 주변 나라', pages:'53~57쪽'},
+  {id:4, name:'고려의 문화와 생활', pages:'58~62쪽'},
+];
+const K = [
+  // 1. 건국
+  {id:'hojok', sec:1, p:47, w:'호족', d:'통일신라 말 고려 초에 경제력과 군사력을 바탕으로 지방에서 성장한 정치 세력', s:'통일신라 말 나라가 혼란해지자 지방에서 ___이 성장했습니다.'},
+  {id:'gyeonhwon', sec:1, p:47, w:'견훤', d:'지방에서 세력을 키워 후백제를 세운 사람', s:'___이 후백제를 세우고, 궁예가 후고구려를 세웠습니다.'},
+  {id:'gungye', sec:1, p:47, w:'궁예', d:'후고구려를 세웠지만 가혹한 정치를 펼치다 쫓겨난 사람', s:'왕건은 가혹한 정치를 펼치던 ___를 몰아내고 왕이 되었습니다.'},
+  {id:'husamguk', sec:1, p:47, w:'후삼국 시대', d:'후백제, 후고구려, 신라가 함께 있던 시대', s:'견훤과 궁예가 나라를 세우면서 신라와 함께 ___가 시작됐습니다.'},
+  {id:'wanggeon', sec:1, p:47, w:'왕건', d:'궁예를 몰아내고 고려를 세운 뒤 후삼국을 통일한 사람', s:'___은 신라의 항복을 받고, 후백제를 물리쳐 후삼국을 통일했습니다.'},
+  {id:'goguryeo', sec:1, p:47, w:'고구려', d:'‘고려’라는 나라 이름이 이어받겠다고 한 옛 나라', s:'왕건은 ___를 계승한다는 뜻으로 나라 이름을 고려라 했습니다.'},
+  {id:'balhae', sec:1, p:47, w:'발해 유민', d:'거란에 나라를 잃고 고려로 왔으며, 왕건이 친척이라 여기고 받아들인 사람들', s:'왕건은 거란에 멸망한 ___을 친척이라고 여기고 받아들였습니다.'},
+  {id:'gaegyeong', sec:1, p:55, w:'개경', d:'고려의 수도로, 오늘날의 개성', s:'벽란도는 ___과 가까운 항구였습니다.'},
+  {id:'seogyeong', sec:1, p:48, w:'서경', d:'옛 고구려의 수도였던 평양을 고려에서 부른 이름', s:'훈요 10조에는 옛 고구려의 수도였던 ___(평양)을 중요하게 여기라는 가르침이 있습니다.'},
+  {id:'hunyo', sec:1, p:48, w:'훈요 10조', d:'왕건이 후대 왕들에게 남긴 열 가지 가르침', s:'왕건은 후대 왕들이 지켜야 할 열 가지 가르침인 ___를 남겼습니다.'},
+  // 2. 사회
+  {id:'gwageo', sec:2, p:49, w:'과거제', d:'관리를 뽑을 때 실시하던 시험 제도', s:'고려는 ___를 실시해 능력이 있는 관리를 뽑았습니다.'},
+  {id:'hongpae', sec:2, p:49, w:'홍패', d:'과거에 급제한 사람이 받은 합격증', s:'과거에 급제한 장양수가 받은 합격증을 장양수 ___라고 합니다.'},
+  {id:'yangin', sec:2, p:50, w:'양인', d:'왕족, 높은 관리, 중간 계층, 농사를 짓는 일반 백성이 속한 신분', s:'고려의 신분은 크게 ___과 천인으로 구분되었습니다.', x:['cheonin']},
+  {id:'cheonin', sec:2, p:50, w:'천인', d:'대다수가 노비로, 지배층을 위해 일한 신분', s:'___은 대다수가 노비로, 지배층을 위해 일했습니다.', x:['nobi']},
+  {id:'nobi', sec:2, p:49, w:'노비', d:'고려에서 천인의 대다수를 차지한 사람들', s:'고려는 억울하게 호족의 ___가 된 백성의 신분을 되찾아 주었습니다.', x:['cheonin']},
+  {id:'bulgyo', sec:2, p:51, w:'불교', d:'고려에서 나라의 지원을 받으며 크게 발전한 종교', s:'고려 시대에는 ___가 나라의 지원을 받아 전국 곳곳에 절과 탑, 불상이 세워졌습니다.'},
+  {id:'yeondeung', sec:2, p:51, w:'연등회', d:'매년 초에 전국 곳곳에 등불을 밝히고 소원을 빈 불교 행사', s:'매년 초에 열린 ___에서는 수많은 등불이 밝혀지고 백성은 행렬을 지어 소원을 빌었습니다.', x:['palgwan']},
+  {id:'palgwan', sec:2, p:51, w:'팔관회', d:'11월에 열린 나라의 최고 행사로, 외국 사신과 상인까지 참여함', s:'한 해가 끝나 가는 11월에 열린 ___는 나라의 최고 행사였습니다.', x:['yeondeung']},
+  {id:'sonbyeon', sec:2, p:52, w:'손변', d:'유산 다툼을 벌인 남매에게 재산을 반씩 나누라고 판결한 고려의 관리', s:'명재판으로 꼽히는 ___의 재판을 보면, 고려에서는 아들과 딸이 유산을 똑같이 받았음을 알 수 있습니다.'},
+  // 3. 주변 나라
+  {id:'georan', sec:3, p:53, w:'거란', d:'916년에 부족을 통합해 나라를 세우고 발해를 멸망시킨 유목 민족', s:'고려는 발해를 멸망시킨 ___과는 거리를 두었습니다.'},
+  {id:'song', sec:3, p:53, w:'송', d:'960년부터 1279년까지 중국에 있었던 나라로, 고려와 좋은 관계를 유지함', s:'고려는 거란과 거리를 두고 ___과 좋은 관계를 유지했습니다.'},
+  {id:'manbugyo', sec:3, p:53, w:'만부교', d:'왕건이 거란이 보낸 낙타 50필을 묶어 두어 굶어 죽게 한 다리', s:'왕건은 거란이 보낸 낙타를 ___ 다리 아래에 묶어 두었습니다.'},
+  {id:'seohui', sec:3, p:54, w:'서희', d:'거란의 의도를 알아차리고 외교 담판으로 강동 6주를 얻은 사람', s:'___의 외교 담판으로 고려는 강동 6주 지역을 얻었습니다.'},
+  {id:'damp', sec:3, p:54, w:'담판', d:'서로 맞선 사람들이 의논해 옳고 그름을 판단함', s:'서희는 거란과 외교 ___을 벌였습니다.'},
+  {id:'gangdong', sec:3, p:54, w:'강동 6주', d:'서희가 담판으로 얻은 지역으로, 거란이 돌려 달라며 다시 침입한 곳', s:'서희의 외교 담판으로 고려는 ___ 지역을 얻었습니다.'},
+  {id:'gamchan', sec:3, p:54, w:'강감찬', d:'귀주에서 거란군을 크게 물리친 고려의 장군', s:'___을 중심으로 전쟁에 대비하던 고려군은 귀주에서 거란군을 크게 물리쳤습니다.'},
+  {id:'gwiju', sec:3, p:54, w:'귀주 대첩', d:'1019년 강감찬이 이끈 고려군이 거란군을 크게 물리친 싸움', s:'강감찬이 이끈 고려군이 거란군을 크게 물리친 싸움을 ___이라고 합니다.'},
+  {id:'cheolli', sec:3, p:54, w:'천리장성', d:'거란의 침입을 물리친 뒤 외적의 침입에 대비해 쌓은 성', s:'고려는 거란의 침입을 물리친 뒤 ___을 쌓아 외적의 침입에 대비했습니다.'},
+  {id:'byeongnando', sec:3, p:55, w:'벽란도', d:'예성강에 있던 개경 가까운 항구로, 국제 교류의 중심지', s:'고려 시대에는 개경과 가까운 항구인 ___가 국제 교류의 중심지로 성장했습니다.'},
+  {id:'arabia', sec:3, p:55, w:'아라비아 상인', d:'‘고려’라는 이름을 서양에까지 알린 먼 나라의 장사꾼들', s:'___들에 의해 ‘고려’라는 이름이 서양에까지 알려졌습니다.'},
+  {id:'korea', sec:3, p:55, w:'코리아', d:'‘고려’라는 이름이 서양에 알려져 생긴, 오늘날 우리나라를 부르는 이름', s:'고려 때 이름이 서양에 알려져 오늘날 우리나라가 ‘___’로 불리게 됐습니다.'},
+  {id:'mongol', sec:3, p:56, w:'몽골', d:'여러 부족을 통일한 뒤 고려를 침입해 약 30년간 전쟁을 벌인 나라', s:'___이 침입하자 고려는 수도를 강화도로 옮기고 저항했습니다.', x:['won']},
+  {id:'ganghwa', sec:3, p:56, w:'강화도', d:'몽골이 침입하자 고려가 수도를 옮긴 섬', s:'고려는 몽골이 침입하자 수도를 ___로 옮기고 몽골에 저항했습니다.'},
+  {id:'yunhu', sec:3, p:56, w:'김윤후', d:'처인성과 충주성에서 백성·노비와 함께 몽골군을 물리친 승려', s:'승려 ___는 충주성에서 노비 문서를 불태우고, 모든 사람이 힘을 합쳐 몽골군을 물리쳤습니다.'},
+  {id:'cheoin', sec:3, p:56, w:'처인성', d:'김윤후가 차별받던 백성을 모아 몽골군 총사령관을 죽인 곳', s:'김윤후는 ___에서 몽골군의 총사령관을 죽이고 몽골군을 물러나게 했습니다.'},
+  {id:'won', sec:3, p:56, w:'원', d:'고려를 정치적으로 간섭한 몽골이 세운 나라의 이름', s:'전쟁이 끝난 뒤 고려는 정치적으로 몽골(___)의 간섭을 받게 됐습니다.', x:['mongol']},
+  {id:'byeonbal', sec:3, p:56, w:'변발', d:'앞 머리털을 밀고 뒤 머리털만 남겨 땋는 남성의 머리 모양', s:'몽골과 교류하면서 고려에서는 몽골식 ___이 유행했습니다.'},
+  {id:'ssanghwa', sec:3, p:57, w:'쌍화점', d:'만두 가게를 뜻하는 말로, 고려 노래의 제목이기도 함', s:'‘___’은 고려 시대 만두 가게에서 벌어진 이야기를 노래로 만든 것입니다.'},
+  // 4. 문화와 생활
+  {id:'cheongja', sec:4, p:58, w:'고려청자', d:'푸른 빛깔의 고려 도자기로, 비싸고 귀해 주로 지배층이 사용함', s:'___는 다양한 생활용품으로 만들어졌으며, 주로 지배층이 사용했습니다.'},
+  {id:'sanggam', sec:4, p:58, w:'상감 기법', d:'겉면에 무늬를 새겨 파내고 다른 색의 흙으로 메꾼 뒤 유약을 발라 구워 내는 기법', s:'처음에는 중국의 기술을 받아들였으나, ___을 활용해 고려만의 독창적인 청자를 만들었습니다.'},
+  {id:'gangjin', sec:4, p:59, w:'강진', d:'고려 시대 대표적인 청자 생산지(옛 이름 탐진)', s:'고려청자는 탐진(___)에서 만들어 배에 싣고 개경으로 보냈습니다.'},
+  {id:'bomul', sec:4, p:59, w:'보물선', d:'태안 앞바다에서 발견된, 고려청자를 싣고 가다 가라앉은 배', s:'태안 앞바다에서 고려청자를 실은 ___이 발견됐습니다.'},
+  {id:'daejang', sec:4, p:60, w:'대장경', d:'부처의 가르침이 담긴 여러 경전을 모아 하나로 완성한 불교 경전', s:'부처의 가르침이 담긴 여러 경전을 모아서 하나로 완성한 것을 ___이라고 합니다.', x:['chojo','palman']},
+  {id:'chojo', sec:4, p:60, w:'초조대장경', d:'거란의 침입 때 만들었으나 몽골의 침입으로 불에 타 없어진 대장경', s:'고려 사람들은 거란의 침입 때 ___을 만들었습니다.', x:['daejang']},
+  {id:'palman', sec:4, p:60, w:'팔만대장경', d:'몽골의 침입 때 다시 만든 대장경으로, 경판의 수가 팔만여 장에 이름', s:'초조대장경판이 불에 타 없어지자 고려는 다시 ___을 만들었습니다.', x:['daejang']},
+  {id:'panjeon', sec:4, p:60, w:'장경판전', d:'팔만대장경을 보관하려고 온도와 습도가 일정하게 유지되도록 조선 시대에 지은 해인사의 건물', s:'합천 해인사 ___은 과학적 원리에 따라 온도와 습도가 일정하게 유지되도록 지었습니다.'},
+  {id:'hwalja', sec:4, p:61, w:'금속 활자', d:'쉽게 변하지 않고, 조합해서 여러 종류의 책을 인쇄할 수 있는 쇠로 만든 글자', s:'고려 사람들은 세계 최초로 ___를 발명하여 책을 인쇄했습니다.'},
+  {id:'mokpan', sec:4, p:61, w:'목판', d:'갈라지고 휘어 오래 보관하기 어렵고, 새긴 내용만 인쇄할 수 있는 나무판', s:'___은 갈라지고 휘는 성질 때문에 오래 보관하기 어려웠습니다.'},
+  {id:'jikji', sec:4, p:61, w:'직지', d:'오늘날 남아 있는 세계에서 가장 오래된 금속 활자 인쇄본으로, 프랑스 국립 도서관에 있음', s:'『___』는 오늘날 남아 있는 세계에서 가장 오래된 금속 활자 인쇄본입니다.'},
+  {id:'mirap', sec:4, p:61, w:'밀랍', d:'꿀벌이 벌집을 만들려고 분비하는 물질로, 금속 활자를 만들 때 먼저 글자를 새기는 재료', s:'금속 활자를 만들 때는 먼저 ___에 글자를 새깁니다.'},
+  {id:'mun', sec:4, p:62, w:'문익점', d:'원에 사신으로 갔다가 목화씨를 얻어 와 널리 퍼뜨린 사람', s:'___은 장인 정천익과 함께 3년 만에 목화를 재배하는 데 성공했습니다.'},
+  {id:'mokhwa', sec:4, p:62, w:'목화', d:'솜에서 실을 뽑아 옷감을 짜는 식물로, 원에서 씨를 들여옴', s:'문익점은 원에서 ___씨를 얻어 왔습니다.'},
+  {id:'mumyeong', sec:4, p:62, w:'무명', d:'목화솜에서 실을 뽑아 만든, 부드럽고 따뜻한 옷감', s:'문익점의 노력으로 10년이 되지 않아 ___옷이 나라 곳곳에 널리 퍼졌습니다.', x:['mosi']},
+  {id:'mosi', sec:4, p:62, w:'모시', d:'같은 이름의 풀로 짠, 까칠하고 바람이 잘 통하는 옷감', s:'목화가 퍼지기 전 일반 백성은 주로 삼베나 ___로 만든 옷을 입었습니다.', x:['mumyeong']},
+];
+const BY = Object.fromEntries(K.map(k=>[k.id,k]));
+
+/* 연표 — 교과서 47~56쪽의 흐름 순서(앞이 먼저) */
+const EVENTS = [
+  '견훤과 궁예가 나라를 세워 후삼국 시대가 시작됨',
+  '왕건이 궁예를 몰아내고 고려를 세움',
+  '신라가 고려에 항복함',
+  '후백제가 멸망하고 고려가 후삼국을 통일함',
+  '서희가 거란과 외교 담판을 벌여 강동 6주를 얻음',
+  '강감찬이 귀주에서 거란군을 크게 물리침',
+  '대식국(아라비아) 사람들이 와서 특산물을 바침',
+  '몽골이 침입하자 수도를 강화도로 옮김',
+  '초조대장경이 불에 타 팔만대장경을 다시 만듦',
+  '수도를 개경으로 다시 옮기고 몽골과의 전쟁이 끝남',
+  '몽골(원)의 간섭을 받게 됨',
+];
+
+/* ───────────── 저장 ───────────── */
+const KEY = 'goryeoKw_v1';
+function loadAll(){ try{ return JSON.parse(localStorage.getItem(KEY)) || {}; }catch(e){ return {}; } }
+function saveAll(a){ try{ localStorage.setItem(KEY, JSON.stringify(a)); }catch(e){} }
+let ALL = loadAll();
+let ME = null;        // 이 아이의 기록 {k:{id:{n,w,done,seen,lf}}, firstOk, tl}
+let NO = '';
+
+function mine(no){
+  if(!ALL[no]) ALL[no] = {k:{}, tl:0};
+  const m = ALL[no];
+  for(const k of K) if(!m.k[k.id]) m.k[k.id] = {n:0, w:0, done:false, seen:false, first:null, lf:''};
+  return m;
+}
+function persist(){ if(NO){ ALL[NO] = ME; saveAll(ALL); } }
+
+/* ───────────── 소리 ───────────── */
+let muted = false, AC = null;
+try{ muted = localStorage.getItem('goryeoKw_mute') === '1'; }catch(e){}
+function tone(f, t0, dur, type='sine', vol=.18){
+  if(muted) return;
+  try{
+    AC = AC || new (window.AudioContext||window.webkitAudioContext)();
+    const o = AC.createOscillator(), g = AC.createGain();
+    o.type = type; o.frequency.value = f;
+    const t = AC.currentTime + t0;
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t+.02);
+    g.gain.exponentialRampToValueAtTime(.001, t+dur);
+    o.connect(g); g.connect(AC.destination); o.start(t); o.stop(t+dur+.05);
+  }catch(e){}
+}
+const SND = {
+  tap(){ tone(520,0,.06,'triangle',.08); },
+  ok(){ tone(660,0,.12); tone(880,.1,.18); },
+  bad(){ tone(220,0,.22,'sawtooth',.08); },
+  done(){ tone(660,0,.12); tone(880,.1,.12); tone(1100,.2,.3); },
+};
+function toggleSound(){
+  muted = !muted;
+  try{ localStorage.setItem('goryeoKw_mute', muted?'1':'0'); }catch(e){}
+  paintSound();
+}
+function paintSound(){ document.getElementById('snd').textContent = muted ? '🔇' : '🔊'; }
+
+/* ───────────── 도구 ───────────── */
+const $ = id => document.getElementById(id);
+function shuffle(a){ a = a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function esc(s){ return String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function show(v){
+  for(const id of ['vStart','vQuiz','vEnd','vTime']) $(id).classList.toggle('hide', id!==v);
+  $('home').classList.toggle('hide', v==='vStart');
+  window.scrollTo(0,0);
+}
+
+/* ───────────── 시작 화면 ───────────── */
+let chosen = new Set([1]);
+function paintSecs(){
+  const m = NO ? ME : null;
+  $('secs').innerHTML = SECS.map(s=>{
+    const ks = K.filter(k=>k.sec===s.id);
+    const d = m ? ks.filter(k=>m.k[k.id].done).length : 0;
+    return `<button class="sec ${chosen.has(s.id)?'on':''}" onclick="pickSec(${s.id})">
+      <b>${s.id}. ${s.name}</b><small>교과서 ${s.pages} · 낱말 ${ks.length}개${m?` · 익힘 ${d}`:''}</small>
+      <div class="bar"><i style="width:${ks.length?d/ks.length*100:0}%"></i></div></button>`;
+  }).join('');
+}
+function pickSec(id){ SND.tap(); chosen.has(id) ? chosen.delete(id) : chosen.add(id); paintSecs(); }
+$('no').addEventListener('input', ()=>{
+  const v = $('no').value.trim();
+  if(/^\d{1,2}$/.test(v) && +v>=1){ NO = v; ME = mine(NO); } else { NO=''; ME=null; }
+  resetArm = false; $('resetBtn').textContent = '내 기록 지우기';
+  paintSecs();
+});
+let resetArm = false;
+function resetMine(){
+  if(!NO){ $('startMsg').textContent = '먼저 번호를 적어 주세요.'; return; }
+  if(!resetArm){ resetArm = true; $('resetBtn').textContent = '한 번 더 누르면 지워져요'; return; }
+  delete ALL[NO]; saveAll(ALL); ME = mine(NO); resetArm = false;
+  $('resetBtn').textContent = '지웠어요'; paintSecs();
+}
+function goHome(){ show('vStart'); paintSecs(); }
+
+/* ───────────── 반복 규칙 ─────────────
+   - 맞히면 연속 맞힘(n)+1, 6~8문제 뒤에 다시 나온다.
+   - 틀리면 n=0, 2~3문제 뒤에 다시 나온다.
+   - n 이 need 에 닿으면 끝. need 는 2, 두 번 넘게 틀린 낱말은 3.
+   그래서 처음부터 아는 낱말은 두 번 보고 끝나고, 찍으면 계속 돌아온다. */
+const need = st => st.w >= 2 ? 3 : 2;
+let Q = [], cur = null, picked = null, runIds = [];
+
+function startRun(){
+  if(!NO){ $('startMsg').textContent = '번호를 적어 주세요.'; $('no').focus(); return; }
+  if(!chosen.size){ $('startMsg').textContent = '할 부분을 하나 이상 골라 주세요.'; return; }
+  $('startMsg').textContent = '';
+  runIds = K.filter(k=>chosen.has(k.sec)).map(k=>k.id);
+  const left = runIds.filter(id=>!ME.k[id].done);
+  if(!left.length){ showEnd(true); return; }
+  // 전에 틀린 것이 앞쪽에 섞이게
+  const hard = shuffle(left.filter(id=>ME.k[id].w>0));
+  const fresh = shuffle(left.filter(id=>ME.k[id].w===0));
+  Q = [];
+  const a = hard.slice(), b = fresh.slice();
+  while(a.length || b.length){ if(a.length) Q.push(a.shift()); if(b.length) Q.push(b.shift()); if(b.length) Q.push(b.shift()); }
+  show('vQuiz'); next();
+}
+
+function reinsert(id, at){ Q.splice(Math.min(at, Q.length), 0, id); }
+
+function pickFmt(st){
+  const all = ['def','blank','rev'];
+  let c = all.filter(f=>f!==st.lf);
+  if(!st.seen) c = ['def','blank'];           // 처음엔 설명·문장을 보고 낱말을 찾게
+  else if(st.lf!=='rev' && st.n>=1) c = ['rev']; // 맞힌 뒤엔 거꾸로(낱말 → 뜻)
+  return c[Math.floor(Math.random()*c.length)];
+}
+
+function distractors(k, n){
+  const bad = new Set([k.id, ...(k.x||[])]);
+  const same = shuffle(K.filter(o=>o.sec===k.sec && !bad.has(o.id)));
+  const other = shuffle(K.filter(o=>o.sec!==k.sec && !bad.has(o.id)));
+  return same.concat(other).slice(0, n);
+}
+
+function next(){
+  paintProg();
+  if(!Q.length){ showEnd(false); return; }
+  const id = Q.shift();
+  const k = BY[id], st = ME.k[id];
+  const fmt = pickFmt(st);
+  const opts = shuffle([k, ...distractors(k, 3)]);   // 정답 자리는 매번 섞는다
+  cur = {k, st, fmt, opts, again: st.seen && st.n===0 && st.w>0};
+  picked = null;
+
+  $('qtag').className = 'qtag' + (cur.again ? ' again' : '');
+  $('qtag').textContent = cur.again ? '↻ 다시 나온 낱말' : (st.seen ? '한 번 더 확인' : SECS[k.sec-1].name);
+  if(fmt==='def'){
+    $('qask').textContent = '이 설명에 맞는 낱말은?';
+    $('qtext').className = 'qtext'; $('qtext').textContent = k.d;
+  }else if(fmt==='blank'){
+    $('qask').textContent = '빈칸에 들어갈 낱말은?';
+    $('qtext').className = 'qtext';
+    $('qtext').innerHTML = esc(k.s).replace('___','<span class="blank"></span>');
+  }else{
+    $('qask').textContent = '이 낱말의 뜻은?';
+    $('qtext').className = 'qtext word'; $('qtext').textContent = k.w;
+  }
+  const long = fmt==='rev';
+  $('opts').className = 'opts ' + (long ? 'long' : 'w2');
+  $('opts').innerHTML = opts.map((o,i)=>`<button class="opt" data-i="${i}" onclick="pick(${i})">${esc(long?o.d:o.w)}</button>`).join('');
+  $('fb').innerHTML = '';
+  $('actRow').innerHTML = '<button class="big" id="checkBtn" onclick="check()" disabled>확인</button>';
+}
+
+function pick(i){
+  if(cur.graded) return;
+  SND.tap(); picked = i;
+  document.querySelectorAll('.opt').forEach(b=>b.classList.toggle('sel', +b.dataset.i===i));
+  $('checkBtn').disabled = false;
+}
+
+function check(){
+  if(picked===null || cur.graded) return;
+  cur.graded = true;
+  const {k, st, fmt, opts} = cur;
+  const chosenK = opts[picked];
+  const ok = chosenK.id === k.id;
+  const wasNew = !st.seen;
+  st.seen = true; st.lf = fmt;
+  if(wasNew) st.first = ok;
+  document.querySelectorAll('.opt').forEach(b=>{
+    b.disabled = true;
+    const o = opts[+b.dataset.i];
+    if(o.id===k.id) b.classList.add('right');
+    else if(+b.dataset.i===picked) b.classList.add('wrong');
+  });
+  if(ok){
+    st.n++;
+    if(st.n >= need(st)){ st.done = true; }
+    else reinsert(k.id, 6 + Math.floor(Math.random()*3));
+    SND.ok();
+    $('fb').innerHTML = `<div class="fb ok"><h4>${st.done ? '✅ 익혔어요!' : '⭕ 맞았어요'}</h4>
+      <span class="kw">${esc(k.w)}</span> — ${esc(k.d)} <span class="pg">(교과서 ${k.p}쪽)</span></div>`;
+  }else{
+    st.n = 0; st.w++;
+    reinsert(k.id, 2 + Math.floor(Math.random()*2));
+    SND.bad();
+    $('fb').innerHTML = `<div class="fb bad"><h4>❌ 정답은 「${esc(k.w)}」</h4>
+      <span class="kw">${esc(k.w)}</span> — ${esc(k.d)} <span class="pg">(교과서 ${k.p}쪽)</span>
+      <div class="yours">내가 고른 <span class="kw">${esc(chosenK.w)}</span>은(는)<br>→ ${esc(chosenK.d)} <span class="pg">(${chosenK.p}쪽)</span></div>
+      <div class="soon">↻ 이 낱말은 곧 다시 나와요. 이번엔 두 번 연달아 맞혀야 끝나요${need(st)===3?' (자주 틀려서 세 번)':''}.</div></div>`;
+  }
+  persist(); paintProg();
+  $('actRow').innerHTML = '<button class="big" onclick="next()">다음 ▶</button>';
+}
+
+function paintProg(){
+  if(!runIds.length) return;
+  const d = runIds.filter(id=>ME.k[id].done).length;
+  $('progTxt').textContent = `익힌 낱말 ${d} / ${runIds.length}`;
+  $('progBar').style.width = (d/runIds.length*100) + '%';
+}
+
+/* ───────────── 끝 화면 ───────────── */
+function showEnd(already){
+  SND.done();
+  const sts = runIds.map(id=>({k:BY[id], st:ME.k[id]}));
+  const firstOk = sts.filter(x=>x.st.first===true).length;
+  const hard = sts.filter(x=>x.st.w>0).sort((a,b)=>b.st.w-a.st.w);
+  $('endTitle').textContent = already ? '이 부분은 이미 다 익혔어요' : '다 익혔어요!';
+  $('endSub').textContent = `고른 부분의 낱말 ${runIds.length}개를 모두 익혔어요.`;
+  $('stFirst').textContent = `${firstOk} / ${runIds.length}`;
+  $('stHard').textContent = hard.length;
+  if(hard.length){
+    $('hardPanel').classList.remove('hide');
+    $('hardList').innerHTML = hard.slice(0,8).map(x=>`<li><b>${esc(x.k.w)}</b><em>${x.st.w}번 틀림 · ${x.k.p}쪽</em><br>${esc(x.k.d)}</li>`).join('');
+  }else{
+    $('hardPanel').classList.remove('hide');
+    $('hardList').innerHTML = '<li>한 번도 안 틀렸어요! 그래도 <b>공책 쓰기</b>는 해요 — 아래 낱말 중 셋을 골라 보세요.</li>' +
+      shuffle(sts).slice(0,5).map(x=>`<li><b>${esc(x.k.w)}</b><em>${x.k.p}쪽</em></li>`).join('');
+  }
+  show('vEnd');
+}
+
+/* ───────────── 사건 순서 (다음 층) ─────────────
+   다섯 개를 다 놓은 뒤에 한 번만 채점한다(놓는 도중 맞고 틀림을 알려 주지 않는다). */
+let TL = null;
+function openTimeline(){
+  const idx = shuffle(EVENTS.map((_,i)=>i)).slice(0,5);
+  TL = {items: shuffle(idx), placed: [], graded:false};
+  $('tlFb').innerHTML = '';
+  $('tlBtn').outerHTML = `<button class="big" id="tlBtn" onclick="checkTimeline()" disabled>채점하기</button>`;
+  $('tlScore').textContent = ME ? (ME.tl||0) : 0;
+  show('vTime'); paintTL();
+}
+function paintTL(){
+  $('slots').innerHTML = [0,1,2,3,4].map(i=>{
+    const e = TL.placed[i];
+    let cls = 'slot' + (e!==undefined ? ' full' : '');
+    if(TL.graded && e!==undefined) cls += TL.correct[i]===e ? ' right' : ' wrong';
+    return `<button class="${cls}" onclick="unplace(${i})"><span class="n">${i+1}</span>${e!==undefined?esc(EVENTS[e]):'<span style="color:#9fb5ae">여기에 놓기</span>'}</button>`;
+  }).join('');
+  $('pool').innerHTML = TL.items.map(e=>`<button class="chip ${TL.placed.includes(e)?'used':''}" onclick="place(${e})">${esc(EVENTS[e])}</button>`).join('');
+  $('tlBtn').disabled = TL.placed.length<5 || TL.graded;
+}
+function place(e){ if(TL.graded || TL.placed.includes(e) || TL.placed.length>=5) return; SND.tap(); TL.placed.push(e); paintTL(); }
+function unplace(i){ if(TL.graded || TL.placed[i]===undefined) return; SND.tap(); TL.placed.splice(i,1); paintTL(); }
+function checkTimeline(){
+  if(TL.placed.length<5) return;
+  TL.graded = true;
+  TL.correct = TL.items.slice().sort((a,b)=>a-b);
+  const ok = TL.placed.every((e,i)=>e===TL.correct[i]);
+  if(ok){ SND.ok(); if(ME){ ME.tl=(ME.tl||0)+1; persist(); } }
+  else SND.bad();
+  paintTL();
+  $('tlScore').textContent = ME ? (ME.tl||0) : 0;
+  $('tlFb').innerHTML = ok
+    ? `<div class="fb ok"><h4>⭕ 순서가 모두 맞았어요!</h4>새 사건 다섯 개로 한 판 더 해 봐요.</div>`
+    : `<div class="fb bad"><h4>❌ 순서가 달라요 — 바른 순서</h4>${TL.correct.map((e,i)=>`${i+1}. ${esc(EVENTS[e])}`).join('<br>')}<div class="pg" style="margin-top:6px">교과서 47~56쪽을 다시 훑어보면 흐름이 보여요.</div></div>`;
+  $('tlBtn').outerHTML = `<button class="big" id="tlBtn" onclick="openTimeline()">새 판 ▶</button>`;
+}
+
+function bigQR(){ const o=document.createElement("div"); o.id="qrBig"; const b=document.createElement("div"); b.appendChild(document.querySelector("#qrSmall svg").cloneNode(true)); o.appendChild(b); o.onclick=()=>o.remove(); document.body.appendChild(o); }
+document.addEventListener("keydown", e=>{ if(e.key==="Escape"){ const o=document.getElementById("qrBig"); if(o) o.remove(); } });
+
+paintSound(); paintSecs();
+</script>
+</body>
+</html>

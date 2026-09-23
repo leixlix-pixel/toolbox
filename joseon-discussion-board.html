@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>조선 토의 진행판</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --bg:#0e2129; --bg2:#0a1920; --panel:#163039; --panel2:#1d3d48;
+  --line:#2c5261; --ink:#e9f3f5; --dim:#8fb0ba;
+  --acc:#4fc0a8; --gold:#f0c766; --red:#ef7f6e; --blue:#79b8e0;
+}
+html,body{height:100%;margin:0}
+body{
+  font-family:'Noto Sans KR',sans-serif; background:var(--bg); color:var(--ink);
+  touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+  overflow:hidden; user-select:none;
+}
+button{font-family:inherit; cursor:pointer; border:0}
+#app{height:100%; display:flex; flex-direction:column}
+
+/* ───── 홈 ───── */
+.home{height:100%; overflow-y:auto; padding:clamp(20px,3vw,44px)}
+.home h1{
+  font-size:clamp(24px,3.4vw,40px); font-weight:900; margin:0 0 6px; letter-spacing:-1px;
+}
+.home .sub{color:var(--dim); font-size:clamp(13px,1.4vw,17px); margin:0 0 clamp(18px,2.5vw,32px); line-height:1.6}
+.home .sub b{color:var(--gold)}
+.cards{display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:clamp(11px,1.3vw,18px)}
+.card{
+  background:var(--panel); border:2px solid var(--line); border-radius:14px;
+  padding:clamp(14px,1.6vw,20px); text-align:left; color:var(--ink); display:flex; gap:13px;
+  align-items:flex-start; transition:background .12s,border-color .12s;
+}
+.card:active{background:var(--panel2)}
+.card .cn{
+  flex:0 0 auto; width:38px; height:38px; border-radius:10px; background:var(--acc); color:#07222a;
+  font-size:21px; font-weight:900; display:flex; align-items:center; justify-content:center;
+}
+.card .ct{flex:1; min-width:0}
+.card .cu{font-size:11.5px; color:var(--acc); font-weight:700; margin-bottom:3px; letter-spacing:.4px}
+.card .cttl{font-size:clamp(15px,1.6vw,19px); font-weight:700; line-height:1.3; letter-spacing:-.4px}
+.card .cq{font-size:12.5px; color:var(--dim); margin-top:6px; line-height:1.45}
+.star{display:inline-block; background:var(--gold); color:#2c1f00; font-size:10px; font-weight:900;
+      padding:2px 7px; border-radius:20px; margin-left:6px; vertical-align:2px}
+
+/* ───── 머리 ───── */
+.bar{
+  flex:0 0 auto; display:flex; align-items:center; gap:clamp(8px,1.2vw,16px);
+  padding:clamp(8px,1vw,14px) clamp(12px,1.6vw,22px); background:var(--bg2); border-bottom:1px solid var(--line);
+}
+.hbtn{
+  background:var(--panel); color:var(--ink); border-radius:9px; padding:9px 13px;
+  font-size:13px; font-weight:700; min-height:40px; white-space:nowrap;
+}
+.hbtn:active{background:var(--panel2)}
+.btitle{flex:1; min-width:0; overflow:hidden}
+.btitle .bu{font-size:11px; color:var(--acc); font-weight:700; letter-spacing:.5px}
+.btitle .bt{font-size:clamp(15px,1.8vw,22px); font-weight:900; letter-spacing:-.5px; white-space:nowrap;
+            overflow:hidden; text-overflow:ellipsis}
+
+.steps{display:flex; gap:5px; flex-wrap:nowrap}
+.sbtn{
+  background:var(--panel); color:var(--dim); border-radius:8px; padding:7px 11px;
+  font-size:12px; font-weight:700; min-height:38px; white-space:nowrap; border:1.5px solid transparent;
+}
+.sbtn.on{background:var(--acc); color:#07222a; border-color:var(--acc)}
+.sbtn.done{color:var(--ink); border-color:var(--line)}
+.sbtn.spare{border-style:dashed; border-color:#5d7d88}
+.sbtn.spare.on{border-style:solid}
+.vlist{display:flex; flex-direction:column; gap:9px; flex:0 0 auto}
+.vit{
+  background:var(--panel); border:2px solid var(--line); border-radius:11px; color:var(--ink);
+  padding:clamp(11px,1.3vw,17px) clamp(13px,1.5vw,20px); font-size:clamp(15px,1.8vw,25px); font-weight:700;
+  display:flex; align-items:center; gap:12px; text-decoration:none; text-align:left;
+}
+.vit:active{background:var(--panel2)}
+.vit i{font-style:normal; color:var(--gold); flex:0 0 auto}
+.vit em{margin-left:auto; font-style:normal; color:var(--dim); font-size:.7em; font-weight:500; flex:0 0 auto}
+
+/* ───── 본문 ───── */
+.main{flex:1; min-height:0; display:flex; gap:clamp(10px,1.3vw,18px); padding:clamp(10px,1.4vw,20px)}
+.left{flex:1; min-width:0; display:flex; flex-direction:column; gap:clamp(8px,1.1vw,14px); overflow-y:auto}
+.right{
+  flex:0 0 clamp(220px,25vw,330px); display:flex; flex-direction:column; gap:clamp(8px,1.1vw,14px); min-height:0;
+}
+
+.situ{
+  background:#1a2f27; border-left:5px solid var(--gold); border-radius:0 11px 11px 0;
+  padding:clamp(12px,1.5vw,20px); font-size:clamp(15px,1.75vw,25px); line-height:1.6; flex:0 0 auto;
+}
+.situ b{color:var(--gold); font-weight:700}
+.ask{
+  font-size:clamp(20px,3vw,42px); font-weight:900; line-height:1.34; letter-spacing:-1px;
+  color:#fff; flex:0 0 auto;
+}
+.opts{display:flex; flex-wrap:wrap; gap:9px; flex:0 0 auto}
+.opt{
+  background:var(--panel); border:2px solid var(--line); border-radius:30px;
+  padding:clamp(7px,.9vw,12px) clamp(13px,1.5vw,22px); font-size:clamp(13px,1.5vw,20px); font-weight:700;
+}
+.note{
+  background:var(--panel); border-radius:11px; padding:clamp(11px,1.4vw,18px);
+  font-size:clamp(13px,1.5vw,20px); line-height:1.6; flex:0 0 auto;
+}
+.note b{color:var(--acc)}
+
+/* 교과서 단계 */
+.pg{display:flex; align-items:baseline; gap:12px; flex:0 0 auto}
+.pg .big{font-size:clamp(30px,4.6vw,66px); font-weight:900; color:var(--gold); letter-spacing:-2px; line-height:1}
+.pg .lab{font-size:clamp(13px,1.5vw,20px); color:var(--dim)}
+.clist{display:flex; flex-direction:column; gap:7px; flex:0 0 auto}
+.cit{
+  background:var(--panel); border-radius:9px; padding:clamp(9px,1.1vw,15px) clamp(11px,1.3vw,18px);
+  font-size:clamp(13px,1.5vw,21px); display:flex; gap:11px; align-items:baseline; line-height:1.45;
+}
+.cit i{color:var(--acc); font-style:normal; font-weight:900; flex:0 0 auto}
+.cit em{margin-left:auto; color:var(--dim); font-style:normal; font-size:.82em; flex:0 0 auto}
+
+/* ───── 타이머 ───── */
+.tbox{
+  background:var(--panel); border-radius:13px; padding:clamp(10px,1.3vw,17px); flex:0 0 auto;
+  border:2px solid var(--line);
+}
+.tbox.run{border-color:var(--acc)}
+.tbox.over{border-color:var(--red); animation:pulse 1.1s infinite}
+@keyframes pulse{0%,100%{background:var(--panel)}50%{background:#3a2020}}
+.tlab{font-size:12px; color:var(--dim); font-weight:700; text-align:center; margin-bottom:2px}
+.tnum{
+  font-size:clamp(40px,7.5vw,104px); font-weight:900; text-align:center; line-height:1;
+  letter-spacing:-3px; font-variant-numeric:tabular-nums;
+}
+.tnum.warn{color:var(--gold)}
+.tnum.over{color:var(--red)}
+.tbtns{display:flex; gap:6px; margin-top:10px}
+.tbtns button{
+  flex:1; background:var(--panel2); color:var(--ink); border-radius:8px; padding:10px 4px;
+  font-size:13px; font-weight:700; min-height:44px;
+}
+.tbtns button.go{background:var(--acc); color:#07222a}
+.tbtns button:active{opacity:.75}
+
+/* 교사 노트 */
+.tbox.solo{flex:1; display:flex; flex-direction:column; justify-content:center}
+.ntoggle{
+  flex:0 0 auto; background:#23402c; color:#bfe6cb; border:2px solid #2f5138; border-radius:11px;
+  padding:12px; font-size:13.5px; font-weight:700; min-height:48px;
+}
+.ntoggle:active{background:#2c5137}
+.ntoggle small{display:block; color:#7fa88c; font-weight:500; font-size:11px; margin-top:2px}
+.tn{
+  flex:1; min-height:0; overflow-y:auto; background:#1b2a1e; border:2px solid #2f5138;
+  border-radius:13px; padding:clamp(10px,1.2vw,16px);
+}
+.tn h3{
+  margin:0 0 8px; font-size:12px; font-weight:900; color:var(--gold); letter-spacing:1.2px;
+}
+.tn .aim{font-size:clamp(12.5px,1.35vw,17px); line-height:1.6; color:#dff0e2}
+.tn .aim b{color:var(--gold)}
+.rx{margin-top:9px; padding-top:9px; border-top:1px dashed #37624a}
+.rx:first-of-type{margin-top:0; padding-top:0; border-top:0}
+.rx .said{font-size:clamp(12px,1.3vw,16px); color:#9fd9b4; line-height:1.45}
+.rx .said::before{content:'“'}
+.rx .said::after{content:'”'}
+.rx .back{font-size:clamp(12.5px,1.35vw,17px); line-height:1.5; margin-top:4px; padding-left:13px;
+          border-left:3px solid var(--gold)}
+.warnbox{
+  background:#3a2620; border:1.5px solid #6b3f33; border-radius:9px; padding:9px 11px; margin-top:10px;
+  font-size:clamp(12px,1.3vw,16px); line-height:1.55; color:#ffd9d0;
+}
+.warnbox b{color:var(--red)}
+
+/* ───── 갈래 보드 ───── */
+.board{flex:1; min-height:0; display:flex; gap:clamp(8px,1.1vw,14px)}
+.col{
+  flex:1; min-width:0; background:var(--panel); border:2px solid var(--line); border-radius:13px;
+  display:flex; flex-direction:column; overflow:hidden;
+}
+.col.c0{border-color:#3d7fa8} .col.c1{border-color:#b8734f} .col.c2{border-color:#7d6bb0}
+.colh{
+  padding:clamp(8px,1vw,13px) clamp(10px,1.2vw,16px); font-size:clamp(14px,1.7vw,23px); font-weight:900;
+  background:var(--panel2); display:flex; align-items:center; gap:9px; flex:0 0 auto;
+}
+.colh .cnt{
+  margin-left:auto; background:var(--bg2); color:var(--dim); font-size:12px; font-weight:700;
+  border-radius:20px; padding:3px 10px;
+}
+.items{flex:1; min-height:0; overflow-y:auto; padding:9px; display:flex; flex-direction:column; gap:6px}
+.item{
+  background:var(--bg2); border-radius:8px; padding:9px 11px; font-size:clamp(13px,1.45vw,19px);
+  line-height:1.45; display:flex; gap:8px; align-items:flex-start; user-select:text;
+}
+.item span{flex:1; min-width:0; word-break:break-word}
+.item button{background:none; color:#5d7d88; font-size:17px; padding:0 3px; line-height:1; flex:0 0 auto}
+.item button:active{color:var(--red)}
+.colf{padding:8px; flex:0 0 auto; border-top:1px solid var(--line)}
+.colf input{
+  width:100%; background:var(--bg2); border:1.5px solid var(--line); color:var(--ink);
+  border-radius:8px; padding:11px 12px; font-family:inherit; font-size:15px; min-height:46px; user-select:text;
+}
+.colf input:focus{outline:2px solid var(--acc); outline-offset:-1px}
+
+/* ───── 아래 ───── */
+.foot{
+  flex:0 0 auto; display:flex; align-items:center; gap:10px;
+  padding:clamp(8px,1vw,13px) clamp(12px,1.6vw,22px); background:var(--bg2); border-top:1px solid var(--line);
+}
+.foot .fi{flex:1; font-size:clamp(11px,1.2vw,15px); color:var(--dim); line-height:1.45}
+.foot .fi b{color:var(--gold)}
+.nav{
+  background:var(--panel); color:var(--ink); border-radius:9px; padding:11px 20px;
+  font-size:15px; font-weight:700; min-height:46px;
+}
+.nav.go{background:var(--acc); color:#07222a}
+.nav:disabled{opacity:.3}
+
+@media (max-width:860px){
+  .main{flex-direction:column}
+  .right{flex:0 0 auto; flex-direction:row}
+  .tbox{flex:1} .tn{flex:1.3; min-height:120px}
+  .board{flex-direction:column}
+  .steps{display:none}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* ═══════════════ 데이터 ═══════════════ */
+const STEPS=[
+  {n:'혼자 생각', min:3,  k:'solo'},
+  {n:'모둠에서 듣기', min:7, k:'group'},
+  {n:'모둠 발표', min:5, k:'share'},
+  {n:'교과서 읽기', min:8, k:'text'},
+  {n:'영상 · 여유', min:5, k:'video', spare:true},
+  {n:'판단 쓰기', min:4, k:'judge'},
+  {n:'마무리 이야기', min:3, k:'close'}
+];
+
+const SHEETS=[
+{
+ no:1, unit:'유교를 바탕으로 건국한 조선', pages:'77~81',
+ title:'왕을 몰아낸 사람들이 충성을 가르쳤다',
+ situ:'네가 <b>새 나라</b>를 세웠어. 이제 수도를 새로 짓고, 궁궐과 성문마다 <b>이름</b>을 붙여야 해. 백성은 날마다 이 문을 드나들며 그 이름을 보게 될 거야.',
+ ask:'문이나 건물 이름에 무엇을 담겠어? 이름 하나를 지어 보고, 거기에 담은 뜻을 쓰세요.',
+ opts:[], g1:.20,
+ check:[['이성계는 누구와 함께 고려를 무너뜨렸나요?','77쪽'],
+        ['한양을 설계할 때 반영한 유교 덕목 네 가지는?','77쪽'],
+        ['사대문 이름에서 ‘인·의·예’를 찾아 쓰세요.','77~78쪽'],
+        ['근정전이라는 이름에 담긴 바람은?','81쪽']],
+ situ2:'이성계는 원래 <b>고려의 장군</b>, 고려 왕의 신하였어. 그런 그가 신하들과 함께 고려를 무너뜨렸지. 그리고 새로 세운 조선이 백성에게 가르친 것 가운데 첫째가 <b>임금에 대한 충성</b>이었어(78쪽).',
+ ask2:'왕을 몰아낸 사람들이 충성을 가르쳤다. 이건 앞뒤가 맞는 일일까?',
+ opts2:['맞다','맞지 않다'], g2:.40,
+ more:'생각 더하기 — 끝까지 고려 편에 서다 죽임을 당한 정몽주를, <b>그를 죽인 이방원이 임금(태종)이 된 뒤 충신으로 높였어.</b> 왜 그랬을까?',
+ aim:'새 나라가 제일 먼저 하는 일은 <b>제가 옳다고 말하는 것</b>이다. 문에 이름을 붙이는 일과 충성을 가르치는 일은 같은 일이다.',
+ rx:[['맞지 않다. 자기는 배신해 놓고.','그럼 조선의 신하들이 이성계처럼 하면 어떻게 될까? 이성계가 제일 걱정한 게 그거였을 거야.'],
+     ['고려 왕이 나빴으니까 괜찮다.','왕이 나쁘면 몰아내도 된다 — 그 규칙은 조선 왕에게도 적용될까? 누가 나쁘다고 정하지?'],
+     ['백성을 위해서였다.','교과서도 그렇게 썼지(77쪽). 이긴 쪽의 말만 남으면, 누구든 백성을 위했다고 쓰지 않을까?'],
+     ['이름은 그냥 멋있으라고 붙인 거 아니야?','날마다 ‘인’이 새겨진 문을 지나다니면 무슨 일이 생길까? 이름은 날마다 하는 교육이야.']],
+ stuck:'“반장을 몰아내고 새 반장이 됐어. 새 반장이 제일 먼저 만들 규칙은 뭘까?”',
+ openq:'정몽주를 죽인 이방원은 왜 나중에 그를 충신으로 높였을까?',
+ close:'<b>“정몽주를 죽인 이방원은 왜 나중에 그를 충신으로 높였을까?”</b>로 닫는다. 답은 주지 말 것 — 다음 차시(유교 질서)의 “이 질서는 누구를 위한 것인가”로 이어진다.',
+ careful:'이성계를 “배신자”로 몰아가는 것도 목표가 아니다. 고려 말 백성이 힘들었던 것도 사실이다(77쪽). <b>“둘 다 사실이면 어떻게 봐야 할까”</b>에 머무르게 할 것.',
+ video:[['한양 도성','77','https://xcms.kr/dtkmOXA'],['경복궁 근정전과 박석','81','https://xcms.kr/dtndjnF']]
+},
+{
+ no:2, unit:'유교 질서에 따른 조선 사회', pages:'78 · 84',
+ title:'모두가 제자리를 지키면',
+ situ:'우리 반이 1년 동안 맡을 일을 <b>첫날 제비뽑기</b>로 정했어. 청소를 뽑은 사람은 1년 내내 청소만, 반장을 뽑은 사람은 1년 내내 반장. <b>바꿀 수 없어.</b> 대신 반은 아주 조용하고 질서 있게 돌아가.',
+ ask:'이 규칙에 찬성해? 고르고, 그 까닭을 쓰세요.',
+ opts:['찬성','반대','조건이 붙으면 찬성'], g1:.18,
+ check:[['유교에서 강조한 네 가지 관계는?','78쪽'],
+        ['조선 사람들이 실제로 나뉜 네 신분은?','84쪽'],
+        ['세금을 내고 군대에 가는 사람은 대부분 누구였나요?','84쪽'],
+        ['국역을 면제받은 사람은 누구였나요?','84쪽']],
+ situ2:'조선은 <b>“자기 역할에 맞게 살라”</b>고 가르쳤어(78쪽). 그런데 그 역할은 대부분 <b>태어날 때 정해졌어.</b> 양반은 국역을 면제받았고, 세금을 내고 군대에 가는 사람은 거의 다 상민이었지. 노비는 사고팔 수 있었어(84쪽).',
+ ask2:'모두가 자기 자리를 지키면 좋은 사회일까?',
+ opts2:['좋은 사회다','좋은 사회가 아니다','자리를 누가 정하느냐에 달렸다'], g2:.38,
+ more:'생각 더하기 — 제비뽑기 반에서 <b>반장을 뽑은 사람</b>은 이 규칙을 바꾸고 싶어 할까? 조선에서 이 질서를 가르친 사람들은 어느 자리에 있었지?',
+ aim:'질서가 좋은 것인지는 <b>자리를 누가, 어떻게 정하느냐</b>에 달렸다. “질서”라는 말이 좋게 들리는 까닭까지 보게 한다.',
+ rx:[['찬성. 싸울 일이 없으니까.','싸움이 없는 게 모두 만족해서일까, 말해도 소용없어서일까?'],
+     ['반대. 청소만 하는 애가 불쌍하다.','그럼 청소는 누가 해야 해? 돌아가며 한다면 조선은 어떻게 됐을까?'],
+     ['양반은 공부하니까 세금 안 내는 게 맞다.','공부하는 사람은 세금을 안 내도 될까? 그 공부는 누구를 위한 거지?'],
+     ['노비도 결혼하고 재산을 모을 수 있었으니 괜찮다.','교과서에 있는 말이지(84쪽). 그 말을 “사고팔 수 있었다”와 나란히 놓으면 어때?']],
+ stuck:'“제비뽑기에서 반장이 된 사람과 청소가 된 사람, 1년 뒤 둘은 이 규칙을 각각 뭐라고 말할까?”',
+ openq:'조선에서 이 질서를 가르친 사람들은 어느 자리에 있었을까?',
+ close:'<b>“이 질서를 가르친 사람들은 어느 자리에 있었을까?”</b>로 닫는다. 조선 후기(7차시)에 이 질서가 돈으로 흔들린다 — 그때 이 질문이 돌아온다.',
+ careful:'오늘날 집안 형편·부모 직업 이야기로 흐를 수 있다. 개인 이야기가 나오면 <b>“조선 사람이라면”</b>으로 되돌릴 것.',
+ video:[['조선 시대 서당','79','https://xcms.kr/dt3nfYR']]
+},
+{
+ no:3, unit:'유교 질서에 따른 조선 사회', pages:'82~85',
+ title:'본받을 사람은 누가 골랐을까',
+ situ:'마을 사람 대부분이 <b>글을 못 읽어.</b> 너는 이 사람들에게 “부모님께 효도해야 한다”는 것을 가르쳐야 해. 말로 한 번 하면 금방 잊어버려.',
+ ask:'어떻게 가르치겠어? 방법을 쓰고, 그 방법이 잘 먹힐 까닭도 쓰세요.',
+ opts:[], g1:.20,
+ check:[['『삼강행실도』에는 누구의 이야기가 실렸나요?','82쪽'],
+        ['글과 함께 그림을 넣은 까닭은?','82쪽'],
+        ['최루백은 아버지를 위해 무엇을 했나요?','82쪽'],
+        ['조선 전기와 후기, 여성의 삶은 어떻게 달라졌나요?','85쪽']],
+ situ2:'『삼강행실도』는 나라가 골라 뽑은 <b>본받을 사람들</b>의 이야기야. 효자는 호랑이를 잡으러 가고, 충신은 나라를 위해 죽고, 열녀 이야기에는 <b>남편이 죽자 따라 목숨을 끊은 여자</b>들이 여럿 실렸어. 나라는 이 책을 그림까지 넣어 온 나라에 퍼뜨렸지. 그리고 후기로 갈수록 여자는 <b>아버지·남편·아들을 따르는 삶</b>을 살게 됐어(85쪽).',
+ ask2:'나라가 ‘본받을 사람’을 골라 이야기로 퍼뜨리는 것은 좋은 방법일까?',
+ opts2:['좋은 방법이다','좋은 방법이 아니다'], g2:.40,
+ more:'생각 더하기 — 오늘 우리에게 <b>‘본받을 사람’</b> 이야기를 들려주는 것은 누구일까? 그 이야기에서 빠진 사람은 누구지?',
+ aim:'이야기는 규칙보다 힘이 세다. <b>누가 이야기를 고르는가</b>, 그리고 그 이야기 때문에 누구의 삶이 좁아졌는가.',
+ rx:[['좋다. 착한 사람 이야기니까.','착한 사람만 골랐다면 “착하다”는 누가 정했지? 남편을 따라 죽는 것도 착한 걸까?'],
+     ['그림이 있으니 알기 쉬워서 좋다.','맞아, 방법은 아주 똑똑해. 그럼 똑똑한 방법으로 퍼뜨린 내용은 다 옳았을까? 방법과 내용을 따로 봐.'],
+     ['나쁘다. 억지로 따라 하게 만든다.','억지로 시킨 건 아니야. 이야기를 들려줬을 뿐이지. 억지로 시킨 것과 뭐가 다를까?'],
+     ['열녀 이야기는 너무하다.','<b>이 말이 나오면 붙잡을 것.</b> 고려 3차시(손변)에서 고려 여자는 재혼도 자유로웠어. 그럼 무엇이 바뀐 걸까?']],
+ stuck:'“광고는 왜 유명한 사람을 쓸까? 『삼강행실도』가 광고라면 무엇을 광고했을까?”',
+ openq:'오늘 우리에게 ‘본받을 사람’ 이야기를 들려주는 것은 누구일까?',
+ close:'<b>“오늘 우리에게 ‘본받을 사람’ 이야기를 들려주는 것은 누구일까?”</b>로 닫는다. 고려 3차시의 “역사는 좋아지기만 할까”와 이어 줘도 좋다.',
+ careful:'열녀 이야기가 무겁다고 건너뛰지 말 것 — 그게 이 차시의 까닭이다. 다만 <b>죽음 자체를 자세히 말하지 말고</b> “누가 그걸 칭찬했나”에 머무를 것.',
+ video:[['『삼강행실도』','82','https://xcms.kr/dtpcw3Q'],['관혼상제','83','https://xcms.kr/dt977qv']]
+},
+{
+ no:4, unit:'조선의 발전에 따른 생활 모습', pages:'87~89',
+ title:'글자를 모두에게 나눠 주면 누가 손해일까',
+ situ:'우리 반에서 <b>글을 읽을 수 있는 사람이 너 하나</b>뿐이야. 선생님 공지도, 급식표도, 시험 문제도 네가 읽어 줘야 다들 알 수 있어.',
+ ask:'너는 친구들에게 글을 가르쳐 줄 거야? 가르쳐 주면 너에게 무엇이 달라질까?',
+ opts:['가르쳐 준다','안 가르쳐 준다','몇 명만 가르쳐 준다'], g1:.18,
+ check:[['세종은 『농사직설』을 누구의 경험을 모아 만들었나요?','87쪽'],
+        ['앙부일구는 어디에 두었나요?','88쪽'],
+        ['세종이 우리 글자를 만든 까닭은?','89쪽'],
+        ['글자 만들기를 반대한 사람들이 댄 까닭은?','89쪽']],
+ situ2:'훈민정음을 반대한 신하들은 “중국과 사이가 나빠진다”, “중국 문화를 배우려면 한자를 알아야 한다”고 했어(89쪽). 그런데 그때 한자를 읽을 줄 아는 사람은 <b>대부분 양반</b>이었어. 양반들은 새 글자를 <b>‘언문’</b>이라 부르며 낮춰 봤고, 나라의 공식 문서는 조선이 거의 끝날 때까지 <b>한자로</b> 썼어.',
+ ask2:'반대한 사람들은 정말 그 까닭 때문에 반대했을까?',
+ opts2:['그 까닭 때문이다','다른 까닭도 있었다'], g2:.40,
+ more:'생각 더하기 — 세종은 『농사직설』을 만들 때 <b>늙은 농부들의 경험</b>을 모았어(87쪽). 글자를 모르는 사람들이 가진 지식이었지. 그 사람들이 글을 알았다면 무엇이 달라졌을까?',
+ aim:'글자는 <b>힘</b>이다. 글을 독차지한 사람이 그 힘을 나누고 싶어 할까 — <b>말하는 까닭과 진짜 까닭이 다를 수 있다</b>는 것까지.',
+ rx:[['가르쳐 준다. 친구니까.','가르쳐 주면 이제 아무도 너한테 안 물어봐. 그래도?'],
+     ['안 가르쳐 준다. 내가 특별해지니까.','솔직해서 좋다. <b>이 답을 칭찬할 것</b> — 글을 독차지한 사람의 마음을 정확히 짚었다.'],
+     ['중국이랑 사이 나빠지면 안 되니까 반대할 만하다.','그 걱정은 진짜였을 수도 있어. 그럼 한글이 퍼진 뒤에도 공식 문서는 왜 한자로만 썼을까?'],
+     ['세종은 착한 왕이라서 만들었다.','세종도 양반들의 왕이야. 백성이 글을 읽으면 왕에게는 무엇이 좋았을까? (89쪽: 유교의 가르침을 알리는 데 도움)']],
+ stuck:'“선생님만 정답지를 가진 교실이랑 모두가 정답지를 가진 교실, 무엇이 달라질까?”',
+ openq:'말하는 까닭과 진짜 까닭이 다를 때, 우리는 그걸 어떻게 알아챌 수 있을까?',
+ close:'<b>“말하는 까닭과 진짜 까닭이 다를 때, 어떻게 알아챌 수 있을까?”</b>로 닫는다. 반대한 신하를 악당으로 만들지 말고 <b>“누구에게 이익인가”</b>라는 질문 도구만 남긴다.',
+ video:[['세종과 훈민정음','89','https://xcms.kr/dtbcdX3']]
+},
+{
+ no:5, unit:'조선과 주변 나라들의 관계', pages:'90~91',
+ title:'임금은 떠났고 백성은 싸웠다',
+ situ:'적군이 쳐들어왔고, 나라 군대는 잇달아 졌어. 마을 어른이 “<b>농기구를 버리고 싸우러 가자</b>”고 외쳐. 지금은 한창 농사철이라, 네가 빠지면 너희 집 농사는 망해.',
+ ask:'너는 따라가겠어? 고르고 까닭을 쓰세요.',
+ opts:['따라간다','남는다','다른 방법으로 돕는다'], g1:.18,
+ check:[['조선이 일본·여진을 대한 두 가지 방법은?','90쪽'],
+        ['임진왜란의 위기를 이겨 낸 세 가지 힘은?','91쪽'],
+        ['의병이란 어떤 군대인가요?','91쪽'],
+        ['의병장 고경명이 백성에게 요구한 행동은?','91쪽']],
+ situ2:'임진왜란이 터지자 임금(선조)은 한양을 떠나 <b>북쪽 끝 의주</b>까지 피란을 갔어. 그런데 나라가 시키지도 않았는데 <b>백성이 스스로</b> 의병을 만들어 싸웠지(91쪽). 고경명은 “충성과 의리로 돌아가라”고 외쳤고, 자신도 싸우다 죽었어.',
+ ask2:'임금은 떠났는데, 백성은 왜 싸웠을까?',
+ opts2:[], g2:.40,
+ more:'생각 더하기 — 고려 때 몽골이 쳐들어오자 왕은 강화도로 갔고, 처인성에서 싸운 것은 차별받던 사람들이었어. <b>360년이 지나 또 같은 일</b>이 일어났다. 왜 되풀이될까?',
+ aim:'고려 5차시(강화도)와 짝이다. “충성”을 가르친 나라에서 <b>그 값을 실제로 치른 것은 누구였나</b>. 백성이 싸운 까닭은 하나가 아니다(가족·마을·땅·충성).',
+ rx:[['충성해야 하니까.','고경명은 그렇게 말했지. 그런데 농사짓던 사람이 정말 임금 때문에 싸웠을까? 무엇을 지키려 했을까?'],
+     ['임금은 비겁하다.','임금이 잡히면 전쟁이 끝나. 떠난 게 나라를 지키는 길이었을 수도 있어. 그럼 백성에게 뭐라고 말했어야 할까?'],
+     ['가족과 마을을 지키려고.','<b>가장 좋은 답 중 하나.</b> 그럼 “나라를 지켰다”와 “마을을 지켰다”는 같은 말일까?'],
+     ['안 싸우면 죽으니까.','그렇지. 싸우지 않고 피란 간 사람도 많았어. 그 사람들은 잘못한 걸까?']],
+ stuck:'“우리 동네에 불이 났는데 소방차가 안 왔어. 동네 사람들이 불을 끄는 건 소방서를 위해서일까?”',
+ openq:'고려 몽골 때와 임진왜란 때, 왜 같은 일이 되풀이됐을까?',
+ close:'<b>“고려 몽골 때와 360년 뒤 임진왜란 때, 왜 같은 일이 되풀이됐을까?”</b>로 닫는다. 고려 5차시 학습지를 꺼내 나란히 보게 해도 좋다.',
+ careful:'<b>경복궁이 불탄 까닭</b>은 교과서에 “불에 타거나 파괴됐다”로만 나온다(91쪽). 『선조수정실록』에는 임금이 떠난 뒤 성난 백성이 궁궐과 노비 문서를 불태웠다는 기록이 있지만, 일본군이 태웠다는 기록과 엇갈린다. 아이들이 물으면 <b>“기록이 엇갈린다”</b>고 말하고 단정하지 말 것.',
+ video:[['의병장 고경명 (KBS 「한국의 유산」)','91','https://www.youtube.com/watch?v=KesF9hsNRms']]
+},
+{
+ no:6, unit:'조선과 주변 나라들의 관계', pages:'92', star:true,
+ title:'항복의 값은 누가 치렀나',
+ situ:'한겨울, 너희는 <b>성 안에 갇혔어.</b> 밖은 적군이 빙 둘러쌌고, 식량은 한 달 반이면 떨어져. 도우러 오던 군대는 오는 길에 모두 졌어. 신하들은 “끝까지 싸우자”와 “항복하고 뒷날을 꾀하자”로 갈렸어.',
+ ask:'너라면 어느 쪽이야? 고르고 까닭을 쓰세요.',
+ opts:['끝까지 싸운다','항복한다'], g1:.18,
+ check:[['청이 조선에 요구한 관계는?','92쪽'],
+        ['인조가 피신한 곳은?','92쪽'],
+        ['인조는 결국 어떻게 했나요?','92쪽'],
+        ['전쟁 뒤 청으로 끌려간 사람들은?','92쪽']],
+ situ2:'인조는 성에서 나와 <b>청의 황제에게 세 번 절하고 아홉 번 머리를 땅에 찧었어.</b> 그리고 수많은 백성이 청으로 끌려갔지. 몸값을 치르고 겨우 돌아온 여자들도 있었는데, 사람들은 이들을 <b>‘환향녀(고향에 돌아온 여자)’</b>라 부르며 손가락질했고, 아내와 이혼하게 해 달라고 나라에 청한 양반도 있었어.',
+ ask2:'나라가 지키지 못한 사람을 사람들이 손가락질했다. 이 일에서 부끄러워해야 할 사람은 누구일까?',
+ opts2:[], g2:.40,
+ more:'생각 더하기 — 성 안에서 “끝까지 싸우자”던 신하들은 끌려가지 않았어. <b>싸우자는 말의 값</b>은 누가 치르게 될까?',
+ aim:'교과서 활동(싸울까·항복할까)은 <b>성 안</b>의 선택으로 끝난다. 이 차시는 <b>성 밖</b>까지 간다 — 선택의 값을 치른 사람들, 그리고 피해자를 탓하는 사회.',
+ rx:[['끝까지 싸워야 한다. 자존심이 있지.','그 자존심의 값은 누가 치르지? 성 밖 백성에게 물어보면 뭐라고 할까?'],
+     ['항복해야 한다. 다 죽으니까.','항복해도 수많은 사람이 끌려갔어. 그래도 항복이 나았을까?'],
+     ['끌려간 여자들이 무슨 잘못이야.','<b>맞다. 여기서 멈추지 말고</b> “그럼 왜 사람들은 손가락질했을까?”까지 물어라. 3차시 『삼강행실도』의 열녀 이야기와 이어진다.'],
+     ['부끄러워해야 할 건 임금이다.','임금만일까? 손가락질한 이웃들은? 이혼을 청한 남편은?']],
+ stuck:'“친구가 괴롭힘을 당했는데 반 아이들이 ‘너한테도 문제가 있지’라고 했어. 그 말은 누구를 편하게 해 줄까?”',
+ openq:'싸우자는 말의 값은 누가 치르게 될까?',
+ close:'<b>“싸우자는 말의 값은 누가 치르게 될까?”</b>로 닫는다. 나라(인조)가 처음에 이혼을 허락하지 않았다는 것까지는 말해 줘도 된다 — 한쪽 모습만 남지 않게.',
+ careful:'환향녀 이야기가 이 차시의 중심이다. 빼지 말 것. 다만 <b>끌려간 뒤 겪은 일을 자세히 말하지 말고</b> “돌아온 뒤 받은 대접”에 머무를 것. 이 말이 오늘날 욕설의 어원이라는 이야기는 근거가 약하니 꺼내지 말 것.',
+ video:[['병자호란','92','https://xcms.kr/dtt8HTA']]
+},
+{
+ no:7, unit:'조선 후기의 경제와 달라진 사회', pages:'95~97',
+ title:'양반을 돈으로 샀다',
+ situ:'우리 반 반장은 원래 <b>투표</b>로 뽑았어. 반장은 청소를 안 하고, 급식도 먼저 먹어. 그런데 어느 날부터 <b>돈을 내면 반장 배지를 살 수 있게</b> 됐어. 한 달 뒤, 30명 중 20명이 반장이 됐어.',
+ ask:'이제 우리 반은 어떻게 됐을까? 청소는 누가 하고 있을까?',
+ opts:[], g1:.20,
+ check:[['모내기법으로 달라진 점은? (두 가지)','95쪽'],
+        ['고추·인삼·담배를 길러 판 사람들에게 생긴 일은?','95쪽'],
+        ['상평통보가 만들어진 까닭은?','96쪽'],
+        ['만화 속 사람들이 양반이 되려고 한 까닭은?','97쪽']],
+ situ2:'조선 후기, 농사와 장사로 부자가 된 사람들이 <b>돈을 주고 양반이 됐어.</b> 양반은 늘고 상민과 천민은 줄었지(97쪽). 그런데 양반은 세금을 거의 내지 않았어. 그럼 나라에 내야 할 세금과 군대 일은 <b>줄어든 상민</b>이 떠맡게 돼.',
+ ask2:'양반을 돈으로 사는 일은 신분제를 무너뜨렸을까, 더 단단하게 만들었을까?',
+ opts2:['무너뜨렸다','더 단단하게 만들었다','둘 다'], g2:.38,
+ more:'생각 더하기 — 양반을 산 사람들은 <b>신분제를 없애자</b>고 하지 않았어. 자기가 양반이 되려고 했지. 왜 그랬을까?',
+ aim:'교과서의 “신분제가 흔들렸다”(97쪽) 속을 본다. 사람들은 <b>제도를 없애려 한 게 아니라 제도의 위쪽으로 올라가려</b> 했다. 그사이 아래가 더 무거워졌다.',
+ rx:[['무너뜨렸다. 아무나 양반이 되니까.','양반이 되고 싶었다는 건, 양반이 여전히 좋은 자리라는 뜻 아닐까?'],
+     ['돈만 있으면 되니까 공평해졌다.','돈이 없는 사람은? 투표 반이 돈 반으로 바뀐 게 더 공평해진 걸까?'],
+     ['청소는 반장 아닌 10명이 다 한다.','<b>바로 그거.</b> 조선의 상민이 그 10명이야. 그 10명은 무슨 생각을 할까?'],
+     ['반장이 20명이면 반장이 의미가 없다.','그럼 양반이 많아지면 양반도 의미가 없어질까? 그다음은 어떻게 될까?']],
+ stuck:'“청소하는 10명이 할 수 있는 일은 뭘까? 도망? 배지 사기? 규칙 바꾸기?”',
+ openq:'양반을 산 사람들은 왜 신분제를 없애자고 하지 않았을까?',
+ close:'<b>“양반을 산 사람들은 왜 신분제를 없애자고 하지 않았을까?”</b>로 닫는다. 다음 차시에 “사람은 모두 평등하다”고 말한 사람들(동학)이 나온다. 2차시의 “이 질서를 가르친 사람들은 어느 자리에 있었나”를 다시 꺼내도 좋다.',
+ video:[['상평통보 (KBS 「한국의 유산」)','96','https://www.youtube.com/watch?v=xByMT0w3nAU']]
+},
+{
+ no:8, unit:'조선 후기 사회와 서민 문화', pages:'98~103',
+ title:'양반은 왜 탈놀이를 막지 않았을까',
+ situ:'우리 반 규칙이 <b>몇몇 사람에게만 유리해.</b> 그런데 대놓고 말하면 혼이 나. 그래도 이 불만을 모두가 알게 하고 싶어.',
+ ask:'어떤 방법으로 알리겠어? 방법 두 가지를 쓰고, 어느 쪽이 더 안전한지도 쓰세요.',
+ opts:[], g1:.20,
+ check:[['실학이 나타난 까닭은?','98쪽'],
+        ['동학이 백성에게 전한 생각은?','99쪽'],
+        ['나라가 천주교와 동학을 탄압한 까닭은?','99쪽'],
+        ['탈놀이에는 어떤 내용이 많았나요?','102쪽']],
+ situ2:'탈놀이에서는 <b>양반을 대놓고 놀렸어</b>(102쪽). 그런데 양반들은 이 놀이를 막지 않았고, 마을 행사로 허락한 곳도 있었어. 그런데 “사람이 곧 하늘이니 사람은 평등하다”고 말한 동학은 <b>나라가 탄압했고</b>, 동학을 처음 연 최제우는 처형당했어.',
+ ask2:'양반을 놀리는 탈놀이는 두고, 평등을 말한 동학은 막았다. 왜 달랐을까?',
+ opts2:[], g2:.40,
+ more:'생각 더하기 — 오늘 우리가 <b>웃으며 넘기는 불만</b>에는 무엇이 있을까? 웃고 나면 무엇이 달라질까, 달라지지 않을까?',
+ aim:'웃음은 <b>불만을 흘려보내는 통로</b>가 되기도 한다. 놀리는 것과 바꾸자고 하는 것의 차이. 조선 단원의 마지막 질문이다.',
+ rx:[['탈놀이는 그냥 놀이니까.','놀이인데 왜 하필 양반을 놀렸을까? 구경하던 사람들은 왜 그렇게 좋아했을까?'],
+     ['동학은 사람이 많이 모이니까 위험했다.','탈놀이도 사람이 많이 모였어. 모인 사람들이 <b>무엇을 하고 돌아갔는지</b>가 다르지 않을까?'],
+     ['양반이 착해서 봐줬다.','한바탕 웃고 나면 사람들은 다음 날 어떻게 할까? 다시 일하러 갈까, 들고일어날까?'],
+     ['놀리는 건 괜찮지만 바꾸자는 건 무섭다.','<b>핵심에 닿은 답.</b> 누구에게 무서운 거지?']],
+ stuck:'“선생님 흉내 내는 장기자랑은 선생님도 웃으면서 봐. 그런데 ‘숙제를 없애자’는 서명은? 둘은 뭐가 달라?”',
+ openq:'오늘 우리가 웃으며 넘기는 불만에는 무엇이 있을까?',
+ close:'<b>“오늘 우리가 웃으며 넘기는 불만에는 무엇이 있을까?”</b>로 닫는다. 1차시 “왕을 몰아낸 사람들이 충성을 가르쳤다”와 나란히 놓으면 조선의 처음과 끝이 된다.',
+ careful:'탈놀이를 “불만을 흘려보내는 도구”로만 보게 하면 틀린다. 서민이 스스로 만들고 즐긴 <b>자기 문화</b>이기도 했다. 두 얼굴을 다 남길 것.',
+ video:[['조선 후기 풍속화','100','https://xcms.kr/dttuwH7'],['탈놀이와 다양한 탈','102','https://xcms.kr/dt5XOsR']]
+}
+];
+
+/* ═══════════════ 상태 ═══════════════ */
+let S = { sheet:null, step:0, note:false };
+let T = { left:0, total:0, run:false, endAt:0, tick:null };
+let BOARD = {};
+
+function bkey(no){ return 'joseon-board-'+no }
+function loadBoard(no){
+  try{ BOARD = JSON.parse(localStorage.getItem(bkey(no))||'{}') }catch(e){ BOARD={} }
+  if(!BOARD.cols) BOARD.cols=[[],[],[]];
+}
+function saveBoard(no){
+  try{ localStorage.setItem(bkey(no), JSON.stringify(BOARD)) }catch(e){}
+}
+
+/* ═══════════════ 소리 ═══════════════ */
+let ac=null;
+function ready(){ if(!ac){ try{ ac=new (window.AudioContext||window.webkitAudioContext)() }catch(e){} }
+  if(ac && ac.state==='suspended') ac.resume(); }
+function beep(f,d,v,type){
+  if(!ac) return;
+  const o=ac.createOscillator(), g=ac.createGain();
+  o.type=type||'sine'; o.frequency.value=f;
+  g.gain.setValueAtTime(0,ac.currentTime);
+  g.gain.linearRampToValueAtTime(v||.18, ac.currentTime+.02);
+  g.gain.exponentialRampToValueAtTime(.0001, ac.currentTime+d);
+  o.connect(g); g.connect(ac.destination);
+  o.start(); o.stop(ac.currentTime+d+.05);
+}
+function chime(){ beep(784,.45,.2); setTimeout(()=>beep(1047,.5,.2),260); setTimeout(()=>beep(1319,.7,.22),540); }
+function tickSound(){ beep(660,.12,.1,'triangle'); }
+
+/* ═══════════════ 타이머 ═══════════════ */
+function setTimer(min){
+  stopTimer();
+  T.total = min*60; T.left = T.total; T.run=false;
+  paintTimer();
+}
+function startTimer(){
+  ready();
+  if(T.run) return;
+  T.run=true; T.endAt = Date.now() + T.left*1000;
+  T.tick = setInterval(()=>{
+    const prev = T.left;
+    T.left = Math.round((T.endAt - Date.now())/1000);
+    if(prev>60 && T.left<=60) tickSound();
+    if(prev>0 && T.left<=0) chime();
+    paintTimer();
+  }, 250);
+  paintTimer();
+}
+function stopTimer(){
+  T.run=false;
+  if(T.tick){ clearInterval(T.tick); T.tick=null }
+  paintTimer();
+}
+function toggleTimer(){ T.run ? stopTimer() : startTimer() }
+function addMin(m){
+  T.left += m*60;
+  if(T.run) T.endAt = Date.now() + T.left*1000;
+  paintTimer();
+}
+function fmt(sec){
+  const neg = sec<0; const s = Math.abs(sec);
+  return (neg?'-':'') + Math.floor(s/60) + ':' + String(s%60).padStart(2,'0');
+}
+function paintTimer(){
+  const box=document.getElementById('tbox'), num=document.getElementById('tnum'),
+        btn=document.getElementById('tgo');
+  if(!box) return;
+  num.textContent = fmt(T.left);
+  num.className = 'tnum' + (T.left<=0 ? ' over' : (T.left<=60 ? ' warn' : ''));
+  box.className = 'tbox' + (T.left<=0 ? ' over' : (T.run ? ' run' : ''));
+  if(btn) btn.textContent = T.run ? '⏸ 멈춤' : '▶ 시작';
+}
+
+/* ═══════════════ 렌더 ═══════════════ */
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
+
+function render(){
+  const app=document.getElementById('app');
+  if(S.sheet===null){ app.innerHTML=homeHTML(); return }
+  app.innerHTML = sheetHTML();
+  paintTimer();
+  const inp = document.querySelector('.colf input');
+  if(inp && STEPS[S.step].k==='share') inp.focus();
+}
+
+function homeHTML(){
+  return '<div class="home">'
+  + '<h1>조선 · 토의 진행판</h1>'
+  + '<p class="sub">학습지 8장과 짝입니다. 한 장이 한 차시 — <b>혼자 3분 → 모둠 7분 → 발표 5분 → 교과서 8분 → 판단 4분 → 마무리 3분</b>(토의 30분).<br>'
+  + '교과서 다음의 <b>영상 · 여유</b> 칸은 30분에 넣지 않았습니다 — 영상(3~5분)을 틀거나, 발표가 길어졌을 때 쓰는 10분 여유 자리입니다.<br>'
+  + '교실 TV에 띄워 두고 쓰세요. 단계마다 타이머가 자동으로 맞춰지고, <b>되묻는 말</b>이 오른쪽에 뜹니다.</p>'
+  + '<div class="cards">'
+  + SHEETS.map((s,i)=>
+      '<button class="card" onclick="openSheet('+i+')">'
+      + '<div class="cn">'+s.no+'</div>'
+      + '<div class="ct"><div class="cu">교과서 '+s.pages+'쪽</div>'
+      + '<div class="cttl">'+s.title+(s.star?'<span class="star">핵심</span>':'')+'</div>'
+      + '<div class="cq">'+s.ask2+'</div></div></button>'
+    ).join('')
+  + '</div></div>';
+}
+
+function sheetHTML(){
+  const s=SHEETS[S.sheet], st=STEPS[S.step];
+  return '<div class="bar">'
+  + '<button class="hbtn" onclick="goHome()">◀ 목록</button>'
+  + '<div class="btitle"><div class="bu">'+s.no+'차시 · 교과서 '+s.pages+'쪽</div><div class="bt">'+s.title+'</div></div>'
+  + '<div class="steps">'
+  +   STEPS.map((x,i)=>'<button class="sbtn'+(x.spare?' spare':'')+(i===S.step?' on':(i<S.step?' done':''))+'" onclick="goStep('+i+')">'+(i+1)+'. '+x.n+'</button>').join('')
+  + '</div>'
+  + '<button class="hbtn" onclick="goVideo()">▶ 영상</button>'
+  + '<button class="hbtn" onclick="fs()">⛶</button>'
+  + '</div>'
+
+  + '<div class="main">'
+  +   (st.k==='share' ? boardHTML(s) : '<div class="left">'+leftHTML(s,st)+'</div>')
+  +   '<div class="right">'
+  +     '<div class="tbox'+(S.note?'':' solo')+'" id="tbox">'
+  +       '<div class="tlab">'+(S.step+1)+'. '+st.n+'</div>'
+  +       '<div class="tnum" id="tnum">0:00</div>'
+  +       '<div class="tbtns">'
+  +         '<button class="go" id="tgo" onclick="toggleTimer()">▶ 시작</button>'
+  +         '<button onclick="setTimer('+st.min+')">↺</button>'
+  +         '<button onclick="addMin(1)">+1분</button>'
+  +       '</div>'
+  +     '</div>'
+  +     (S.note ? noteHTML(s,st) : '<button class="ntoggle" onclick="toggleNote()">선생님 노트 펴기 ▾<small>아이들에게도 보이는 화면입니다</small></button>')
+  +   '</div>'
+  + '</div>'
+
+  + '<div class="foot">'
+  +   '<button class="nav" onclick="goStep('+(S.step-1)+')"'+(S.step===0?' disabled':'')+'>◀ 이전</button>'
+  +   '<div class="fi">'+footHint(s,st)+'</div>'
+  +   '<button class="nav go" onclick="goStep('+(S.step+1)+')"'+(S.step===STEPS.length-1?' disabled':'')+'>다음 ▶</button>'
+  + '</div>';
+}
+
+function leftHTML(s,st){
+  if(st.k==='solo')
+    return '<div class="situ">'+s.situ+'</div><div class="ask">'+s.ask+'</div>'
+         + (s.opts.length?'<div class="opts">'+s.opts.map(o=>'<span class="opt">'+o+'</span>').join('')+'</div>':'')
+         + '<div class="note">학습지 <b>①번 칸</b>에 혼자 씁니다. 아직 이야기하지 않습니다.</div>';
+
+  if(st.k==='group')
+    return '<div class="ask">한 사람씩 돌아가며<br>자기가 쓴 것을 읽습니다</div>'
+         + '<div class="note">다 읽은 뒤에 자유롭게 이야기하세요.<br><br>학습지 <b>②번 칸</b>에는 <b>나와 다른 생각을 한 친구만</b> 적습니다. 같은 생각은 적지 않아도 됩니다.<br><br><b>모둠 의견을 하나로 정하지 않습니다.</b></div>'
+         + '<div class="situ" style="border-left-color:#4fc0a8;font-size:clamp(14px,1.6vw,22px)">지금 이야기하는 질문 — <b>'+s.ask+'</b></div>';
+
+  if(st.k==='text')
+    return '<div class="pg"><div class="big">'+s.pages+'쪽</div><div class="lab">지금 교과서를 폅니다 · 혼자 읽습니다</div></div>'
+         + '<div class="clist">'+s.check.map((c,i)=>
+             '<div class="cit"><i>'+(i+1)+'</i><span>'+c[0]+'</span><em>'+c[1]+'</em></div>').join('')+'</div>'
+         + '<div class="note">학습지 <b>③번 칸</b>을 채웁니다. <b>답을 불러 주지 마세요.</b> 못 찾는 아이에게만 쪽수를 짚어 줍니다.</div>';
+
+  if(st.k==='video'){
+    const v = s.video||[];
+    if(!v.length)
+      return '<div class="ask">이 차시에는<br>교과서 영상이 없습니다</div>'
+           + '<div class="note">여유 시간입니다. 발표가 모자랐으면 <b>◀ 이전</b>으로 돌아가 더 듣고, 아니면 바로 <b>다음 ▶</b>(판단 쓰기)으로 넘어가세요.</div>';
+    return '<div class="pg"><div class="big">영상</div><div class="lab">누르면 새 창에서 열립니다 · 여유 시간에 봅니다</div></div>'
+         + '<div class="vlist">'+v.map((x,i)=> x[2]
+             ? '<a class="vit" href="'+x[2]+'" target="_blank" rel="noopener"><i>▶</i><span>'+x[0]+'</span><em>교과서 '+x[1]+'쪽 · 누르면 열림 ↗</em></a>'
+             : '<div class="vit"><i>▶</i><span>'+x[0]+'</span><em>교과서 '+x[1]+'쪽 QR로 여세요</em></div>').join('')+'</div>'
+         + '<div class="note">영상은 <b>교과서를 다 읽은 뒤</b>에 봅니다. 시간이 빠듯하면 건너뛰어도 됩니다 — 판단 쓰기가 더 중요합니다.</div>';
+  }
+
+  if(st.k==='judge')
+    return '<div class="situ">'+s.situ2+'</div><div class="ask">'+s.ask2+'</div>'
+         + (s.opts2.length?'<div class="opts">'+s.opts2.map(o=>'<span class="opt">'+o+'</span>').join('')+'</div>':'')
+         + '<div class="note">학습지 <b>④번 칸</b>. 처음 쓴 것과 생각이 달라졌다면 <b>지우지 말고 둘 다</b> 남기게 하세요.</div>';
+
+  /* close — 아이들이 보는 화면이다. 되묻는 말은 선생님 노트로 간다. */
+  return '<div class="note" style="font-size:clamp(13px,1.5vw,20px)">방금 우리가 답한 질문<br><b style="color:#fff">'+s.ask2+'</b></div>'
+       + '<div class="ask" style="color:var(--gold)">'+s.openq+'</div>'
+       + '<div class="note">학습지 맨 아래 <b>생각 더하기</b> 칸의 질문입니다. 오늘은 답을 내지 않고 끝냅니다.</div>';
+}
+
+function noteHTML(s,st){
+  let body='';
+  if(st.k==='solo')
+    body = '<div class="aim">'+s.aim+'</div>'
+         + '<div class="warnbox">지금은 <b>아무 말도 보태지 마세요.</b> 힌트를 주면 전부 그 방향으로 씁니다.</div>';
+  else if(st.k==='group')
+    body = '<div class="aim">돌아다니며 <b>듣기만</b> 합니다. 아직 정리해 주지 마세요.<br><br>말이 없는 모둠에는 이걸 던집니다:<br><br><b>'+s.stuck+'</b></div>';
+  else if(st.k==='share')
+    body = s.rx.map(r=>'<div class="rx"><div class="said">'+r[0]+'</div><div class="back">'+r[1]+'</div></div>').join('');
+  else if(st.k==='text')
+    body = '<div class="aim">읽는 동안은 조용히 둡니다. 교과서에서 답이 나오는 것은 <b>③번뿐</b>입니다 — ④번은 교과서에 답이 없습니다.</div>';
+  else if(st.k==='video')
+    body = '<div class="aim">영상은 <b>정답 확인용이 아닙니다.</b> 판단 쓰기 전에 보는 자료 하나일 뿐이니, 끝나고 따로 정리해 주지 마세요.<br><br>30분 안에서 발표가 길어졌다면 영상을 빼고 이 5분을 발표에 주는 편이 낫습니다.</div>';
+  else if(st.k==='judge')
+    body = '<div class="aim">조용해도 <b>기다리세요.</b> 5분은 생각보다 깁니다.<br><br>“모르겠어요”라는 아이에게는 <b>둘 중 하나를 먼저 고르게</b> 하고 이유를 나중에 쓰게 합니다.</div>';
+  else
+    body = '<div class="aim">'+s.close+'</div>'
+         + (s.careful?'<div class="warnbox">'+s.careful+'</div>':'')
+         + '<div class="warnbox" style="background:#1b2a1e;border-color:#2f5138;color:#dff0e2">'
+         + '<b style="color:#9fd9b4">정답을 정리해 주고 끝내지 마세요.</b> 열어 둔 채 끝내야 다음 시간에 되살아납니다.</div>';
+
+  const head = st.k==='share' ? ('이렇게 말하면 이렇게 되묻기 · '+s.rx.length+'개 ↓') : (st.k==='close' ? '끝낼 때' : '선생님 노트');
+  return '<div class="tn"><h3>'+head
+       + '<button onclick="toggleNote()" style="float:right;background:none;color:#7fa88c;font-size:15px;padding:0 4px;line-height:1">✕</button>'
+       + '</h3>'+body+'</div>';
+}
+
+function footHint(s,st){
+  const m = {
+    solo:'학습지 ①번 · 혼자 씁니다. <b>지금 힌트를 주지 마세요.</b>',
+    group:'학습지 ②번 · 돌아가며 읽기 → 자유 토의. <b>합의시키지 않습니다.</b>',
+    share:'모둠 대표가 말하면 받아 적습니다. 오른쪽 <b>되묻는 말</b>을 보며 한 번씩 밀어 보세요.',
+    text:'교과서 '+s.pages+'쪽 · 학습지 ③번. <b>답을 불러 주지 마세요.</b>',
+    video:'<b>여유 칸</b> — 영상을 틀거나, 모자란 발표·읽기에 씁니다. 건너뛰어도 됩니다.',
+    judge:'학습지 ④번 · 처음 쓴 것을 <b>지우지 않게</b> 하세요.',
+    close:'<b>정리하지 말고 열어 둔 채</b> 끝냅니다.'
+  };
+  return m[st.k]||'';
+}
+
+/* ── 갈래 보드 ── */
+function boardHTML(s){
+  const labels = s.opts2.length ? s.opts2 : ['이런 생각이 나왔다','이런 생각도 나왔다'];
+  return '<div class="board">'
+  + labels.map((L,i)=>
+      '<div class="col c'+i+'">'
+      + '<div class="colh">'+L+'<span class="cnt">'+(BOARD.cols[i]||[]).length+'</span></div>'
+      + '<div class="items">'
+      +   (BOARD.cols[i]||[]).map((t,j)=>
+            '<div class="item"><span>'+esc(t)+'</span><button onclick="delItem('+i+','+j+')">✕</button></div>').join('')
+      + '</div>'
+      + '<div class="colf"><input placeholder="적고 Enter" onkeydown="if(event.key===\'Enter\')addItem('+i+',this)"></div>'
+      + '</div>').join('')
+  + '</div>';
+}
+function addItem(i,el){
+  const v=el.value.trim(); if(!v) return;
+  if(!BOARD.cols[i]) BOARD.cols[i]=[];
+  BOARD.cols[i].push(v); el.value='';
+  saveBoard(SHEETS[S.sheet].no);
+  const keep=i; render();
+  const inputs=document.querySelectorAll('.colf input');
+  if(inputs[keep]) inputs[keep].focus();
+}
+function delItem(i,j){
+  BOARD.cols[i].splice(j,1); saveBoard(SHEETS[S.sheet].no); render();
+}
+
+/* ═══════════════ 이동 ═══════════════ */
+function openSheet(i){
+  S.sheet=i; S.step=0; loadBoard(SHEETS[i].no);
+  setTimer(STEPS[0].min); render(); ready();
+}
+function goVideo(){ goStep(STEPS.findIndex(x=>x.k==='video')) }
+function goHome(){ stopTimer(); S.sheet=null; S.note=false; render() }
+function toggleNote(){ S.note=!S.note; render() }
+function goStep(i){
+  if(i<0||i>=STEPS.length) return;
+  S.step=i; setTimer(STEPS[i].min); render();
+}
+function fs(){
+  if(document.fullscreenElement) document.exitFullscreen();
+  else document.documentElement.requestFullscreen().catch(()=>{});
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT') return;
+  if(S.sheet===null) return;
+  if(e.key==='ArrowRight'){ goStep(S.step+1) }
+  else if(e.key==='ArrowLeft'){ goStep(S.step-1) }
+  else if(e.key===' '){ e.preventDefault(); toggleTimer() }
+  else if(e.key==='Escape'){ goHome() }
+  else if(e.key==='f'||e.key==='F'){ fs() }
+  else if(e.key==='n'||e.key==='N'){ toggleNote() }
+});
+
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>조선 모둠 토의 학습지 8장</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --ink:#1b2a33; --navy:#1a3a52; --acc:#2f7d75; --red:#b83227;
+  --line:#c8d3da; --muted:#6b7c88; --tint:#f1f7f6; --tint2:#fdf6ec;
+}
+html,body{margin:0;padding:0}
+body{
+  font-family:'Noto Sans KR',sans-serif; color:var(--ink);
+  background:#e9edf0; -webkit-print-color-adjust:exact; print-color-adjust:exact;
+}
+
+/* ── 화면 안내 바 ── */
+.topbar{
+  position:sticky; top:0; z-index:9; background:var(--navy); color:#fff;
+  padding:14px 20px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+  box-shadow:0 2px 10px rgba(0,0,0,.2);
+}
+.topbar h1{margin:0; font-size:17px; font-weight:700; letter-spacing:-.3px}
+.topbar p{margin:0; font-size:13px; color:#b9cfdd; flex:1; min-width:240px; line-height:1.5}
+.topbar button{
+  font-family:inherit; font-size:15px; font-weight:700; color:var(--navy); background:#ffd76e;
+  border:0; border-radius:8px; padding:11px 22px; min-height:44px; cursor:pointer;
+}
+.topbar button:active{transform:translateY(1px)}
+
+/* ── A4 ── */
+@page{size:A4; margin:0}
+.page{
+  width:210mm; height:297mm; overflow:hidden; position:relative;
+  padding:13mm 15mm 12mm; background:#fff; margin:18px auto;
+  display:flex; flex-direction:column;
+  box-shadow:0 3px 14px rgba(0,0,0,.14);
+  break-after:page; page-break-after:always;
+}
+.page:last-of-type{break-after:auto; page-break-after:auto}
+
+/* ── 머리 ── */
+.head{flex:0 0 auto; border-bottom:2.5px solid var(--navy); padding-bottom:7px; margin-bottom:11px}
+.hrow{display:flex; align-items:flex-end; gap:11px}
+.no{
+  flex:0 0 auto; width:34px; height:34px; border-radius:9px; background:var(--navy); color:#fff;
+  font-size:19px; font-weight:900; display:flex; align-items:center; justify-content:center;
+}
+.htxt{flex:1; min-width:0}
+.unit{font-size:10.5px; color:var(--acc); font-weight:700; letter-spacing:1.5px; margin-bottom:1px}
+.ttl{font-size:20px; font-weight:900; letter-spacing:-.7px; line-height:1.15}
+.name{flex:0 0 auto; font-size:11px; color:var(--muted); padding-bottom:2px; white-space:nowrap}
+
+/* ── 본문 ── */
+.pbody{flex:1; min-height:0; display:flex; flex-direction:column; justify-content:space-between; gap:9px}
+.sec{display:flex; flex-direction:column; min-height:0}
+.sh{display:flex; align-items:center; gap:7px; margin-bottom:5px; flex:0 0 auto}
+.sn{
+  width:19px; height:19px; border-radius:50%; background:var(--acc); color:#fff;
+  font-size:11.5px; font-weight:700; display:flex; align-items:center; justify-content:center; flex:0 0 auto;
+}
+.st{font-size:13.5px; font-weight:700; letter-spacing:-.3px}
+.time{
+  font-size:10px; font-weight:700; color:var(--acc); background:var(--tint);
+  border:1px solid #cfe3e0; border-radius:20px; padding:2px 8px; margin-left:auto; white-space:nowrap;
+}
+
+.situ{
+  font-size:12.5px; line-height:1.62; background:var(--tint2); border-left:3.5px solid #e0b96a;
+  padding:8px 11px; border-radius:0 6px 6px 0; margin-bottom:6px; flex:0 0 auto;
+}
+.situ b{font-weight:700; color:var(--red)}
+.ask{font-size:13px; font-weight:700; line-height:1.5; margin-bottom:6px; flex:0 0 auto; color:var(--navy)}
+
+.opts{display:flex; flex-wrap:wrap; gap:5px 14px; margin-bottom:6px; flex:0 0 auto}
+.opt{display:flex; align-items:center; gap:5px; font-size:12px; line-height:1.3}
+.opt i{
+  width:12px; height:12px; border:1.6px solid #8fa0ad; border-radius:2.5px;
+  flex:0 0 auto; display:block;
+}
+
+.collab{display:flex; font-size:10.5px; color:var(--muted); font-weight:700; margin-bottom:2px; flex:0 0 auto}
+.collab span:first-child{width:86px; flex:0 0 auto; padding-left:6px}
+.collab span:last-child{padding-left:8px}
+.hint{font-size:11px; color:var(--muted); line-height:1.5; margin-bottom:5px; flex:0 0 auto}
+
+svg.grid{flex:1 1 0; width:100%; display:block}
+
+/* 교과서 확인 */
+.check{
+  border:1.5px dashed #b8ccc9; background:#fafdfc; border-radius:7px;
+  padding:8px 11px 9px; flex:0 0 auto;
+}
+.ci{display:flex; align-items:flex-end; gap:6px; font-size:12px; line-height:1.85; margin-top:1px}
+.ci:first-child{margin-top:0}
+.ci span{flex:0 0 auto}
+.ci u{flex:1; min-width:30px; border-bottom:1px solid #b6c4cc; text-decoration:none; height:15px}
+.ci em{flex:0 0 auto; font-style:normal; color:var(--muted); font-size:11px}
+
+.more{
+  font-size:11.5px; line-height:1.55; color:var(--navy); background:#f4f7fa;
+  border-radius:6px; padding:7px 10px; margin-top:6px; flex:0 0 auto;
+}
+.more b{color:var(--red)}
+
+.foot{
+  flex:0 0 auto; margin-top:9px; padding-top:6px; border-top:1px solid var(--line);
+  font-size:10px; color:var(--muted); line-height:1.5; display:flex; justify-content:space-between; gap:12px;
+}
+
+@media print{
+  body{background:#fff}
+  .no-print{display:none !important}
+  .page{margin:0; box-shadow:none}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar no-print">
+  <h1>조선 · 모둠 토의 학습지 8장</h1>
+  <p>교과서 77~103쪽 · 한 장이 한 차시입니다(토의 30분 + 영상·여유 10분). <b>토의 → 교과서 읽기 → 판단</b> 순서로 짜여 있어 교과서를 먼저 읽히면 효과가 줄어듭니다.</p>
+  <button onclick="window.print()">인쇄하기</button>
+</div>
+
+<div id="out"></div>
+
+<script>
+const SHEETS=[
+{
+ no:1, unit:'유교를 바탕으로 건국한 조선', pages:'77~81',
+ title:'왕을 몰아낸 사람들이 충성을 가르쳤다',
+ situ:'네가 <b>새 나라</b>를 세웠어. 이제 수도를 새로 짓고, 궁궐과 성문마다 <b>이름</b>을 붙여야 해. 백성은 날마다 이 문을 드나들며 그 이름을 보게 될 거야.',
+ ask:'문이나 건물 이름에 무엇을 담겠어? 이름 하나를 지어 보고, 거기에 담은 뜻을 쓰세요.',
+ opts:[], g1:.20,
+ check:[['이성계는 누구와 함께 고려를 무너뜨렸나요?','77쪽'],
+        ['한양을 설계할 때 반영한 유교 덕목 네 가지는?','77쪽'],
+        ['사대문 이름에서 ‘인·의·예’를 찾아 쓰세요.','77~78쪽'],
+        ['근정전이라는 이름에 담긴 바람은?','81쪽']],
+ situ2:'이성계는 원래 <b>고려의 장군</b>, 고려 왕의 신하였어. 그런 그가 신하들과 함께 고려를 무너뜨렸지. 그리고 새로 세운 조선이 백성에게 가르친 것 가운데 첫째가 <b>임금에 대한 충성</b>이었어(78쪽).',
+ ask2:'왕을 몰아낸 사람들이 충성을 가르쳤다. 이건 앞뒤가 맞는 일일까?',
+ opts2:['맞다','맞지 않다'], g2:.40,
+ more:'생각 더하기 — 끝까지 고려 편에 서다 죽임을 당한 정몽주를, <b>그를 죽인 이방원이 임금(태종)이 된 뒤 충신으로 높였어.</b> 왜 그랬을까?',
+ aim:'새 나라가 제일 먼저 하는 일은 <b>제가 옳다고 말하는 것</b>이다. 문에 이름을 붙이는 일과 충성을 가르치는 일은 같은 일이다.',
+ rx:[['맞지 않다. 자기는 배신해 놓고.','그럼 조선의 신하들이 이성계처럼 하면 어떻게 될까? 이성계가 제일 걱정한 게 그거였을 거야.'],
+     ['고려 왕이 나빴으니까 괜찮다.','왕이 나쁘면 몰아내도 된다 — 그 규칙은 조선 왕에게도 적용될까? 누가 나쁘다고 정하지?'],
+     ['백성을 위해서였다.','교과서도 그렇게 썼지(77쪽). 이긴 쪽의 말만 남으면, 누구든 백성을 위했다고 쓰지 않을까?'],
+     ['이름은 그냥 멋있으라고 붙인 거 아니야?','날마다 ‘인’이 새겨진 문을 지나다니면 무슨 일이 생길까? 이름은 날마다 하는 교육이야.']],
+ stuck:'“반장을 몰아내고 새 반장이 됐어. 새 반장이 제일 먼저 만들 규칙은 뭘까?”',
+ openq:'정몽주를 죽인 이방원은 왜 나중에 그를 충신으로 높였을까?',
+ close:'<b>“정몽주를 죽인 이방원은 왜 나중에 그를 충신으로 높였을까?”</b>로 닫는다. 답은 주지 말 것 — 다음 차시(유교 질서)의 “이 질서는 누구를 위한 것인가”로 이어진다.',
+ careful:'이성계를 “배신자”로 몰아가는 것도 목표가 아니다. 고려 말 백성이 힘들었던 것도 사실이다(77쪽). <b>“둘 다 사실이면 어떻게 봐야 할까”</b>에 머무르게 할 것.',
+ video:[['한양 도성','77','https://xcms.kr/dtkmOXA'],['경복궁 근정전과 박석','81','https://xcms.kr/dtndjnF']]
+},
+{
+ no:2, unit:'유교 질서에 따른 조선 사회', pages:'78 · 84',
+ title:'모두가 제자리를 지키면',
+ situ:'우리 반이 1년 동안 맡을 일을 <b>첫날 제비뽑기</b>로 정했어. 청소를 뽑은 사람은 1년 내내 청소만, 반장을 뽑은 사람은 1년 내내 반장. <b>바꿀 수 없어.</b> 대신 반은 아주 조용하고 질서 있게 돌아가.',
+ ask:'이 규칙에 찬성해? 고르고, 그 까닭을 쓰세요.',
+ opts:['찬성','반대','조건이 붙으면 찬성'], g1:.18,
+ check:[['유교에서 강조한 네 가지 관계는?','78쪽'],
+        ['조선 사람들이 실제로 나뉜 네 신분은?','84쪽'],
+        ['세금을 내고 군대에 가는 사람은 대부분 누구였나요?','84쪽'],
+        ['국역을 면제받은 사람은 누구였나요?','84쪽']],
+ situ2:'조선은 <b>“자기 역할에 맞게 살라”</b>고 가르쳤어(78쪽). 그런데 그 역할은 대부분 <b>태어날 때 정해졌어.</b> 양반은 국역을 면제받았고, 세금을 내고 군대에 가는 사람은 거의 다 상민이었지. 노비는 사고팔 수 있었어(84쪽).',
+ ask2:'모두가 자기 자리를 지키면 좋은 사회일까?',
+ opts2:['좋은 사회다','좋은 사회가 아니다','자리를 누가 정하느냐에 달렸다'], g2:.38,
+ more:'생각 더하기 — 제비뽑기 반에서 <b>반장을 뽑은 사람</b>은 이 규칙을 바꾸고 싶어 할까? 조선에서 이 질서를 가르친 사람들은 어느 자리에 있었지?',
+ aim:'질서가 좋은 것인지는 <b>자리를 누가, 어떻게 정하느냐</b>에 달렸다. “질서”라는 말이 좋게 들리는 까닭까지 보게 한다.',
+ rx:[['찬성. 싸울 일이 없으니까.','싸움이 없는 게 모두 만족해서일까, 말해도 소용없어서일까?'],
+     ['반대. 청소만 하는 애가 불쌍하다.','그럼 청소는 누가 해야 해? 돌아가며 한다면 조선은 어떻게 됐을까?'],
+     ['양반은 공부하니까 세금 안 내는 게 맞다.','공부하는 사람은 세금을 안 내도 될까? 그 공부는 누구를 위한 거지?'],
+     ['노비도 결혼하고 재산을 모을 수 있었으니 괜찮다.','교과서에 있는 말이지(84쪽). 그 말을 “사고팔 수 있었다”와 나란히 놓으면 어때?']],
+ stuck:'“제비뽑기에서 반장이 된 사람과 청소가 된 사람, 1년 뒤 둘은 이 규칙을 각각 뭐라고 말할까?”',
+ openq:'조선에서 이 질서를 가르친 사람들은 어느 자리에 있었을까?',
+ close:'<b>“이 질서를 가르친 사람들은 어느 자리에 있었을까?”</b>로 닫는다. 조선 후기(7차시)에 이 질서가 돈으로 흔들린다 — 그때 이 질문이 돌아온다.',
+ careful:'오늘날 집안 형편·부모 직업 이야기로 흐를 수 있다. 개인 이야기가 나오면 <b>“조선 사람이라면”</b>으로 되돌릴 것.',
+ video:[['조선 시대 서당','79','https://xcms.kr/dt3nfYR']]
+},
+{
+ no:3, unit:'유교 질서에 따른 조선 사회', pages:'82~85',
+ title:'본받을 사람은 누가 골랐을까',
+ situ:'마을 사람 대부분이 <b>글을 못 읽어.</b> 너는 이 사람들에게 “부모님께 효도해야 한다”는 것을 가르쳐야 해. 말로 한 번 하면 금방 잊어버려.',
+ ask:'어떻게 가르치겠어? 방법을 쓰고, 그 방법이 잘 먹힐 까닭도 쓰세요.',
+ opts:[], g1:.20,
+ check:[['『삼강행실도』에는 누구의 이야기가 실렸나요?','82쪽'],
+        ['글과 함께 그림을 넣은 까닭은?','82쪽'],
+        ['최루백은 아버지를 위해 무엇을 했나요?','82쪽'],
+        ['조선 전기와 후기, 여성의 삶은 어떻게 달라졌나요?','85쪽']],
+ situ2:'『삼강행실도』는 나라가 골라 뽑은 <b>본받을 사람들</b>의 이야기야. 효자는 호랑이를 잡으러 가고, 충신은 나라를 위해 죽고, 열녀 이야기에는 <b>남편이 죽자 따라 목숨을 끊은 여자</b>들이 여럿 실렸어. 나라는 이 책을 그림까지 넣어 온 나라에 퍼뜨렸지. 그리고 후기로 갈수록 여자는 <b>아버지·남편·아들을 따르는 삶</b>을 살게 됐어(85쪽).',
+ ask2:'나라가 ‘본받을 사람’을 골라 이야기로 퍼뜨리는 것은 좋은 방법일까?',
+ opts2:['좋은 방법이다','좋은 방법이 아니다'], g2:.40,
+ more:'생각 더하기 — 오늘 우리에게 <b>‘본받을 사람’</b> 이야기를 들려주는 것은 누구일까? 그 이야기에서 빠진 사람은 누구지?',
+ aim:'이야기는 규칙보다 힘이 세다. <b>누가 이야기를 고르는가</b>, 그리고 그 이야기 때문에 누구의 삶이 좁아졌는가.',
+ rx:[['좋다. 착한 사람 이야기니까.','착한 사람만 골랐다면 “착하다”는 누가 정했지? 남편을 따라 죽는 것도 착한 걸까?'],
+     ['그림이 있으니 알기 쉬워서 좋다.','맞아, 방법은 아주 똑똑해. 그럼 똑똑한 방법으로 퍼뜨린 내용은 다 옳았을까? 방법과 내용을 따로 봐.'],
+     ['나쁘다. 억지로 따라 하게 만든다.','억지로 시킨 건 아니야. 이야기를 들려줬을 뿐이지. 억지로 시킨 것과 뭐가 다를까?'],
+     ['열녀 이야기는 너무하다.','<b>이 말이 나오면 붙잡을 것.</b> 고려 3차시(손변)에서 고려 여자는 재혼도 자유로웠어. 그럼 무엇이 바뀐 걸까?']],
+ stuck:'“광고는 왜 유명한 사람을 쓸까? 『삼강행실도』가 광고라면 무엇을 광고했을까?”',
+ openq:'오늘 우리에게 ‘본받을 사람’ 이야기를 들려주는 것은 누구일까?',
+ close:'<b>“오늘 우리에게 ‘본받을 사람’ 이야기를 들려주는 것은 누구일까?”</b>로 닫는다. 고려 3차시의 “역사는 좋아지기만 할까”와 이어 줘도 좋다.',
+ careful:'열녀 이야기가 무겁다고 건너뛰지 말 것 — 그게 이 차시의 까닭이다. 다만 <b>죽음 자체를 자세히 말하지 말고</b> “누가 그걸 칭찬했나”에 머무를 것.',
+ video:[['『삼강행실도』','82','https://xcms.kr/dtpcw3Q'],['관혼상제','83','https://xcms.kr/dt977qv']]
+},
+{
+ no:4, unit:'조선의 발전에 따른 생활 모습', pages:'87~89',
+ title:'글자를 모두에게 나눠 주면 누가 손해일까',
+ situ:'우리 반에서 <b>글을 읽을 수 있는 사람이 너 하나</b>뿐이야. 선생님 공지도, 급식표도, 시험 문제도 네가 읽어 줘야 다들 알 수 있어.',
+ ask:'너는 친구들에게 글을 가르쳐 줄 거야? 가르쳐 주면 너에게 무엇이 달라질까?',
+ opts:['가르쳐 준다','안 가르쳐 준다','몇 명만 가르쳐 준다'], g1:.18,
+ check:[['세종은 『농사직설』을 누구의 경험을 모아 만들었나요?','87쪽'],
+        ['앙부일구는 어디에 두었나요?','88쪽'],
+        ['세종이 우리 글자를 만든 까닭은?','89쪽'],
+        ['글자 만들기를 반대한 사람들이 댄 까닭은?','89쪽']],
+ situ2:'훈민정음을 반대한 신하들은 “중국과 사이가 나빠진다”, “중국 문화를 배우려면 한자를 알아야 한다”고 했어(89쪽). 그런데 그때 한자를 읽을 줄 아는 사람은 <b>대부분 양반</b>이었어. 양반들은 새 글자를 <b>‘언문’</b>이라 부르며 낮춰 봤고, 나라의 공식 문서는 조선이 거의 끝날 때까지 <b>한자로</b> 썼어.',
+ ask2:'반대한 사람들은 정말 그 까닭 때문에 반대했을까?',
+ opts2:['그 까닭 때문이다','다른 까닭도 있었다'], g2:.40,
+ more:'생각 더하기 — 세종은 『농사직설』을 만들 때 <b>늙은 농부들의 경험</b>을 모았어(87쪽). 글자를 모르는 사람들이 가진 지식이었지. 그 사람들이 글을 알았다면 무엇이 달라졌을까?',
+ aim:'글자는 <b>힘</b>이다. 글을 독차지한 사람이 그 힘을 나누고 싶어 할까 — <b>말하는 까닭과 진짜 까닭이 다를 수 있다</b>는 것까지.',
+ rx:[['가르쳐 준다. 친구니까.','가르쳐 주면 이제 아무도 너한테 안 물어봐. 그래도?'],
+     ['안 가르쳐 준다. 내가 특별해지니까.','솔직해서 좋다. <b>이 답을 칭찬할 것</b> — 글을 독차지한 사람의 마음을 정확히 짚었다.'],
+     ['중국이랑 사이 나빠지면 안 되니까 반대할 만하다.','그 걱정은 진짜였을 수도 있어. 그럼 한글이 퍼진 뒤에도 공식 문서는 왜 한자로만 썼을까?'],
+     ['세종은 착한 왕이라서 만들었다.','세종도 양반들의 왕이야. 백성이 글을 읽으면 왕에게는 무엇이 좋았을까? (89쪽: 유교의 가르침을 알리는 데 도움)']],
+ stuck:'“선생님만 정답지를 가진 교실이랑 모두가 정답지를 가진 교실, 무엇이 달라질까?”',
+ openq:'말하는 까닭과 진짜 까닭이 다를 때, 우리는 그걸 어떻게 알아챌 수 있을까?',
+ close:'<b>“말하는 까닭과 진짜 까닭이 다를 때, 어떻게 알아챌 수 있을까?”</b>로 닫는다. 반대한 신하를 악당으로 만들지 말고 <b>“누구에게 이익인가”</b>라는 질문 도구만 남긴다.',
+ video:[['세종과 훈민정음','89','https://xcms.kr/dtbcdX3']]
+},
+{
+ no:5, unit:'조선과 주변 나라들의 관계', pages:'90~91',
+ title:'임금은 떠났고 백성은 싸웠다',
+ situ:'적군이 쳐들어왔고, 나라 군대는 잇달아 졌어. 마을 어른이 “<b>농기구를 버리고 싸우러 가자</b>”고 외쳐. 지금은 한창 농사철이라, 네가 빠지면 너희 집 농사는 망해.',
+ ask:'너는 따라가겠어? 고르고 까닭을 쓰세요.',
+ opts:['따라간다','남는다','다른 방법으로 돕는다'], g1:.18,
+ check:[['조선이 일본·여진을 대한 두 가지 방법은?','90쪽'],
+        ['임진왜란의 위기를 이겨 낸 세 가지 힘은?','91쪽'],
+        ['의병이란 어떤 군대인가요?','91쪽'],
+        ['의병장 고경명이 백성에게 요구한 행동은?','91쪽']],
+ situ2:'임진왜란이 터지자 임금(선조)은 한양을 떠나 <b>북쪽 끝 의주</b>까지 피란을 갔어. 그런데 나라가 시키지도 않았는데 <b>백성이 스스로</b> 의병을 만들어 싸웠지(91쪽). 고경명은 “충성과 의리로 돌아가라”고 외쳤고, 자신도 싸우다 죽었어.',
+ ask2:'임금은 떠났는데, 백성은 왜 싸웠을까?',
+ opts2:[], g2:.40,
+ more:'생각 더하기 — 고려 때 몽골이 쳐들어오자 왕은 강화도로 갔고, 처인성에서 싸운 것은 차별받던 사람들이었어. <b>360년이 지나 또 같은 일</b>이 일어났다. 왜 되풀이될까?',
+ aim:'고려 5차시(강화도)와 짝이다. “충성”을 가르친 나라에서 <b>그 값을 실제로 치른 것은 누구였나</b>. 백성이 싸운 까닭은 하나가 아니다(가족·마을·땅·충성).',
+ rx:[['충성해야 하니까.','고경명은 그렇게 말했지. 그런데 농사짓던 사람이 정말 임금 때문에 싸웠을까? 무엇을 지키려 했을까?'],
+     ['임금은 비겁하다.','임금이 잡히면 전쟁이 끝나. 떠난 게 나라를 지키는 길이었을 수도 있어. 그럼 백성에게 뭐라고 말했어야 할까?'],
+     ['가족과 마을을 지키려고.','<b>가장 좋은 답 중 하나.</b> 그럼 “나라를 지켰다”와 “마을을 지켰다”는 같은 말일까?'],
+     ['안 싸우면 죽으니까.','그렇지. 싸우지 않고 피란 간 사람도 많았어. 그 사람들은 잘못한 걸까?']],
+ stuck:'“우리 동네에 불이 났는데 소방차가 안 왔어. 동네 사람들이 불을 끄는 건 소방서를 위해서일까?”',
+ openq:'고려 몽골 때와 임진왜란 때, 왜 같은 일이 되풀이됐을까?',
+ close:'<b>“고려 몽골 때와 360년 뒤 임진왜란 때, 왜 같은 일이 되풀이됐을까?”</b>로 닫는다. 고려 5차시 학습지를 꺼내 나란히 보게 해도 좋다.',
+ careful:'<b>경복궁이 불탄 까닭</b>은 교과서에 “불에 타거나 파괴됐다”로만 나온다(91쪽). 『선조수정실록』에는 임금이 떠난 뒤 성난 백성이 궁궐과 노비 문서를 불태웠다는 기록이 있지만, 일본군이 태웠다는 기록과 엇갈린다. 아이들이 물으면 <b>“기록이 엇갈린다”</b>고 말하고 단정하지 말 것.',
+ video:[['의병장 고경명 (KBS 「한국의 유산」)','91','https://www.youtube.com/watch?v=KesF9hsNRms']]
+},
+{
+ no:6, unit:'조선과 주변 나라들의 관계', pages:'92', star:true,
+ title:'항복의 값은 누가 치렀나',
+ situ:'한겨울, 너희는 <b>성 안에 갇혔어.</b> 밖은 적군이 빙 둘러쌌고, 식량은 한 달 반이면 떨어져. 도우러 오던 군대는 오는 길에 모두 졌어. 신하들은 “끝까지 싸우자”와 “항복하고 뒷날을 꾀하자”로 갈렸어.',
+ ask:'너라면 어느 쪽이야? 고르고 까닭을 쓰세요.',
+ opts:['끝까지 싸운다','항복한다'], g1:.18,
+ check:[['청이 조선에 요구한 관계는?','92쪽'],
+        ['인조가 피신한 곳은?','92쪽'],
+        ['인조는 결국 어떻게 했나요?','92쪽'],
+        ['전쟁 뒤 청으로 끌려간 사람들은?','92쪽']],
+ situ2:'인조는 성에서 나와 <b>청의 황제에게 세 번 절하고 아홉 번 머리를 땅에 찧었어.</b> 그리고 수많은 백성이 청으로 끌려갔지. 몸값을 치르고 겨우 돌아온 여자들도 있었는데, 사람들은 이들을 <b>‘환향녀(고향에 돌아온 여자)’</b>라 부르며 손가락질했고, 아내와 이혼하게 해 달라고 나라에 청한 양반도 있었어.',
+ ask2:'나라가 지키지 못한 사람을 사람들이 손가락질했다. 이 일에서 부끄러워해야 할 사람은 누구일까?',
+ opts2:[], g2:.40,
+ more:'생각 더하기 — 성 안에서 “끝까지 싸우자”던 신하들은 끌려가지 않았어. <b>싸우자는 말의 값</b>은 누가 치르게 될까?',
+ aim:'교과서 활동(싸울까·항복할까)은 <b>성 안</b>의 선택으로 끝난다. 이 차시는 <b>성 밖</b>까지 간다 — 선택의 값을 치른 사람들, 그리고 피해자를 탓하는 사회.',
+ rx:[['끝까지 싸워야 한다. 자존심이 있지.','그 자존심의 값은 누가 치르지? 성 밖 백성에게 물어보면 뭐라고 할까?'],
+     ['항복해야 한다. 다 죽으니까.','항복해도 수많은 사람이 끌려갔어. 그래도 항복이 나았을까?'],
+     ['끌려간 여자들이 무슨 잘못이야.','<b>맞다. 여기서 멈추지 말고</b> “그럼 왜 사람들은 손가락질했을까?”까지 물어라. 3차시 『삼강행실도』의 열녀 이야기와 이어진다.'],
+     ['부끄러워해야 할 건 임금이다.','임금만일까? 손가락질한 이웃들은? 이혼을 청한 남편은?']],
+ stuck:'“친구가 괴롭힘을 당했는데 반 아이들이 ‘너한테도 문제가 있지’라고 했어. 그 말은 누구를 편하게 해 줄까?”',
+ openq:'싸우자는 말의 값은 누가 치르게 될까?',
+ close:'<b>“싸우자는 말의 값은 누가 치르게 될까?”</b>로 닫는다. 나라(인조)가 처음에 이혼을 허락하지 않았다는 것까지는 말해 줘도 된다 — 한쪽 모습만 남지 않게.',
+ careful:'환향녀 이야기가 이 차시의 중심이다. 빼지 말 것. 다만 <b>끌려간 뒤 겪은 일을 자세히 말하지 말고</b> “돌아온 뒤 받은 대접”에 머무를 것. 이 말이 오늘날 욕설의 어원이라는 이야기는 근거가 약하니 꺼내지 말 것.',
+ video:[['병자호란','92','https://xcms.kr/dtt8HTA']]
+},
+{
+ no:7, unit:'조선 후기의 경제와 달라진 사회', pages:'95~97',
+ title:'양반을 돈으로 샀다',
+ situ:'우리 반 반장은 원래 <b>투표</b>로 뽑았어. 반장은 청소를 안 하고, 급식도 먼저 먹어. 그런데 어느 날부터 <b>돈을 내면 반장 배지를 살 수 있게</b> 됐어. 한 달 뒤, 30명 중 20명이 반장이 됐어.',
+ ask:'이제 우리 반은 어떻게 됐을까? 청소는 누가 하고 있을까?',
+ opts:[], g1:.20,
+ check:[['모내기법으로 달라진 점은? (두 가지)','95쪽'],
+        ['고추·인삼·담배를 길러 판 사람들에게 생긴 일은?','95쪽'],
+        ['상평통보가 만들어진 까닭은?','96쪽'],
+        ['만화 속 사람들이 양반이 되려고 한 까닭은?','97쪽']],
+ situ2:'조선 후기, 농사와 장사로 부자가 된 사람들이 <b>돈을 주고 양반이 됐어.</b> 양반은 늘고 상민과 천민은 줄었지(97쪽). 그런데 양반은 세금을 거의 내지 않았어. 그럼 나라에 내야 할 세금과 군대 일은 <b>줄어든 상민</b>이 떠맡게 돼.',
+ ask2:'양반을 돈으로 사는 일은 신분제를 무너뜨렸을까, 더 단단하게 만들었을까?',
+ opts2:['무너뜨렸다','더 단단하게 만들었다','둘 다'], g2:.38,
+ more:'생각 더하기 — 양반을 산 사람들은 <b>신분제를 없애자</b>고 하지 않았어. 자기가 양반이 되려고 했지. 왜 그랬을까?',
+ aim:'교과서의 “신분제가 흔들렸다”(97쪽) 속을 본다. 사람들은 <b>제도를 없애려 한 게 아니라 제도의 위쪽으로 올라가려</b> 했다. 그사이 아래가 더 무거워졌다.',
+ rx:[['무너뜨렸다. 아무나 양반이 되니까.','양반이 되고 싶었다는 건, 양반이 여전히 좋은 자리라는 뜻 아닐까?'],
+     ['돈만 있으면 되니까 공평해졌다.','돈이 없는 사람은? 투표 반이 돈 반으로 바뀐 게 더 공평해진 걸까?'],
+     ['청소는 반장 아닌 10명이 다 한다.','<b>바로 그거.</b> 조선의 상민이 그 10명이야. 그 10명은 무슨 생각을 할까?'],
+     ['반장이 20명이면 반장이 의미가 없다.','그럼 양반이 많아지면 양반도 의미가 없어질까? 그다음은 어떻게 될까?']],
+ stuck:'“청소하는 10명이 할 수 있는 일은 뭘까? 도망? 배지 사기? 규칙 바꾸기?”',
+ openq:'양반을 산 사람들은 왜 신분제를 없애자고 하지 않았을까?',
+ close:'<b>“양반을 산 사람들은 왜 신분제를 없애자고 하지 않았을까?”</b>로 닫는다. 다음 차시에 “사람은 모두 평등하다”고 말한 사람들(동학)이 나온다. 2차시의 “이 질서를 가르친 사람들은 어느 자리에 있었나”를 다시 꺼내도 좋다.',
+ video:[['상평통보 (KBS 「한국의 유산」)','96','https://www.youtube.com/watch?v=xByMT0w3nAU']]
+},
+{
+ no:8, unit:'조선 후기 사회와 서민 문화', pages:'98~103',
+ title:'양반은 왜 탈놀이를 막지 않았을까',
+ situ:'우리 반 규칙이 <b>몇몇 사람에게만 유리해.</b> 그런데 대놓고 말하면 혼이 나. 그래도 이 불만을 모두가 알게 하고 싶어.',
+ ask:'어떤 방법으로 알리겠어? 방법 두 가지를 쓰고, 어느 쪽이 더 안전한지도 쓰세요.',
+ opts:[], g1:.20,
+ check:[['실학이 나타난 까닭은?','98쪽'],
+        ['동학이 백성에게 전한 생각은?','99쪽'],
+        ['나라가 천주교와 동학을 탄압한 까닭은?','99쪽'],
+        ['탈놀이에는 어떤 내용이 많았나요?','102쪽']],
+ situ2:'탈놀이에서는 <b>양반을 대놓고 놀렸어</b>(102쪽). 그런데 양반들은 이 놀이를 막지 않았고, 마을 행사로 허락한 곳도 있었어. 그런데 “사람이 곧 하늘이니 사람은 평등하다”고 말한 동학은 <b>나라가 탄압했고</b>, 동학을 처음 연 최제우는 처형당했어.',
+ ask2:'양반을 놀리는 탈놀이는 두고, 평등을 말한 동학은 막았다. 왜 달랐을까?',
+ opts2:[], g2:.40,
+ more:'생각 더하기 — 오늘 우리가 <b>웃으며 넘기는 불만</b>에는 무엇이 있을까? 웃고 나면 무엇이 달라질까, 달라지지 않을까?',
+ aim:'웃음은 <b>불만을 흘려보내는 통로</b>가 되기도 한다. 놀리는 것과 바꾸자고 하는 것의 차이. 조선 단원의 마지막 질문이다.',
+ rx:[['탈놀이는 그냥 놀이니까.','놀이인데 왜 하필 양반을 놀렸을까? 구경하던 사람들은 왜 그렇게 좋아했을까?'],
+     ['동학은 사람이 많이 모이니까 위험했다.','탈놀이도 사람이 많이 모였어. 모인 사람들이 <b>무엇을 하고 돌아갔는지</b>가 다르지 않을까?'],
+     ['양반이 착해서 봐줬다.','한바탕 웃고 나면 사람들은 다음 날 어떻게 할까? 다시 일하러 갈까, 들고일어날까?'],
+     ['놀리는 건 괜찮지만 바꾸자는 건 무섭다.','<b>핵심에 닿은 답.</b> 누구에게 무서운 거지?']],
+ stuck:'“선생님 흉내 내는 장기자랑은 선생님도 웃으면서 봐. 그런데 ‘숙제를 없애자’는 서명은? 둘은 뭐가 달라?”',
+ openq:'오늘 우리가 웃으며 넘기는 불만에는 무엇이 있을까?',
+ close:'<b>“오늘 우리가 웃으며 넘기는 불만에는 무엇이 있을까?”</b>로 닫는다. 1차시 “왕을 몰아낸 사람들이 충성을 가르쳤다”와 나란히 놓으면 조선의 처음과 끝이 된다.',
+ careful:'탈놀이를 “불만을 흘려보내는 도구”로만 보게 하면 틀린다. 서민이 스스로 만들고 즐긴 <b>자기 문화</b>이기도 했다. 두 얼굴을 다 남길 것.',
+ video:[['조선 후기 풍속화','100','https://xcms.kr/dttuwH7'],['탈놀이와 다양한 탈','102','https://xcms.kr/dt5XOsR']]
+}
+];
+
+function optsHTML(list){
+  if(!list || !list.length) return '';
+  return '<div class="opts">' + list.map(o=>'<span class="opt"><i></i>'+o+'</span>').join('') + '</div>';
+}
+function checkHTML(list){
+  return '<div class="check">' + list.map(c=>
+    '<div class="ci"><span>'+c[0]+'</span><u></u><em>'+c[1]+'</em></div>'
+  ).join('') + '</div>';
+}
+
+function pageHTML(s){
+  return '<div class="page">'
+  + '<div class="head"><div class="hrow">'
+  +   '<div class="no">'+s.no+'</div>'
+  +   '<div class="htxt"><div class="unit">'+s.unit+' · 교과서 '+s.pages+'쪽</div><div class="ttl">'+s.title+'</div></div>'
+  +   '<div class="name">5학년 ___반 이름 __________</div>'
+  + '</div></div>'
+
+  + '<div class="pbody">'
+
+  /* ① 혼자 */
+  + '<div class="sec grow" style="flex-grow:'+s.g1+'">'
+  +   '<div class="sh"><div class="sn">1</div><div class="st">먼저 혼자 생각하기</div><div class="time">혼자 3분</div></div>'
+  +   '<div class="situ">'+s.situ+'</div>'
+  +   '<div class="ask">'+s.ask+'</div>'
+  +   optsHTML(s.opts)
+  +   '<svg class="grid" data-mode="lines" data-pitch="27" style="min-height:52px"></svg>'
+  + '</div>'
+
+  /* ② 모둠 */
+  + '<div class="sec grow" style="flex-grow:.19">'
+  +   '<div class="sh"><div class="sn">2</div><div class="st">모둠에서 듣기</div><div class="time">모둠 7분</div></div>'
+  +   '<div class="hint">한 사람씩 돌아가며 자기가 쓴 것을 읽습니다. 그다음 자유롭게 이야기하세요. <b>나와 다른 생각을 한 친구만</b> 적으면 됩니다. 같은 생각은 적지 않아도 괜찮습니다.</div>'
+  +   '<div class="collab"><span>친구 이름</span><span>나와 달랐던 생각</span></div>'
+  +   '<svg class="grid" data-mode="named" data-pitch="27" style="min-height:54px"></svg>'
+  + '</div>'
+
+  /* ③ 교과서 */
+  + '<div class="sec">'
+  +   '<div class="sh"><div class="sn">3</div><div class="st">이제 교과서를 읽습니다</div><div class="time">혼자 8분</div></div>'
+  +   checkHTML(s.check)
+  + '</div>'
+
+  /* ④ 판단 */
+  + '<div class="sec grow" style="flex-grow:'+s.g2+'">'
+  +   '<div class="sh"><div class="sn">4</div><div class="st">읽고 나서, 나는 이렇게 생각한다</div><div class="time">혼자 4분</div></div>'
+  +   '<div class="situ">'+s.situ2+'</div>'
+  +   '<div class="ask">'+s.ask2+'</div>'
+  +   optsHTML(s.opts2)
+  +   '<svg class="grid" data-mode="lines" data-pitch="27" style="min-height:76px"></svg>'
+  +   '<div class="more">'+s.more+'</div>'
+  + '</div>'
+
+  + '</div>'
+
+  + '<div class="foot">'
+  +   '<span>이 학습지에는 <b>정답이 없는 질문</b>이 들어 있습니다. 생각이 바뀌었으면 처음 쓴 것을 지우지 말고 둘 다 남겨 두세요.</span>'
+  +   '<span>조선 '+s.no+'/8</span>'
+  + '</div>'
+  + '</div>';
+}
+
+document.getElementById('out').innerHTML = SHEETS.map(pageHTML).join('');
+
+/* ── 격자는 SVG 선으로 긋는다 (CSS 테두리는 인쇄 시 세로선이 사라진다) ── */
+function drawGrid(svg){
+  const r = svg.getBoundingClientRect();
+  const w = Math.round(r.width), h = Math.round(r.height);
+  if(w < 20 || h < 20) return;
+  const pitch = +svg.dataset.pitch || 28;
+  const rows = Math.max(1, Math.round(h / pitch));
+  const rh = h / rows;
+  let s = '<rect x="0.8" y="0.8" width="'+(w-1.6)+'" height="'+(h-1.6)+'" rx="5" fill="none" stroke="#b6c5cd" stroke-width="1.6"/>';
+  for(let i=1;i<rows;i++){
+    const y = +(i*rh).toFixed(2);
+    s += '<line x1="1.6" y1="'+y+'" x2="'+(w-1.6)+'" y2="'+y+'" stroke="#dce3e9" stroke-width="1.1"/>';
+  }
+  if(svg.dataset.mode === 'named'){
+    s += '<line x1="86" y1="1.6" x2="86" y2="'+(h-1.6)+'" stroke="#dce3e9" stroke-width="1.1"/>';
+  }
+  svg.setAttribute('viewBox','0 0 '+w+' '+h);
+  svg.setAttribute('preserveAspectRatio','none');
+  svg.innerHTML = s;
+}
+function drawAll(){ document.querySelectorAll('svg.grid').forEach(drawGrid); }
+
+drawAll();
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(drawAll);
+window.addEventListener('load', drawAll);
+window.addEventListener('resize', drawAll);
+window.addEventListener('beforeprint', drawAll);
+</script>
+</body>
+</html>

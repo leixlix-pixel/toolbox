@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>표준어와 방언 학습지</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --ink:#1b2a33; --navy:#1a3a52; --acc:#2f7d75; --red:#b83227;
+  --line:#c8d3da; --muted:#6b7c88; --tint:#f1f7f6; --tint2:#fdf6ec;
+}
+html,body{margin:0;padding:0}
+body{
+  font-family:'Noto Sans KR',sans-serif; color:var(--ink);
+  background:#e9edf0; -webkit-print-color-adjust:exact; print-color-adjust:exact;
+}
+
+/* ── 화면 안내 바 ── */
+.topbar{
+  position:sticky; top:0; z-index:9; background:var(--navy); color:#fff;
+  padding:14px 20px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+  box-shadow:0 2px 10px rgba(0,0,0,.2);
+}
+.topbar h1{margin:0; font-size:17px; font-weight:700; letter-spacing:-.3px}
+.topbar p{margin:0; font-size:13px; color:#b9cfdd; flex:1; min-width:240px; line-height:1.5}
+.topbar button{
+  font-family:inherit; font-size:15px; font-weight:700; color:var(--navy); background:#ffd76e;
+  border:0; border-radius:8px; padding:11px 22px; min-height:44px; cursor:pointer;
+}
+.topbar button:active{transform:translateY(1px)}
+
+/* ── A4 ── */
+@page{size:A4; margin:0}
+.page{
+  width:210mm; height:297mm; overflow:hidden; position:relative;
+  padding:13mm 15mm 12mm; background:#fff; margin:18px auto;
+  display:flex; flex-direction:column;
+  box-shadow:0 3px 14px rgba(0,0,0,.14);
+  break-after:page; page-break-after:always;
+}
+.page:last-of-type{break-after:auto; page-break-after:auto}
+
+/* ── 머리 ── */
+.head{flex:0 0 auto; border-bottom:2.5px solid var(--navy); padding-bottom:7px; margin-bottom:11px}
+.hrow{display:flex; align-items:flex-end; gap:11px}
+.no{
+  flex:0 0 auto; width:34px; height:34px; border-radius:9px; background:var(--navy); color:#fff;
+  font-size:19px; font-weight:900; display:flex; align-items:center; justify-content:center;
+}
+.htxt{flex:1; min-width:0}
+.unit{font-size:10.5px; color:var(--acc); font-weight:700; letter-spacing:1.5px; margin-bottom:1px}
+.ttl{font-size:20px; font-weight:900; letter-spacing:-.7px; line-height:1.15}
+.name{flex:0 0 auto; font-size:11px; color:var(--muted); padding-bottom:2px; white-space:nowrap}
+
+/* ── 본문 ── */
+.pbody{flex:1; min-height:0; display:flex; flex-direction:column; justify-content:space-between; gap:9px}
+.sec{display:flex; flex-direction:column; min-height:0}
+.sh{display:flex; align-items:center; gap:7px; margin-bottom:5px; flex:0 0 auto}
+.sn{
+  width:19px; height:19px; border-radius:50%; background:var(--acc); color:#fff;
+  font-size:11.5px; font-weight:700; display:flex; align-items:center; justify-content:center; flex:0 0 auto;
+}
+.st{font-size:13.5px; font-weight:700; letter-spacing:-.3px}
+.time{
+  font-size:10px; font-weight:700; color:var(--acc); background:var(--tint);
+  border:1px solid #cfe3e0; border-radius:20px; padding:2px 8px; margin-left:auto; white-space:nowrap;
+}
+
+.situ{
+  font-size:12.5px; line-height:1.62; background:var(--tint2); border-left:3.5px solid #e0b96a;
+  padding:8px 11px; border-radius:0 6px 6px 0; margin-bottom:6px; flex:0 0 auto;
+}
+.situ b{font-weight:700; color:var(--red)}
+.ask{font-size:13px; font-weight:700; line-height:1.5; margin-bottom:6px; flex:0 0 auto; color:var(--navy)}
+
+.opts{display:flex; flex-wrap:wrap; gap:5px 14px; margin-bottom:6px; flex:0 0 auto}
+.opt{display:flex; align-items:center; gap:5px; font-size:12px; line-height:1.3}
+.opt i{
+  width:12px; height:12px; border:1.6px solid #8fa0ad; border-radius:2.5px;
+  flex:0 0 auto; display:block;
+}
+
+.collab{display:flex; font-size:10.5px; color:var(--muted); font-weight:700; margin-bottom:2px; flex:0 0 auto}
+.collab span:first-child{width:86px; flex:0 0 auto; padding-left:6px}
+.collab span:last-child{padding-left:8px}
+.hint{font-size:11px; color:var(--muted); line-height:1.5; margin-bottom:5px; flex:0 0 auto}
+
+svg.grid{flex:1 1 0; width:100%; display:block}
+
+/* 교과서 확인 */
+.check{
+  border:1.5px dashed #b8ccc9; background:#fafdfc; border-radius:7px;
+  padding:8px 11px 9px; flex:0 0 auto;
+}
+.ci{display:flex; align-items:flex-end; gap:6px; font-size:12px; line-height:1.85; margin-top:1px}
+.ci:first-child{margin-top:0}
+.ci span{flex:0 0 auto}
+.ci u{flex:1; min-width:30px; border-bottom:1px solid #b6c4cc; text-decoration:none; height:15px}
+.ci em{flex:0 0 auto; font-style:normal; color:var(--muted); font-size:11px}
+
+.more{
+  font-size:11.5px; line-height:1.55; color:var(--navy); background:#f4f7fa;
+  border-radius:6px; padding:7px 10px; margin-top:6px; flex:0 0 auto;
+}
+.more b{color:var(--red)}
+
+/* ── 국어 3단원 ── */
+.kcards{display:grid; grid-template-columns:repeat(7,1fr); gap:5px; flex:0 0 auto}
+.kc{border:1.4px solid #b6c5cd; border-radius:6px; padding:5px 4px 4px; text-align:center; display:flex; flex-direction:column; gap:1px}
+.kc b{font-size:13.5px; letter-spacing:-.4px}
+.kc small{font-size:9px; color:var(--muted); line-height:1.25; min-height:22px}
+.ox{display:flex; justify-content:center; gap:10px; font-size:13px; color:#8fa0ad}
+.ox i{font-style:normal}
+.krows{display:flex; flex-direction:column; flex:0 0 auto}
+.kr{display:flex; align-items:flex-end; gap:8px; font-size:11.5px; height:29px}
+.kr span{flex:0 0 118px; font-weight:700; color:var(--navy); padding-bottom:3px}
+.kr u{flex:1; border-bottom:1px solid #b6c4cc; text-decoration:none; height:100%}
+.scards{flex:1; display:grid; grid-template-columns:1fr 1fr; grid-template-rows:repeat(3,1fr); gap:0}
+.sc{border:1.5px dashed #9fb2bd; margin:-.75px; padding:10px 12px; display:flex; flex-direction:column; gap:5px}
+.sch{display:flex; align-items:center; gap:7px; font-size:14px}
+.sg{width:24px; height:24px; border-radius:50%; background:var(--navy); color:#fff; font-weight:900; display:flex; align-items:center; justify-content:center; font-size:13px; flex:0 0 auto}
+.sch em{margin-left:auto; font-style:normal; font-size:11px; font-weight:700; color:var(--red); background:var(--tint2); border-radius:12px; padding:2px 8px}
+.scs{font-size:12px; font-weight:700; color:var(--acc)}
+.scb{font-size:11px; line-height:1.6}
+.scb em{font-style:normal; color:var(--muted)}
+.dcards{flex:1; display:flex; flex-direction:column; gap:0}
+.dc{flex:1; border:1.5px dashed #9fb2bd; margin:-.75px; padding:12px 16px; display:flex; flex-direction:column; gap:5px}
+.dch{font-size:18px; font-weight:900; color:var(--navy); display:flex; align-items:baseline; gap:10px}
+.dch em{font-style:normal; font-size:10.5px; color:var(--muted); font-weight:500}
+.dct{font-size:11px; font-weight:700; color:var(--acc); letter-spacing:1px; margin-top:4px}
+.dtb{border-collapse:collapse; width:100%; font-size:12.5px}
+.dtb td{border-bottom:1px solid #e1e8ec; padding:4px 6px}
+.dtb td.k{font-weight:700; width:30%}
+.dtb td.p{color:var(--muted); font-size:10.5px; width:14%; text-align:right}
+.dcn{font-size:10.5px; color:var(--muted); margin-top:auto}
+.stb{border-collapse:collapse; width:100%; font-size:11.5px}
+.stb th{background:var(--tint); font-size:10.5px; padding:4px; border:1px solid #b6c5cd}
+.stb td{border:1px solid #b6c5cd; padding:4px 6px; height:44px; vertical-align:middle}
+.stb td.c{text-align:center; width:44px}
+.stb td small{color:var(--muted); font-size:9.5px}
+.stb td:nth-child(2){width:120px}
+.stb td:nth-child(3){width:58px; text-align:center; color:#8fa0ad}
+
+.foot{
+  flex:0 0 auto; margin-top:9px; padding-top:6px; border-top:1px solid var(--line);
+  font-size:10px; color:var(--muted); line-height:1.5; display:flex; justify-content:space-between; gap:12px;
+}
+
+@media print{
+  body{background:#fff}
+  .no-print{display:none !important}
+  .page{margin:0; box-shadow:none}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar no-print">
+  <h1>국어 3단원 표준어와 방언 · 학습지 8차시</h1>
+  <p>5학년 2학기 국어 가 3단원 · 교과서 110~141쪽 · 차시마다 <b>먼저 생각 → 교과서 읽기 → 다시 판단</b> 순서입니다. 교과서를 먼저 읽히면 효과가 줄어듭니다. 6차시는 4쪽(장면 카드·대본 틀·말 카드), 7차시는 1쪽(관객 기록지)입니다. 모두 11쪽.</p>
+  <button onclick="window.print()">인쇄하기</button>
+</div>
+
+<div id="out"></div>
+
+<script>
+const SHEETS=[
+{
+ no:1, unit:'표준어와 방언 알기', pages:'110~115',
+ title:'표준어는 누가 정할까',
+ t:[5,7,8,4],
+ situ:'너희 모둠이 <b>표준어 심사 위원</b>이 됐어. 아래 낱말 카드 14장은 모두 사람들이 실제로 쓰는 말이야. 이 가운데 무엇을 <b>나라 전체가 함께 쓰는 말(표준어)</b>로 인정할지 정해야 해.',
+ ask:'카드마다 표준어로 인정하면 ○, 인정하지 않으면 ×를 하세요. 그리고 내가 ○를 준 <b>기준</b>을 한 줄로 쓰세요.',
+ cards:[['짜장면','중국 음식 이름'],['맨날','날마다'],['삐지다','토라지다'],['이쁘다','예쁘다'],
+        ['멍게','바다에 사는 동물'],['마실','이웃에 놀러 다니는 일'],['꼬시다','남을 꾀다'],
+        ['찰지다','끈기가 많다'],['정구지','부추'],['옥시기','옥수수'],['가생이','가장자리'],
+        ['억수로','아주, 매우'],['까구리','개구리'],['쌀팔다','쌀을 돈 주고 산다']],
+ opts:[], g1:.10,
+ check:[['표준어란 어떤 말인가요?','114쪽'],
+        ['방언이 생긴 까닭은 무엇인가요?','114쪽'],
+        ['국립국어원이 표준어를 정하는 기준 세 가지는?','115쪽'],
+        ['방언이었다가 표준어가 된 낱말은?','115쪽']],
+ situ2:'교과서는 표준어를 “우리나라 사람들이 <b>공통으로</b> 사용할 수 있도록 정한 말”이라고 했어. 그런데 실제 규칙(표준어 규정 제1항)에는 이렇게 쓰여 있어.<br>“표준어는 <b>교양 있는 사람들이</b> 두루 쓰는 현대 <b>서울말</b>로 정함을 원칙으로 한다.”',
+ ask2:'교과서에 없던 두 말, ‘교양 있는 사람들이’와 ‘서울말’. 이 두 말이 규칙에 있어야 할까?',
+ opts2:['둘 다 있어야 한다','하나만 있으면 된다','둘 다 없어도 된다'], g2:.34,
+ more:'생각 더하기 — ‘이쁘다’는 2015년에 표준어가 됐지만 ‘억수로’는 아직 방언이야. 둘 다 많은 사람이 쓰는 말인데, <b>무엇이 둘을 갈랐을까?</b>',
+ aim:'표준어는 <b>“맞는 말”이 아니라 “정한 말”</b>이다. 정했으니 <b>누가, 어떤 기준으로</b> 정했는지 물을 수 있고, 바뀔 수도 있다. 오늘은 그 기준을 아이들이 먼저 만들어 보게 한다.',
+ rx:[['많이 쓰는 말이면 ○ 줬어요.','좋아. 그럼 ‘억수로’도 경상도에서는 엄청 많이 써. ‘많이’는 몇 명이 써야 많은 걸까? 어디 사람이?'],
+     ['사투리는 다 ×예요.','멍게도 원래 경상도 사투리였대(115쪽). 멍게한테도 × 줄 거야?'],
+     ['쌀팔다는 틀린 말이에요. 파는 거랑 사는 게 반대잖아요.','그런데 이건 사전에 올라 있는 표준어야. 옛날 사람들은 쌀을 살 때 “쌀 팔러 간다”고 했대. 표준어는 꼭 “지금 우리 귀에 맞는 말”일까?'],
+     ['맞춤법에 맞으면 ○요.','짜장면은 원래 ‘자장면’만 맞았어. 그런데 사람들이 끝까지 짜장면이라고 해서 2011년에 둘 다 맞게 됐지. 누가 이긴 걸까?']],
+ stuck:'“우리 반에서만 쓰는 말이 있다면, 그걸 옆 반도 쓰게 하려면 어떻게 해야 할까?”',
+ openq:'‘이쁘다’는 표준어가 됐는데 ‘억수로’는 아직 방언이다. 무엇이 둘을 갈랐을까?',
+ close:'<b>“이쁘다는 됐는데 억수로는 왜 안 됐을까?”</b>로 닫는다. 답은 주지 말 것 — 2차시에 부추 지도를 칠하면서 <b>“서울에서 쓰는 말이 이긴다”</b>는 것을 아이들이 스스로 보게 된다.<br><br>끝에 하나만 덧붙인다: 이 규칙을 처음 만든 사람들은 <b>1936년 조선어학회</b>였다. 나라를 빼앗겼던 때에 우리말을 지키려고 표준을 세웠다. 표준어가 “나쁜 것”으로 끝나지 않게 하는 한 줄이다.',
+ careful:'<b>“표준어는 서울 사람 편”</b>으로 몰아가지 말 것. 서울말이 기준이 된 까닭(수도, 방송·출판이 모인 곳)도 사실이고, 기준이 있어서 제주 사람과 강원 사람이 말이 통하는 것도 사실이다. 둘 다 사실인 채로 둔다.',
+ acts:{reveal:{
+   left:'<div class="pg"><div class="big">공개</div><div class="lab">국립국어원이 실제로 정한 것</div></div>'
+     +'<div class="clist">'
+     +'<div class="cit"><i>○</i><span><b>짜장면 · 맨날</b> — 2011년에 표준어가 됐어요</span></div>'
+     +'<div class="cit"><i>○</i><span><b>삐지다 · 꼬시다</b> — 2014년</span></div>'
+     +'<div class="cit"><i>○</i><span><b>이쁘다 · 마실 · 찰지다</b> — 2015년</span></div>'
+     +'<div class="cit"><i>○</i><span><b>멍게</b> — 원래 경상 지역 방언이었어요 (교과서 115쪽)</span></div>'
+     +'<div class="cit"><i>○</i><span><b>쌀팔다</b> — 처음부터 표준어! 사전 뜻은 “쌀을 돈 주고 사다”</span></div>'
+     +'<div class="cit"><i style="color:var(--red)">×</i><span><b>정구지 · 옥시기 · 가생이 · 억수로 · 까구리</b> — 아직 방언이에요 (교과서 112 · 114 · 116 · 119 · 121쪽)</span></div>'
+     +'</div>',
+   note:'<div class="aim">아이들이 가장 놀라는 것은 <b>쌀팔다</b>다. 선생님 집안 이야기(“충남 시어머니는 쌀을 산다는 걸 ‘쌀 팔아야 한다’고 하셔”)로 보태면 더 오래 남는다. “틀린 말 같은데 표준어”라는 것 — 표준어가 <b>지금 서울 사람 귀에 맞는 말</b>만은 아니라는 증거다.<br><br>쌀을 “판다”고 한 까닭은 정설이 없다. 흔히 드는 설명은 <b>쌀을 사러 간다 = 쌀이 떨어졌다</b>는 게 부끄러워 돌려 말했다는 것. “이런 설명이 있다”로만 말할 것.<br><br>2011년 짜장면은 <b>사람들이 끝까지 안 바꿔서</b> 규칙이 바뀐 경우다.</div>',
+   foot:'정답 맞히기가 아닙니다. <b>내 기준과 실제 결과가 어디서 갈렸는지</b>만 짚어 주세요.'}},
+ steps:[{n:'혼자 심사',min:5,k:'solo'},{n:'모둠에서 듣기',min:7,k:'group'},{n:'모둠 발표',min:5,k:'share'},
+        {n:'교과서 읽기',min:8,k:'text'},{n:'결과 공개',min:4,k:'act',a:'reveal'},{n:'판단 쓰기',min:4,k:'judge'},{n:'마무리 이야기',min:3,k:'close'}],
+ video:[]
+},
+{
+ no:2, unit:'표준어와 방언 알기', pages:'116~117',
+ title:'부추는 왜 이름이 많을까',
+ t:[3,6,12,4],
+ situ:'교과서에 나오는 친구의 할머니는 경남 창원에 사시는데 부추를 <b>‘정구지’</b>라고 하셔. 그런데 충남 공주에 사시는 다른 친구 고모는 또 <b>다르게</b> 부르신대(116쪽). 채소는 하나인데 이름이 여럿이야.',
+ ask:'부추 하나에 이름이 여러 개가 된 까닭을 짐작해 쓰세요. (1차시에 읽은 114쪽을 떠올려도 좋아요.)',
+ opts:[], g1:.16,
+ check:[['경상 지역에서는 부추를','우리말샘'],
+        ['전라 지역에서는','우리말샘'],
+        ['충청 지역에서는','우리말샘'],
+        ['제주 지역에서는','우리말샘'],
+        ['서울에서는','우리말샘']],
+ checkTitle:'이제 온라인 사전(우리말샘)에서 찾습니다',
+ checkHint:'교과서 116~117쪽처럼 <b>우리말샘</b>에서 ‘부추’를 찾아 지역마다 부르는 이름을 적으세요. 다 적었으면 <b>사회과부도</b>의 우리나라 지형도를 펴고, 이름이 바뀌는 곳에 무엇이 있는지 보세요.',
+ situ2:'부추를 부르는 이름 가운데 <b>‘정구지’</b>는 경북·경남·충북 등 여러 도에 걸쳐 넓게 쓰여. 그런데 표준어는 <b>서울에서 부르는 ‘부추’</b>가 됐어.',
+ ask2:'표준어를 정할 때, 가장 넓은 지역에서 쓰는 말과 서울에서 쓰는 말 가운데 무엇을 골라야 할까?',
+ opts2:['넓게 쓰는 말','서울에서 쓰는 말','다른 방법이 있다'], g2:.34,
+ more:'생각 더하기 — 교과서는 산과 강 때문에 지역마다 말이 달라졌다고 했어(114쪽). 지형도를 보니 <b>그 설명이 맞는 것 같아?</b> 산 말고 다른 까닭은 없을까?',
+ aim:'<b>선생님 이야기로 열어도 좋다</b> — “선생님 시댁은 충남인데, 거기선 부추를 ‘졸’이라고 해.” 선생님도 신기해하는 모습이 좋은 출발이다.<br><br>지난 시간 질문(“억수로는 왜 안 됐을까”)이 오늘 <b>지도로 돌아온다.</b> 교과서의 설명(산·강)을 <b>외우지 않고 검증</b>하게 한다.',
+ rx:[['정구지가 더 많이 쓰니까 정구지가 표준어여야 해요.','그럼 지금부터 “부추”라고 쓰면 틀린 거야? 서울 사람들은 어떤 기분일까?'],
+     ['서울이 수도니까 서울말이 맞아요.','수도가 옮겨 가면 표준어도 바뀌어야 할까? 조선의 수도는 처음부터 한양이었지.'],
+     ['둘 다 표준어로 하면 돼요.','좋은 생각이야. 실제로 짜장면·자장면은 둘 다 표준어야. 그럼 부추 이름 다섯 개를 전부 표준어로 하면 무슨 일이 생길까?'],
+     ['산 때문이 맞아요. 소백산맥 양쪽이 달라요.','잘 찾았어. 그런데 경남과 전남 사이에는 ‘소풀’이라는 또 다른 이름이 있대. 산의 경계선 자리에는 왜 새 이름이 생겼을까?']],
+ stuck:'“우리 동네와 옆 동네 사이에 큰 산이 있고 길이 없다면, 10년 뒤 두 동네 아이들 말은 어떻게 될까?”',
+ openq:'표준어를 정할 때, 가장 넓은 지역의 말과 서울의 말 가운데 무엇을 골라야 할까?',
+ close:'<b>“넓게 쓰는 말이냐, 서울말이냐”</b>는 열어 둔 채 끝낸다. 1차시 규정(“현대 서울말로 정함을 원칙으로”)을 다시 보여 주면 <b>아이들이 스스로 이어 붙인다.</b>',
+ careful:'참고용 분포(국립국어원 설명 기준) — <b>정구지</b>: 경북·경남 동부·충북 등 / <b>졸</b>: 충남, 경기 평택·안성 / <b>솔</b>: 전남·전북 / <b>소풀</b>: 경남 서부와 전남 동부(순천·광양·여수)가 만나는 곳 / <b>세우리</b>: 제주. 아이들이 찾은 것과 다르면 <b>틀렸다고 하지 말고</b> “같은 도 안에서도 동네마다 다르다”고 받을 것.',
+ acts:{play:{
+   left:'<div class="pg"><div class="big">놀이</div><div class="lab">교과서 117쪽 · 표준어 알아맞히기</div></div>'
+     +'<div class="note">붙임 13 카드에 오늘 찾은 방언과 지역을 씁니다. 짝에게 보여 주면 짝은 표준어를 맞힙니다.<br><br>못 맞히면 <b>첫 글자</b>나 <b>초성</b>으로 도와주세요.</div>',
+   note:'<div class="aim">여유 칸입니다. 조사가 길어졌으면 건너뛰고 판단 쓰기로 가세요. <b>판단 쓰기가 더 중요합니다.</b></div>',
+   foot:'<b>여유 칸</b> — 교과서 놀이. 시간이 없으면 건너뜁니다.'}},
+ steps:[{n:'혼자 생각',min:3,k:'solo'},{n:'모둠에서 듣기',min:6,k:'group'},{n:'모둠 발표',min:4,k:'share'},
+        {n:'사전으로 찾기',min:12,k:'text'},{n:'알아맞히기 놀이',min:5,k:'act',a:'play',spare:true},{n:'판단 쓰기',min:4,k:'judge'},{n:'마무리 이야기',min:3,k:'close'}],
+ video:[],
+ textLinks:[['우리말샘 — 국립국어원 온라인 사전','교과서 116쪽','https://opendict.korean.go.kr/'],
+        ['지역어 종합 정보 — 국립국어원 방언 누리집','선생님 참고','https://dialect.korean.go.kr/']]
+},
+{
+ no:3, unit:'표준어와 방언을 사용하는 상황', pages:'118~122',
+ title:'나는 하루에 몇 가지 말을 쓸까',
+ t:[5,7,8,4],
+ situ:'아침에 늦잠을 잤어. 학교에 <b>10분쯤 늦을 것 같아.</b> 이 사실을 네 사람에게 알려야 해. 내용은 똑같아.',
+ ask:'네 사람에게 보낼 말을 각각 쓰세요. 실제로 보낼 것처럼 쓰세요.',
+ rows:['선생님께 (문자)','친한 친구에게','모둠 단톡방에','할머니께 (전화)'],
+ opts:[], g1:.20,
+ check:[['‘나’는 아빠의 말에서 무엇이 평소와 다르다고 느꼈나요?','119쪽'],
+        ['아빠는 방언을 쓰면 어떤 느낌이 든다고 했나요?','119쪽'],
+        ['일기 예보에서 표준어를 쓴 까닭은?','121쪽'],
+        ['시장에서 방언을 쓴 까닭은?','121쪽']],
+ situ2:'경상도에서 나고 자란 사람이 <b>서울 회사 면접</b>을 앞두고 있어. 주변에서 “사투리 고치고 가라”고 해. 실제로 <b>사투리를 고쳐 주는 학원</b>도 있어.',
+ ask2:'면접에서 사투리를 고쳐야 할까?',
+ opts2:['고쳐야 한다','안 고쳐도 된다','상황에 따라 다르다'], g2:.34,
+ more:'생각 더하기 — 추석에 아빠는 고향에서 말투가 바뀌었어(119쪽). 너도 오늘 네 가지 말투를 썼지. 그런데 면접관이 사투리를 듣고 점수를 깎는다면, <b>바뀌어야 할 쪽은 누구일까?</b>',
+ aim:'아이들은 <b>이미 말투를 바꾸며 산다.</b> 선생님께, 친구에게, 단톡방에 쓰는 말이 다 다르다. 방언과 표준어를 오가는 것도 같은 일이라는 걸 자기 글에서 먼저 보게 한다.',
+ rx:[['고쳐야 해요. 떨어지면 안 되니까.','그럼 그 사람은 회사에 들어간 뒤에도 계속 고쳐 써야 할까? 집에 가서도?'],
+     ['안 고쳐도 돼요. 그게 그 사람 말이니까.','면접관이 못 알아들으면? 교과서 121쪽 일기 예보는 왜 표준어로 했지?'],
+     ['할머니께는 존댓말로 썼어요.','존댓말로 바꾸는 것도 말투를 바꾸는 거지. 그건 거짓말이야, 예의야?'],
+     ['단톡방에는 줄임말로 썼어요.','그 말을 할머니가 보시면 알아들으실까? 그게 방언이랑 뭐가 다를까?']],
+ stuck:'“오늘 쓴 네 가지 가운데 <b>진짜 네 말</b>은 어느 거야?”',
+ openq:'면접관이 사투리를 듣고 점수를 깎는다면, 바뀌어야 할 쪽은 누구일까?',
+ close:'<b>“바뀌어야 할 쪽은 누구일까?”</b>로 닫는다. 이 질문은 7~8차시(“우리는 왜 방언을 들으면 웃을까”)에서 다시 돌아온다.',
+ careful:'교과서 122쪽의 “여러 사람이 듣는 상황에서는 표준어를 사용해야 해”를 <b>정답으로 못 박지 말 것.</b> 8차시에 방송 규칙을 직접 읽으며 다시 묻는다.',
+ video:[]
+},
+{
+ no:4, unit:'방언의 가치 알기', pages:'123~127',
+ title:'옮기면 사라지는 말',
+ t:[3,7,10,4],
+ situ:'2025년에 나온 드라마 제목이야. 제주 말이지. <b>「폭싹 속았수다」</b>',
+ ask:'무슨 뜻일 것 같아? 표준어로 옮겨 쓰고, 왜 그렇게 짐작했는지 쓰세요.',
+ opts:[], g1:.16,
+ check:[['‘곶자왈’은 어떤 두 말을 합친 것인가요?','124쪽'],
+        ['‘무레질’은 무엇을 가리키나요?','124쪽'],
+        ['숨비소리가 알려 주는 것 두 가지는?','124쪽'],
+        ['‘돔베고기’라는 이름이 붙은 까닭은?','125쪽']],
+ situ2:'「폭싹 속았수다」는 <b>“수고 많으셨습니다”</b>라는 뜻이야. 제주 말에서 ‘속다’는 “애쓰다, 고생하다”라는 뜻이거든.<br>그런데 이 제주 말은 2010년 유네스코가 <b>사라지기 바로 전 단계(아주 심각한 위기)</b>의 언어로 분류했어. 할머니·할아버지는 쓰지만 <b>아이들이 배우지 않기</b> 때문이야.',
+ ask2:'모두가 표준어만 쓰게 되면, 더 좋은 나라가 될까?',
+ opts2:['더 편해진다','잃는 것이 더 많다','둘 다 맞다'], g2:.34,
+ more:'생각 더하기 — ‘숨비소리’를 표준어로 옮기면 “해녀가 물 위로 올라와 내쉬는 숨소리”쯤이 돼. <b>그 긴 설명에서 빠진 것</b>은 무엇일까?',
+ aim:'교과서는 방언의 가치를 <b>“문화적 자산”</b>이라고 말로 준다(115쪽). 오늘은 <b>옮겨 보다가 무엇이 빠지는지</b> 직접 겪게 한다. “속았다”로 읽은 아이가 많을수록 좋다 — 모르는 말은 <b>뜻이 거꾸로 전해진다.</b>',
+ rx:[['‘완전히 속았다’요.','대부분 그렇게 읽었어. 그런데 제주 할머니가 이 말을 듣고 “속았다”로 알아들으면 기분이 어떨까?'],
+     ['표준어만 쓰면 편해요. 다 알아들으니까.','맞아. 그럼 ‘숨비소리’는 표준어로 뭐라고 하지? 한 낱말로 해 볼래?'],
+     ['잃는 게 더 많아요.','뭘 잃는데? 너는 제주 말을 하나도 모르는데도 잃는 거야?'],
+     ['제주 사람들이 알아서 지키면 돼요.','제주 아이들이 안 배운다는데, 왜 안 배울까? TV에서는 무슨 말이 나오지?']],
+ stuck:'“우리 할머니만 쓰시는 말이 있어? 할머니가 안 계시면 그 말은 어떻게 될까?”',
+ openq:'한 할머니가 돌아가시면 그 할머니만 알던 낱말도 사라진다. 그 말은 누가 지켜야 할까?',
+ close:'<b>“그 말은 누가 지켜야 할까?”</b>로 닫는다. “제주 아이들은 왜 안 배울까?”라는 말이 아이들한테서 나오면 8차시(TV)로 이어진다 — 거기서 받는다.',
+ careful:'“방언은 소중하니까 써야 한다”는 <b>정답 말하기</b>로 끝나기 쉽다. <b>“편해진다”를 고른 아이의 말도 맞다</b>는 것을 한 번은 인정해 줄 것 — 표준어가 있어서 제주 할머니와 우리가 말이 통한다.',
+ video:[['「폭싹 속았수다」 제주 방언 모음 — 제목 뜻, 물꾸럭은 무엇? (KBC 뉴스 2분)','판단 쓰기 전에','https://www.youtube.com/watch?v=Ikjc814dMNk'],
+        ['외국인 번역가들은 제주 방언을 어떻게 옮겼을까 (3분 22초부터 · 선생님 참고)','번역 실험과 이어짐','https://www.youtube.com/watch?v=K6T7-j4S3Pk&t=202s']]
+},
+{
+ no:5, unit:'방언이 나오는 작품 감상하기', pages:'128~135',
+ title:'누가 표준어를 쓰고, 누가 방언을 쓰나',
+ t:[3,6,13,4],
+ situ:'네가 이야기를 쓰는 작가야. 등장인물은 <b>지리산 마을 할머니·할아버지들</b>, 대회 <b>접수 아저씨</b>, 마이크를 잡은 <b>진행 아저씨</b>, 그리고 <b>서울에서 온 삼촌과 기림이</b>야.',
+ ask:'누구에게 방언을 쓰게 하겠어? 인물을 고르고, 그 까닭을 쓰세요.',
+ opts:[], g1:.16,
+ check:[['삼촌이 받은 택배 상자에 든 것은?','128쪽'],
+        ['마을 할머니들이 세발자전거를 보고 한 말은?','129쪽'],
+        ['마이크를 잡은 아저씨는 어떤 말을 썼나요?','130쪽'],
+        ['삼촌이 자전거 대회에 불만을 품은 까닭은?','130쪽']],
+ checkTitle:'이제 교과서를 읽습니다 (128~132쪽 이야기)',
+ situ2:'이야기에서 방언을 쓰는 사람은 모두 <b>마을 사람</b>이고, 표준어를 쓰는 사람은 <b>서울에서 온 삼촌과 기림이</b>야. 그런데 마을 사람인 진행 아저씨도 <b>마이크를 잡자 표준어</b>를 썼어. 그리고 이야기에서 가장 투덜거리는 사람은 <b>삼촌</b>이야.',
+ ask2:'삼촌이 방언을 쓰고, 마을 사람들이 표준어를 쓴다면 이야기는 어떻게 달라질까?',
+ opts2:['더 재미있어진다','어색해진다','느낌이 달라진다'], g2:.34,
+ more:'생각 더하기 — 이 이야기를 <b>TV 드라마</b>로 만든다면, 마을 사람들의 말은 시청자에게 <b>웃기게</b> 들릴까, <b>정겹게</b> 들릴까?',
+ aim:'작가가 <b>누구에게 어떤 말을 주는지</b>는 인물 사이의 거리를 만든다. 교과서 135쪽 “방언을 표준어로 바꿔 읽고 느낌 비교하기”를 <b>인물 전체로 넓힌 것</b>이다. 다음 시간 역할극의 준비다.',
+ rx:[['마을 사람만 방언을 써요. 거기 사니까.','그런데 진행 아저씨도 마을 사람인데 마이크 잡고는 표준어를 썼어(130쪽). 왜 바꿨을까? 3차시 생각나?'],
+     ['삼촌이 방언을 쓰면 이상해요.','왜 이상하지? 삼촌이 경상도 사람이면 이상하지 않잖아. 우리는 “서울 사람 = 표준어”라고 이미 정해 놓고 읽은 거 아닐까?'],
+     ['방언이 나와서 더 재미있었어요.','어느 부분이 재미있었어? 내용이 재미있었어, 말투가 재미있었어?'],
+     ['마을 사람들이 표준어를 쓰면 딱딱해요.','같은 말인데 왜 딱딱하게 느껴질까? 교과서 135쪽처럼 한 줄만 바꿔 읽어 보자.']],
+ stuck:'“‘아야! 저것이 뭣이여?’를 표준어로 바꿔 읽어 봐. 뭐가 빠졌어?”',
+ openq:'이 이야기를 TV 드라마로 만든다면, 마을 사람들의 말은 웃기게 들릴까, 정겹게 들릴까?',
+ close:'<b>“웃기게 들릴까, 정겹게 들릴까?”</b>로 닫는다. 다음 두 시간은 <b>직접 방언으로 역할극</b>을 하면서 이 질문을 실험한다.',
+ careful:'교과서는 이 마을의 말이 <b>어느 지역 말인지 밝히지 않는다.</b> “지리산 근처 마을의 말”로만 다루고, 지역을 단정해서 가르치지 말 것.',
+ steps:[{n:'혼자 생각',min:3,k:'solo'},{n:'모둠에서 듣기',min:6,k:'group'},{n:'모둠 발표',min:4,k:'share'},
+        {n:'교과서 읽기',min:13,k:'text'},{n:'여유',min:3,k:'video',spare:true},{n:'판단 쓰기',min:4,k:'judge'},{n:'마무리 이야기',min:3,k:'close'}],
+ video:[]
+},
+{
+ no:6, unit:'방언을 활용해 작품 만들기', pages:'136~137',
+ title:'옛이야기를 방언으로 — 대본 쓰기',
+ special:'script',
+ ask2:'같은 장면을 방언으로 하면, 표준어로 할 때와 무엇이 달라질까?',
+ aim:'교과서 136~137쪽 “방언을 활용해 작품 만들기”의 자리다. 모둠마다 <b>장면과 말을 다르게</b> 준다 — 웃긴 장면 하나, 슬픈 장면 하나를 <b>방언 모둠과 표준어 모둠이 똑같이</b> 한다. 다음 시간에 <b>웃음을 비교하려는 것</b>이다. 아이들에게는 이 설계를 미리 말하지 않는다.',
+ groups:[
+  ['가','흥부와 놀부','흥부가 다친 제비 다리를 고쳐 주는 장면','경상 지역 말','funny'],
+  ['나','흥부와 놀부','흥부가 다친 제비 다리를 고쳐 주는 장면','표준어','funny'],
+  ['다','어린 왕자','어린 왕자가 여우와 헤어지는 장면','지리산 마을 말 (세발자전거)','sad'],
+  ['라','어린 왕자','어린 왕자가 여우와 헤어지는 장면','표준어','sad'],
+  ['마','심청전','심청이 아버지를 두고 배에 오르는 장면','충청 지역 말','sad'],
+  ['바','해님 달님','호랑이가 “떡 하나 주면 안 잡아먹지” 하는 장면','제주 지역 말','funny']
+ ],
+ scenes:{
+  '흥부와 놀부':'봄날, 흥부네 처마 밑 제비 둥지에서 새끼 제비가 떨어져 다리가 부러진다. 흥부는 아이들을 불러 헝겊과 실로 다리를 동여매 주고, 아이들은 제비가 살아날지 걱정한다. 흥부 아내는 “우리 먹을 것도 없는데” 하면서도 밥알을 가져온다. 제비가 다시 날갯짓을 하자 온 식구가 기뻐한다. <em>(등장: 흥부, 흥부 아내, 아이들 2~3, 제비)</em>',
+  '어린 왕자':'어린 왕자가 떠날 때가 되자 여우가 “울 것 같아”라고 말한다. 어린 왕자는 “네가 길들여 달라고 했잖아”라며 미안해한다. 여우는 밀밭 색깔을 보면 어린 왕자의 금빛 머리가 떠오를 테니 괜찮다고 하고, 비밀 하나를 알려 준다 — 중요한 것은 눈에 보이지 않는다. 어린 왕자는 그 말을 잊지 않으려고 따라 말한다. <em>(등장: 어린 왕자, 여우, 해설 1)</em>',
+  '심청전':'심청이 쌀 삼백 석에 뱃사람들에게 몸을 팔고, 떠나는 날 아침이 된다. 앞 못 보는 아버지는 무슨 일인지 모르고 딸을 찾는다. 심청은 사실을 말하지 못하고 아버지 옷을 여미어 드리며 끼니를 당부한다. 뱃사람이 “이제 가야 한다”고 재촉하자 마을 사람들이 울며 배웅한다. <em>(등장: 심청, 심 봉사, 뱃사람, 마을 사람 1~2)</em>',
+  '해님 달님':'떡을 팔고 고개를 넘어 집에 가던 엄마 앞에 호랑이가 나타난다. “떡 하나 주면 안 잡아먹지.” 엄마가 떡을 주자 다음 고개에서 또 나타나고, 떡이 다 떨어질 때까지 되풀이된다. 엄마는 집에 있는 오누이를 생각하며 무섭지만 꾹 참는다. <em>(등장: 엄마, 호랑이, 해설 1, 떡을 셀 사람 1)</em>'
+ },
+ cardsDialect:[
+  {region:'경상 지역 말',src:'교과서 111 · 113 · 116 · 121쪽',
+   ends:[['-예','좋아 보이네예.','121쪽'],['-니더','잘됐니더.','113쪽'],['-니껴?','밭매니껴?','113쪽'],['-이소','어서 오이소.','111쪽']],
+   words:[['억수로','아주, 매우','121쪽'],['할매','할머니','113쪽'],['국시','국수','113쪽'],['정구지','부추','116쪽'],['잡샀니껴','잡수셨습니까','113쪽']]},
+  {region:'지리산 마을 말 (세발자전거)',src:'교과서 129~130쪽',
+   ends:[['-부러','멋져 부러! 이뻐 부러!','129쪽'],['-이여','저것이 뭣이여?','129쪽'],['-인디','못 보던 양반인디','129쪽'],['-겄제','소문이 났겄제.','129쪽']],
+   words:[['자장구','자전거','129쪽'],['바쿠','바퀴','129쪽'],['뭣이여','무엇이야','129쪽'],['그러니께','그러니까','129쪽'],['쪼끔만','조금만','130쪽']]},
+  {region:'충청 지역 말',src:'교과서 111 · 118~119쪽',
+   ends:[['-유','드셨어유?','118쪽'],['-슈','힘들진 않았슈?','118쪽'],['-겨?','내려온 겨?','118쪽'],['-는디','조금 막히긴 혔는디','118쪽']],
+   words:[['어서 오슈','어서 오세요','111쪽'],['그러믄유','그럼요','118쪽'],['대간하다','힘들다, 고단하다','118쪽'],['가생이','가장자리','119쪽'],['지겄슈','지겠어요','119쪽']]},
+  {region:'제주 지역 말',src:'교과서 111 · 124~125쪽',
+   ends:[['-서예','혼저 옵서예.','111쪽'],['-수다','폭싹 속았수다.','4차시']],
+   words:[['혼저','어서, 빨리','111쪽'],['폭싹 속았수다','수고 많으셨습니다','4차시'],['돔베','도마','125쪽'],['무레질','물질','124쪽'],['숨비소리','해녀가 숨 고르는 소리','124쪽'],['세우리','부추','2차시']]}
+ ],
+ steps:[{n:'모둠·장면 받기',min:3,k:'act',a:'deal'},{n:'말 카드 읽기',min:4,k:'act',a:'cards'},
+        {n:'대본 쓰기',min:15,k:'act',a:'write'},{n:'연습',min:10,k:'act',a:'rehearse'},{n:'여유',min:5,k:'video',spare:true},{n:'다음 시간 예고',min:2,k:'act',a:'preview'}],
+ acts:{
+  deal:{left:'',note:'<div class="aim">모둠에 <b>장면 카드</b>를 한 장씩 나눠 줍니다. 가·나와 다·라는 <b>같은 장면</b>을 받습니다 — 한쪽은 방언, 한쪽은 표준어.<br><br>표준어 모둠이 서운해하면: “너희가 없으면 비교가 안 돼. 가장 자연스러운 표준어로 해 줘.”</div>',foot:'장면 카드를 나눠 줍니다. <b>표준어 모둠도 역할이 있습니다.</b>'},
+  cards:{left:'',note:'<div class="aim">말 카드의 예문은 <b>전부 교과서에 나온 말</b>입니다. 카드에 없는 말은 <b>우리말샘</b>에서 찾게 하세요(2차시).<br><br>TV에서 들은 말투를 흉내 내는 것은 <b>막지 않습니다.</b> 다음 시간에 “그 말은 어디서 배웠지?”로 씁니다.</div>',foot:'대본 틀 뒤쪽의 <b>말 카드</b>를 읽습니다. 모르는 말은 우리말샘에서 찾습니다.'},
+  write:{left:'',note:'<div class="aim">대사는 <b>8줄 안팎</b>이면 충분합니다. 길게 쓰면 연습 시간이 사라집니다.<br><br>도는 동안 볼 것: <b>방언 모둠이 말끝만 바꾸고 있는지.</b> 낱말(할매, 자장구, 혼저…)을 한두 개 넣어 보라고만 말합니다.</div>',foot:'대본 틀에 씁니다. 대사는 <b>8줄 안팎</b>이면 됩니다.'},
+  rehearse:{left:'',note:'<div class="aim">한 모둠 공연은 <b>2분 안팎</b>. 대본을 들고 해도 됩니다.<br><br>연습 중에 모둠끼리 서로 보여 주지 않게 합니다 — 다음 시간의 <b>첫 반응</b>이 자료입니다.</div>',foot:'모둠끼리 <b>다른 모둠에 미리 보여 주지 않습니다.</b>'},
+  preview:{left:'',note:'<div class="aim">이렇게만 말하고 끝냅니다:<br><br><b>“다음 시간엔 웃어도 돼. 대신 어디서 웃었는지 나중에 같이 볼 거야.”</b><br><br>왜 보는지는 말하지 않습니다.</div>',foot:'<b>“웃어도 된다, 대신 어디서 웃었는지 볼 거다”</b>까지만 말합니다.'}
+ },
+ video:[]
+},
+{
+ no:7, unit:'방언을 활용해 작품 만들기', pages:'136~137',
+ title:'공연 — 우리는 어디서 웃었을까',
+ special:'stage',
+ situ2:'흥부(가·나)와 어린 왕자(다·라)는 <b>같은 장면</b>을 한쪽은 방언으로, 한쪽은 표준어로 했어. 어린 왕자는 <b>슬픈 장면</b>이야.',
+ opts2:['방언이 원래 재미있어서','그렇게 배워서','둘 다'],
+ more:'생각 더하기 — 방언 모둠이 쓴 말투는 <b>어디서 배운 것</b>이었을까?',
+ ask2:'우리가 웃은 것은 방언이 웃겨서일까, 우리가 그렇게 배워서일까?',
+ aim:'웃음을 막지 않고 <b>자료로 쓴다.</b> 가·나(흥부), 다·라(어린 왕자)는 같은 장면을 방언과 표준어로 했다. <b>슬픈 장면을 방언으로 했는데도 웃음이 났다면</b>, 그 웃음은 장면이 아니라 <b>말</b>에서 나온 것이다.',
+ steps:[{n:'공연 규칙',min:2,k:'act',a:'rule'},{n:'공연 · 웃음 기록',min:20,k:'act',a:'tally'},
+        {n:'짝끼리 비교',min:6,k:'act',a:'compare'},{n:'진짜 방언 듣기',min:7,k:'video',spare:true},{n:'판단 쓰기',min:4,k:'judge'},{n:'마무리 이야기',min:1,k:'close'}],
+ openq:'우리가 웃은 것은 방언이 웃겨서일까, 우리가 그렇게 배워서일까?',
+ close:'<b>“방언이 웃겨서일까, 그렇게 배워서일까?”</b>로 닫는다. 답은 주지 않는다 — 다음 시간(8차시)에 <b>TV에서 방언을 쓰는 사람은 누구였는지</b> 떠올리며 이어 간다.',
+ careful:'공연한 모둠이 “우리를 비웃었다”고 느끼지 않게, 기록은 <b>모둠이 아니라 말</b>에 붙인다. “가 모둠이 웃겼다”가 아니라 “경상도 말로 한 흥부에서 웃음이 났다”로 말할 것.',
+ acts:{
+  rule:{left:'<div class="ask">오늘은 웃어도 됩니다.</div><div class="note">대신 모둠 공연이 끝날 때마다 <b>“어디서 웃었나”</b>를 기록지에 적습니다.<br><br>말투 때문이었나, 장면 때문이었나, 연기 때문이었나.</div>',
+        note:'<div class="aim">공연 순서는 <b>가 → 나 → 다 → 라 → 마 → 바</b>. 같은 장면끼리 붙여 놓아야 비교가 쉽습니다.</div>',foot:'공연 순서 <b>가 → 나 → 다 → 라 → 마 → 바</b>'},
+  tally:{left:'TALLY',note:'<div class="aim">모둠 공연이 끝나면 손을 들게 해서 셉니다:<br><br>“웃은 사람? — 그중에 <b>말투 때문에</b> 웃은 사람? <b>장면·연기 때문에</b> 웃은 사람?”<br><br>숫자는 정확하지 않아도 됩니다. <b>짝끼리의 차이</b>만 보이면 됩니다.</div>',foot:'공연 뒤 손을 들어 셉니다. <b>＋ ─</b> 로 고칠 수 있습니다.'},
+  compare:{left:'COMPARE',note:'<div class="aim">먼저 물을 것: <b>“흥부를 경상도 말로 했을 때와 표준어로 했을 때, 어디가 달랐어?”</b><br><br>그다음: <b>“어린 왕자는 슬픈 장면이잖아. 그런데 웃음이 났어?”</b><br><br>방언 모둠 아이들에게: <b>“그 말투는 어디서 배웠어?”</b> — TV라는 답이 나오면 칠판에 적어 둡니다. 8차시 재료입니다.</div>',foot:'<b>같은 장면</b>끼리 나란히 봅니다.'}
+ },
+ video:[['『애린 왕자』 — 『어린 왕자』를 경상도 말로 옮긴 책 · 배우 낭독 6분 (교보문고 6분 클래식)','윌라에도 성우 낭독이 있어요','https://www.youtube.com/watch?v=qDE3IJNOyTw'],
+        ['전라도 말판 『에린 왕자』도 나왔다 (포항MBC 뉴스 3분)','방언판이 여럿이에요','https://www.youtube.com/watch?v=bZEyXqhZCQ0'],
+        ['『애린 왕자』 번역한 최현애 작가 이야기 (포항MBC 34분 · 선생님 참고)','왜 방언으로 옮겼나','https://www.youtube.com/watch?v=LRr2Opmt0tU']]
+},
+{
+ no:8, unit:'단원 마무리', pages:'138~139', star:true,
+ title:'왜 TV에서는 방언이 안 들릴까',
+ t:[4,7,6,4],
+ situ:'지난 시간에 우리는 방언으로 한 장면에서 여러 번 웃었어. 그 말투를 <b>어디서 배웠는지</b> 물었을 때 많은 친구가 <b>TV</b>라고 했지.',
+ ask:'TV 드라마나 예능에서 <b>사투리를 쓰던 인물</b>을 떠올려 세 명 적고, 그 인물이 이야기에서 <b>어떤 역할</b>이었는지 쓰세요.',
+ rows:['인물 1 · 어떤 역할','인물 2 · 어떤 역할','인물 3 · 어떤 역할'],
+ opts:[], g1:.18,
+ check:[['“방언은 특정 지역에서만 쓰기 때문에 표준어가 될 수 없다”는 맞는 말인가요? 1차시의 무엇이 근거인가요?','138쪽'],
+        ['상황 가(여러 지역 소식을 전하는 뉴스)에는 어떤 말이 좋을까요? 까닭은?','139쪽'],
+        ['상황 나(고향 친구와의 만남)에는 어떤 말이 좋을까요? 까닭은?','139쪽']],
+ checkTitle:'이제 교과서 마무리를 풉니다',
+ situ2:'방송에는 규칙이 있어(방송심의에 관한 규정 제51조). “방송언어는 원칙적으로 <b>표준어</b>를 사용하고… 불가피하게 사투리를 사용하는 때에는 특정 지역 또는 인물을 <b>희화화하거나 부정적으로 묘사하여서는 아니 된다</b>.” (‘희화화’는 일부러 우스꽝스럽게 만든다는 뜻이야.)<br>규칙에 이 문장이 따로 들어간 것은, 그런 일이 <b>자주 있었기 때문</b>일 거야.',
+ ask2:'지난 시간 우리가 웃은 것은 방언이 웃겨서였을까, 우리가 그렇게 배워서였을까?',
+ opts2:['방언이 원래 재미있어서','그렇게 배워서','둘 다'], g2:.34,
+ more:'생각 더하기 — 제주가 배경인 「폭싹 속았수다」도 작가가 “곧바로 알아들을 수 있으면” 하는 생각에 <b>아주 심한 사투리는 할머니들만</b> 쓰게 했대(김원석 감독). <b>잘한 선택일까?</b>',
+ aim:'단원의 마지막 질문이다. 3차시(“바뀌어야 할 쪽은 누구일까”), 4차시(“제주 아이들은 왜 안 배울까”), 7차시(웃음 기록)가 <b>여기로 모인다.</b> 방송이 표준어를 쓰는 까닭(모두가 알아들어야 한다)도 사실이고, 그 결과 방언이 <b>“웃긴 사람의 말”</b>로만 들리게 된 것도 사실이다.',
+ rx:[['사투리 쓰는 사람은 웃긴 역할이었어요.','왜 하필 웃긴 역할을 사투리로 했을까? 주인공이 사투리를 쓰면 어떻게 될까?'],
+     ['뉴스는 모두가 알아들어야 하니까 표준어가 맞아요.','맞아. 그런데 드라마 속 주인공은? 뉴스랑 같은 까닭일까?'],
+     ['방언이 원래 웃겨요.','경상도에서 자란 아이가 서울말 드라마를 보면 서울말이 웃길까? 왜 한쪽만 웃길까?'],
+     ['폭싹 속았수다는 안 웃겼대요. 울었대요.','같은 제주 말인데 왜 거기선 안 웃겼을까? 누가 그 말을 썼고, 이야기가 그 사람을 어떻게 대했지?']],
+ stuck:'“서울말을 쓰는 사람이 늘 웃긴 역할만 한다면, 서울말은 어떻게 들리게 될까?”',
+ openq:'경상도에서 자란 아이가 서울말 뉴스를 들으면, 그 말은 그 아이에게 어떻게 들릴까?',
+ close:'<b>“경상도에서 자란 아이에게 서울말 뉴스는 어떻게 들릴까?”</b>로 단원을 닫는다. 정답은 주지 않는다. 1차시의 “교양 있는 사람들이… 서울말”을 한 번 더 띄워 두면 <b>단원 전체가 한 줄로 이어진다.</b>',
+ careful:'<b>“방송이 나쁘다”로 끝내지 말 것.</b> 방송이 표준어를 쓰는 까닭(여러 지역 사람이 함께 듣는다 — 교과서 121·139쪽)은 그대로 맞다. 규칙이 “희화화하지 말라”고 따로 적어 둔 것까지 함께 보게 한다. 드라마 클립은 틀기 전에 <b>선생님이 먼저 한 번</b> 보세요.',
+ video:[['제주 그림 할망들이 「폭싹 속았수다」를 보고 (넷플릭스 코리아 4분 30초)','진짜 제주 할머니들의 말','https://www.youtube.com/watch?v=pnPr6e8dqls'],
+        ['「폭싹 속았수다」 제주 방언 모음 (KBC 뉴스 2분)','4차시에 봤다면 건너뛰기','https://www.youtube.com/watch?v=Ikjc814dMNk'],
+        ['「폭싹 속았수다」 — 딸을 데리러 온 엄마 (넷플릭스 코리아 3분 45초)','웃음이 아닌 장면','https://www.youtube.com/watch?v=48XeIjHnrAk']]
+}
+];
+
+function optsHTML(list){
+  if(!list || !list.length) return '';
+  return '<div class="opts">' + list.map(o=>'<span class="opt"><i></i>'+o+'</span>').join('') + '</div>';
+}
+function checkHTML(list){
+  return '<div class="check">' + list.map(c=>
+    '<div class="ci"><span>'+c[0]+'</span><u></u><em>'+c[1]+'</em></div>'
+  ).join('') + '</div>';
+}
+
+function pageHTML(s){
+  return '<div class="page">'
+  + '<div class="head"><div class="hrow">'
+  +   '<div class="no">'+s.no+'</div>'
+  +   '<div class="htxt"><div class="unit">'+s.unit+' · 교과서 '+s.pages+'쪽</div><div class="ttl">'+s.title+'</div></div>'
+  +   '<div class="name">5학년 ___반 이름 __________</div>'
+  + '</div></div>'
+
+  + '<div class="pbody">'
+
+  /* ① 혼자 */
+  + '<div class="sec grow" style="flex-grow:'+s.g1+'">'
+  +   '<div class="sh"><div class="sn">1</div><div class="st">먼저 혼자 생각하기</div><div class="time">혼자 '+tm(s,0)+'분</div></div>'
+  +   '<div class="situ">'+s.situ+'</div>'
+  +   '<div class="ask">'+s.ask+'</div>'
+  +   optsHTML(s.opts)
+  +   cardsHTML(s.cards) + rowsHTML(s.rows)
+  +   '<svg class="grid" data-mode="lines" data-pitch="27" style="min-height:'+(s.rows?30:52)+'px"></svg>'
+  + '</div>'
+
+  /* ② 모둠 */
+  + '<div class="sec grow" style="flex-grow:.19">'
+  +   '<div class="sh"><div class="sn">2</div><div class="st">모둠에서 듣기</div><div class="time">모둠 '+tm(s,1)+'분</div></div>'
+  +   '<div class="hint">한 사람씩 돌아가며 자기가 쓴 것을 읽습니다. 그다음 자유롭게 이야기하세요. <b>나와 다른 생각을 한 친구만</b> 적으면 됩니다. 같은 생각은 적지 않아도 괜찮습니다.</div>'
+  +   '<div class="collab"><span>친구 이름</span><span>나와 달랐던 생각</span></div>'
+  +   '<svg class="grid" data-mode="named" data-pitch="27" style="min-height:54px"></svg>'
+  + '</div>'
+
+  /* ③ 교과서 */
+  + '<div class="sec">'
+  +   '<div class="sh"><div class="sn">3</div><div class="st">'+(s.checkTitle||'이제 교과서를 읽습니다')+'</div><div class="time">'+(s.checkTitle&&s.no===2?'짝과 ':'혼자 ')+tm(s,2)+'분</div></div>'
+  +   (s.checkHint?'<div class="hint">'+s.checkHint+'</div>':'')
+  +   checkHTML(s.check)
+  + '</div>'
+
+  /* ④ 판단 */
+  + '<div class="sec grow" style="flex-grow:'+s.g2+'">'
+  +   '<div class="sh"><div class="sn">4</div><div class="st">읽고 나서, 나는 이렇게 생각한다</div><div class="time">혼자 '+tm(s,3)+'분</div></div>'
+  +   '<div class="situ">'+s.situ2+'</div>'
+  +   '<div class="ask">'+s.ask2+'</div>'
+  +   optsHTML(s.opts2)
+  +   '<svg class="grid" data-mode="lines" data-pitch="27" style="min-height:76px"></svg>'
+  +   '<div class="more">'+s.more+'</div>'
+  + '</div>'
+
+  + '</div>'
+
+  + '<div class="foot">'
+  +   '<span>이 학습지에는 <b>정답이 없는 질문</b>이 들어 있습니다. 생각이 바뀌었으면 처음 쓴 것을 지우지 말고 둘 다 남겨 두세요.</span>'
+  +   '<span>국어 3단원 '+s.no+'/8</span>'
+  + '</div>'
+  + '</div>';
+}
+
+/* ── 국어 3단원에서 보탠 것 ── */
+function tm(s,i){ const d=[3,7,8,4]; return (s.t&&s.t[i])||d[i]; }
+
+/* 1차시 · 표준어 심사 카드 */
+function cardsHTML(list){
+  if(!list || !list.length) return '';
+  return '<div class="kcards">' + list.map(c=>
+    '<div class="kc"><b>'+c[0]+'</b><small>'+c[1]+'</small><span class="ox"><i>○</i><i>×</i></span></div>'
+  ).join('') + '</div><div class="ask" style="font-size:12px;margin:6px 0 4px">내가 ○를 준 기준</div>';
+}
+/* 3·8차시 · 이름 붙은 줄 */
+function rowsHTML(list){
+  if(!list || !list.length) return '';
+  return '<div class="krows">' + list.map(r=>'<div class="kr"><span>'+r+'</span><u></u></div>').join('')
+       + '</div><div class="ask" style="font-size:12px;margin:6px 0 4px">'+(list.length===4?'네 가지를 나란히 보면, 무엇이 달라졌나요?':'이 인물들에게 같은 점이 있나요?')+'</div>';
+}
+
+function headHTML(s,sub){
+  return '<div class="head"><div class="hrow">'
+  +   '<div class="no">'+s.no+'</div>'
+  +   '<div class="htxt"><div class="unit">'+s.unit+' · 교과서 '+s.pages+'쪽'+(sub?' · '+sub:'')+'</div><div class="ttl">'+s.title+'</div></div>'
+  +   '<div class="name">'+(sub==='모둠용'?'___모둠 이름 ______________':'5학년 ___반 이름 __________')+'</div>'
+  + '</div></div>';
+}
+function footHTML(s,left,pg){
+  return '<div class="foot"><span>'+left+'</span><span>국어 3단원 '+s.no+'/8'+(pg?' · '+pg:'')+'</span></div>';
+}
+
+/* 6차시 · 장면 카드 + 대본 틀 + 말 카드 */
+function scriptPages(s){
+  const G = s.groups;
+  /* ① 장면 카드 (자르는 쪽) */
+  let p1 = '<div class="page">' + headHTML(s,'선생님용 · 잘라서 나눠 주기')
+    + '<div class="hint" style="margin-bottom:8px">점선을 따라 잘라 모둠에 한 장씩 나눠 줍니다. <b>가·나</b>와 <b>다·라</b>는 같은 장면입니다 — 한쪽은 방언, 한쪽은 표준어로 합니다.</div>'
+    + '<div class="scards">' + G.map(g=>
+        '<div class="sc"><div class="sch"><span class="sg">'+g[0]+'</span><b>'+g[1]+'</b><em>'+g[3]+'</em></div>'
+        + '<div class="scs">'+g[2]+'</div>'
+        + '<div class="scb">'+s.scenes[g[1]]+'</div></div>').join('') + '</div>'
+    + footHTML(s,'장면 요약은 옛이야기와 『어린 왕자』의 줄거리를 새로 쓴 것입니다. 원작의 문장을 옮기지 않았습니다.','1/4')
+    + '</div>';
+  /* ② 대본 틀 (모둠용) */
+  let p2 = '<div class="page">' + headHTML(s,'모둠용')
+    + '<div class="pbody">'
+    + '<div class="sec"><div class="sh"><div class="sn">1</div><div class="st">우리 모둠이 받은 것</div><div class="time">3분</div></div>'
+    +   '<div class="krows"><div class="kr"><span>이야기 · 장면</span><u></u></div><div class="kr"><span>쓸 말</span><u></u></div><div class="kr"><span>역할 나누기</span><u></u></div></div></div>'
+    + '<div class="sec grow" style="flex-grow:1"><div class="sh"><div class="sn">2</div><div class="st">대본 쓰기 — 8줄 안팎</div><div class="time">15분</div></div>'
+    +   '<div class="hint">방언 모둠은 <b>말끝만 바꾸지 말고</b> 말 카드의 낱말을 두세 개 넣어 보세요. 카드에 없는 말은 <b>우리말샘</b>에서 찾습니다. 표준어 모둠은 <b>가장 자연스러운 표준어</b>로 씁니다.</div>'
+    +   '<div class="collab"><span>누가</span><span>대사</span></div>'
+    +   '<svg class="grid" data-mode="named" data-pitch="30" style="min-height:250px"></svg></div>'
+    + '<div class="sec"><div class="sh"><div class="sn">3</div><div class="st">우리가 넣은 방언 낱말 (표준어 모둠은 빈칸)</div></div>'
+    +   '<div class="krows"><div class="kr"><span>낱말 · 뜻 · 찾은 곳</span><u></u></div><div class="kr"><span>낱말 · 뜻 · 찾은 곳</span><u></u></div></div></div>'
+    + '<div class="sec"><div class="sh"><div class="sn">4</div><div class="st">연습하며 확인</div><div class="time">10분</div></div>'
+    +   '<div class="opts"><span class="opt"><i></i>2분 안에 끝난다</span><span class="opt"><i></i>모두 한 번 이상 말한다</span><span class="opt"><i></i>관객 쪽을 보고 말한다</span><span class="opt"><i></i>다른 모둠에 미리 보여 주지 않았다</span></div></div>'
+    + '</div>'
+    + footHTML(s,'다음 시간에 공연합니다. 웃어도 되는 공연입니다.','2/4')
+    + '</div>';
+  /* ③④ 말 카드 — 한 쪽에 두 장 */
+  const C = s.cardsDialect, pages=[];
+  for(let i=0;i<C.length;i+=2){
+    pages.push('<div class="page">' + headHTML(s,'말 카드 · 잘라서 모둠에')
+      + '<div class="dcards">' + C.slice(i,i+2).map(c=>
+          '<div class="dc"><div class="dch">'+c.region+'<em>'+c.src+'</em></div>'
+          + '<div class="dct">말끝</div><table class="dtb">'+c.ends.map(e=>'<tr><td class="k">'+e[0]+'</td><td>'+e[1]+'</td><td class="p">'+e[2]+'</td></tr>').join('')+'</table>'
+          + '<div class="dct">낱말</div><table class="dtb">'+c.words.map(e=>'<tr><td class="k">'+e[0]+'</td><td>'+e[1]+'</td><td class="p">'+e[2]+'</td></tr>').join('')+'</table>'
+          + '<div class="dcn">더 필요한 말은 <b>우리말샘</b>(opendict.korean.go.kr)에서 “'+c.region.replace(/ 말.*$/,'')+'” 방언을 찾아 보세요.</div>'
+          + '</div>').join('') + '</div>'
+      + footHTML(s,'카드의 예문은 모두 교과서(국어 가 3단원)에 실린 말입니다. 쪽수를 함께 적었습니다.',(3+i/2)+'/4')
+      + '</div>');
+  }
+  return p1 + p2 + pages.join('');
+}
+
+/* 7차시 · 관객 기록지 */
+function stagePage(s){
+  const G = SHEETS.find(x=>x.special==='script').groups;
+  return '<div class="page">' + headHTML(s,'')
+  + '<div class="pbody">'
+  + '<div class="sec"><div class="sh"><div class="sn">1</div><div class="st">공연을 보며 적기 — 웃었다면 어디서?</div><div class="time">공연 20분</div></div>'
+  +   '<table class="stb"><tr><th>모둠</th><th>장면 · 말</th><th>웃었나</th><th>어디서 웃었나 (말투 · 장면 · 연기)</th></tr>'
+  +   G.map(g=>'<tr><td class="c">'+g[0]+'</td><td>'+g[1]+'<br><small>'+g[3]+'</small></td><td class="c">○ &nbsp; ×</td><td></td></tr>').join('')
+  +   '</table></div>'
+  + '<div class="sec grow" style="flex-grow:.3"><div class="sh"><div class="sn">2</div><div class="st">같은 장면끼리 비교하기</div><div class="time">6분</div></div>'
+  +   '<div class="ask" style="font-size:12.5px">흥부(가·나), 어린 왕자(다·라)는 같은 장면이었어요. 방언으로 한 것과 표준어로 한 것은 무엇이 달랐나요?</div>'
+  +   '<svg class="grid" data-mode="lines" data-pitch="27" style="min-height:60px"></svg></div>'
+  + '<div class="sec grow" style="flex-grow:.22"><div class="sh"><div class="sn">3</div><div class="st">진짜 방언으로 듣기 — 『애린 왕자』</div></div>'
+  +   '<div class="ask" style="font-size:12.5px">경상도 말로 옮긴 『어린 왕자』를 들어 보니, 우리 공연과 무엇이 달랐나요? 웃겼나요?</div>'
+  +   '<svg class="grid" data-mode="lines" data-pitch="27" style="min-height:50px"></svg></div>'
+  + '<div class="sec grow" style="flex-grow:.3"><div class="sh"><div class="sn">4</div><div class="st">나는 이렇게 생각한다</div><div class="time">혼자 4분</div></div>'
+  +   '<div class="ask">'+s.ask2+'</div>'
+  +   optsHTML(s.opts2)
+  +   '<svg class="grid" data-mode="lines" data-pitch="27" style="min-height:60px"></svg>'
+  +   '<div class="more">'+s.more+'</div></div>'
+  + '</div>'
+  + footHTML(s,'웃음은 <b>모둠</b>이 아니라 <b>말</b>에 붙여 적습니다. “가 모둠이 웃겼다”가 아니라 “경상도 말로 한 흥부에서 웃었다”.','')
+  + '</div>';
+}
+
+document.getElementById('out').innerHTML = SHEETS.map(s=> s.special==='script' ? scriptPages(s) : s.special==='stage' ? stagePage(s) : pageHTML(s)).join('');
+
+/* ── 격자는 SVG 선으로 긋는다 (CSS 테두리는 인쇄 시 세로선이 사라진다) ── */
+function drawGrid(svg){
+  const r = svg.getBoundingClientRect();
+  const w = Math.round(r.width), h = Math.round(r.height);
+  if(w < 20 || h < 20) return;
+  const pitch = +svg.dataset.pitch || 28;
+  const rows = Math.max(1, Math.round(h / pitch));
+  const rh = h / rows;
+  let s = '<rect x="0.8" y="0.8" width="'+(w-1.6)+'" height="'+(h-1.6)+'" rx="5" fill="none" stroke="#b6c5cd" stroke-width="1.6"/>';
+  for(let i=1;i<rows;i++){
+    const y = +(i*rh).toFixed(2);
+    s += '<line x1="1.6" y1="'+y+'" x2="'+(w-1.6)+'" y2="'+y+'" stroke="#dce3e9" stroke-width="1.1"/>';
+  }
+  if(svg.dataset.mode === 'named'){
+    s += '<line x1="86" y1="1.6" x2="86" y2="'+(h-1.6)+'" stroke="#dce3e9" stroke-width="1.1"/>';
+  }
+  svg.setAttribute('viewBox','0 0 '+w+' '+h);
+  svg.setAttribute('preserveAspectRatio','none');
+  svg.innerHTML = s;
+}
+function drawAll(){ document.querySelectorAll('svg.grid').forEach(drawGrid); }
+
+drawAll();
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(drawAll);
+window.addEventListener('load', drawAll);
+window.addEventListener('resize', drawAll);
+window.addEventListener('beforeprint', drawAll);
+</script>
+</body>
+</html>

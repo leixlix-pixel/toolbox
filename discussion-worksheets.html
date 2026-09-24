@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>의견을 조정해요 학습지</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --ink:#1b2a33; --navy:#1a3a52; --acc:#2f7d75; --red:#b83227;
+  --line:#c8d3da; --muted:#6b7c88; --tint:#f1f7f6; --tint2:#fdf6ec;
+}
+html,body{margin:0;padding:0}
+body{
+  font-family:'Noto Sans KR',sans-serif; color:var(--ink);
+  background:#e9edf0; -webkit-print-color-adjust:exact; print-color-adjust:exact;
+}
+
+/* ── 화면 안내 바 ── */
+.topbar{
+  position:sticky; top:0; z-index:9; background:var(--navy); color:#fff;
+  padding:14px 20px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+  box-shadow:0 2px 10px rgba(0,0,0,.2);
+}
+.topbar h1{margin:0; font-size:17px; font-weight:700; letter-spacing:-.3px}
+.topbar p{margin:0; font-size:13px; color:#b9cfdd; flex:1; min-width:240px; line-height:1.5}
+.topbar button{
+  font-family:inherit; font-size:15px; font-weight:700; color:var(--navy); background:#ffd76e;
+  border:0; border-radius:8px; padding:11px 22px; min-height:44px; cursor:pointer;
+}
+.topbar button:active{transform:translateY(1px)}
+
+/* ── A4 ── */
+@page{size:A4; margin:0}
+.page{
+  width:210mm; height:297mm; overflow:hidden; position:relative;
+  padding:13mm 15mm 12mm; background:#fff; margin:18px auto;
+  display:flex; flex-direction:column;
+  box-shadow:0 3px 14px rgba(0,0,0,.14);
+  break-after:page; page-break-after:always;
+}
+.page:last-of-type{break-after:auto; page-break-after:auto}
+
+/* ── 머리 ── */
+.head{flex:0 0 auto; border-bottom:2.5px solid var(--navy); padding-bottom:7px; margin-bottom:11px}
+.hrow{display:flex; align-items:flex-end; gap:11px}
+.no{
+  flex:0 0 auto; width:34px; height:34px; border-radius:9px; background:var(--navy); color:#fff;
+  font-size:19px; font-weight:900; display:flex; align-items:center; justify-content:center;
+}
+.htxt{flex:1; min-width:0}
+.unit{font-size:10.5px; color:var(--acc); font-weight:700; letter-spacing:1.5px; margin-bottom:1px}
+.ttl{font-size:20px; font-weight:900; letter-spacing:-.7px; line-height:1.15}
+.name{flex:0 0 auto; font-size:11px; color:var(--muted); padding-bottom:2px; white-space:nowrap}
+
+/* ── 본문 ── */
+.pbody{flex:1; min-height:0; display:flex; flex-direction:column; justify-content:space-between; gap:9px}
+.sec{display:flex; flex-direction:column; min-height:0}
+.sh{display:flex; align-items:center; gap:7px; margin-bottom:5px; flex:0 0 auto}
+.sn{
+  width:19px; height:19px; border-radius:50%; background:var(--acc); color:#fff;
+  font-size:11.5px; font-weight:700; display:flex; align-items:center; justify-content:center; flex:0 0 auto;
+}
+.st{font-size:13.5px; font-weight:700; letter-spacing:-.3px}
+.time{
+  font-size:10px; font-weight:700; color:var(--acc); background:var(--tint);
+  border:1px solid #cfe3e0; border-radius:20px; padding:2px 8px; margin-left:auto; white-space:nowrap;
+}
+
+.situ{
+  font-size:12.5px; line-height:1.62; background:var(--tint2); border-left:3.5px solid #e0b96a;
+  padding:8px 11px; border-radius:0 6px 6px 0; margin-bottom:6px; flex:0 0 auto;
+}
+.situ b{font-weight:700; color:var(--red)}
+.ask{font-size:13px; font-weight:700; line-height:1.5; margin-bottom:6px; flex:0 0 auto; color:var(--navy)}
+
+.opts{display:flex; flex-wrap:wrap; gap:5px 14px; margin-bottom:6px; flex:0 0 auto}
+.opt{display:flex; align-items:center; gap:5px; font-size:12px; line-height:1.3}
+.opt i{
+  width:12px; height:12px; border:1.6px solid #8fa0ad; border-radius:2.5px;
+  flex:0 0 auto; display:block;
+}
+
+.collab{display:flex; font-size:10.5px; color:var(--muted); font-weight:700; margin-bottom:2px; flex:0 0 auto}
+.collab span:first-child{width:86px; flex:0 0 auto; padding-left:6px}
+.collab span:last-child{padding-left:8px}
+.hint{font-size:11px; color:var(--muted); line-height:1.5; margin-bottom:5px; flex:0 0 auto}
+
+svg.grid{flex:1 1 0; width:100%; display:block}
+
+/* 교과서 확인 */
+.check{
+  border:1.5px dashed #b8ccc9; background:#fafdfc; border-radius:7px;
+  padding:8px 11px 9px; flex:0 0 auto;
+}
+.ci{display:flex; align-items:flex-end; gap:6px; font-size:12px; line-height:1.85; margin-top:1px}
+.ci:first-child{margin-top:0}
+.ci span{flex:0 0 auto}
+.ci u{flex:1; min-width:30px; border-bottom:1px solid #b6c4cc; text-decoration:none; height:15px}
+.ci em{flex:0 0 auto; font-style:normal; color:var(--muted); font-size:11px}
+
+.more{
+  font-size:11.5px; line-height:1.55; color:var(--navy); background:#f4f7fa;
+  border-radius:6px; padding:7px 10px; margin-top:6px; flex:0 0 auto;
+}
+.more b{color:var(--red)}
+
+/* ── 국어 4단원 전용 ── */
+
+/* 1차시 · 토의로 정할 수 있나 가르기 */
+.sort{border-collapse:collapse; width:100%; font-size:11.5px; flex:0 0 auto}
+.sort th{background:var(--tint); font-size:10px; padding:4px 3px; border:1px solid #b6c5cd; line-height:1.25}
+.sort td{border:1px solid #b6c5cd; padding:3px 7px; height:22px}
+.sort td.c{text-align:center; width:52px; color:#c3cfd6; font-size:13px}
+.sort td.q{font-size:11.5px}
+
+/* 1차시 뒷쪽 · 옛 회의 카드 */
+.hcards{flex:1; display:flex; flex-direction:column; gap:0}
+.hc{flex:1; border:1.5px solid #9fb2bd; margin:-.75px; padding:9px 13px 10px; display:flex; flex-direction:column}
+.hch{display:flex; align-items:baseline; gap:9px; border-bottom:1.5px solid var(--navy); padding-bottom:4px; margin-bottom:6px}
+.hch b{font-size:16px; font-weight:900; color:var(--navy); letter-spacing:-.5px}
+.hch em{font-style:normal; font-size:10.5px; color:var(--muted)}
+.hrw{display:flex; gap:8px; font-size:11.5px; line-height:1.55; margin-bottom:3px}
+.hrw span{flex:0 0 96px; font-weight:700; color:var(--acc); font-size:11px}
+.hrw div{flex:1}
+.hrw b{color:var(--red); font-weight:700}
+.hbox{
+  margin-top:5px; font-size:11px; line-height:1.55; background:#fdf1ef;
+  border:1.2px solid #e8bfb8; border-radius:6px; padding:6px 9px;
+}
+.hbox b{color:var(--red)}
+.hbox em{font-style:normal; color:var(--muted); font-size:10px}
+.hmine{margin-top:auto; padding-top:7px; font-size:12px; font-weight:700; color:var(--navy)}
+.hmine b{color:var(--red)}
+
+/* 3차시 · 검토 기준 표 */
+.crit{border-collapse:collapse; width:100%; font-size:11.5px; flex:0 0 auto}
+.crit th{background:var(--tint); font-size:10.5px; padding:5px 4px; border:1px solid #b6c5cd; line-height:1.3}
+.crit th.o{width:88px; font-size:11px}
+.crit td{border:1px solid #b6c5cd; padding:5px 7px; height:30px; vertical-align:middle}
+.crit td.k{font-size:11px; line-height:1.4}
+.crit td.c{text-align:center; color:#c3cfd6}
+.crit tr.me td{background:#fffdf5}
+.crit td.blank{color:#aab8c0; font-size:10.5px}
+.ideas{display:flex; gap:0; flex:0 0 auto; margin-bottom:6px}
+.idea{flex:1; border:1.4px solid #b6c5cd; margin:-.7px; padding:7px 9px; display:flex; flex-direction:column; gap:3px}
+.idea b{font-size:12.5px; color:var(--navy)}
+.idea small{font-size:11px; line-height:1.5; color:var(--ink)}
+
+/* 4차시 · 주제 문장 틀 */
+.topic{border:1.5px solid #b6c5cd; border-radius:7px; padding:9px 11px; flex:0 0 auto; margin-bottom:6px}
+.tline{display:flex; align-items:flex-end; gap:6px; font-size:14px; font-weight:700; color:var(--navy); line-height:1.6}
+.tline u{flex:1; border-bottom:1.4px solid #93a6b1; text-decoration:none; height:22px}
+.trow{display:flex; align-items:flex-end; gap:8px; font-size:11.5px; height:27px}
+.trow span{flex:0 0 74px; font-weight:700; color:var(--acc); padding-bottom:3px}
+.trow u{flex:1; border-bottom:1px solid #b6c4cc; text-decoration:none; height:100%}
+
+/* 4차시 뒷쪽 · 집행 시뮬레이션 카드 */
+.sims{flex:1; display:flex; flex-direction:column; gap:0}
+.sim{flex:1; border:1.5px solid #9fb2bd; margin:-.75px; padding:8px 13px; display:flex; flex-direction:column}
+.simh{display:flex; align-items:baseline; gap:9px; margin-bottom:3px}
+.simn{
+  width:21px; height:21px; border-radius:50%; background:var(--red); color:#fff; flex:0 0 auto;
+  font-size:12px; font-weight:900; display:flex; align-items:center; justify-content:center; align-self:center;
+}
+.simh b{font-size:13.5px; font-weight:900; color:var(--navy)}
+.simq{font-size:11.5px; line-height:1.55; margin-bottom:4px}
+.simq b{color:var(--red)}
+.sima{display:flex; align-items:flex-end; gap:7px; font-size:10.5px; color:var(--muted); font-weight:700; margin-bottom:3px}
+
+/* 5차시 · 학급 토의 기록 */
+.rec{border-collapse:collapse; width:100%; font-size:11.5px}
+.rec th{background:var(--tint); font-size:10.5px; padding:4px; border:1px solid #b6c5cd}
+.rec td{border:1px solid #b6c5cd; padding:4px 7px; height:27px; vertical-align:middle}
+.rec td.c{text-align:center; width:46px; color:#c3cfd6}
+.rec td.n{width:96px; font-size:11px}
+.big{
+  border:1.5px solid #b6c5cd; border-radius:7px; background:#fafdfc;
+  padding:8px 11px; flex:0 0 auto;
+}
+.big .bt{font-size:11px; font-weight:700; color:var(--acc); margin-bottom:3px}
+
+.foot{
+  flex:0 0 auto; margin-top:9px; padding-top:6px; border-top:1px solid var(--line);
+  font-size:10px; color:var(--muted); line-height:1.5; display:flex; justify-content:space-between; gap:12px;
+}
+
+@media print{
+  body{background:#fff}
+  .no-print{display:none !important}
+  .page{margin:0; box-shadow:none}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar no-print">
+  <h1>국어 4단원 의견을 조정해요 · 학습지 6차시</h1>
+  <p>5학년 2학기 국어 나 4단원 · 교과서 178~207쪽 · 차시마다 <b>먼저 생각 → 교과서 읽기 → 다시 판단</b> 순서입니다. 교과서를 먼저 읽히면 효과가 줄어듭니다. 읽기 자료(198~199쪽)를 <b>2차시로 앞당겼습니다.</b> 1차시 뒤에 옛 회의 카드 1쪽, 4차시 뒤에 집행 카드 1쪽이 붙어 모두 8쪽.</p>
+  <button onclick="window.print()">인쇄하기</button>
+</div>
+
+<div id="out"></div>
+
+<script>
+const SHEETS=[
+
+/* ───────────────────────── 1차시 ───────────────────────── */
+{
+ no:1, unit:'토의로 무엇을 정할 수 있나', pages:'178~181',
+ title:'토의로 정할 수 있는 것, 정하면 안 되는 것',
+ t:[6,8,8,6], g1:.46, g2:.22,
+ situ:'우리 반에서 <b>정해야 할 일</b> 일곱 가지야. 이 가운데에는 다 같이 토의해서 정하면 되는 것도 있고, <b>토의로 정하면 안 되는 것</b>도 섞여 있어.',
+ ask:'칸마다 ○를 하세요. 헷갈리면 「모르겠다」에 해도 됩니다.',
+ sort:[
+  '우리 반 자리를 어떻게 바꿀까',
+  '어제 지각한 친구를 어떻게 할까',
+  '급식을 남기는 일을 어떻게 줄일까',
+  '자꾸 떠드는 사람 이름을 칠판에 적을까',
+  '우리 반에서 누가 가장 시끄러운지 정하기',
+  '준비물을 안 가져온 사람에게 무엇을 시킬까',
+  '사물함 위에 물건을 두지 않으려면 어떻게 할까'],
+ sortAsk:'「토의로 정하면 안 된다」에 ○를 한 것들끼리 <b>닮은 점</b>이 있나요?',
+ checkTitle:'이제 다음 쪽 카드를 읽습니다 — 실제로 있었던 회의 셋',
+ check:[
+  ['화백회의에서 한 사람이 반대하면 어떻게 됐나요?','카드 ①'],
+  ['그릇 조각에 이름이 6,000표 넘게 적히면?','카드 ②'],
+  ['세종은 찬성이 더 많았는데 왜 바로 하지 않았나요?','카드 ③'],
+  ['세 회의에 모두 <b>없었던</b> 사람은 누구인가요?','카드 ①②③']],
+ situ2:'<b>「급식을 남기는 일을 어떻게 줄일까」</b>를 세 회의의 방법으로 각각 정한다면, 결과가 어떻게 달라질까요?',
+ ask2:'우리 반 토의는 어느 쪽을 닮았으면 좋겠나요? 고르고, 까닭을 쓰세요.',
+ opts2:['화백회의 (한 명만 반대해도 안 함)','아테네 (많은 쪽으로)','세종 (묻고, 제도를 고침)','셋을 섞는다'],
+ more:'아테네는 <b>절차를 정확히 지켜서</b> 사람을 쫓아냈습니다 — 정한 대로 했는데도 결과가 옳지 않을 수 있습니다. 그리고 세 회의 모두 <b>그 자리에 없던 사람</b>이 있었습니다.'
+},
+
+/* 1차시 뒷쪽 · 옛 회의 카드 */
+{ special:'history', no:1, unit:'읽기 카드', pages:'178~181', title:'옛날 사람들은 어떻게 정했을까' },
+
+/* ───────────────────────── 2차시 ───────────────────────── */
+{
+ no:2, unit:'읽기 — 서로 다른 가치', pages:'198~199',
+ title:'나쁜 사람이 없는 싸움',
+ t:[5,7,10,8], g1:.34, g2:.24,
+ situ:'네 가지 상황이야. 둘 사이에 문제가 생겼어.<br>㉮ 대회를 앞둔 아이가 밤 9시에 집에서 피아노를 연습한다 / 아랫집 사람은 하루 일을 끝내고 쉬려 한다<br>㉯ 동네에 공원을 넓히자는 사람들 / 그 자리 숲의 나무와 동물을 지키자는 사람들<br>㉰ 길에서 춤 영상을 찍는 사람들 / 그 길로 지나다녀야 하는 사람들<br>㉱ 쉬는 시간에 교실 뒤에서 노는 아이들 / 앉아서 책을 읽고 싶은 아이들',
+ ask:'상황마다 <b>잘못한 쪽</b>에 ○를 하세요. 잘못한 사람이 없다고 생각하면 「없다」에 ○.',
+ sort:['㉮ 밤 9시 피아노 — 연습하는 아이 / 아랫집 / 없다',
+       '㉯ 공원과 숲 — 공원을 넓히자 / 숲을 지키자 / 없다',
+       '㉰ 길에서 춤 영상 — 찍는 사람 / 지나가는 사람 / 없다',
+       '㉱ 교실 뒤 놀이 — 노는 아이 / 읽는 아이 / 없다'],
+ sortCols:['왼쪽','오른쪽','없다'],
+ sortAsk:'「없다」에 ○를 한 것이 있나요? 잘못한 사람이 없는데 <b>왜 문제가 생겼을까요?</b>',
+ checkTitle:'이제 교과서를 읽습니다 — 「서로 다른 가치를 존중하며 살아가기」',
+ check:[
+  ['사람들은 저마다 무엇을 하며 살아간다고 했나요?','198쪽'],
+  ['공원을 넓히려는 사람과 반대하는 사람은 각각 무엇을 중요하게 여겼나요?','198쪽'],
+  ['‘나에게 가치 있는 일’과 ‘다른 사람에게 가치 있는 일’이 부딪히면?','199쪽'],
+  ['서로 다른 가치를 가진 사람들이 함께 살아가려면 무엇이 필요한가요?','199쪽']],
+ situ2:'이 글에는 <b>나쁜 사람이 한 명도 나오지 않습니다.</b> 그런데 문제는 생겼습니다.',
+ ask2:'잘못한 사람이 없는데 문제가 생겼다면, 토의에서 <b>무엇을 정해야</b> 할까요? 그리고 우리 학교나 우리 동네에서 <b>이런 문제</b>를 하나 찾아 쓰세요.',
+ more:'여기에 쓴 문제가 <b>5차시 학급 토의 주제 후보</b>가 됩니다. 「누가 잘못했나」로 답이 나오는 문제 말고, <b>둘 다 틀리지 않았는데 부딪히는</b> 문제를 찾아 보세요.'
+},
+
+/* ───────────────────────── 3차시 ───────────────────────── */
+{
+ no:3, unit:'의견을 조정하는 방법', pages:'182~187',
+ title:'무엇을 보고 고를까 — 검토 기준 만들기',
+ t:[6,8,10,8], g1:.40, g2:.22,
+ situ:'우리 반 문제 하나: <b>쉬는 시간에 교실이 너무 시끄럽다.</b> 세 사람이 각각 이런 방법을 냈어.',
+ ask:'셋 가운데 가장 좋다고 생각하는 것 하나에 ○를 하고, 그렇게 고른 <b>까닭</b>을 쓰세요.',
+ ideas:[
+  ['㉮','떠든 사람 이름을 칠판에 적고, 세 번 적히면 쉬는 시간에 자리에 남는다.'],
+  ['㉯','‘조용히 하자’ 포스터를 만들어 교실에 붙인다.'],
+  ['㉰','떠들어도 되는 자리(뒤쪽)와 조용히 있는 자리(앞쪽)를 나눈다.']],
+ checkTitle:'이제 교과서를 읽습니다 — 의견을 검토하는 기준',
+ check:[
+  ['토의에서 의견을 검토할 기준 세 가지는 무엇인가요?','183쪽'],
+  ['합의점이란 무엇인가요?','184쪽'],
+  ['‘벌을 받게 하자’는 의견의 단점으로 무엇을 들었나요?','184쪽']],
+ crit:true,
+ situ2:'세 기준으로 ㉮㉯㉰를 재 봤습니다. <b>세 방법의 표가 비슷하게 나오지 않았나요?</b> 그렇다면 기준이 모자란 것입니다.',
+ ask2:'네 번째 기준을 <b>물음 문장</b>으로 만들어 위 표 맨 아래 칸에 쓰고, 세 방법에 다시 ◎○△를 찍으세요. 그리고 여기에는 <b>왜 그 기준이 필요한지</b> 쓰세요.',
+ more:'좋은 기준은 <b>세 방법을 갈라 놓는</b> 기준입니다. 넷을 다 재도 똑같이 나온다면 그 기준은 아직 쓸모가 없습니다. 교과서는 <b>「문제에 따라 기준을 다르게 정할 수도 있다」</b>고 했습니다(186쪽).'
+},
+
+/* ───────────────────────── 4차시 ───────────────────────── */
+{
+ no:4, unit:'다양한 의견을 조정하며 토의하기', pages:'188~193',
+ title:'우리 학교 문제로 모둠 토의',
+ t:[7,12,10,6], g1:.42, g2:.16,
+ situ:'교과서 188쪽에 세 가지 상황이 있어 — 급식 잔반, 화장실, 학급 도서. 우리 학교에서 <b>실제로 있는 문제</b>를 하나 골라도 좋아.',
+ ask:'토의 주제를 <b>아래 문장 틀</b>에 맞춰 쓰고, 내 의견과 까닭을 쓰세요.',
+ topic:true,
+ checkTitle:'모둠 방법을 하루치로 돌려 봅니다 (다음 쪽 카드)',
+ checkHint:'모둠에서 모은 방법 하나를 골라 <b>다음 쪽 카드 다섯 장</b>에 차례로 넣어 봅니다. 아래에는 그 결과만 적습니다.',
+ check:[
+  ['다섯 장 가운데 <b>막힌</b> 카드는 몇 번인가요?','카드'],
+  ['막힌 까닭을 한 줄로 쓰면?',''],
+  ['이 방법을 실제로 <b>누가</b> 해야 하나요?','카드 ②④'],
+  ['일주일 뒤에도 하고 있을까요?','카드 ⑤']],
+ situ2:'카드에 막힌 방법은 <b>버리지 말고 고칩니다.</b> 막힌 자리만 바꾸면 되는 경우가 많습니다.',
+ ask2:'모둠 방법을 고쳐 쓰세요. 그리고 <b>고치기 전과 무엇이 달라졌는지</b> 한 줄로 쓰세요.',
+ more:'벌을 주는 방법은 대개 <b>②④번 카드</b>에서 막힙니다 — 누가 확인하고, 한 번이라도 넘어가면 <b>걸린 사람만 억울해지기</b> 때문입니다. 벌이 아닌 방법도 <b>⑤번</b>에서 자주 막힙니다.'
+},
+
+/* 4차시 뒷쪽 · 집행 카드 */
+{ special:'sim', no:4, unit:'모둠용 카드', pages:'188~193', title:'우리 방법을 하루치로 돌려 보기' },
+
+/* ───────────────────────── 5차시 ───────────────────────── */
+{ special:'classroom', no:5, unit:'토의를 통해 문제 해결하기', pages:'194~197 · 200~201', title:'학급 토의 기록지' },
+
+/* ───────────────────────── 6차시 ───────────────────────── */
+{
+ no:6, unit:'마무리', pages:'204~206',
+ title:'우리는 무엇을 정했나',
+ t:[6,7,9,10], g1:.28, g2:.32,
+ situ:'교과서 204쪽에 <b>보드게임 문제</b> 토의가 실려 있어. 의견이 셋 나왔는데, 아직 검토는 안 한 상태야.',
+ ask:'세 의견(인원 제한 · 요일 정하기 · 장소와 규칙 정하기) 가운데 <b>우리 반이 만든 네 번째 기준</b>에서 막힐 것 같은 의견은 무엇인가요? 그렇게 생각한 까닭도 쓰세요.',
+ checkTitle:'이제 교과서를 읽습니다 — 정리하기',
+ check:[
+  ['친구들이 해결해야 할 문제는 무엇인가요?','204쪽'],
+  ['세 의견의 장점과 단점을 각각 하나씩 쓰면?','205쪽'],
+  ['‘의견 나누기’ 다음에 오는 절차는 무엇인가요?','205쪽']],
+ situ2:'1차시에 <b>「토의로 정하면 안 된다」</b>고 ○를 했던 것들을 다시 보세요. 지금도 같은 생각인가요?',
+ ask2:'① 생각이 바뀐 것이 있으면 무엇이, 왜 바뀌었는지 쓰세요. ② 우리 반이 결정한 것을 <b>일주일 뒤에도</b> 하고 있으려면 무엇이 있어야 할까요?',
+ more:'이 단원에서 배운 것을 한 문장으로 적어 보세요. <b>「토의로 정하는 것은 ______________ 이고, 토의로 정하면 안 되는 것은 ______________ 이다.」</b>'
+}
+];
+
+/* ───────────────────────── 카드 내용 ───────────────────────── */
+
+const MEETINGS=[
+ { name:'화백회의', where:'신라', src:'『삼국유사』 · 『삼국사기』',
+   rows:[
+    ['무엇을 정했나','왕을 세우고 물러나게 하는 일, 전쟁을 할지 말지, 불교를 받아들일지 — 나라의 큰일'],
+    ['어떻게 정했나','<b>만장일치</b>가 원칙이었다. 한 사람이라도 반대하면 정하지 못했다'],
+    ['누가 그 자리에','<b>진골 귀족만</b> 모였다. 농사짓는 백성과 노비는 그 자리에 없었다'],
+    ['반대한 사람은','누르지 않았다. 대신 <b>아무것도 정하지 못한 채</b> 끝나기도 했다']],
+   mine:'우리 반에서 한 사람이 <b>끝까지 반대</b>하면, 지금은 어떻게 하고 있나요?'
+ },
+ { name:'민회', where:'고대 아테네', src:'그리스',
+   rows:[
+    ['무엇을 정했나','전쟁을 할지, 세금을 얼마나 걷을지, 어떤 법을 만들지'],
+    ['어떻게 정했나','광장에 모여 손을 들어 <b>많은 쪽으로</b> 정했다(다수결)'],
+    ['누가 그 자리에','<b>어른 남자 시민만.</b> 여자, 노예, 다른 나라에서 온 사람은 뺐다'],
+    ['반대한 사람은','진 쪽은 따라야 했다']],
+   mine:'우리 반이 <b>많은 쪽으로 정했다가</b> 나중에 후회한 적이 있나요?',
+   box:'<b>도편추방</b> — 아테네는 <b>사람을 정하는 데에도</b> 다수결을 썼다. 깨진 그릇 조각에 이름을 적어, 표가 6,000을 넘으면 그 사람은 <b>10년 동안 나라 밖으로</b> 나가야 했다. <b>죄를 지었는지는 따지지 않았다.</b> ‘정의로운 사람’이라 불리던 아리스티데스에게 한 시민이 다가와 그 이름을 적어 달라고 했고, 왜 미워하느냐 묻자 <b>「그렇게 불리는 것이 듣기 싫어서」</b>라고 답했다는 이야기가 전해진다. <em>— 플루타르코스가 적은 이야기라, 사실인지는 알 수 없습니다.</em>'
+ },
+ { name:'공법 여론조사', where:'조선 · 1430년(세종 12년)', src:'『세종실록』',
+   rows:[
+    ['무엇을 정했나','세금을 걷는 방법을 바꿀지 말지'],
+    ['어떻게 정했나','5개월 동안 <b>약 17만 명</b>에게 찬성인지 반대인지 물었다. 높은 벼슬아치부터 농사짓는 백성까지'],
+    ['결과는','찬성 98,657명 · 반대 74,149명 — <b>찬성이 더 많았다</b>'],
+    ['그런데','<b>바로 하지 않았다.</b> 지역마다 답이 갈렸기 때문이다 — 땅이 좋은 곳은 찬성, 나쁜 곳은 반대. 반대한 곳을 따르게 하는 대신 <b>제도를 고쳤다.</b> 몇 곳에서 먼저 해 보고, <b>14년 뒤(1444년)</b> 땅의 좋고 나쁨과 그해 농사 형편을 나누어 매기는 방법으로 바꿔 시행했다']],
+   mine:'우리 반이 한 번 정한 것을 <b>나중에 고친</b> 적이 있나요?'
+ }
+];
+
+const SIMS=[
+ ['누가 했는지 모른다','사물함 위에 쓰레기가 있습니다. <b>누가 두었는지 아무도 못 봤습니다.</b> 우리 방법대로 하면 지금 무슨 일이 일어나나요?'],
+ ['말이 엇갈린다','「A가 했어요」라고 B가 말합니다. A는 안 했다고 합니다. <b>누가 확인하나요?</b> 확인하는 데 시간이 얼마나 걸릴까요?'],
+ ['안 걸린 사람이 있다','C가 걸렸습니다. 그런데 어제 D도 똑같이 했는데 아무도 못 봤습니다. <b>C만 처리되는 것이 맞나요?</b>'],
+ ['한 번 그냥 넘어갔다','오늘은 바빠서 그냥 넘어갔습니다. <b>내일은 어떻게 되나요?</b> 어제 걸린 사람은 어떤 기분일까요?'],
+ ['일주일이 지났다','처음에는 다들 했습니다. <b>일주일이 지난 지금도</b> 하고 있나요? 안 하고 있다면, 누가 다시 시작시키나요?']
+];
+
+/* ───────────────────────── 렌더 ───────────────────────── */
+
+function optsHTML(list){
+  if(!list || !list.length) return '';
+  return '<div class="opts">' + list.map(o=>'<span class="opt"><i></i>'+o+'</span>').join('') + '</div>';
+}
+function checkHTML(list){
+  return '<div class="check">' + list.map(c=>
+    '<div class="ci"><span>'+c[0]+'</span><u></u><em>'+c[1]+'</em></div>'
+  ).join('') + '</div>';
+}
+function tm(s,i){ const d=[5,8,9,6]; return (s.t&&s.t[i])||d[i]; }
+
+/* 1·2차시 · 가르기 표 */
+function sortHTML(s){
+  if(!s.sort) return '';
+  const cols = s.sortCols || ['토의로<br>정할 수 있다','토의로<br>정하면 안 된다','모르겠다'];
+  return '<table class="sort"><tr><th></th>'
+   + cols.map(c=>'<th>'+c+'</th>').join('') + '</tr>'
+   + s.sort.map(q=>'<tr><td class="q">'+q+'</td>'+cols.map(()=>'<td class="c">○</td>').join('')+'</tr>').join('')
+   + '</table>'
+   + (s.sortAsk?'<div class="ask" style="font-size:12px;margin:7px 0 4px">'+s.sortAsk+'</div>':'');
+}
+/* 3차시 · 의견 셋 + 기준 표 */
+function ideasHTML(s){
+  if(!s.ideas) return '';
+  return '<div class="ideas">' + s.ideas.map(i=>
+    '<div class="idea"><b>'+i[0]+' &nbsp;<span style="font-size:13px;color:#8fa0ad">○</span></b><small>'+i[1]+'</small></div>'
+  ).join('') + '</div>';
+}
+function critHTML(s){
+  if(!s.crit) return '';
+  const K=['우리가 실천할 수 있는 방법인가?','문제 해결에 효과적인 방법인가?','여러 사람에게 도움이 되는 방법인가?'];
+  return '<table class="crit"><tr><th>검토 기준</th><th class="o">㉮ 이름 적기</th><th class="o">㉯ 포스터</th><th class="o">㉰ 자리 나누기</th></tr>'
+   + K.map(k=>'<tr><td class="k">'+k+'</td><td class="c">◎ ○ △</td><td class="c">◎ ○ △</td><td class="c">◎ ○ △</td></tr>').join('')
+   + '<tr class="me"><td class="k blank">④ 우리가 만든 기준 ―</td><td class="c">◎ ○ △</td><td class="c">◎ ○ △</td><td class="c">◎ ○ △</td></tr>'
+   + '</table><div class="hint" style="margin-top:4px">그렇다 ◎ · 보통이다 ○ · 아니다 △ &nbsp;(교과서 187쪽과 같은 표시)</div>';
+}
+/* 4차시 · 주제 문장 틀 */
+function topicHTML(s){
+  if(!s.topic) return '';
+  return '<div class="topic">'
+   + '<div class="tline"><span>어떻게 하면</span><u></u><span>수 있을까?</span></div>'
+   + '<div class="opts" style="margin:7px 0 0">'
+   +   '<span class="opt"><i></i>사람 이름이 들어가지 않았다</span>'
+   +   '<span class="opt"><i></i>「어떻게 하면」으로 시작한다</span>'
+   +   '<span class="opt"><i></i>답이 하나로 정해져 있지 않다</span>'
+   + '</div></div>'
+   + '<div class="trow"><span>내 의견</span><u></u></div>'
+   + '<div class="trow"><span>그 까닭</span><u></u></div>';
+}
+
+function pageHTML(s){
+  return '<div class="page">'
+  + headHTML(s,'')
+  + '<div class="pbody">'
+
+  /* ① 혼자 */
+  + '<div class="sec" style="flex-grow:'+s.g1+'">'
+  +   '<div class="sh"><div class="sn">1</div><div class="st">먼저 혼자 생각하기</div><div class="time">혼자 '+tm(s,0)+'분</div></div>'
+  +   '<div class="situ">'+s.situ+'</div>'
+  +   '<div class="ask">'+s.ask+'</div>'
+  +   ideasHTML(s) + topicHTML(s) + sortHTML(s) + critHTML(s)
+  +   '<svg class="grid" data-mode="lines" data-pitch="27" style="min-height:'+(s.sort?50:s.crit?44:52)+'px"></svg>'
+  + '</div>'
+
+  /* ② 모둠 */
+  + '<div class="sec" style="flex-grow:.19">'
+  +   '<div class="sh"><div class="sn">2</div><div class="st">모둠에서 듣기</div><div class="time">모둠 '+tm(s,1)+'분</div></div>'
+  +   '<div class="hint">한 사람씩 돌아가며 자기가 쓴 것을 읽습니다. 그다음 자유롭게 이야기하세요. <b>나와 다른 생각을 한 친구만</b> 적으면 됩니다. <b>모둠 의견을 하나로 합치지 않습니다.</b></div>'
+  +   '<div class="collab"><span>친구 이름</span><span>나와 달랐던 생각</span></div>'
+  +   '<svg class="grid" data-mode="named" data-pitch="27" style="min-height:42px"></svg>'
+  + '</div>'
+
+  /* ③ 읽기 */
+  + '<div class="sec">'
+  +   '<div class="sh"><div class="sn">3</div><div class="st">'+(s.checkTitle||'이제 교과서를 읽습니다')+'</div><div class="time">'+(s.no===4?'모둠 ':'혼자 ')+tm(s,2)+'분</div></div>'
+  +   (s.checkHint?'<div class="hint">'+s.checkHint+'</div>':'')
+  +   checkHTML(s.check)
+  + '</div>'
+
+  /* ④ 판단 */
+  + '<div class="sec" style="flex-grow:'+s.g2+'">'
+  +   '<div class="sh"><div class="sn">4</div><div class="st">읽고 나서, 나는 이렇게 생각한다</div><div class="time">혼자 '+tm(s,3)+'분</div></div>'
+  +   '<div class="situ">'+s.situ2+'</div>'
+  +   '<div class="ask">'+s.ask2+'</div>'
+  +   optsHTML(s.opts2)
+  +   '<svg class="grid" data-mode="lines" data-pitch="27" style="min-height:'+(s.sort?56:76)+'px"></svg>'
+  +   '<div class="more">'+s.more+'</div>'
+  + '</div>'
+
+  + '</div>'
+  + footHTML(s,'이 학습지에는 <b>정답이 없는 질문</b>이 들어 있습니다. 생각이 바뀌었으면 처음 쓴 것을 지우지 말고 둘 다 남겨 두세요.','')
+  + '</div>';
+}
+
+function headHTML(s,sub){
+  return '<div class="head"><div class="hrow">'
+  +   '<div class="no">'+s.no+'</div>'
+  +   '<div class="htxt"><div class="unit">'+s.unit+' · 교과서 '+s.pages+'쪽'+(sub?' · '+sub:'')+'</div><div class="ttl">'+s.title+'</div></div>'
+  +   '<div class="name">'+(sub==='모둠용'?'___모둠 이름 ______________':'5학년 ___반 이름 __________')+'</div>'
+  + '</div></div>';
+}
+function footHTML(s,left,pg){
+  return '<div class="foot"><span>'+left+'</span><span>국어 4단원 '+s.no+'/6'+(pg?' · '+pg:'')+'</span></div>';
+}
+
+/* 1차시 뒷쪽 · 옛 회의 카드 */
+function historyPage(s){
+  return '<div class="page">' + headHTML(s,'읽기 카드')
+  + '<div class="hint" style="margin-bottom:8px">셋 다 <b>실제로 있었던 회의</b>입니다. 네 칸을 세로로 견주어 읽으세요 — <b>같은 칸끼리</b> 비교하면 무엇이 다른지 보입니다.</div>'
+  + '<div class="hcards">' + MEETINGS.map(m=>
+      '<div class="hc"><div class="hch"><b>'+m.name+'</b><em>'+m.where+' · '+m.src+'</em></div>'
+      + m.rows.map(r=>'<div class="hrw"><span>'+r[0]+'</span><div>'+r[1]+'</div></div>').join('')
+      + (m.box?'<div class="hbox">'+m.box+'</div>':'')
+      + '<div class="hmine">'+m.mine+'</div>'
+      + '<svg class="grid" data-mode="lines" data-pitch="25" style="min-height:26px"></svg>'
+      + '</div>').join('') + '</div>'
+  + footHTML(s,'세종 공법 조사 숫자는 『세종실록』 기록입니다. 화백회의가 정말 만장일치였는지는 <b>학자들 사이에 다른 의견도 있습니다.</b>','읽기 카드')
+  + '</div>';
+}
+
+/* 4차시 뒷쪽 · 집행 시뮬레이션 카드 */
+function simPage(s){
+  return '<div class="page">' + headHTML(s,'모둠용')
+  + '<div class="hint" style="margin-bottom:7px">모둠이 모은 방법 <b>하나</b>를 골라 적고, 다섯 장에 차례로 넣어 봅니다. <b>막히면 표시만</b> 하고 다음 장으로 넘어가세요 — 고치는 것은 그다음입니다.</div>'
+  + '<div class="topic" style="margin-bottom:7px"><div class="trow" style="height:24px"><span>우리 방법</span><u></u></div></div>'
+  + '<div class="sims">' + SIMS.map((c,i)=>
+      '<div class="sim"><div class="simh"><div class="simn">'+(i+1)+'</div><b>'+c[0]+'</b></div>'
+      + '<div class="simq">'+c[1]+'</div>'
+      + '<div class="sima"><span>이렇게 된다</span><span style="margin-left:auto">막혔다 □</span></div>'
+      + '<svg class="grid" data-mode="lines" data-pitch="25" style="min-height:26px"></svg>'
+      + '</div>').join('') + '</div>'
+  + '<div class="more" style="margin-top:7px">다섯 장을 다 넣어 본 뒤: 우리 방법은 &nbsp;<b>□ 그대로 쓸 수 있다 &nbsp; □ 고치면 쓸 수 있다 &nbsp; □ 못 쓴다</b></div>'
+  + footHTML(s,'막힌 방법을 <b>버리지 마세요.</b> 어디서 막혔는지가 고칠 자리를 알려 줍니다.','모둠 카드')
+  + '</div>';
+}
+
+/* 5차시 · 학급 토의 기록지 */
+function classroomPage(s){
+  return '<div class="page">' + headHTML(s,'')
+  + '<div class="pbody">'
+  + '<div class="sec"><div class="sh"><div class="sn">1</div><div class="st">오늘 토의 주제</div><div class="time">주제 정하기 5분</div></div>'
+  +   '<div class="topic" style="margin-bottom:0"><div class="tline"><span>어떻게 하면</span><u></u><span>수 있을까?</span></div>'
+  +   '<div class="trow" style="margin-top:5px"><span>내 의견</span><u></u></div>'
+  +   '<div class="trow"><span>그 까닭</span><u></u></div></div></div>'
+
+  + '<div class="sec" style="flex-grow:.42"><div class="sh"><div class="sn">2</div><div class="st">나온 의견과 검토</div><div class="time">의견 나누기 12분</div></div>'
+  +   '<table class="rec"><tr><th>낸 사람</th><th>의견</th><th>실천할 수<br>있나</th><th>효과적<br>인가</th><th>여러 사람에게<br>도움이 되나</th><th class="n">④ 우리 기준</th></tr>'
+  +   [0,1,2,3,4].map(()=>'<tr><td class="n"></td><td></td><td class="c">◎○△</td><td class="c">◎○△</td><td class="c">◎○△</td><td class="c">◎○△</td></tr>').join('')
+  +   '</table>'
+  +   '<div class="hint" style="margin-top:4px">④ 칸에는 <b>3차시에 우리 반이 만든 기준</b>을 씁니다. 표시만 하지 말고, 왜 그 표시인지 한 번은 말로 해 보세요.</div></div>'
+
+  + '<div class="sec" style="flex-grow:.28"><div class="sh"><div class="sn">3</div><div class="st">합의점 찾기 — 고쳐 쓴 의견</div><div class="time">10분</div></div>'
+  +   '<div class="hint">모두가 동의할 만한 <b>하나의 의견</b>으로 고쳐 씁니다. 내 의견이 그대로 남지 않아도 됩니다. <b>어느 부분을 양보했는지</b>도 함께 쓰세요.</div>'
+  +   '<svg class="grid" data-mode="lines" data-pitch="27" style="min-height:70px"></svg></div>'
+
+  + '<div class="sec"><div class="sh"><div class="sn">4</div><div class="st">우리 반이 결정한 것</div><div class="time">5분</div></div>'
+  +   '<div class="big"><div class="bt">결정한 의견 — 누가 · 언제 · 어떻게 하는지까지 씁니다</div>'
+  +   '<svg class="grid" data-mode="lines" data-pitch="26" style="min-height:52px"></svg></div></div>'
+
+  + '<div class="sec"><div class="sh"><div class="sn">5</div><div class="st">되돌아보기</div><div class="time">혼자 4분</div></div>'
+  +   '<div class="ask" style="font-size:12.5px">오늘 토의에서 <b>한 번도 말하지 않은 사람</b>이 있었나요? 몇 명쯤이었나요? 그 사람들의 생각은 우리가 결정한 것에 들어갔나요?</div>'
+  +   '<svg class="grid" data-mode="lines" data-pitch="27" style="min-height:52px"></svg>'
+  +   '<div class="more">1차시에서 봤듯이, <b>말하지 않은 사람은 그 자리에 없는 것과 같습니다.</b> 화백회의에는 백성이, 아테네 민회에는 여자와 노예가 없었습니다. 우리 반 토의에서 없는 사람이 되었던 친구는 누구인가요?</div></div>'
+  + '</div>'
+  + footHTML(s,'<b>내 의견이 채택되지 않아도</b> 절차를 함께 지켰다면 결정을 따릅니다(교과서 197쪽). 대신 다음에 고칠 수 있습니다 — 세종도 14년에 걸쳐 고쳤습니다.','')
+  + '</div>';
+}
+
+document.getElementById('out').innerHTML = SHEETS.map(s=>
+    s.special==='history'   ? historyPage(s)
+  : s.special==='sim'       ? simPage(s)
+  : s.special==='classroom' ? classroomPage(s)
+  : pageHTML(s)).join('');
+
+/* ── 격자는 SVG 선으로 긋는다 (CSS 테두리는 인쇄 시 세로선이 사라진다) ── */
+function drawGrid(svg){
+  const r = svg.getBoundingClientRect();
+  const w = Math.round(r.width), h = Math.round(r.height);
+  if(w < 20 || h < 20) return;
+  const pitch = +svg.dataset.pitch || 28;
+  const rows = Math.max(1, Math.round(h / pitch));
+  const rh = h / rows;
+  let s = '<rect x="0.8" y="0.8" width="'+(w-1.6)+'" height="'+(h-1.6)+'" rx="5" fill="none" stroke="#b6c5cd" stroke-width="1.6"/>';
+  for(let i=1;i<rows;i++){
+    const y = +(i*rh).toFixed(2);
+    s += '<line x1="1.6" y1="'+y+'" x2="'+(w-1.6)+'" y2="'+y+'" stroke="#dce3e9" stroke-width="1.1"/>';
+  }
+  if(svg.dataset.mode === 'named'){
+    s += '<line x1="86" y1="1.6" x2="86" y2="'+(h-1.6)+'" stroke="#dce3e9" stroke-width="1.1"/>';
+  }
+  svg.setAttribute('viewBox','0 0 '+w+' '+h);
+  svg.setAttribute('preserveAspectRatio','none');
+  svg.innerHTML = s;
+}
+function drawAll(){ document.querySelectorAll('svg.grid').forEach(drawGrid); }
+
+drawAll();
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(drawAll);
+window.addEventListener('load', drawAll);
+window.addEventListener('resize', drawAll);
+window.addEventListener('beforeprint', drawAll);
+</script>
+</body>
+</html>

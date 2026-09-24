@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>빈칸 수사대 — 추론하며 읽어요</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --ink:#1e2833; --navy:#22405e; --acc:#2f6d7d; --red:#b5352c; --gold:#b8841f;
+  --line:#ccd5dd; --muted:#6c7b88; --tint:#eef5f7; --tint2:#fdf7ec; --paper:#fff;
+}
+html,body{margin:0;padding:0;height:100%}
+body{
+  font-family:'Noto Sans KR',sans-serif; color:var(--ink); background:#e6eaee;
+  touch-action:manipulation; -webkit-tap-highlight-color:transparent; user-select:none;
+  font-size:17px; line-height:1.5;
+}
+button{font-family:inherit; cursor:pointer; border:0}
+
+#app{max-width:860px; margin:0 auto; min-height:100%; background:var(--paper); display:flex; flex-direction:column}
+
+/* ── 홈 ── */
+.home{padding:34px 22px 40px; display:flex; flex-direction:column; gap:16px; align-items:center; text-align:center}
+.home .stamp{
+  width:96px; height:96px; border-radius:50%; border:4px double var(--red); color:var(--red);
+  display:flex; align-items:center; justify-content:center; font-size:29px; font-weight:900;
+  transform:rotate(-11deg); letter-spacing:-1px; margin-bottom:4px;
+}
+.home h1{margin:0; font-size:30px; font-weight:900; letter-spacing:-1px}
+.home .sub{margin:0; font-size:16px; color:var(--muted); line-height:1.7; max-width:540px}
+.home .sub b{color:var(--navy)}
+.case{
+  width:100%; max-width:540px; text-align:left; background:#f7f9fa; border:1.5px solid var(--line);
+  border-radius:13px; padding:16px 18px; font-size:15.5px; line-height:1.8;
+}
+.case .ch{font-size:12px; font-weight:700; color:var(--red); letter-spacing:2px; margin-bottom:6px}
+.case b{color:var(--navy)}
+.big{
+  min-height:56px; padding:15px 40px; border-radius:12px; background:var(--navy); color:#fff;
+  font-size:19px; font-weight:700; margin-top:6px;
+}
+.ghost{min-height:48px; padding:12px 24px; border-radius:10px; background:#eef3f5; color:var(--navy); font-size:16px; font-weight:700}
+.tiny{font-size:13px; color:var(--muted); background:none; padding:8px 12px; min-height:44px}
+.steplist{width:100%; max-width:540px; display:flex; flex-direction:column; gap:7px; margin-top:4px; text-align:left}
+.sl{display:flex; align-items:center; gap:11px; padding:11px 14px; border:1.5px solid var(--line); border-radius:10px; font-size:15px}
+.sl i{
+  flex:0 0 auto; width:27px; height:27px; border-radius:50%; background:var(--tint); color:var(--acc);
+  font-style:normal; font-weight:900; font-size:14px; display:flex; align-items:center; justify-content:center;
+}
+.sl span{flex:1}
+.sl em{font-style:normal; font-size:13px; color:var(--muted)}
+
+/* ── 단계 화면 ── */
+.top{
+  flex:0 0 auto; background:var(--navy); color:#fff; padding:13px 18px;
+  display:flex; align-items:center; gap:13px; position:sticky; top:0; z-index:5;
+}
+.top .no{
+  flex:0 0 auto; width:33px; height:33px; border-radius:9px; background:#ffd76e; color:var(--navy);
+  font-size:17px; font-weight:900; display:flex; align-items:center; justify-content:center;
+}
+.top .tt{flex:1; min-width:0}
+.top .tu{font-size:11px; color:#a9c7d8; letter-spacing:1px}
+.top .th{font-size:18px; font-weight:700; letter-spacing:-.4px}
+.top .quit{background:rgba(255,255,255,.14); color:#fff; border-radius:8px; padding:9px 13px; font-size:14px; min-height:44px}
+
+.body{flex:1; padding:18px 16px 112px; display:flex; flex-direction:column; gap:14px}
+.qask{font-size:19px; font-weight:700; color:var(--navy); line-height:1.45}
+.qask b{color:var(--red)}
+.qsub{font-size:15px; color:var(--muted); line-height:1.6; margin-top:-6px}
+.qsub b{color:var(--navy)}
+.doc{
+  background:var(--tint2); border-left:4px solid var(--gold); border-radius:0 9px 9px 0;
+  padding:13px 15px; font-size:15.5px; line-height:1.75;
+}
+.doc b{color:var(--red)}
+.doc .dh{font-size:12px; font-weight:700; color:var(--gold); letter-spacing:1px; margin-bottom:5px}
+.claim{
+  background:#f2f6f8; border:2px solid var(--navy); border-radius:12px; padding:14px 16px;
+  font-size:17px; line-height:1.7; font-weight:700; color:var(--navy);
+}
+.claim .dh{font-size:12px; font-weight:700; color:var(--acc); letter-spacing:2px; margin-bottom:5px}
+.claim ul{margin:8px 0 0; padding-left:20px; font-weight:400; font-size:15px; color:var(--ink); line-height:1.8}
+
+/* 본문 지목 */
+.lines{display:flex; flex-direction:column; gap:7px}
+.ln{
+  display:flex; gap:11px; align-items:flex-start; border:2px solid var(--line); border-radius:11px;
+  padding:11px 13px; background:#fff; font-size:16px; line-height:1.6; text-align:left; width:100%;
+}
+.ln i{
+  flex:0 0 auto; width:26px; height:26px; border-radius:50%; background:var(--tint); color:var(--acc);
+  font-style:normal; font-weight:900; font-size:13px; display:flex; align-items:center; justify-content:center;
+}
+.ln span{flex:1; color:var(--ink)}
+.ln.sel{border-color:var(--navy); background:#eaf1f6; box-shadow:0 0 0 3px rgba(34,64,94,.12)}
+.ln.sel i{background:var(--navy); color:#fff}
+
+/* 칩 */
+.chips{display:flex; flex-wrap:wrap; gap:8px}
+.chip{
+  padding:11px 15px; min-height:48px; border-radius:11px; border:2px solid var(--line); background:#fff;
+  font-size:17px; font-weight:700; color:var(--ink); display:flex; flex-direction:column; align-items:center; gap:1px;
+}
+.chip small{font-size:12px; font-weight:400; color:var(--muted)}
+.chip.sel{border-color:var(--navy); background:#eaf1f6; box-shadow:0 0 0 3px rgba(34,64,94,.12)}
+
+/* 분류 칸 */
+.bins{display:flex; flex-direction:column; gap:10px; flex:1 1 auto}
+.bins.h{flex-direction:row; flex-wrap:wrap}
+.bin{
+  flex:1; min-width:0; border:2px dashed #a8bcc6; border-radius:12px; padding:10px 12px 12px;
+  display:flex; flex-direction:column; gap:7px; min-height:92px; background:#fafcfd;
+}
+.bin.act{border-color:var(--navy); border-style:solid; background:#eef4f8}
+.bin .bh{font-size:15px; font-weight:700; color:var(--navy); display:flex; align-items:center; gap:6px}
+.bin .bh em{font-style:normal; font-size:12px; color:var(--muted); font-weight:400}
+.bin .bi{display:flex; flex-wrap:wrap; gap:6px}
+
+/* 배열 슬롯 */
+.slots{display:flex; flex-direction:column; gap:8px}
+.slot{
+  display:flex; align-items:center; gap:11px; border:2px solid var(--line); border-radius:11px;
+  padding:11px 14px; min-height:54px; background:#fff; font-size:16px;
+}
+.slot i{
+  flex:0 0 auto; width:26px; height:26px; border-radius:50%; background:var(--tint); color:var(--acc);
+  font-style:normal; font-weight:900; font-size:13px; display:flex; align-items:center; justify-content:center;
+}
+.slot span{flex:1; color:var(--ink); font-size:15px; line-height:1.5}
+.slot.empty span{color:#b3c1c9}
+.slot.act{border-color:var(--navy); background:#eef4f8}
+.slot button{background:none; color:var(--muted); font-size:19px; padding:6px 8px; min-height:44px}
+
+/* 짝짓기 */
+.pairs{display:flex; flex-direction:column; gap:9px}
+.pair{display:flex; gap:9px; align-items:stretch}
+.pl{
+  flex:1; border:2px solid var(--line); border-radius:11px; padding:11px 13px; background:#fff;
+  font-size:16px; display:flex; align-items:center; min-height:58px; text-align:left; line-height:1.45;
+}
+.pl.sel{border-color:var(--navy); background:#eaf1f6}
+.pr{
+  flex:0 0 44%; border:2px dashed #a8bcc6; border-radius:11px; padding:11px 13px; background:#fafcfd;
+  font-size:14.5px; font-weight:700; color:var(--navy); display:flex; align-items:center; min-height:58px;
+  text-align:left; line-height:1.4;
+}
+.pr.empty{color:#b3c1c9; font-weight:400}
+.pr.act{border-color:var(--navy); border-style:solid; background:#eef4f8}
+
+/* 아래 고정 바 */
+.bar{
+  position:fixed; left:0; right:0; bottom:0; background:rgba(255,255,255,.97); border-top:1.5px solid var(--line);
+  padding:11px 16px calc(11px + env(safe-area-inset-bottom)); display:flex; gap:10px; align-items:center;
+  max-width:860px; margin:0 auto; box-shadow:0 -3px 14px rgba(0,0,0,.07);
+}
+.bar .hint{flex:1; font-size:13.5px; color:var(--muted); line-height:1.4}
+.bar .go{
+  min-height:52px; padding:13px 30px; border-radius:11px; background:var(--navy); color:#fff;
+  font-size:17px; font-weight:700; flex:0 0 auto;
+}
+.bar .go[disabled]{background:#c7d2d8; color:#fff}
+
+/* 채점 결과 */
+.judge{display:flex; flex-direction:column; gap:11px}
+.verdict{
+  display:flex; align-items:center; gap:13px; padding:15px 17px; border-radius:13px;
+  font-size:20px; font-weight:900;
+}
+.verdict.ok{background:#e9f7f0; color:#1e6b4f}
+.verdict.no{background:#fdeeec; color:var(--red)}
+.verdict i{font-style:normal; font-size:27px}
+.why{display:flex; flex-direction:column; gap:8px}
+.wi{border:1.5px solid var(--line); border-radius:11px; padding:11px 13px; font-size:15px; line-height:1.65}
+.wi.bad{border-color:#e8bfb8; background:#fdf6f5}
+.wi.good{border-color:#a8d5c2; background:#f3faf7}
+.wi b{color:var(--navy)}
+.wi .wh{font-weight:700; color:var(--navy); margin-bottom:3px; font-size:16px}
+.wi .wh em{font-style:normal; color:var(--red); font-size:14px; font-weight:400; margin-left:6px}
+
+/* 끝 화면 */
+.end{padding:30px 22px 44px; display:flex; flex-direction:column; gap:15px; align-items:center; text-align:center}
+.score{font-size:46px; font-weight:900; color:var(--navy); letter-spacing:-2px}
+.score small{font-size:19px; color:var(--muted); font-weight:400}
+.weak{width:100%; max-width:540px; text-align:left; display:flex; flex-direction:column; gap:7px}
+.wk{display:flex; gap:10px; align-items:center; padding:10px 13px; border-radius:9px; background:#fdf6f5; font-size:15px}
+.wk i{font-style:normal; color:var(--red); font-weight:900}
+.last{
+  max-width:540px; background:var(--tint2); border-left:4px solid var(--gold); border-radius:0 9px 9px 0;
+  padding:15px 17px; font-size:16px; line-height:1.8; text-align:left;
+}
+.last b{color:var(--red)}
+.qr{margin-top:6px; display:flex; flex-direction:column; align-items:center; gap:6px}
+.qr svg{width:118px; height:118px; border:3px solid #eef3f5; border-radius:11px; background:#fff}
+.qr div{font-size:11px; color:var(--muted)}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════
+   빈칸 수사대 — 국어 5학년 2학기 5단원 「추론하며 읽어요」(208~251쪽)
+   단원을 마치고 하는 확인 게임. 한 사건을 여섯 방에 걸쳐 판다.
+
+   ⚠ 「범인 맞히기」가 아니다. 용의자를 소거하는 논리 퍼즐은 이 단원과 딴판이다
+     (그쪽은 조건 추리고, 여기는 글에 안 쓰인 것을 단서로 짐작하는 일이다).
+     그래서 이 사건에는 나쁜 사람이 없고, 답은 「누가 했나」가 아니라
+     「무슨 일이 있었나 · 왜 그랬나」로 끝난다.
+
+   ⚠ 사건·편지·기록은 전부 새로 썼다. 교과서 지문(사라·녹색 화폐·현미경)을
+     옮기지 않았다 — 수업에서 이미 읽은 글이라 답을 기억으로 찍게 된다.
+
+   찍기 저항(NOTES-slow-by-design.md) — 평균 시도 횟수
+     ① 10문장 중 3개 지목  = 120가지
+     ② 8개를 3칸에 분류     = 6,561가지
+     ③ 5쌍 짝짓기           = 120가지
+     ④ 5개 배열             = 120가지
+     ⑤ 8개를 2칸에 분류     = 256가지
+     ⑥ 12개 중 3개 지목     = 220가지
+   ══════════════════════════════════════════════════════════════ */
+
+/* 반 아이와 이름이 겹치면 여기만 고치면 된다 — 본문은 전부 이 상수를 쓴다 */
+const HERO = '민재', FRIEND = '지호';
+
+/* ── ① 사물함 — 편지에서 단서 찾기 ──
+   결론은 「전학을 알고 있었다」가 아니라 「여름방학 전부터 알고 있었다」이다.
+   ⚠ 이 구별을 무르게 만들지 말 것 — 5·10번(운동회·새 학교)은 전학을 안다는
+     단서이지만 '언제부터'는 말해 주지 않는다. 그 차이가 이 방의 전부다. */
+const L_CLAIM = HERO+'는 <b>여름방학이 오기 전에 이미</b> 전학 갈 것을 알고 있었다.';
+const LETTER = [
+  { t:'이 편지를 너희한테 줄지 말지 아직도 못 정했어.', a:false,
+    why:'편지를 쓰는 <b>지금</b>을 말할 뿐, 언제 알았는지는 없습니다.' },
+  { t:'여름방학 동안 내 방 책장이 반쯤 비었어.', a:true,
+    why:'책장을 덜어 냈다는 것은 <b>짐을 정리했다</b>는 뜻이지요. 그것을 <b>여름방학 동안</b> 했습니다.' },
+  { t:'급식에 미역국 나오는 날이 제일 좋았어.', a:false,
+    why:'시간과 상관없는 이야기입니다.' },
+  { t:'도서실 책은 7월에 다 돌려줬어. 그 뒤로는 한 권도 안 빌렸어.', a:true,
+    why:'빌리면 <b>돌려주러 와야</b> 하니까요. <b>7월</b>이라는 때가 붙어 있습니다.' },
+  { t:'운동회 때 이어달리기 마지막 주자 하기로 한 거, 미안해.', a:false,
+    why:'못 나갈 것을 <b>안다</b>는 단서는 맞습니다. 그런데 <b>언제부터</b> 알았는지는 말해 주지 않아요.' },
+  { t:'체육 시간에 넘어졌을 때 일으켜 줘서 고마웠어.', a:false,
+    why:'고마웠던 일일 뿐, 때를 알려 주지 않습니다.' },
+  { t:'1학기 마지막 날 다 같이 사진 찍었잖아. 그때 나만 좀 이상하게 웃었을 거야.', a:true,
+    why:'웃음이 어색했던 까닭은 <b>그날 이미 알고 있었기</b> 때문이지요. <b>1학기 마지막 날</b>이라는 때가 붙어 있습니다.' },
+  { t:'내 사물함 열쇠는 선생님 책상 둘째 칸에 뒀어.', a:false,
+    why:'떠나기 <b>직전</b>의 일입니다.' },
+  { t:FRIEND+'가 빌려 간 지우개는 그냥 가져도 돼.', a:false,
+    why:'정리한 것은 맞지만 언제 정했는지는 없습니다.' },
+  { t:'새 학교는 운동장이 좁대.', a:false,
+    why:'새 학교를 <b>알아봤다</b>는 단서는 맞습니다. 그런데 <b>언제</b> 알아봤는지는 말해 주지 않아요.' },
+];
+/* 답을 주지 않는 3단계 되묻는 말. 개별 문장을 지목하지도, 몇 개가 틀렸는지 세어 주지도 않는다 —
+   ⚠ 「이 문장은 아니에요」를 달거나 틀린 개수를 알려 주면 소거법으로 120가지가 무너진다.
+     (개수 하나만 새어도 열 개 중 셋 고르기는 대여섯 번에 뚫린다.) */
+const L_HINTS = [
+  '고른 셋 가운데, <b>언제</b>인지를 말해 주지 않는 문장이 섞여 있어요.',
+  '「전학 간다는 것을 안다」와 「<b>언제부터</b> 알았나」는 다른 단서입니다. 운동회나 새 학교 이야기는 앞의 것이지요. 달력이 보이는 문장을 찾으세요.',
+  '시간을 가리키는 말이 들어 있는 문장을 찾으세요. 여름방학 · 7월 · 1학기 마지막 날처럼요.',
+];
+
+/* ── ② 감식실 — 쓰여 있는 것 / 짐작한 것 / 근거 없는 것 ──
+   교과서 215·224쪽의 「글에서 찾은 단서 → 추론한 내용」을 갈라 넣는 형태다.
+   셋째 칸이 이 단원의 알맹이 — 그럴듯해도 단서가 없으면 추론이 아니다. */
+const W2_BINS = ['편지에 쓰여 있다', '단서로 짐작할 수 있다', '짐작할 근거가 없다'];
+const W2 = [
+  { s:HERO+'는 7월에 도서실 책을 모두 돌려주었다.', c:0,
+    why:'편지에 <b>그대로 적혀 있는 말</b>이에요. 짐작한 것이 아니라 읽은 것입니다.' },
+  { s:HERO+'는 사물함 열쇠를 선생님 책상 둘째 칸에 두었다.', c:0,
+    why:'편지에 <b>그대로 적혀 있는 말</b>이에요.' },
+  { s:HERO+'는 운동회에서 이어달리기 마지막 주자를 맡기로 했었다.', c:0,
+    why:'편지에 <b>그대로 적혀 있는 말</b>이에요. 「미안해」가 짐작이지, 맡기로 한 것은 적힌 사실입니다.' },
+  { s:HERO+'는 여름방학 전에 전학 갈 것을 알고 있었다.', c:1,
+    why:'편지 어디에도 「알고 있었다」는 말은 없어요. 책장·도서실·사진 <b>세 단서를 이어서</b> 나온 것입니다.' },
+  { s:HERO+'는 새 학교에 대해 미리 알아본 적이 있다.', c:1,
+    why:'「운동장이 좁대」는 <b>누군가에게 들었거나 찾아봤다</b>는 뜻이지요. 알아봤다는 말 자체는 없습니다.' },
+  { s:HERO+'는 편지를 줄지 말지 정하지 못한 채 떠났다.', c:1,
+    why:'「아직도 못 정했어」라는 말과 <b>편지가 사물함에 남아 있었다는 사실</b>, 둘을 이어야 나옵니다.' },
+  { s:HERO+'의 아버지가 직장을 옮겨서 이사했다.', c:2,
+    why:'전학의 까닭은 편지에 <b>한 글자도</b> 없어요. 흔히 그렇다는 것은 <b>내 지식</b>이지 이 글의 단서가 아닙니다. 경험과 지식은 단서를 <b>이을 때</b> 쓰는 것이지, 단서 없이 지어낼 때 쓰는 것이 아니에요.' },
+  { s:HERO+'는 반 친구들과 사이가 나빴다.', c:2,
+    why:'편지에는 <b>고마웠어 · 미안해</b>가 있을 뿐, 사이가 나빴다는 단서는 한 줄도 없어요. 말을 안 하고 떠났다는 것만으로 마음까지 정할 수는 없습니다.' },
+];
+const W2_HINTS = [
+  '세 칸을 가르는 기준을 다시 보세요. 편지에서 <b>그 말을 그대로 찾을 수 있나요?</b> 찾을 수 있으면 첫째 칸입니다.',
+  '둘째 칸과 셋째 칸의 차이는 <b>이을 단서가 있느냐</b>예요. 편지의 <b>어느 줄에서 나왔는지 말할 수 있으면</b> 둘째 칸, 말할 수 없으면 셋째 칸입니다.',
+  '셋째 칸을 비워 두지 마세요. 그럴듯한데 편지에서 <b>한 줄도 끌어올 수 없는</b> 말이 있습니다. 「흔히 그렇다」는 것은 단서가 아니에요.',
+];
+
+/* ── ③ 말 분석실 — 함축된 표현(226~233·243쪽) ──
+   ⚠ 답이 상식으로 풀리게 만들지 말 것. 넷째 줄(운동장)은 ①번 편지 마지막 문장
+     (「새 학교는 운동장이 좁대」)을 읽은 아이만 제대로 짝지을 수 있다. */
+const W3 = [
+  { s:'"나 다음 주 급식 당번 좀 바꿔 줄래?"', t:'다음 주에 나는 여기 없다.' },
+  { s:'"그 책 재밌으면 네가 가져."', t:'돌려받을 날이 오지 않는다.' },
+  { s:'"체육대회 사진, 나도 한 장만 뽑아 줘."', t:'가지고 갈 것을 남겨 두고 싶다.' },
+  { s:'"여기 운동장 진짜 넓다, 그렇지?"', t:'앞으로 이만한 운동장이 없다.' },
+  { s:'"다음에 또 하자."', t:'다음이 없는 줄 알면서 하는 인사다.' },
+];
+const W3_HINTS = [
+  '그 말을 <b>그날 들었을 때</b>와 <b>전학을 알고 난 지금</b>이 어떻게 다른지 생각해 보세요.',
+  '다섯 말은 모두 <b>곧 떠난다</b>는 것을 숨긴 채 한 말이에요. 저마다 숨긴 자리가 다릅니다 — 다음 주라는 <b>때</b>, 돌려받을 <b>날</b>, 남길 <b>물건</b>, 옮겨 갈 <b>곳</b>, 그리고 <b>다음</b>.',
+  '편지 마지막 줄에 <b>새 학교 운동장</b> 이야기가 있었지요. 그 줄과 곧바로 이어지는 말이 하나 있습니다.',
+];
+
+/* ── ④ 사건 일지 — 날짜 없는 기록 배열 ──
+   ⚠ 기록에 날짜를 적지 말 것. 장마 · 방학 안내문 · 방학식 · 9월 당번표처럼
+     계절과 학사일정으로만 시간을 알 수 있게 둔다(그게 이 방의 추론이다). */
+const W4 = [
+  { o:0, t:'보건실 기록 — 5학년 3반 이'+HERO+'. 체육 시간에 넘어져 무릎이 까짐. <b>장마가 시작된 날</b>이라 운동장이 젖어 있었음.',
+    why:'장마는 <b>여름방학보다 앞</b>이에요. 편지에서 「넘어졌을 때 일으켜 줘서 고마웠어」라고 <b>지난 일처럼</b> 쓴 것과도 맞습니다.' },
+  { o:1, t:'도서실 기록 — 『섬으로 간 아이』 반납, 이'+HERO+'. <b>방학 중 대출 안내문을 받아 가지 않음.</b> 이후 대출 없음.',
+    why:'방학 안내문은 <b>방학식 전</b>에 나눠 줍니다. 편지의 「7월에 다 돌려줬어」와 같은 때예요.' },
+  { o:2, t:'사진 — <b>방학식 날</b> 찍은 1학기 마무리 단체 사진. '+HERO+'는 뒷줄 맨 끝.',
+    why:'방학식은 <b>1학기의 마지막 날</b>이지요. 도서실에서 안내문을 안 받아 간 날보다 뒤입니다.' },
+  { o:3, t:'급식 당번표 — <b>9월 둘째 주.</b> '+HERO+' 이름 위에 줄이 그어져 있고 '+FRIEND+' 이름이 덧쓰여 있다.',
+    why:'2학기가 시작되고 나서 <b>이름이 지워진</b> 것이니 여름의 기록들보다 뒤예요.' },
+  { o:4, t:'선생님 책상 둘째 칸 — 사물함 열쇠 하나. 이름표는 없다.',
+    why:'편지에 「열쇠는 선생님 책상 둘째 칸에 뒀어」라고 적혀 있으니, <b>떠나기 직전</b>의 일입니다.' },
+];
+const W4_HINTS = [
+  '날짜가 없으면 <b>계절과 학교 일정</b>을 달력으로 쓰세요.',
+  '장마 · 방학 안내문 · 방학식 · 9월 당번표 — 이 넷은 <b>학교의 한 해 안에서 자리가 정해져</b> 있습니다. 어느 것이 먼저 오나요?',
+  '편지에 「도서실 책은 <b>7월</b>에 다 돌려줬어」가 있었지요. 그 줄과 맞물리는 기록이 있습니다. 그리고 열쇠는 언제 두었을까요?',
+];
+
+/* ── ⑤ 뒤집기 ──
+   이 방이 이 자료의 승부처다. 무너지는 것은 전부 「까닭·마음」에 대한 짐작이고,
+   그대로 남는 것은 전부 「일어난 일」이다.
+   ⚠ 새 증거로 「사실」까지 흔들리게 고치지 말 것 — 그 구별이 이 방의 목적이다. */
+const W5_BINS = ['이 증거로 무너진다', '이 증거가 있어도 그대로다'];
+const W5_NEW = '교실 뒤 <b>학급 문고</b>에서 책 열두 권이 나왔습니다. 2학기가 시작되고 <b>매주 한 권씩</b> 늘어난 책들입니다.<br>책 안쪽 첫 장에는 우리 반 친구 이름이 한 명씩 적혀 있었어요. <b>「○○이가 좋아할 것 같아서.」</b> '+HERO+'의 글씨였습니다.';
+const W5 = [
+  { s:HERO+'는 우리 반을 좋아하지 않았다.', c:0,
+    why:'떠날 것을 알면서 <b>매주</b> 반 친구를 한 명씩 떠올린 사람이에요. 이 짐작은 더 서 있기 어렵습니다.' },
+  { s:HERO+'는 친구들에게 관심이 없었다.', c:0,
+    why:'책마다 <b>누가 좋아할지</b>를 생각해 적었어요. 관심이 없으면 이름을 못 씁니다.' },
+  { s:HERO+'는 우리와 친해지고 싶어 하지 않았다.', c:0,
+    why:'친해지기 싫은 사람이 열두 주 동안 열두 번 이런 일을 하지는 않지요.' },
+  { s:HERO+'가 말하지 않은 까닭은 우리를 싫어해서다.', c:0,
+    why:'<b>말하지 않은 것은 사실</b>이지만, 그 <b>까닭</b>으로 든 「싫어해서」가 무너졌습니다. 까닭은 다시 찾아야 해요.' },
+  { s:HERO+'는 아무에게도 미리 말하지 않았다.', c:1,
+    why:'이것은 <b>일어난 일</b>이에요. 새 증거가 나와도 일어난 일은 바뀌지 않습니다.' },
+  { s:HERO+'는 편지를 끝내 주지 않았다.', c:1,
+    why:'이것도 <b>일어난 일</b>입니다. 편지는 사물함에 남아 있었어요.' },
+  { s:HERO+'는 1학기 사진에서 뒷줄 맨 끝에 서 있었다.', c:1,
+    why:'사진에 찍힌 <b>그대로의 사실</b>이에요. 다만 「그래서 외톨이였다」는 짐작은 이제 못 붙입니다.' },
+  { s:HERO+'는 새 학교 이야기를 먼저 꺼냈다.', c:1,
+    why:'편지에 적힌 <b>일어난 일</b>입니다. 그것을 무슨 뜻으로 볼지가 달라졌을 뿐이에요.' },
+];
+const W5_HINTS = [
+  '두 칸을 가르는 기준은 하나예요. 그것이 <b>일어난 일</b>인가, 아니면 그 일에 붙인 <b>까닭·마음</b>인가.',
+  '새 증거는 <b>일어난 일을 바꾸지 못합니다.</b> 바뀌는 것은 그 일을 무슨 뜻으로 보느냐일 뿐이에요.',
+  '「말하지 않았다」는 그대로 남습니다. 무너지는 것은 「<b>싫어서</b> 말하지 않았다」처럼 <b>까닭이 붙은</b> 것들이에요.',
+];
+
+/* ── ⑥ 사건 종결 — 왜 말하지 않았나(의도 파악) ──
+   ①과 같은 도구(여럿 중 셋 지목)를 쓰되 묻는 층이 「언제」에서 「왜」로 올라간다.
+   ⚠ 「미리 알았다」는 단서(1·2·8)를 정답에 넣지 말 것 — 그건 앞 방의 답이다. */
+const F_CLAIM = '말하는 순간부터 <b>「곧 떠날 아이」</b>가 되는 것이 싫어서. 마지막까지 그냥 <b>반 친구</b>이고 싶었다.';
+const FACTS = [
+  { t:'여름방학 동안 방 책장이 반쯤 비었다.', a:false,
+    why:'<b>미리 알았다</b>는 단서예요. 첫째 방의 답이지, 말하지 않은 까닭은 아닙니다.' },
+  { t:'7월에 도서실 책을 모두 돌려주고 한 권도 안 빌렸다.', a:false,
+    why:'이것도 <b>미리 알았다</b>는 단서입니다.' },
+  { t:'1학기 마지막 날 사진에서 혼자 이상하게 웃었다.', a:false,
+    why:'그날 이미 알고 있었다는 단서예요. 까닭은 아닙니다.' },
+  { t:'2학기에도 매주 학급 문고에 책을 한 권씩 넣었다.', a:true,
+    why:'떠날 것을 알면서도 <b>반 일을 계속했어요.</b> 떠날 사람처럼 굴지 않은 것입니다.' },
+  { t:'책마다 반 친구 이름을 한 명씩 적었다.', a:false,
+    why:'친구를 생각했다는 <b>증거</b>지요. 그것은 다섯째 방에서 결론을 <b>뒤집은</b> 증거이지, 말하지 않은 까닭은 아닙니다.' },
+  { t:'다음 주 급식 당번을 바꿔 달라고 했다.', a:false,
+    why:'오히려 떠나는 것이 <b>드러날 뻔한</b> 말이에요.' },
+  { t:'편지를 줄지 말지 끝까지 정하지 못했다.', a:false,
+    why:'<b>망설였다</b>는 증거입니다. 망설인 까닭이 무엇인지는 이 줄만으로 알 수 없어요.' },
+  { t:'사물함 열쇠를 선생님 책상에 두었다.', a:false,
+    why:'조용히 떠날 준비를 했다는 단서입니다.' },
+  { t:'새 학교는 운동장이 좁다고 했다.', a:false,
+    why:'새 학교를 알아봤다는 단서예요.' },
+  { t:'운동회 이어달리기 마지막 주자를 맡기로 했다.', a:true,
+    why:'못 나갈 것을 알면서 <b>맡았습니다.</b> 빠지겠다고 하는 순간 그 자리에서 들키니까요.' },
+  { t:'"다음에 또 하자"고 인사했다.', a:true,
+    why:'다음이 없는 줄 알면서 <b>평소처럼</b> 인사했어요.' },
+  { t:'체육 시간에 넘어졌을 때 고마웠다고 편지에 썼다.', a:false,
+    why:'고마운 일일 뿐, 까닭을 받치지 않습니다.' },
+];
+const F_HINTS = [
+  '고른 셋 가운데 <b>「미리 알았다」는 단서</b>가 섞여 있어요. 그건 첫째 방의 답이지, 「왜 말하지 않았나」의 답이 아닙니다.',
+  '떠날 것을 알면서도 <b>평소처럼 한 일</b>을 찾으세요. 준비한 일 말고요.',
+  '다음이 없는데 다음을 말한 것, 못 나갈 것을 알면서 <b>맡은</b> 것, 떠날 것을 알면서 <b>계속한</b> 것 — 그런 줄을 찾으세요.',
+];
+
+/* 방마다 3단계 되묻는 말. 채점에서 틀린 항목을 짚어 주는 대신 이것을 준다.
+   ⚠ 이 자리에 「무엇이 틀렸는지」를 되살리지 말 것(2026-09-24 설계) —
+     ⑤번 방은 두 칸뿐이라 틀린 것을 짚어 주면 그것만 뒤집어서 두 번에 끝난다.
+     ③ 짝짓기·④ 배열도 틀린 칸만 바꾸면 되어 대여섯 번에 뚫린다.
+     기준을 알려 주는 것은 답을 알려 주는 것과 다르다 — 기준을 알아도
+     진술 하나하나가 어느 쪽인지는 읽고 가려야 하고, 그게 이 단원이다.
+   ⚠ 틀린 개수도 알려 주지 말 것. 개수 하나만 새어도 열 개 중 셋 고르기는 무너진다. */
+const HINTS = [L_HINTS, W2_HINTS, W3_HINTS, W4_HINTS, W5_HINTS, F_HINTS];
+
+const STAGES = [
+  { n:'사물함',    sub:'남은 편지에서 단서 찾기' },
+  { n:'감식실',    sub:'쓰인 것과 짐작한 것 가르기' },
+  { n:'말 분석실', sub:'말에 담긴 뜻 찾기' },
+  { n:'사건 일지', sub:'날짜 없는 기록 늘어놓기' },
+  { n:'뒤집기',    sub:'새 증거 앞에서 다시 보기' },
+  { n:'사건 종결', sub:'왜 말하지 않았을까' },
+];
+
+/* ── QR — 배포 주소를 바꾸면 이 값도 다시 만들어야 한다(옛 주소를 가리켜 404가 난다) ── */
+const URL_SELF = "https://leixlix-pixel.github.io/toolbox/inference-detective.html";
+const QRV = 39;
+const QRP = "<path fill=\"#ffffff\" d=\"M0 0h39v39H0z\"/><path stroke=\"#000000\" d=\"M1 1.5h7m1 0h1m3 0h1m3 0h2m3 0h1m3 0h1m2 0h1m1 0h7M1 2.5h1m5 0h1m1 0h1m2 0h1m1 0h1m1 0h1m2 0h1m3 0h1m7 0h1m5 0h1M1 3.5h1m1 0h3m1 0h1m3 0h2m1 0h1m1 0h1m2 0h2m2 0h6m2 0h1m1 0h3m1 0h1M1 4.5h1m1 0h3m1 0h1m1 0h2m2 0h1m1 0h2m1 0h1m4 0h2m1 0h3m2 0h1m1 0h3m1 0h1M1 5.5h1m1 0h3m1 0h1m3 0h4m2 0h1m2 0h1m4 0h1m2 0h1m2 0h1m1 0h3m1 0h1M1 6.5h1m5 0h1m3 0h1m2 0h1m3 0h3m2 0h1m1 0h3m1 0h1m1 0h1m5 0h1M1 7.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M9 8.5h1m1 0h1m1 0h1m1 0h1m1 0h1m5 0h2M1 9.5h1m1 0h2m1 0h3m2 0h2m1 0h1m1 0h1m2 0h2m2 0h3m2 0h1m2 0h1m2 0h1m1 0h2M1 10.5h1m3 0h1m4 0h1m2 0h1m1 0h2m1 0h2m1 0h1m1 0h1m1 0h1m3 0h1m2 0h1m1 0h1m1 0h1M2 11.5h6m2 0h4m1 0h1m1 0h1m1 0h3m2 0h2m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1M2 12.5h2m4 0h2m1 0h3m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m2 0h1m4 0h2M2 13.5h4m1 0h1m1 0h3m1 0h2m1 0h1m1 0h1m1 0h2m1 0h1m1 0h3m1 0h3m1 0h5M1 14.5h3m1 0h1m2 0h3m2 0h1m2 0h3m1 0h1m1 0h2m1 0h10m2 0h1M3 15.5h2m1 0h2m1 0h1m1 0h1m1 0h1m1 0h1m4 0h3m2 0h1m1 0h1m2 0h1m2 0h1m1 0h2M2 16.5h1m2 0h2m5 0h1m3 0h1m3 0h2m2 0h1m3 0h1m1 0h4m2 0h2M1 17.5h2m3 0h2m2 0h1m2 0h1m1 0h2m1 0h1m1 0h1m2 0h2m1 0h1m1 0h1m5 0h2M1 18.5h2m1 0h2m2 0h1m1 0h1m1 0h1m5 0h3m2 0h1m1 0h1m2 0h1m1 0h2m2 0h4M1 19.5h1m1 0h3m1 0h1m1 0h2m2 0h2m6 0h5m2 0h1m1 0h3m3 0h2M1 20.5h2m1 0h3m5 0h2m1 0h4m2 0h1m1 0h1m1 0h1m3 0h1m2 0h1m1 0h1m1 0h1M2 21.5h2m2 0h4m2 0h1m1 0h1m1 0h5m1 0h1m1 0h1m2 0h1m1 0h2m1 0h2m3 0h1M4 22.5h3m2 0h4m1 0h1m2 0h4m1 0h1m1 0h1m1 0h2m1 0h1m4 0h1M1 23.5h1m2 0h2m1 0h3m1 0h1m1 0h1m3 0h1m1 0h1m4 0h1m2 0h1m4 0h1M1 24.5h5m2 0h2m3 0h2m1 0h1m1 0h1m2 0h1m2 0h3m6 0h3m1 0h1M2 25.5h3m1 0h5m2 0h3m1 0h1m2 0h1m1 0h1m1 0h4m1 0h3m1 0h1m1 0h3M2 26.5h5m2 0h1m4 0h1m3 0h1m4 0h2m1 0h1m1 0h4m1 0h5M2 27.5h1m1 0h1m2 0h2m2 0h1m1 0h3m2 0h1m3 0h2m2 0h1m4 0h1m4 0h1M1 28.5h1m2 0h2m3 0h1m1 0h2m1 0h1m1 0h1m2 0h4m7 0h3m4 0h1M3 29.5h2m1 0h2m1 0h1m1 0h3m1 0h1m3 0h4m3 0h1m2 0h5m1 0h2M9 30.5h1m1 0h1m2 0h4m3 0h4m1 0h1m2 0h1m3 0h1m1 0h1m1 0h1M1 31.5h7m1 0h5m1 0h2m2 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h3M1 32.5h1m5 0h1m1 0h1m1 0h2m1 0h2m2 0h2m1 0h2m1 0h2m1 0h3m3 0h1m2 0h2M1 33.5h1m1 0h3m1 0h1m3 0h7m3 0h1m2 0h1m2 0h1m1 0h6m1 0h2M1 34.5h1m1 0h3m1 0h1m1 0h1m1 0h2m1 0h1m1 0h3m5 0h1m3 0h1m1 0h2m1 0h2m2 0h1M1 35.5h1m1 0h3m1 0h1m1 0h1m6 0h1m2 0h1m2 0h4m3 0h1m1 0h1m1 0h3M1 36.5h1m5 0h1m2 0h2m2 0h3m2 0h2m2 0h1m1 0h3m2 0h1m1 0h4M1 37.5h7m1 0h1m1 0h1m3 0h1m1 0h2m4 0h5m2 0h2m1 0h5\"/>";
+function qrSvg(px){
+  if(!QRP) return '';
+  return '<svg viewBox="0 0 '+QRV+' '+QRV+'" width="'+px+'" height="'+px+'" shape-rendering="crispEdges">'+QRP+'</svg>';
+}
+
+/* ══════════════════ 아이마다 다른 배치 ══════════════════
+   출석번호를 묻지 않는다 — 처음 켤 때 기기마다 임의의 씨앗을 잡아 저장한다.
+   같은 기기면 이어하기를 해도 같은 배치가 나온다. */
+function rngFrom(seed){
+  let x = seed || 1;
+  return () => ((x = Math.imul(x ^ x>>>15, 2246822507) ^ Math.imul(x ^ x>>>13, 3266489909)) >>> 0) / 4294967296;
+}
+function shuffledBy(rnd, arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(rnd()*(i+1)); [a[i],a[j]]=[a[j],a[i]] }
+  return a;
+}
+
+/* ══════════════════ 상태 ══════════════════ */
+const KEY = 'inference-detective';
+let S = null, Q = null;
+
+function freshState(){
+  return { seed:(Math.random()*4294967295)>>>0, stage:0, first:[], done:false, put:null, judged:null, tries:{} };
+}
+function load(){
+  try{ S = JSON.parse(localStorage.getItem(KEY)||'null') }catch(e){ S=null }
+  if(!S || typeof S.seed!=='number') S = null;
+}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)) }catch(e){} }
+function wipe(){ try{ localStorage.removeItem(KEY) }catch(e){}; S=null; render() }
+
+/* 씨앗에서 이 아이의 배치를 만든다.
+   ⚠ 해설은 원본 항목에 붙어 다닌다 — 배열을 섞는 것이지 해설을 옮기는 것이 아니다. */
+function buildQ(){
+  Q = {};
+  /* 편지는 첫 줄만 두고 나머지를 섞는다 — 편지는 원래 생각이 튀니 순서가 바뀌어도 자연스럽다.
+     번호를 불러 줘도 옆자리 화면에서는 다른 문장이 그 번호에 온다. */
+  Q.letter = [LETTER[0]].concat(shuffledBy(rngFrom(S.seed ^ 0x11), LETTER.slice(1)));
+  Q.s2  = shuffledBy(rngFrom(S.seed ^ 0x22), W2);
+  Q.s3  = shuffledBy(rngFrom(S.seed ^ 0x33), W3);
+  Q.s3t = shuffledBy(rngFrom(S.seed ^ 0x34), W3.map(x=>x.t));
+  Q.s4  = shuffledBy(rngFrom(S.seed ^ 0x44), W4);
+  Q.s5  = shuffledBy(rngFrom(S.seed ^ 0x55), W5);
+  Q.s6  = shuffledBy(rngFrom(S.seed ^ 0x66), FACTS);
+}
+
+/* ══════════════════ 소리 ══════════════════ */
+let ac=null;
+function ready(){ if(!ac){ try{ ac=new (window.AudioContext||window.webkitAudioContext)() }catch(e){} }
+  if(ac && ac.state==='suspended') ac.resume() }
+function beep(f,d,v,type){
+  if(!ac) return;
+  const o=ac.createOscillator(), g=ac.createGain();
+  o.type=type||'sine'; o.frequency.value=f;
+  g.gain.setValueAtTime(0,ac.currentTime);
+  g.gain.linearRampToValueAtTime(v||.16, ac.currentTime+.02);
+  g.gain.exponentialRampToValueAtTime(.0001, ac.currentTime+d);
+  o.connect(g); g.connect(ac.destination); o.start(); o.stop(ac.currentTime+d+.05);
+}
+const sTap  = ()=>beep(620,.07,.07,'triangle');
+const sOk   = ()=>{ beep(784,.35,.18); setTimeout(()=>beep(1047,.45,.18),190) };
+const sNo   = ()=>{ beep(300,.22,.14,'square') };
+const sDone = ()=>{ beep(784,.4,.2); setTimeout(()=>beep(1047,.4,.2),200); setTimeout(()=>beep(1319,.6,.2),420) };
+
+/* ══════════════════ 렌더 ══════════════════ */
+const $ = id => document.getElementById(id);
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
+
+function render(){
+  const app = $('app');
+  if(!S)       { app.innerHTML = homeHTML(); return }
+  if(S.done)   { app.innerHTML = endHTML();  return }
+  if(S.judged) { app.innerHTML = judgeHTML(); return }
+  app.innerHTML = stageHTML();
+  window.scrollTo(0,0);
+}
+
+function homeHTML(){
+  let saved=null;
+  try{ saved = JSON.parse(localStorage.getItem(KEY)||'null') }catch(e){}
+  const has = saved && typeof saved.seed==='number';
+  return '<div class="home">'
+  + '<div class="stamp">推</div>'
+  + '<h1>빈칸 수사대</h1>'
+  + '<p class="sub">국어 5단원 <b>추론하며 읽어요</b>를 마치고 하는 확인 게임입니다.<br>'
+  + '한 사건을 <b>여섯 개의 방</b>에서 파고듭니다. 고르는 문제가 아니라 <b>가려 넣고 · 늘어놓고 · 짝지어야</b> 풀려요. 찍어서는 넘어가기 어려우니 천천히 읽으세요.</p>'
+  + '<div class="case"><div class="ch">사건 개요</div>'
+  +   '9월 둘째 주 화요일, 5학년 3반 <b>'+HERO+'</b>가 전학을 갔습니다. 아무도 미리 몰랐어요.<br>'
+  +   '빈 사물함에서 <b>부치지 않은 편지</b> 한 장이 나왔습니다.<br><br>'
+  +   '수사대가 할 일은 <b>누가 잘못했는지</b>를 밝히는 것이 아닙니다. 글에 <b>쓰이지 않은 것</b>을 단서로 짐작해 내는 것입니다.'
+  + '</div>'
+  + '<div class="steplist">'
+  +   STAGES.map((s,i)=>'<div class="sl"><i>'+(i+1)+'</i><span>'+s.n+'</span><em>'+s.sub+'</em></div>').join('')
+  + '</div>'
+  + '<button class="big" onclick="start('+(has?'true':'false')+')">'+(has?'이어서 하기':'수사 시작')+'</button>'
+  + (has?'<button class="ghost" onclick="start(false)">처음부터 다시</button>':'')
+  + (has?'<button class="tiny" onclick="askWipe()">기록 지우기</button>':'')
+  + (QRP ? '<div class="qr">' + qrSvg(118) + '<div>태블릿 카메라로 찍어 들어오세요</div></div>' : '')
+  + '<div class="last" style="margin-top:10px"><b>선생님께</b> — 한 방을 <b>한 번에</b> 통과했는지만 셉니다. 시간은 재지 않고 순위도 없습니다. 다 끝낸 아이는 마지막 화면의 물음을 <b>공책에</b> 씁니다.</div>'
+  + '</div>';
+}
+
+function askWipe(){
+  const b = event.target;
+  if(b.dataset.armed){ wipe(); return }
+  b.dataset.armed='1'; b.textContent='정말 지울까요? 한 번 더'; b.style.color='#b5352c';
+}
+
+function start(cont){
+  ready();
+  if(!cont || !S) { load(); if(!cont || !S) S = freshState() }
+  if(S.done && !cont) S = freshState();
+  if(!S.tries) S.tries = {};
+  buildQ(); save(); render();
+}
+
+function stageHTML(){
+  const i = S.stage, st = STAGES[i];
+  return '<div class="top">'
+  + '<div class="no">'+(i+1)+'</div>'
+  + '<div class="tt"><div class="tu">'+(i+1)+' / 6</div><div class="th">'+st.n+'</div></div>'
+  + '<button class="quit" onclick="goHome()">나가기</button>'
+  + '</div>'
+  + '<div class="body">' + bodyHTML(i) + '</div>'
+  + barHTML(i);
+}
+function goHome(){ save(); S && (S.judged=null); render0() }
+function render0(){ const keep=S; S=null; render(); S=keep }
+
+/* ── 단계별 본문 ── */
+function bodyHTML(i){
+  if(i===0) return markBody(Q.letter, x=>x.t,
+      '<div class="doc"><div class="dh">사물함에서 나온 편지 — 부치지 않은 것</div>'
+      + '받는 사람도 날짜도 적혀 있지 않습니다. 쓰다 만 글이에요.</div>'
+      + '<div class="claim"><div class="dh">수사대가 세운 짐작</div>' + L_CLAIM + '</div>',
+      '이 짐작을 받쳐 주는 문장 <b>셋</b>을 고르세요.',
+      '문장을 눌러 고르고, 다시 누르면 풀립니다. 셋을 다 고른 뒤에 한 번에 채점합니다.');
+  if(i===1) return binsBody(Q.s2, W2_BINS, x=>x.s,
+      '<div class="doc"><div class="dh">감식 기준</div>'
+      + '<b>쓰여 있다</b> = 편지에서 그대로 읽을 수 있는 말.<br>'
+      + '<b>짐작할 수 있다</b> = 편지에 없지만, 단서를 이으면 나오는 말.<br>'
+      + '<b>근거가 없다</b> = 그럴듯하지만 이을 단서가 없는 말.</div>',
+      '진술 여덟 개를 세 칸에 나누어 넣으세요.',
+      '진술을 누르고, 넣을 칸을 누르세요. 다 넣은 뒤에 한 번에 채점합니다.');
+  if(i===2) return pairBody();
+  if(i===3) return orderBody();
+  if(i===4) return binsBody(Q.s5, W5_BINS, x=>x.s,
+      '<div class="claim"><div class="dh">여기까지 모은 것으로 수사대가 낸 결론</div>'
+      + HERO+'는 우리 반을 좋아하지 않았다. 그래서 아무에게도 말하지 않고 떠났다.'
+      + '<ul><li>아무에게도 미리 말하지 않았다</li><li>1학기 사진에서 혼자 뒷줄 맨 끝에 서 있었다</li>'
+      + '<li>편지를 끝내 주지 않았다</li><li>새 학교 이야기를 먼저 꺼냈다</li></ul></div>'
+      + '<div class="doc"><div class="dh">그런데 — 오늘 새로 나온 증거</div>' + W5_NEW + '</div>',
+      '위 결론의 진술들을 두 칸에 나누어 넣으세요.',
+      '<b>무엇이 무너지고 무엇이 남는지</b>를 가리는 일입니다. 진술을 누르고 칸을 누르세요.');
+  if(i===5) return markBody(Q.s6, x=>x.t,
+      '<div class="doc"><div class="dh">마지막 물음</div>'
+      + '여섯 방을 지나며 알아낸 것을 모두 늘어놓았습니다. 이제 <b>까닭</b>을 밝힐 차례예요.</div>'
+      + '<div class="claim"><div class="dh">수사대의 답 — '+HERO+'는 왜 아무에게도 말하지 않았을까</div>' + F_CLAIM + '</div>',
+      '이 답을 받쳐 주는 단서 <b>셋</b>을 고르세요.',
+      '「미리 알았다」는 단서는 첫 번째 방의 답이었지요. 여기서 묻는 것은 <b>까닭</b>입니다.');
+  return '';
+}
+
+/* ── 본문 지목 (N개 중 3개) ──
+   ⚠ 후보만 색칠하지 말 것 — 칠한 것만 눌러 보면 끝난다. 전부 똑같이 생겨야 한다. */
+function markBody(items, label, head, ask, sub){
+  if(!S.put) S.put = { marks:[] };
+  const P = S.put;
+  return head
+  + '<div class="qask">'+ask+'</div>'
+  + '<div class="qsub">'+sub+'</div>'
+  + '<div class="lines">'
+  +   items.map((x,i)=>'<button class="ln'+(P.marks.includes(i)?' sel':'')+'" onclick="mark('+i+')">'
+        + '<i>'+(i+1)+'</i><span>'+esc(label(x))+'</span></button>').join('')
+  + '</div>';
+}
+function mark(i){
+  ready(); sTap();
+  const M = S.put.marks, k = M.indexOf(i);
+  if(k>=0) M.splice(k,1);
+  else if(M.length<3) M.push(i);
+  save(); render();
+}
+
+/* ── 분류 ── 탭 → 탭 (드래그는 터치에서 안 먹는다) */
+function binsBody(items, bins, label, head, ask, sub){
+  if(!S.put) S.put = { sel:null, map:{} };
+  const P = S.put;
+  const left = items.map((x,i)=>i).filter(i=>P.map[i]===undefined);
+  const chipCSS = 'flex:1 1 100%;text-align:left;align-items:flex-start;font-size:15.5px;font-weight:400;line-height:1.5';
+  return head
+  + '<div class="qask">'+ask+'</div>'
+  + '<div class="qsub">'+sub+'</div>'
+  + '<div class="chips">'
+  +   left.map(i=>'<button class="chip'+(P.sel===i?' sel':'')+'" style="'+chipCSS+'" onclick="pick('+i+')">'
+        + esc(label(items[i])) + '</button>').join('')
+  +   (left.length?'':'<div class="qsub" style="margin:0">다 넣었어요. 아래 <b>채점하기</b>를 누르세요.</div>')
+  + '</div>'
+  + '<div class="bins">'
+  +   bins.map((b,bi)=>'<div class="bin'+(P.sel!==null?' act':'')+'" onclick="drop('+bi+')">'
+        + '<div class="bh">'+b+'</div><div class="bi">'
+        + items.map((x,i)=>P.map[i]===bi
+            ? '<button class="chip" style="flex:1 1 100%;text-align:left;align-items:flex-start;font-size:14.5px;font-weight:400;line-height:1.45;padding:7px 11px;min-height:40px" onclick="event.stopPropagation();unput('+i+')">'
+              + esc(label(x)) + '</button>'
+            : '').join('')
+        + '</div></div>').join('')
+  + '</div>';
+}
+function pick(i){ ready(); sTap(); S.put.sel = (S.put.sel===i?null:i); save(); render() }
+function drop(bi){
+  const P=S.put; if(P.sel===null) return;
+  sTap(); P.map[P.sel]=bi; P.sel=null; save(); render();
+}
+function unput(i){ sTap(); delete S.put.map[i]; save(); render() }
+
+/* ── 짝짓기 ── */
+function pairBody(){
+  if(!S.put) S.put = { sel:null, pick:undefined, map:{} };
+  const P=S.put;
+  const usedT = Object.values(P.map);
+  return '<div class="doc"><div class="dh">2학기에 '+HERO+'가 한 말들</div>'
+  + '그때는 아무렇지 않게 들렸던 말입니다. 지금 다시 들으면 다르게 들리지요.<br>'
+  + '<b>뜻이 바로 드러나지 않고 숨어 있는 말</b>을 함축된 표현이라고 배웠어요.</div>'
+  + '<div class="qask">말마다 <b>담긴 뜻</b>을 짝지으세요.</div>'
+  + '<div class="qsub">아래 뜻 하나를 누르고, 그 말의 오른쪽 칸을 누르면 들어갑니다. 넣은 것을 다시 누르면 빠집니다.</div>'
+  + '<div class="pairs">'
+  +   Q.s3.map((x,i)=>'<div class="pair">'
+        + '<div class="pl">'+esc(x.s)+'</div>'
+        + '<button class="pr'+(P.map[i]===undefined?' empty':'')+(P.pick!==undefined&&P.map[i]===undefined?' act':'')+'" onclick="'
+        + (P.map[i]===undefined?'drop3('+i+')':'unpair('+i+')')+'">'
+        + (P.map[i]===undefined?'담긴 뜻은?':esc(Q.s3t[P.map[i]])) + '</button>'
+        + '</div>').join('')
+  + '</div>'
+  + '<div class="qsub" style="margin-top:2px">아직 안 쓴 뜻</div>'
+  + '<div class="chips">'
+  +   Q.s3t.map((t,ti)=> usedT.includes(ti) ? '' :
+        '<button class="chip'+(P.pick===ti?' sel':'')+'" style="flex:1 1 100%;text-align:left;align-items:flex-start;font-size:15.5px;font-weight:500" onclick="pickT('+ti+')">'+esc(t)+'</button>').join('')
+  +   (usedT.length===5?'<div class="qsub" style="margin:0">다 짝지었어요. 아래 <b>채점하기</b>를 누르세요.</div>':'')
+  + '</div>';
+}
+function pickT(ti){ ready(); sTap(); S.put.pick=(S.put.pick===ti?undefined:ti); save(); render() }
+function drop3(i){
+  const P=S.put; if(P.pick===undefined) return;
+  sTap(); P.map[i]=P.pick; P.pick=undefined; save(); render();
+}
+function unpair(i){ sTap(); delete S.put.map[i]; save(); render() }
+
+/* ── 배열 ── */
+function orderBody(){
+  if(!S.put) S.put = { sel:null, slots:[null,null,null,null,null] };
+  const P = S.put, used = P.slots.filter(x=>x!==null);
+  return '<div class="doc"><div class="dh">흩어져 있던 기록 다섯 장</div>'
+  + '어디에도 <b>날짜가 적혀 있지 않습니다.</b> 적힌 내용만 보고 먼저 일어난 일부터 늘어놓으세요.</div>'
+  + '<div class="qask">다섯 기록을 <b>먼저 일어난 것부터</b> 놓으세요.</div>'
+  + '<div class="qsub">기록을 누른 뒤 자리를 누르면 들어갑니다. 첫 번째 방에서 읽은 <b>편지</b>가 도움이 됩니다.</div>'
+  + '<div class="chips">'
+  +   Q.s4.map((x,i)=> used.includes(i) ? '' :
+        '<button class="chip'+(P.sel===i?' sel':'')+'" style="flex:1 1 100%;text-align:left;align-items:flex-start;font-size:15px;font-weight:400;line-height:1.5" onclick="pick2('+i+')">'
+        + x.t + '</button>').join('')
+  +   (used.length===5?'<div class="qsub" style="margin:0">다 놓았어요. 아래 <b>채점하기</b>를 누르세요.</div>':'')
+  + '</div>'
+  + '<div class="slots">'
+  +   P.slots.map((v,si)=>'<div class="slot'+(v===null?' empty':'')+(P.sel!==null&&v===null?' act':'')+'" onclick="drop2('+si+')">'
+        + '<i>'+(si+1)+'</i><span>'+(v===null?'여기에 놓기':Q.s4[v].t)+'</span>'
+        + (v!==null?'<button onclick="event.stopPropagation();unslot('+si+')">✕</button>':'')
+        + '</div>').join('')
+  + '</div>';
+}
+function pick2(i){ ready(); sTap(); S.put.sel=(S.put.sel===i?null:i); save(); render() }
+function drop2(si){
+  const P=S.put; if(P.sel===null || P.slots[si]!==null) return;
+  sTap(); P.slots[si]=P.sel; P.sel=null; save(); render();
+}
+function unslot(si){ sTap(); S.put.slots[si]=null; save(); render() }
+
+/* ── 아래 바 ── */
+function barHTML(i){
+  const P = S.put || {};
+  let ok = false, hint = '';
+  if(i===0 || i===5){ const n=(P.marks||[]).length; ok = n===3; hint = n+' / 3 골랐어요' }
+  if(i===1 || i===4){ const n=Object.keys(P.map||{}).length; ok = n===8; hint = n+' / 8 넣었어요' }
+  if(i===2){ const n=Object.keys(P.map||{}).length; ok = n===5; hint = n+' / 5 짝지었어요' }
+  if(i===3){ const n=(P.slots||[]).filter(x=>x!==null).length; ok = n===5; hint = n+' / 5 놓았어요' }
+  return '<div class="bar">'
+  + '<div class="hint">'+hint+'<br><span style="font-size:12px">다 놓은 뒤 한 번에 채점합니다</span></div>'
+  + '<button class="go" onclick="grade()"'+(ok?'':' disabled')+'>채점하기</button>'
+  + '</div>';
+}
+
+/* ══════════════════ 채점 ══════════════════
+   ⚠ 부분 피드백을 주지 말 것 — 놓는 도중에 초록불이 뜨면 조합의 수가 무너진다.
+   ⚠ 해설에 「→ 정답」을 적지 말 것. 한 번 틀리면 정답이 통째로 공개되어
+     두 번째에 무조건 통과한다(「말 심사실」 2026-09-24 실측). 근거만 적는다.
+   ⚠ 지목하는 방(①⑥)은 고른 문장을 하나씩 짚어 주지 말 것 — 「이건 아니에요」를
+     세 줄 달면 소거법으로 120·220가지가 무너진다. 방향만 주는 3단계 되묻는 말을 쓴다. */
+function badCount(){
+  const i=S.stage, P=S.put;
+  if(i===0) return P.marks.filter(k=>!Q.letter[k].a).length;
+  if(i===5) return P.marks.filter(k=>!Q.s6[k].a).length;
+  if(i===1) return Q.s2.filter((x,k)=>P.map[k]!==x.c).length;
+  if(i===2) return Q.s3.filter((x,k)=>Q.s3t[P.map[k]]!==x.t).length;
+  if(i===3) return P.slots.filter((v,si)=>Q.s4[v].o!==si).length;
+  if(i===4) return Q.s5.filter((x,k)=>P.map[k]!==x.c).length;
+  return 0;
+}
+
+function grade(){
+  const i = S.stage;
+  const ok = badCount()===0;
+  ok ? sOk() : sNo();
+  S.judged = ok ? { ok:true } : { ok:false, hint: HINTS[i][Math.min(S.tries[i]||0, HINTS[i].length-1)] };
+  save(); render();
+}
+
+/* 통과한 뒤에 전체 풀이를 보여 준다 — 답을 이미 맞힌 자리라 다 펼쳐도 된다.
+   ⚠ 이것을 채점(틀렸을 때) 쪽으로 옮기지 말 것. 거기서는 정보가 샌다. */
+function solveHTML(i){
+  const row = (h, w, good) => '<div class="wi'+(good?' good':'')+'"><div class="wh">'+h+'</div>'+w+'</div>';
+  if(i===0 || i===5){
+    const items = (i===0) ? Q.letter : Q.s6;
+    return '<div class="why">'
+      + items.filter(x=>x.a).map(x=>row('◎ '+esc(x.t), x.why, true)).join('')
+      + items.filter(x=>!x.a).map(x=>row('· '+esc(x.t), x.why, false)).join('')
+      + '</div>';
+  }
+  if(i===1) return '<div class="why">'
+      + [0,1,2].map(c=>Q.s2.filter(x=>x.c===c).map(x=>row('「'+W2_BINS[c]+'」 '+esc(x.s), x.why, c<2)).join('')).join('')
+      + '</div>';
+  if(i===2) return '<div class="why">'
+      + Q.s3.map(x=>row(esc(x.s), '→ <b>'+esc(x.t)+'</b>', true)).join('')
+      + '</div>';
+  if(i===3) return '<div class="why">'
+      + W4.slice().sort((a,b)=>a.o-b.o).map(x=>row((x.o+1)+'번째 — '+x.t.split(' — ')[0], x.why, true)).join('')
+      + '</div>';
+  if(i===4) return '<div class="why">'
+      + [0,1].map(c=>Q.s5.filter(x=>x.c===c).map(x=>row('「'+W5_BINS[c]+'」 '+esc(x.s), x.why, c===1)).join('')).join('')
+      + '</div>';
+  return '';
+}
+
+function judgeHTML(){
+  const J = S.judged, i = S.stage;
+  const head = '<div class="top"><div class="no">'+(i+1)+'</div>'
+    + '<div class="tt"><div class="tu">'+(i+1)+' / 6</div><div class="th">'+STAGES[i].n+'</div></div></div>';
+  const clean = !(S.badStage && S.badStage[i]);
+
+  if(!J.ok){
+    return head
+    + '<div class="body"><div class="judge">'
+    +   '<div class="verdict no"><i>✕</i>아직 제자리가 아니에요</div>'
+    +   '<div class="qsub" style="margin:0">어느 것이 틀렸는지는 알려 주지 않습니다. <b>아래를 읽고</b> 처음부터 다시 하세요 — 읽지 않으면 또 틀립니다.</div>'
+    +   '<div class="wi bad"><div class="wh">다시 볼 것</div>'+J.hint+'</div>'
+    + '</div></div>'
+    + '<div class="bar"><div class="hint"></div><button class="go" onclick="retry()">다시 하기</button></div>';
+  }
+
+  return head
+  + '<div class="body"><div class="judge">'
+  +   '<div class="verdict ok"><i>◎</i>'+(clean?'한 번에 통과했어요':'통과했어요')+'</div>'
+  +   closingHTML(i)
+  +   '<div class="qsub" style="margin:0">풀이 — 읽고 넘어가세요.</div>'
+  +   solveHTML(i)
+  + '</div></div>'
+  + '<div class="bar"><div class="hint"></div>'
+  + '<button class="go" onclick="nextStage()">다음 방으로</button></div>';
+}
+
+/* 방을 통과했을 때 한 줄로 갈무리한다 — 맞힌 뒤에 읽는 자리가 있어야
+   「맞혔으니 끝」이 되지 않는다. ⑤번 방의 갈무리가 이 자료의 핵심 문장이다. */
+function closingHTML(i){
+  const C = [
+    '<b>같은 「안다」가 아니었지요.</b> 운동회나 새 학교 이야기는 <b>전학을 안다</b>는 단서이고, 책장·도서실·사진은 <b>언제부터 알았나</b>를 말해 주는 단서입니다. 짐작을 세울 때는 <b>무엇을 받치는 단서인지</b>까지 봐야 해요.',
+    '셋째 칸이 중요합니다. <b>그럴듯한 것과 근거 있는 것은 다릅니다.</b> 경험과 지식은 단서를 <b>이을 때</b> 쓰는 것이지, 단서 없이 지어낼 때 쓰는 것이 아니에요.',
+    '<b>같은 말이 상황을 알고 나면 다르게 들립니다.</b> 뜻이 숨어 있는 말을 <b>함축된 표현</b>이라고 해요. '+HERO+'는 거짓말을 한 적이 없습니다. 다 말하지 않았을 뿐이에요.',
+    '날짜가 없어도 <b>장마 · 방학 안내문 · 방학식 · 9월</b>이 달력 노릇을 했습니다. 글에 없는 것을 <b>글에 있는 것으로</b> 알아내는 일이지요.',
+    '<b>무너진 것은 모두 「까닭」과 「마음」이었고, 그대로 남은 것은 모두 「일어난 일」이었습니다.</b><br>추론은 새 단서가 나오면 뒤집힐 수 있어요. 그래도 단서는 뒤집히지 않습니다. 그래서 짐작을 말할 때는 <b>어느 단서에서 나왔는지</b>를 같이 말해야 합니다.',
+    '이것이 <b>글쓴이의 의도</b>를 찾는 일입니다. '+HERO+'가 편지에 「나는 이래서 말 안 했어」라고 쓴 적은 없어요. 한 적도, 하지 않은 적도 있는 일들을 모아 <b>까닭</b>을 세운 것입니다.',
+  ];
+  return '<div class="wi"><div class="wh">이 방에서 알아낸 것</div>'+C[i]+'</div>';
+}
+
+function retry(){
+  const i=S.stage, P=S.put;
+  S.badStage = S.badStage || {};
+  S.badStage[i] = true;
+  S.tries = S.tries || {};
+  S.tries[i] = (S.tries[i]||0) + 1;
+  /* ⚠ 틀린 것만 빼 주지 말 것 — 그것이 곧 「이건 맞았어요」라는 부분 피드백이라,
+     8개를 3칸에 넣는 6,561가지가 8가지로 무너진다(2026-09-24 「말 심사실」 실측).
+     통째로 풀고, 어디가 틀렸는지는 해설을 읽어야 알게 둔다.
+     읽은 아이에게는 다시 놓는 탭 몇 번이 늘 뿐이고, 찍는 아이만 비싸진다. */
+  if(i===0 || i===5) P.marks = [];
+  if(i===1 || i===2 || i===4) P.map = {};
+  if(i===3) P.slots = [null,null,null,null,null];
+  P.sel = null; P.pick = undefined;
+  S.judged=null; save(); render();
+}
+function nextStage(){
+  const i=S.stage;
+  S.first[i] = !(S.badStage && S.badStage[i]);
+  S.judged=null; S.put=null;
+  if(i===5){ S.done=true; sDone() } else S.stage=i+1;
+  save(); render();
+}
+
+/* ══════════════════ 끝 화면 ══════════════════ */
+function endHTML(){
+  const n = S.first.filter(Boolean).length;
+  const weak = STAGES.map((s,i)=>({s,i})).filter(o=>!S.first[o.i]);
+  return '<div class="end">'
+  + '<div class="stamp" style="width:84px;height:84px;font-size:26px">推</div>'
+  + '<h1 style="margin:0;font-size:25px;font-weight:900">수사를 마쳤습니다</h1>'
+  + '<div class="score">'+n+'<small> / 6 방을 한 번에</small></div>'
+  + (weak.length
+      ? '<div class="weak"><div style="font-size:14px;color:var(--muted);margin-bottom:3px">다시 놓았던 방</div>'
+        + weak.map(o=>'<div class="wk"><i>'+(o.i+1)+'</i>'+o.s.n+' — '+o.s.sub+'</div>').join('') + '</div>'
+      : '<div class="qsub">여섯 방을 모두 한 번에 통과했어요.</div>')
+  + '<div class="last">'
+  +   '<b>이제 공책에 씁니다.</b><br>'
+  +   '① '+HERO+'가 편지를 <b>끝내 주지 않은</b> 까닭을 두 가지 짐작해 쓰고, 각각 <b>어느 단서에서 나왔는지</b>를 함께 쓰세요. 두 짐작이 서로 달라도 됩니다.<br>'
+  +   '② 다섯째 방에서 <b>무너진 것</b>과 <b>그대로 남은 것</b>은 무엇이 달랐나요? 한 줄로 쓰세요.'
+  + '</div>'
+  + '<button class="ghost" onclick="again()">한 번 더 — 이번엔 한 번도 안 틀리기</button>'
+  + '<button class="tiny" onclick="askWipe()">기록 지우기</button>'
+  + '<div class="qsub" style="max-width:540px">순위도 시간도 없습니다. 빨리 끝내는 것은 자랑이 아니에요.</div>'
+  + '</div>';
+}
+function again(){
+  /* 2회차는 같은 씨앗을 쓴다 — 같은 문제를 한 번도 안 틀리고 지나는 것이 조건이다 */
+  const seed = S.seed;
+  S = freshState(); S.seed = seed;
+  buildQ(); save(); render();
+}
+
+/* ══════════════════ 시작 ══════════════════ */
+load();
+if(S) buildQ();
+render();
+</script>
+</body>
+</html>

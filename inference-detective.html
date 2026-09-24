@@ -193,12 +193,31 @@ button{font-family:inherit; cursor:pointer; border:0}
 }
 .last b{color:var(--red)}
 .qr{margin-top:6px; display:flex; flex-direction:column; align-items:center; gap:6px}
-.qr svg{width:118px; height:118px; border:3px solid #eef3f5; border-radius:11px; background:#fff}
-.qr div{font-size:11px; color:var(--muted)}
+.qr button{background:#fff; border:3px solid #eef3f5; border-radius:12px; padding:7px; line-height:0; min-height:0}
+.qr svg{width:128px; height:128px; display:block}
+.qr .qh{font-size:12px; color:var(--muted)}
+.qr .qh b{color:var(--acc)}
+
+/* QR 크게 보기 — 교실 TV에 띄우거나 멀리서 찍을 때. 아무 데나 누르면 닫힌다 */
+#qrBig{
+  display:none; position:fixed; inset:0; background:rgba(16,24,32,.95); z-index:90;
+  flex-direction:column; align-items:center; justify-content:center; gap:16px; padding:22px;
+}
+#qrBig.on{display:flex}
+#qrBig svg{width:min(78vw,78vh); height:auto; background:#fff; padding:18px; border-radius:18px}
+#qrBig .u{font-size:13px; color:#a9c7d8; word-break:break-all; text-align:center}
+#qrBig .x{font-size:14px; color:#7e94a5}
 </style>
 </head>
 <body>
 <div id="app"></div>
+
+<!-- ⚠ 이 자리를 #app 안으로 옮기지 말 것 — render() 가 #app 을 통째로 다시 그린다 -->
+<div id="qrBig" onclick="hideQR()">
+  <div id="qrBigIn"></div>
+  <div class="u" id="qrUrl"></div>
+  <div class="x">아무 데나 누르면 닫혀요</div>
+</div>
 
 <script>
 /* ══════════════════════════════════════════════════════════════
@@ -418,6 +437,16 @@ function qrSvg(px){
   if(!QRP) return '';
   return '<svg viewBox="0 0 '+QRV+' '+QRV+'" width="'+px+'" height="'+px+'" shape-rendering="crispEdges">'+QRP+'</svg>';
 }
+/* 작으면 멀리서 안 찍힌다 — 눌러서 화면 가득 키운다(교실 TV에 띄울 때도 이걸 쓴다).
+   ⚠ 큰 QR 둘레의 흰 여백(#qrBig svg 의 padding)을 없애지 말 것 — 여백이 없으면 인식이 떨어진다. */
+function showQR(){
+  if(!QRP) return;
+  ready(); sTap();
+  $('qrBigIn').innerHTML = qrSvg(520);
+  $('qrUrl').textContent = URL_SELF;
+  $('qrBig').classList.add('on');
+}
+function hideQR(){ $('qrBig').classList.remove('on') }
 
 /* ══════════════════ 아이마다 다른 배치 ══════════════════
    출석번호를 묻지 않는다 — 처음 켤 때 기기마다 임의의 씨앗을 잡아 저장한다.
@@ -512,7 +541,8 @@ function homeHTML(){
   + '<button class="big" onclick="start('+(has?'true':'false')+')">'+(has?'이어서 하기':'수사 시작')+'</button>'
   + (has?'<button class="ghost" onclick="start(false)">처음부터 다시</button>':'')
   + (has?'<button class="tiny" onclick="askWipe()">기록 지우기</button>':'')
-  + (QRP ? '<div class="qr">' + qrSvg(118) + '<div>태블릿 카메라로 찍어 들어오세요</div></div>' : '')
+  + (QRP ? '<div class="qr"><button onclick="showQR()" title="QR 크게 보기">' + qrSvg(128) + '</button>'
+         + '<div class="qh">🔍 <b>눌러서 크게</b> — 태블릿 카메라로 찍어 들어오세요</div></div>' : '')
   + '<div class="last" style="margin-top:10px"><b>선생님께</b> — 한 방을 <b>한 번에</b> 통과했는지만 셉니다. 시간은 재지 않고 순위도 없습니다. 다 끝낸 아이는 마지막 화면의 물음을 <b>공책에</b> 씁니다.</div>'
   + '</div>';
 }
@@ -850,6 +880,7 @@ function again(){
 }
 
 /* ══════════════════ 시작 ══════════════════ */
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') hideQR() });
 load();
 if(S) buildQ();
 render();

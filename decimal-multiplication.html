@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>소수의 곱셈 — 점을 떼었다가 다시 붙인다</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0f172a; --navy:#1e3a8a; --navy2:#3b82f6; --red:#dc2626;
+  --gold:#f59e0b; --green:#10b981; --paper:#fdfcf8; --line:#d8d3c4; --muted:#6b7280;
+  --acc:var(--navy2);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:#111827}
+body{
+  font-family:'Noto Sans KR',sans-serif;
+  touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+  user-select:none; display:flex; flex-direction:column; align-items:center; justify-content:center;
+}
+#wrap{position:relative;width:100%;height:calc(100% - 46px);display:flex;align-items:center;justify-content:center}
+#stage{flex:0 0 auto;width:1280px;height:720px;position:relative;transform-origin:center center;background:var(--paper);
+  border-radius:6px;overflow:hidden;box-shadow:0 12px 48px rgba(0,0,0,.5)}
+.slide{position:absolute;inset:0;padding:44px 60px 56px;display:none;flex-direction:column;color:var(--ink)}
+.slide.on{display:flex}
+/* 제목 아래 내용을 남는 높이 가운데로 — 위로 몰리지 않게 */
+.slide:not(.center) > h1 + *{margin-top:auto !important}
+.slide:not(.center) > *:last-child{margin-bottom:auto}
+.slide::after{content:'';position:absolute;left:0;bottom:0;height:7px;width:100%;background:var(--acc)}
+
+.eyebrow{font-size:19px;font-weight:700;color:var(--acc);letter-spacing:.06em;margin-bottom:8px}
+h1{font-size:42px;font-weight:900;line-height:1.25;letter-spacing:-.02em}
+h2{font-size:26px;font-weight:700;line-height:1.4}
+.lead{font-size:23px;line-height:1.65;color:#334155}
+b.hl{background:linear-gradient(transparent 58%, #fecaca 58%);font-weight:900;color:var(--red);padding:0 2px}
+b.hn{background:linear-gradient(transparent 58%, #bfdbfe 58%);font-weight:900;color:var(--navy);padding:0 2px}
+b.hg{background:linear-gradient(transparent 58%, #a7f3d0 58%);font-weight:900;color:#047857;padding:0 2px}
+.term{background:#fff;border:2px solid var(--line);border-left:7px solid var(--acc);
+  border-radius:8px;padding:16px 22px;font-size:24px;line-height:1.55}
+.act{background:#fff8e6;border:2px dashed var(--gold);border-radius:12px;padding:18px 24px;font-size:24px;line-height:1.5}
+.hand{font-family:'Gaegu',sans-serif;font-size:29px;color:var(--red)}
+.row{display:flex;gap:34px;align-items:center}
+.col{display:flex;flex-direction:column;gap:14px}
+.grow{flex:1;min-width:0}
+.center{align-items:center;justify-content:center;text-align:center}
+.num{font-variant-numeric:tabular-nums;font-weight:900}
+.eq{font-size:40px;font-weight:900;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.eq.sm{font-size:30px}
+.op{color:var(--muted)}
+.pt{color:var(--red)}
+.gone{color:#cbd5e1;text-decoration:line-through}
+
+[data-step]{opacity:0;transition:opacity .45s ease}
+[data-step].vis{opacity:1}
+
+svg.gv{display:block}
+.card{background:#fff;border:2px solid var(--line);border-radius:14px;padding:18px 22px}
+.stepbox{display:flex;align-items:center;gap:18px;background:#fff;border:2px solid var(--line);border-radius:14px;padding:14px 22px;font-size:28px}
+.stepbox .n{flex:0 0 46px;height:46px;border-radius:50%;background:var(--acc);color:#fff;font-weight:900;font-size:24px;
+  display:flex;align-items:center;justify-content:center}
+.stepbox .t{font-weight:700;min-width:215px}
+.stepbox .m{font-size:33px;font-weight:900;font-variant-numeric:tabular-nums}
+
+table.rule{border-collapse:collapse;font-size:30px;width:100%;background:#fff}
+table.rule th,table.rule td{border:2px solid var(--line);padding:10px 14px;text-align:center}
+table.rule th{background:#eef2ff;font-size:22px;color:var(--navy)}
+table.rule td{font-weight:900;font-variant-numeric:tabular-nums}
+
+/* 세로셈 — 칸을 고정해 자릿수를 맞춘다 */
+.vm{display:inline-grid;grid-template-columns:repeat(var(--c),48px);font-size:46px;font-weight:900;
+  font-variant-numeric:tabular-nums;line-height:62px;text-align:center;position:relative}
+.vm span{position:relative}
+.vm .ln{grid-column:1/-1;border-top:4px solid var(--ink);height:0;margin:4px 0}
+.vm .d{position:absolute;right:-9px;bottom:0;color:var(--red)}
+.vm .x{color:var(--muted)}
+
+/* 점 이동 */
+.hop{display:flex;align-items:center;gap:14px;font-size:35px;font-weight:900;font-variant-numeric:tabular-nums}
+.hop .lab{width:300px;text-align:right;color:#334155;white-space:nowrap}
+.hop .res{width:130px;text-align:right;white-space:nowrap}
+.hop .arr{font-size:24px;color:var(--muted);font-weight:700;white-space:nowrap}
+
+.bar{height:46px;width:100%;display:flex;align-items:center;justify-content:center;gap:14px;
+  background:#111827;color:#e5e7eb;font-size:15px;flex:0 0 46px}
+.bar button{font-family:inherit;font-size:15px;font-weight:700;min-height:32px;padding:6px 16px;
+  border:0;border-radius:7px;background:#374151;color:#f9fafb;cursor:pointer}
+.bar button:active{background:#4b5563}
+#cnt{min-width:74px;text-align:center;font-variant-numeric:tabular-nums}
+#zl,#zr{position:absolute;top:0;bottom:46px;width:13%;z-index:5;background:transparent}
+#zl{left:0} #zr{right:0}
+</style>
+</head>
+<body>
+
+<div id="wrap">
+<div id="stage">
+
+<!-- 1 ─ 표지 -->
+<section class="slide center" style="--acc:#3b82f6;background:linear-gradient(160deg,#eff6ff,#fdfcf8 60%)">
+  <div class="eyebrow">5-2 · 4단원 소수의 곱셈</div>
+  <h1 style="font-size:56px">점을 잠깐 <b class="hl">떼었다가</b>,<br>다시 <b class="hn">붙인다</b></h1>
+  <div class="lead" style="margin-top:18px">소수의 곱셈은 이 한 줄이면 끝난다. 오늘은 <b>왜</b> 그렇게 되는지를 본다.</div>
+  <div class="eq" style="justify-content:center;margin-top:42px;font-size:46px">
+    <span>1<span class="pt">.</span>2 × 1<span class="pt">.</span>7</span>
+    <span class="op">→</span>
+    <span>12 × 17 = 204</span>
+    <span class="op">→</span>
+    <span>2<span class="pt">.</span>04</span>
+  </div>
+</section>
+
+<!-- 2 ─ 소수는 조각이 몇 개 -->
+<section class="slide" data-steps="3" style="--acc:#10b981">
+  <div class="eyebrow">준비 · 소수를 다르게 보기</div>
+  <h1>소수는 「작은 조각이 <b class="hg">몇 개</b>」다</h1>
+  <div class="row" style="margin-top:26px;align-items:flex-start;gap:40px">
+    <div class="col center" style="width:250px">
+      <div id="g-one"></div>
+      <div style="font-size:26px;font-weight:900">1 = 큰 판 하나</div>
+    </div>
+    <div class="col center" style="width:250px" data-step="1">
+      <div id="g-tenth"></div>
+      <div style="font-size:26px;font-weight:900">0.1 = 막대 하나</div>
+      <div style="font-size:19px;color:var(--muted)">판을 10조각</div>
+    </div>
+    <div class="col center" style="width:250px" data-step="2">
+      <div id="g-hund"></div>
+      <div style="font-size:26px;font-weight:900">0.01 = 작은 칸 하나</div>
+      <div style="font-size:19px;color:var(--muted)">판을 100조각</div>
+    </div>
+    <div class="col grow" data-step="3" style="gap:16px;margin-top:8px">
+      <div class="term" style="font-size:24px"><b>1.2</b> = 막대 <b class="hg">12개</b></div>
+      <div class="term" style="font-size:24px"><b>0.27</b> = 작은 칸 <b class="hg">27개</b></div>
+      <div class="hand" style="font-size:27px">점을 떼면 보이는 수(12, 27)가<br>바로 「조각의 개수」야!</div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 ─ 0.4 × 3 -->
+<section class="slide" data-steps="3" style="--acc:#3b82f6">
+  <div class="eyebrow">① (소수) × (자연수)</div>
+  <h1>0.4 × 3 — 막대 4개씩, 세 묶음</h1>
+  <div class="row" style="margin-top:22px;gap:30px;align-items:flex-start">
+    <div id="g-bars" style="width:640px"></div>
+    <div class="col grow" style="gap:18px">
+      <div class="stepbox" data-step="1"><span class="t">막대 개수</span><span class="m">4 × 3 = 12개</span></div>
+      <div class="stepbox" data-step="2"><span class="t">막대 10개 = 1</span><span class="m">12개 = 1.2</span></div>
+      <div class="act" data-step="3">자연수 곱셈 <b>4 × 3</b> 을 하고,<br>조각이 <b>0.1</b> 짜리라는 것만 기억하면 된다.
+        <div class="eq sm" style="margin-top:8px">0.4 × 3 = <span class="pt">1.2</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 ─ 2.46 × 3 -->
+<section class="slide" data-steps="3" style="--acc:#3b82f6">
+  <div class="eyebrow">① (소수) × (자연수) · 소수 두 자리</div>
+  <h1>2.46 × 3 — 작은 칸이 몇 개?</h1>
+  <div class="col" style="margin-top:30px;gap:18px;max-width:1000px">
+    <div class="stepbox"><span class="n">1</span><span class="t">2.46 은</span><span class="m">0.01 이 <b class="hg">246개</b></span></div>
+    <div class="stepbox" data-step="1"><span class="n">2</span><span class="t">세 배 하면</span><span class="m">246 × 3 = <b class="hg">738개</b></span></div>
+    <div class="stepbox" data-step="2"><span class="n">3</span><span class="t">0.01 이 738개</span><span class="m">= 7.38</span></div>
+  </div>
+  <div class="act" data-step="3" style="margin-top:26px;max-width:1000px">
+    조각 크기가 0.01 이면 답도 <b class="hl">점 아래 두 자리</b>. 곱셈은 늘 자연수로 한다 —
+    <b>점은 「조각이 얼마나 작은가」를 적어 두는 표시</b>일 뿐이다.
+  </div>
+</section>
+
+<!-- 5 ─ 2 × 0.8 -->
+<section class="slide" data-steps="3" style="--acc:#8b5cf6">
+  <div class="eyebrow">② (자연수) × (소수)</div>
+  <h1>2 × 0.8 = 「2 의 0.8 만큼」</h1>
+  <div id="g-strip" style="margin-top:26px"></div>
+  <div class="row" style="margin-top:22px;gap:26px;align-items:stretch">
+    <div class="term grow" data-step="2">0.8 은 「10조각 중 8조각」.<br>2 를 10조각 내면 한 조각이 0.2 → 8조각은 <b class="hn">1.6</b></div>
+    <div class="term grow" data-step="3" style="border-left-color:var(--red)">
+      <b class="hl">곱했는데 작아졌다!</b><br>0.8 은 1 보다 작으니까 2 를 <b>다</b> 가진 게 아니라 <b>일부</b>만 가진 것.
+    </div>
+  </div>
+</section>
+
+<!-- 6 ─ 0.1 × 0.1 -->
+<section class="slide" data-steps="3" style="--acc:#f59e0b">
+  <div class="eyebrow">③ 소수 × 소수 · 제일 중요한 한 장</div>
+  <h1>0.1 × 0.1 은 얼마일까?</h1>
+  <div class="row" style="margin-top:20px;gap:50px;align-items:center">
+    <div id="g-tt"></div>
+    <div class="col grow" style="gap:18px">
+      <div class="term" style="font-size:24px">많이 나오는 답: <b>0.1</b>? <b>0.2</b>?</div>
+      <div class="term" data-step="1" style="font-size:24px">「0.1 의 0.1 만큼」 = <b>막대 하나를 또 10조각</b></div>
+      <div class="term" data-step="2" style="font-size:24px">큰 판의 <b>100 조각 중 1</b> → <b class="hl">0.01</b></div>
+      <div class="hand" data-step="3">조각의 조각이라 더 작아진다.<br>그래서 점 아래 자리가 <u>늘어난다</u>!</div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 ─ 0.6 × 0.7 -->
+<section class="slide" data-steps="4" style="--acc:#f59e0b">
+  <div class="eyebrow">③ 소수 × 소수 · 넓이로 보기</div>
+  <h1>0.6 × 0.7 — 가로 0.6, 세로 0.7 인 네모</h1>
+  <div class="row" style="margin-top:18px;gap:46px;align-items:center">
+    <div id="g-67"></div>
+    <div class="col grow" style="gap:16px">
+      <div class="stepbox" data-step="1"><span class="t" style="color:#2563eb">가로</span><span class="m">0.6 → 6칸</span></div>
+      <div class="stepbox" data-step="2"><span class="t" style="color:#d97706">세로</span><span class="m">0.7 → 7칸</span></div>
+      <div class="stepbox" data-step="3"><span class="t" style="color:#047857">겹친 칸</span><span class="m">6 × 7 = 42칸</span></div>
+      <div class="act" data-step="4">한 칸이 <b>0.01</b> 이니까 42칸은 <b class="hl">0.42</b><br>
+        <span style="font-size:19px;color:#64748b">한 자리 × 한 자리 → 두 자리. 0.1 × 0.1 = 0.01 이라서.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 8 ─ 규칙 표 -->
+<section class="slide" data-steps="4" style="--acc:#ef4444">
+  <div class="eyebrow">규칙 찾기</div>
+  <h1>점 아래 자리 수는 <b class="hl">더한다</b></h1>
+  <table class="rule" style="margin-top:24px">
+    <tr><th>식</th><th>점을 떼고 곱하면</th><th>점 아래 자리 수</th><th>답</th></tr>
+    <tr data-step="1"><td>0.4 × 3</td><td>4 × 3 = 12</td><td>1 + 0 = <span class="pt">1</span></td><td>1.2</td></tr>
+    <tr data-step="2"><td>2 × 0.8</td><td>2 × 8 = 16</td><td>0 + 1 = <span class="pt">1</span></td><td>1.6</td></tr>
+    <tr data-step="3"><td>0.6 × 0.7</td><td>6 × 7 = 42</td><td>1 + 1 = <span class="pt">2</span></td><td>0.42</td></tr>
+    <tr data-step="4"><td>0.27 × 0.6</td><td>27 × 6 = 162</td><td>2 + 1 = <span class="pt">3</span></td><td>0.162</td></tr>
+  </table>
+  <div class="lead" style="margin-top:20px">0.1 을 한 번 곱할 때마다 조각이 10배 작아진다 → 점이 <b>한 칸씩 왼쪽</b>으로.</div>
+</section>
+
+<!-- 9 ─ 제일 쉬운 방법 -->
+<section class="slide" data-steps="4" style="--acc:#1e3a8a;background:linear-gradient(180deg,#eef2ff,#fdfcf8 45%)">
+  <div class="eyebrow">★ 제일 쉬운 방법 — 3 걸음 + 확인</div>
+  <h1>1.2 × 1.7 을 풀어 보자</h1>
+  <div class="col" style="margin-top:22px;gap:14px;max-width:1080px">
+    <div class="stepbox" data-step="1"><span class="n">1</span><span class="t">점 떼기</span>
+      <span class="m">1<span class="gone">.</span>2 × 1<span class="gone">.</span>7 → 12 × 17</span></div>
+    <div class="stepbox" data-step="2"><span class="n">2</span><span class="t">자연수처럼 곱하기</span>
+      <span class="m">12 × 17 = 204</span></div>
+    <div class="stepbox" data-step="3"><span class="n">3</span><span class="t">점 붙이기</span>
+      <span class="m">1자리 + 1자리 = <span class="pt">2자리</span> → 뒤에서 두 칸 → 2<span class="pt">.</span>04</span></div>
+    <div class="stepbox" data-step="4" style="border-color:#10b981;background:#ecfdf5"><span class="n" style="background:#10b981">✔</span><span class="t">어림으로 확인</span>
+      <span class="m" style="font-size:26px">1.2 는 약 1, 1.7 은 약 2 → 답은 <b>약 2</b>. 2.04 맞다! <span style="color:#94a3b8">(20.4 ✗ · 0.204 ✗)</span></span></div>
+  </div>
+</section>
+
+<!-- 10 ─ 세로셈 -->
+<section class="slide" data-steps="3" style="--acc:#1e3a8a">
+  <div class="eyebrow">세로셈으로 쓸 때</div>
+  <h1>덧셈은 <b class="hn">점</b>을 맞추고, 곱셈은 <b class="hl">끝</b>을 맞춘다</h1>
+  <div class="row" style="margin-top:26px;gap:70px;align-items:flex-start">
+    <div class="col center">
+      <div class="vm" style="--c:6">
+        <span></span><span></span><span></span><span>3<i class="d">.</i></span><span>2</span><span>5</span>
+        <span class="x">×</span><span></span><span></span><span></span><span>4<i class="d">.</i></span><span>2</span>
+        <span class="ln"></span>
+        <span data-step="1"></span><span data-step="1"></span><span data-step="1"></span><span data-step="1">6</span><span data-step="1">5</span><span data-step="1">0</span>
+        <span data-step="1"></span><span data-step="1">1</span><span data-step="1">3</span><span data-step="1">0</span><span data-step="1">0</span><span data-step="1"></span>
+        <span class="ln" data-step="1"></span>
+        <span data-step="2"></span><span data-step="2">1</span><span data-step="2">3<i class="d">.</i></span><span data-step="2">6</span><span data-step="2">5</span><span data-step="2">0</span>
+      </div>
+      <div style="font-size:21px;font-weight:700;color:#047857;margin-top:8px">✔ 오른쪽 끝을 맞춰 쓴다</div>
+    </div>
+    <div class="col grow" style="gap:16px">
+      <div class="term" data-step="1">자연수처럼 곱한다: <b>325 × 42 = 13650</b><br>
+        <span style="font-size:18px;color:var(--muted)">점은 신경 쓰지 않는다</span></div>
+      <div class="term" data-step="2">점 아래 <b>2자리 + 1자리 = 3자리</b><br>→ 13.650 → 끝의 0 을 지워 <b class="hl">13.65</b></div>
+      <div class="term" data-step="3" style="border-left-color:#10b981">어림: 3 × 4 = 12 쯤. <b>13.65</b> 맞다!</div>
+    </div>
+  </div>
+</section>
+
+<!-- 11 ─ 흔한 실수 -->
+<section class="slide" data-steps="3" style="--acc:#dc2626">
+  <div class="eyebrow">이렇게 많이 틀린다</div>
+  <h1>흔한 실수 세 가지</h1>
+  <div class="col" style="margin-top:22px;gap:16px">
+    <div class="card" data-step="1"><div class="row" style="gap:24px">
+      <div class="eq sm" style="width:370px"><span>0.2 × 0.3 = <s style="color:#dc2626">0.6</s></span></div>
+      <div class="grow" style="font-size:25px;line-height:1.5">2 × 3 = 6, 그런데 점 아래 <b>두 자리</b>가 필요하다.<br>
+        빈자리에는 <b class="hl">0 을 채운다</b> → <b>0.06</b></div></div></div>
+    <div class="card" data-step="2"><div class="row" style="gap:24px">
+      <div class="eq sm" style="width:370px"><span>2.5 × 0.4 = <s style="color:#dc2626">0.1</s></span></div>
+      <div class="grow" style="font-size:25px;line-height:1.5">25 × 4 = 100 → <b>점 먼저</b> 찍는다: 1.00 →<br>
+        그다음 끝의 0 을 지운다 → <b class="hl">1</b> <span style="color:var(--muted)">(0 부터 지우면 점 자리를 잃는다)</span></div></div></div>
+    <div class="card" data-step="3"><div class="row" style="gap:24px">
+      <div class="eq sm" style="width:370px"><span>1.5 × 3 = <s style="color:#dc2626">3.15</s></span></div>
+      <div class="grow" style="font-size:25px;line-height:1.5">자연수 부분·소수 부분을 <b>따로</b> 곱하면 안 된다.<br>
+        15 × 3 = 45 → 한 자리 → <b class="hl">4.5</b> <span style="color:var(--muted)">(어림: 1.5 × 3 은 3 과 6 사이)</span></div></div></div>
+  </div>
+</section>
+
+<!-- 12 ─ ×10, ×0.1 -->
+<section class="slide" data-steps="2" style="--acc:#0891b2">
+  <div class="eyebrow">④ 곱의 소수점 위치</div>
+  <h1>숫자는 그대로, <b class="hn">점만</b> 움직인다</h1>
+  <div class="row" style="margin-top:22px;gap:40px;align-items:flex-start">
+    <div class="col" style="gap:10px" data-step="1">
+      <div class="hop"><span class="lab">1.45 × 10 =</span><span class="res">14<span class="pt">.</span>5</span><span class="arr">→ 1칸</span></div>
+      <div class="hop"><span class="lab">1.45 × 100 =</span><span class="res">145</span><span class="arr">→ 2칸</span></div>
+      <div class="hop"><span class="lab">1.45 × 1000 =</span><span class="res">1450</span><span class="arr">→ 3칸</span></div>
+      <div style="font-size:21px;margin-top:6px"><b>0 의 개수</b>만큼 점이 <b class="hn">오른쪽</b>으로</div>
+    </div>
+    <div class="col" style="gap:10px" data-step="2">
+      <div class="hop"><span class="lab">1450 × 0.1 =</span><span class="res">145</span><span class="arr">← 1칸</span></div>
+      <div class="hop"><span class="lab">1450 × 0.01 =</span><span class="res">14<span class="pt">.</span>5</span><span class="arr">← 2칸</span></div>
+      <div class="hop"><span class="lab">1450 × 0.001 =</span><span class="res">1<span class="pt">.</span>45</span><span class="arr">← 3칸</span></div>
+      <div style="font-size:21px;margin-top:6px"><b>점 아래 자리 수</b>만큼 점이 <b class="hl">왼쪽</b>으로</div>
+    </div>
+  </div>
+  <div class="term" style="margin-top:24px">1450 은 1450.0 과 같다 — 점은 늘 <b>맨 끝에 숨어 있다</b>. 그래서 「왼쪽으로 한 칸」이 가능하다.</div>
+</section>
+
+<!-- 13 ─ 곱셈 하나로 넷 -->
+<section class="slide" data-steps="4" style="--acc:#0891b2">
+  <div class="eyebrow">④ 곱의 소수점 위치 · 활용</div>
+  <h1><span class="num">13 × 24 = 312</span> 하나만 알면</h1>
+  <div class="col" style="margin-top:22px;gap:12px;max-width:900px">
+    <div class="hop" data-step="1"><span class="lab" style="width:280px">1.3 × 24 =</span><span class="res">31.2</span><span class="arr">1 + 0 = 1자리</span></div>
+    <div class="hop" data-step="2"><span class="lab" style="width:280px">13 × 2.4 =</span><span class="res">31.2</span><span class="arr">0 + 1 = 1자리</span></div>
+    <div class="hop" data-step="3"><span class="lab" style="width:280px">1.3 × 2.4 =</span><span class="res">3.12</span><span class="arr">1 + 1 = 2자리</span></div>
+    <div class="hop" data-step="4"><span class="lab" style="width:280px">0.13 × 0.24 =</span><span class="res"><span class="pt">0.0</span>312</span><span class="arr">2 + 2 = 4자리 → 0 을 채워서</span></div>
+  </div>
+  <div class="act" style="margin-top:22px">숫자 312 는 네 번 다 똑같다. 달라지는 것은 <b>점의 자리</b> 하나뿐.</div>
+</section>
+
+<!-- 14 ─ 커질까 작아질까 -->
+<section class="slide" data-steps="3" style="--acc:#16a34a">
+  <div class="eyebrow">답을 내기 전에 · 어림 감각</div>
+  <h1>곱하면 커진다? <b class="hl">늘 그렇진 않다</b></h1>
+  <div class="row" style="margin-top:22px;gap:40px;align-items:flex-start">
+    <div class="col" style="gap:10px;width:520px">
+      <div class="hop"><span class="lab" style="width:250px">10 × 1.5 =</span><span class="res" style="width:90px">15</span><span class="arr" style="color:#dc2626">커졌다 ▲</span></div>
+      <div class="hop"><span class="lab" style="width:250px">10 × 1 =</span><span class="res" style="width:90px">10</span><span class="arr">그대로</span></div>
+      <div class="hop"><span class="lab" style="width:250px">10 × 0.5 =</span><span class="res" style="width:90px">5</span><span class="arr" style="color:#2563eb">작아졌다 ▼</span></div>
+      <div class="hop"><span class="lab" style="width:250px">10 × 0.05 =</span><span class="res" style="width:90px">0.5</span><span class="arr" style="color:#2563eb">작아졌다 ▼</span></div>
+    </div>
+    <div class="col grow" style="gap:16px">
+      <div class="term" data-step="1"><b>1 보다 큰 수</b>를 곱하면 커지고,<br><b>1 보다 작은 수</b>를 곱하면 작아진다.</div>
+      <div class="term" data-step="2" style="border-left-color:var(--red)">그러니까 <b>6 × 0.9 = 54</b> 는 볼 것도 없이 틀렸다.<br>6 보다 커질 수가 없으니까! (→ 5.4)</div>
+      <div class="hand" data-step="3">「곱하면 커진다」는 자연수끼리만 통하던 말이야.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 15 ─ 소수점의 역사 -->
+<section class="slide" data-steps="2" style="--acc:#a16207;background:linear-gradient(180deg,#fefce8,#fdfcf8 55%)">
+  <div class="eyebrow">잠깐 · 이 점은 언제 생겼을까?</div>
+  <h1>소수점은 <b class="hl">400 년</b>쯤밖에 안 됐다</h1>
+  <div class="row" style="margin-top:24px;gap:30px;align-items:stretch">
+    <div class="card grow" style="font-size:21px;line-height:1.6">
+      <div style="font-size:18px;color:#a16207;font-weight:700">1585년 · 네덜란드 스테빈</div>
+      소수를 쓰자고 책을 냈지만 점이 없었다.<br>3.14 를 이렇게 적었다:
+      <div style="font-size:34px;font-weight:900;margin-top:8px">3⓪ 1① 4②</div>
+      <div style="font-size:17px;color:var(--muted)">동그라미 속 숫자 = 소수 몇째 자리</div>
+    </div>
+    <div class="card grow" data-step="1" style="font-size:21px;line-height:1.6">
+      <div style="font-size:18px;color:#a16207;font-weight:700">1600년대 초 · 네이피어 등</div>
+      자리를 표시하는 대신 <b>점 하나</b>로 끝내는 방법이 퍼졌다.
+      <div style="font-size:34px;font-weight:900;margin-top:8px">3.14</div>
+      <div style="font-size:17px;color:var(--muted)">계산이 훨씬 빨라졌다</div>
+    </div>
+    <div class="card grow" data-step="2" style="font-size:21px;line-height:1.6">
+      <div style="font-size:18px;color:#a16207;font-weight:700">지금도 · 독일·프랑스 등</div>
+      점 대신 <b>쉼표</b>를 쓰는 나라가 많다.
+      <div style="font-size:34px;font-weight:900;margin-top:8px">3,14</div>
+      <div style="font-size:17px;color:var(--muted)">모양은 달라도 「여기부터 조각」이라는 뜻은 같다</div>
+    </div>
+  </div>
+</section>
+
+<!-- 16 ─ 정리 -->
+<section class="slide" style="--acc:#1e3a8a;background:linear-gradient(180deg,#eef2ff,#fdfcf8 40%)">
+  <div class="eyebrow">한 장 정리 · 공책에 옮겨 적기</div>
+  <h1>소수의 곱셈 = 점 떼고 · 곱하고 · 세어서 붙이고 · 어림</h1>
+  <div class="row" style="margin-top:26px;gap:22px;align-items:stretch">
+    <div class="card grow" style="font-size:25px;line-height:1.7">
+      <div style="font-weight:900;color:var(--navy);font-size:24px;margin-bottom:6px">왜?</div>
+      0.1 × 0.1 = 0.01<br>조각의 조각이라 더 작아진다<br>→ 점 아래 자리 수는 <b class="hl">더한다</b>
+    </div>
+    <div class="card grow" style="font-size:25px;line-height:1.7">
+      <div style="font-weight:900;color:var(--navy);font-size:24px;margin-bottom:6px">어떻게?</div>
+      ① 점 떼기<br>② 자연수처럼 곱하기<br>③ 자리 수 더한 만큼 뒤에서 세어 점<br>✔ 어림으로 확인
+    </div>
+    <div class="card grow" style="font-size:25px;line-height:1.7">
+      <div style="font-weight:900;color:var(--red);font-size:24px;margin-bottom:6px">조심!</div>
+      모자란 자리엔 <b>0 채우기</b> (0.06)<br>점 먼저, 0 지우기는 나중 (1.00→1)<br>1 보다 작은 수를 곱하면 <b>작아진다</b>
+    </div>
+  </div>
+</section>
+
+<!-- 17 ─ 스스로 해보기 -->
+<section class="slide" data-steps="3" style="--acc:#10b981">
+  <div class="eyebrow">스스로 해 보기 — 공책에 3 걸음으로</div>
+  <h1>먼저 풀고, 하나씩 열어 보자</h1>
+  <div class="row" style="margin-top:26px;gap:22px;align-items:stretch">
+    <div class="card grow col" style="gap:12px">
+      <div class="eq sm">0.3 × 0.9</div>
+      <div data-step="1" style="font-size:21px;line-height:1.7">3 × 9 = 27<br>1 + 1 = 2자리<br><b class="hl" style="font-size:28px">0.27</b></div>
+    </div>
+    <div class="card grow col" style="gap:12px">
+      <div class="eq sm">4.5 × 1.2</div>
+      <div data-step="2" style="font-size:21px;line-height:1.7">45 × 12 = 540<br>1 + 1 = 2자리 → 5.40<br><b class="hl" style="font-size:28px">5.4</b> <span style="font-size:17px;color:var(--muted)">어림 4 × 1 쯤 ✔</span></div>
+    </div>
+    <div class="card grow col" style="gap:12px">
+      <div class="eq sm">0.05 × 6</div>
+      <div data-step="3" style="font-size:21px;line-height:1.7">5 × 6 = 30<br>2 + 0 = 2자리 → 0.30<br><b class="hl" style="font-size:28px">0.3</b></div>
+    </div>
+  </div>
+</section>
+
+</div>
+</div>
+<div id="zl" onclick="go(-1)"></div>
+<div id="zr" onclick="go(1)"></div>
+
+<div class="bar no-print">
+  <button onclick="go(-1)">◀ 이전</button>
+  <span id="cnt">1 / 17</span>
+  <button onclick="go(1)">다음 ▶</button>
+  <button onclick="fs()">전체화면</button>
+</div>
+
+<script>
+/* ══════════ 그림 ══════════ */
+const S=330;   // 판 한 변
+
+/* 10×10 판. fill(i,j) 가 색을 돌려주면 그 칸을 칠한다 (i: 가로 0~9, j: 세로 0~9, 위에서부터) */
+function board(size, fill, opt={}){
+  const c=size/10, P=5, T=size+P*2;
+  let s=`<svg class="gv" width="${T}" height="${T}" viewBox="0 0 ${T} ${T}"><g transform="translate(${P},${P})">`;
+  s+=`<rect width="${size}" height="${size}" fill="#fff"/>`;
+  for(let i=0;i<10;i++) for(let j=0;j<10;j++){
+    const f=fill(i,j); if(!f) continue;
+    const st=f.step!==undefined?` data-step="${f.step}"`:'';
+    s+=`<rect${st} x="${i*c}" y="${j*c}" width="${c}" height="${c}" fill="${f.c}" opacity="${f.o||1}"/>`;
+  }
+  if(opt.lines!==false){
+    for(let k=1;k<10;k++){
+      s+=`<line x1="${k*c}" y1="0" x2="${k*c}" y2="${size}" stroke="#94a3b8" stroke-width="1.5"/>`;
+      s+=`<line x1="0" y1="${k*c}" x2="${size}" y2="${k*c}" stroke="#94a3b8" stroke-width="1.5"/>`;
+    }
+  }
+  s+=`<rect width="${size}" height="${size}" fill="none" stroke="#0f172a" stroke-width="4"/>`;
+  if(opt.extra) s+=opt.extra;
+  return s+`</g></svg>`;
+}
+
+/* 2 ─ 1 · 0.1 · 0.01 */
+document.getElementById('g-one').innerHTML=board(230,()=>({c:'#a7f3d0'}),{lines:false});
+document.getElementById('g-tenth').innerHTML=board(230,(i)=>i===0?{c:'#10b981'}:null);
+document.getElementById('g-hund').innerHTML=board(230,(i,j)=>i===0&&j===9?{c:'#10b981'}:null);
+
+/* 3 ─ 0.4 × 3 : 막대 12개 → 10개가 1 이 된다 */
+(function(){
+  const W=640,H=300; let s=`<svg class="gv" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`;
+  const cols=['#3b82f6','#8b5cf6','#f59e0b'];
+  for(let g=0;g<3;g++){
+    const x0=10+g*210;
+    s+=`<rect x="${x0-4}" y="6" width="${4*44+4}" height="150" rx="10" fill="none" stroke="${cols[g]}" stroke-width="3" stroke-dasharray="8 6"/>`;
+    s+=`<text x="${x0+86}" y="178" text-anchor="middle" font-size="20" font-weight="700" fill="${cols[g]}">0.4 (${g+1}묶음)</text>`;
+    for(let k=0;k<4;k++) s+=`<rect x="${x0+k*44+4}" y="16" width="34" height="130" rx="4" fill="${cols[g]}" opacity=".85"/>`;
+  }
+  // 아래: 10개는 큰 판 1 개로, 2개 남음
+  s+=`<g data-step="2">`;
+  s+=`<rect x="10" y="200" width="340" height="90" rx="8" fill="#dbeafe" stroke="#1e3a8a" stroke-width="3"/>`;
+  for(let k=0;k<10;k++) s+=`<rect x="${16+k*33}" y="208" width="28" height="74" rx="3" fill="#3b82f6" opacity=".55"/>`;
+  s+=`<text x="180" y="256" text-anchor="middle" font-size="34" font-weight="900" fill="#1e3a8a">1</text>`;
+  s+=`<text x="380" y="258" font-size="30" font-weight="900" fill="#0f172a">+</text>`;
+  for(let k=0;k<2;k++) s+=`<rect x="${410+k*40}" y="208" width="34" height="74" rx="3" fill="#f59e0b" opacity=".85"/>`;
+  s+=`<text x="520" y="258" font-size="30" font-weight="900" fill="#dc2626">= 1.2</text>`;
+  s+=`</g></svg>`;
+  document.getElementById('g-bars').innerHTML=s;
+})();
+
+/* 5 ─ 2 의 0.8 만큼 : 길이 2 를 10조각 */
+(function(){
+  const W=1120,H=150,L=1000,x0=60; let s=`<svg class="gv" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`;
+  const u=L/10;
+  s+=`<g data-step="1">`;
+  for(let k=0;k<8;k++) s+=`<rect x="${x0+k*u}" y="30" width="${u}" height="54" fill="#8b5cf6" opacity=".75"/>`;
+  s+=`</g>`;
+  s+=`<rect x="${x0}" y="30" width="${L}" height="54" fill="none" stroke="#0f172a" stroke-width="3"/>`;
+  for(let k=1;k<10;k++) s+=`<line x1="${x0+k*u}" y1="30" x2="${x0+k*u}" y2="84" stroke="#64748b" stroke-width="2" ${k===5?'':'stroke-dasharray="5 5"'}/>`;
+  s+=`<line x1="${x0+L/2}" y1="22" x2="${x0+L/2}" y2="92" stroke="#0f172a" stroke-width="4"/>`;
+  [['0',0],['1',L/2],['2',L]].forEach(([t,x])=>s+=`<text x="${x0+x}" y="120" text-anchor="middle" font-size="26" font-weight="900">${t}</text>`);
+  s+=`<g data-step="1"><text x="${x0+8*u}" y="120" text-anchor="middle" font-size="26" font-weight="900" fill="#7c3aed">1.6</text>`;
+  s+=`<text x="${x0+4*u}" y="20" text-anchor="middle" font-size="19" font-weight="700" fill="#7c3aed">10조각 중 8조각</text></g>`;
+  s+=`</svg>`;
+  document.getElementById('g-strip').innerHTML=s;
+})();
+
+/* 6 ─ 0.1 × 0.1 */
+document.getElementById('g-tt').innerHTML=board(S,(i,j)=>{
+  if(i===0&&j===9) return {c:'#dc2626',step:2};
+  if(i===0) return {c:'#f59e0b',o:.55,step:1};
+  return null;
+});
+
+/* 7 ─ 0.6 × 0.7 : 가로 6칸(파랑) · 세로 7칸(노랑) · 겹친 칸(초록). 아래에서부터 쌓는다 */
+(function(){
+  const size=380, c=size/10, P=5, T=size+P*2;
+  let s=`<svg class="gv" width="${T+64}" height="${T+36}" viewBox="-60 0 ${T+64} ${T+36}"><g transform="translate(${P},${P})">`;
+  s+=`<rect width="${size}" height="${size}" fill="#fff"/>`;
+  s+=`<g data-step="1">`; for(let i=0;i<6;i++) s+=`<rect x="${i*c}" y="0" width="${c}" height="${size}" fill="#3b82f6" opacity=".35"/>`; s+=`</g>`;
+  s+=`<g data-step="2">`; for(let j=3;j<10;j++) s+=`<rect x="0" y="${j*c}" width="${size}" height="${c}" fill="#f59e0b" opacity=".35"/>`; s+=`</g>`;
+  s+=`<g data-step="3">`; for(let i=0;i<6;i++) for(let j=3;j<10;j++) s+=`<rect x="${i*c}" y="${j*c}" width="${c}" height="${c}" fill="#10b981"/>`; s+=`</g>`;
+  for(let k=1;k<10;k++){
+    s+=`<line x1="${k*c}" y1="0" x2="${k*c}" y2="${size}" stroke="#94a3b8" stroke-width="1.5"/>`;
+    s+=`<line x1="0" y1="${k*c}" x2="${size}" y2="${k*c}" stroke="#94a3b8" stroke-width="1.5"/>`;
+  }
+  s+=`<rect width="${size}" height="${size}" fill="none" stroke="#0f172a" stroke-width="4"/>`;
+  s+=`<text data-step="1" x="${3*c}" y="${size+28}" text-anchor="middle" font-size="26" font-weight="900" fill="#2563eb">0.6</text>`;
+  s+=`<text data-step="2" x="-10" y="${6.5*c+8}" text-anchor="end" font-size="26" font-weight="900" fill="#d97706">0.7</text>`;
+  s+=`<text x="${size}" y="${size+28}" text-anchor="middle" font-size="18" fill="#64748b">1</text>`;
+  s+=`</g></svg>`;
+  document.getElementById('g-67').innerHTML=s;
+})();
+
+/* ══════════ 넘기기 ══════════ */
+const stage=document.getElementById('stage');
+const slides=[...document.querySelectorAll('.slide')];
+let cur=0, step=0;
+function maxStep(i){ return parseInt(slides[i].dataset.steps||'0',10); }
+function render(){
+  slides.forEach((s,i)=>s.classList.toggle('on',i===cur));
+  slides[cur].querySelectorAll('[data-step]').forEach(el=>{
+    el.classList.toggle('vis', parseInt(el.dataset.step,10)<=step);
+  });
+  document.getElementById('cnt').textContent=`${cur+1} / ${slides.length}`;
+  history.replaceState(null,'','#'+(cur+1));
+}
+function go(d){
+  if(d>0){
+    if(step<maxStep(cur)){ step++; render(); return; }
+    if(cur<slides.length-1){ cur++; step=0; render(); }
+  }else{
+    if(step>0){ step--; render(); return; }
+    if(cur>0){ cur--; step=maxStep(cur); render(); }
+  }
+}
+function jump(i){ cur=Math.max(0,Math.min(slides.length-1,i)); step=0; render(); }
+document.addEventListener('keydown',e=>{
+  const k=e.key;
+  if(k==='ArrowRight'||k===' '||k==='PageDown'){ e.preventDefault(); go(1); }
+  else if(k==='ArrowLeft'||k==='PageUp'){ e.preventDefault(); go(-1); }
+  else if(k==='ArrowDown'){ e.preventDefault(); jump(cur+1); }
+  else if(k==='ArrowUp'){ e.preventDefault(); jump(cur-1); }
+  else if(k==='Home'){ jump(0); }
+  else if(k==='End'){ jump(slides.length-1); }
+  else if(k==='f'||k==='F'){ fs(); }
+});
+let sx=0,sy=0;
+document.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY},{passive:true});
+document.addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy;
+  if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)) go(dx<0?1:-1);
+},{passive:true});
+document.getElementById('wrap').addEventListener('click',()=>go(1));
+function fs(){
+  if(!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+  else document.exitFullscreen?.();
+}
+function fit(){
+  const s=Math.min(window.innerWidth/1280,(window.innerHeight-46)/720);
+  stage.style.transform=`scale(${s})`;
+}
+window.addEventListener('resize',fit);
+const h=parseInt(location.hash.slice(1),10); if(h) cur=Math.max(0,Math.min(slides.length-1,h-1));
+fit(); render();
+</script>
+</body>
+</html>

@@ -84,6 +84,7 @@ b.hg{background:linear-gradient(transparent 58%,#cde8d3 58%);color:var(--green)}
 .tbl{border-collapse:collapse;font-size:20px;width:100%}
 .tbl td,.tbl th{border:2px solid var(--line);padding:6px 12px;text-align:center;background:#fff}
 .tbl th{background:#f1ede4}
+.tbl.coin{font-size:18px}.tbl.coin td,.tbl.coin th{padding:6px 8px;white-space:nowrap}
 .tbl tr.bad td{background:#fbe3e3;color:#a82424;font-weight:700}
 </style>
 </head>
@@ -228,6 +229,37 @@ b.hg{background:linear-gradient(transparent 58%,#cde8d3 58%);color:var(--green)}
   </div>
 </section>
 
+<!-- 6-1 갚아 주는 동전은 없다 -->
+<section class="slide" data-io style="--acc:#b0412e">
+  <div class="eyebrow">착각 ① 더 보기 · 진짜로 던져 본 사람들</div>
+  <h2 style="margin-bottom:12px">많이 던지면 반반이 된다. 동전이 <b class="hl">갚아 주는</b> 걸까?</h2>
+  <div class="row" style="gap:26px">
+    <div class="col" style="gap:10px">
+      <table class="tbl coin">
+        <tr><th>누가</th><th>던진 횟수</th><th>앞면</th><th>차이</th><th>앞면 비율</th></tr>
+        <tr><td style="text-align:left"><b>뷔퐁</b> <span class="sm">1700년대 프랑스</span></td><td>4,040</td><td>2,048</td><td>56</td><td>50.7%</td></tr>
+        <tr><td style="text-align:left"><b>케리치</b> <span class="sm">2차대전 수용소</span></td><td>10,000</td><td>5,067</td><td>134</td><td>50.7%</td></tr>
+        <tr><td style="text-align:left"><b>피어슨</b> <span class="sm">1900년 무렵 영국</span></td><td>24,000</td><td>12,012</td><td>24</td><td>50.05%</td></tr>
+      </table>
+      <p class="sm">케리치는 덴마크에서 포로로 갇혀 있을 때 할 일이 없어서 동전을 1만 번 던졌다. <b>차이</b> = 앞면과 뒷면 개수의 차이. 들쭉날쭉하다 — 피어슨은 24개로 운 좋게 작았다.</p>
+      <div class="act" style="border-color:#b0412e;margin-top:auto">
+        <p style="font-size:22px">동전은 앞면을 많이 냈다고 뒷면으로 <b class="hl">갚지 않는다.</b><br>
+        남은 차이는 그대로 남고, 던진 횟수가 훨씬 빨리 커져서 <b class="hn">비율로는 묻힐 뿐</b>이다.</p>
+      </div>
+    </div>
+    <div class="col" style="gap:10px;flex:.95">
+      <p style="font-size:20px"><b>우리도 던져 보자</b> — 버튼마다 새로 던진다.</p>
+      <div class="btns">
+        <button class="btn" data-coin="100" style="background:#b0412e">100번</button>
+        <button class="btn" data-coin="10000" style="background:#b0412e">1만 번</button>
+        <button class="btn" data-coin="1000000" style="background:#b0412e">100만 번</button>
+      </div>
+      <div id="coinOut" style="display:flex;flex-direction:column;gap:8px"></div>
+      <p class="sm" style="margin-top:auto">횟수가 100배가 되면 차이는 보통 <b>10배쯤</b> 커지고, 비율은 50%에 <b>10배 더 가까워진다.</b></p>
+    </div>
+  </div>
+</section>
+
 <!-- 7 착각 2: 아깝다 -->
 <section class="slide" data-io style="--acc:#5b3a86">
   <div class="eyebrow">착각 ② · “아깝다! 거의 됐는데”</div>
@@ -368,7 +400,7 @@ b.hg{background:linear-gradient(transparent 58%,#cde8d3 58%);color:var(--green)}
   <h2>혼날까 봐 숨기는 것이 <b class="hl">가장 위험하다</b></h2>
   <div class="row" style="gap:26px">
     <div class="col" style="gap:14px;justify-content:center">
-      <p style="font-size:23px">잃은 돈이나 빚이 있으면, 혼자 “따서 갚으려고” 하게 된다.<br>그게 실험 4의 <b>절벽 그래프</b>다.</p>
+      <p style="font-size:23px">잃은 돈이나 빚이 있으면, 혼자 “따서 갚으려고” 하게 된다.<br>그게 착각 ④의 <b>절벽 그래프</b>다.</p>
       <p style="font-size:23px">그러니 <b class="hn">빨리 말할수록 작게 끝난다.</b><br>부모님 · 선생님 · 아래 전화 — 누구든 괜찮다.</p>
     </div>
     <div class="col" style="gap:16px;justify-content:center">
@@ -408,9 +440,9 @@ b.hg{background:linear-gradient(transparent 58%,#cde8d3 58%);color:var(--green)}
     <tr><th>시간</th><th>슬라이드</th><th>하는 것</th></tr>
     <tr><td>5분</td><td>1~2</td><td>두근거림은 정상이라고 먼저 인정한다. 경험을 캐묻거나 손들게 하지 않는다.</td></tr>
     <tr><td>12분</td><td>3~5</td><td><b>룰렛 한 판</b> → <b>30명 시뮬레이션</b>. 누르기 전에 꼭 예상을 받는다(“100판 뒤 딴 친구 몇 명?”). 결과가 매번 다르다 — 그게 요점이다.</td></tr>
-    <tr><td>12분</td><td>6~9</td><td>착각 넷: 나올 차례 · 아깝다 · 내가 고르면 · 본전 쫓기. 6번은 버튼 한 번, 7번은 몇 번 돌린 뒤 「기계 속」을 연다, 9번은 서너 사람 돌려 절벽을 본다.</td></tr>
-    <tr><td>6분</td><td>10~11</td><td>실제로 오는 모습(링크·빚·불법) → 왜 알아도 하는지(본능) → 답은 의지가 아니라 “첫 판을 안 여는 것”.</td></tr>
-    <tr><td>5분</td><td>12~14</td><td>짝 거절 연습 · 상담 전화 · 공책 두 줄.</td></tr>
+    <tr><td>14분</td><td>6~10</td><td>착각 넷: 나올 차례 · 아깝다 · 내가 고르면 · 본전 쫓기. 6번은 버튼 한 번, 7번은 실제로 동전을 던져 본 사람들(뷔퐁·케리치·피어슨)과 우리 반 동전 던지기 — 100번 → 1만 번 → 100만 번 순서로 누르며 「차이는 커지는데 비율은 반반」을 본다. 8번은 몇 번 돌린 뒤 「기계 속」을 연다, 10번은 서너 사람 돌려 절벽을 본다.</td></tr>
+    <tr><td>5분</td><td>11~12</td><td>실제로 오는 모습(링크·빚·불법) → 왜 알아도 하는지(본능) → 답은 의지가 아니라 “첫 판을 안 여는 것”.</td></tr>
+    <tr><td>4분</td><td>13~15</td><td>짝 거절 연습 · 상담 전화 · 공책 두 줄.</td></tr>
   </table>
   <h3>왜 이렇게 짰나 — 근거</h3>
   <p>· <b>확률을 가르치는 것만으로는 도박 행동이 줄지 않았다.</b> 대학생에게 한 학기 동안 도박의 수학을 가르친 실험에서 계산 능력은 올랐지만 도박 행동은 대조군과 차이가 없었다(Williams &amp; Connolly, 2006). 그래서 강의 대신 <b>직접 돌려 보는 시뮬레이션</b>으로 짰다.</p>
@@ -558,6 +590,19 @@ document.getElementById('gfBtn').onclick = ()=>{
      <p style="font-size:26px;margin-top:6px"><span class="chip" style="background:#c62f2f"></span> 빨강 <b>${pc(nr)}</b> &nbsp; <span class="chip" style="background:#222"></span> 검정 <b>${pc(nb)}</b> &nbsp; <span class="chip" style="background:#1d8a4a"></span> 초록 <b>${pc(ng)}</b></p>
      <p style="font-size:20px;margin-top:6px">원래 확률(빨강·검정 각 48.6%)과 <b class="hl">거의 같다.</b> “나올 차례”는 없다.</p>`;
 };
+
+/* 착각 1 더 보기: 동전 던지기 — 차이는 커지고 비율은 좁아진다 */
+document.querySelectorAll('[data-coin]').forEach(b=> b.onclick = ()=>{
+  const n = +b.dataset.coin; let h = 0;
+  for(let i=0;i<n;i++) if(Math.random()<.5) h++;
+  const t = n-h, diff = Math.abs(h-t), pct = (h/n*100).toFixed(n>=1000000?2:1);
+  const row = document.createElement('div');
+  row.className = 'stat'; row.style.cssText = 'text-align:left;padding:8px 14px';
+  row.innerHTML = `<div style="font-size:18px;color:var(--muted)">${n.toLocaleString()}번</div>
+    <div style="font-size:22px">앞 <b>${h.toLocaleString()}</b> · 뒤 <b>${t.toLocaleString()}</b> → 차이 <b class="hl">${diff.toLocaleString()}</b> · 앞면 <b class="hn">${pct}%</b></div>`;
+  const out = document.getElementById('coinOut');
+  out.appendChild(row); while(out.children.length>3) out.firstChild.remove();
+});
 
 /* 착각 2: 슬롯 — 3번 칸에만 7 이 드물다 */
 (function(){

@@ -61,6 +61,19 @@ table.rec{border-collapse:collapse;width:100%;font-size:18px}
 .check{list-style:none;padding-left:4px}.check li{margin:6px 0;font-size:18px}
 details summary{cursor:pointer;font-weight:700;color:var(--muted)}
 @media (max-width:640px){ .bins{grid-template-columns:1fr} .rec{font-size:15px} .rec input{width:64px;font-size:17px} header h1{font-size:23px} }
+
+/* QR — 작게 두고 누르면 화면 가득. 교실 TV에 띄우거나 멀리서 찍을 때 */
+.qrmini{background:#fff;border:2px solid #d9d2c3;border-radius:10px;padding:4px;line-height:0;cursor:pointer;min-height:0}
+.qrmini svg{width:44px;height:44px;display:block}
+.qrblock{display:flex;align-items:center;gap:14px;justify-content:center;margin-top:12px}
+.qrblock button{background:#fff;border:3px solid #eef3f5;border-radius:12px;padding:7px;line-height:0;cursor:pointer;min-height:0}
+.qrblock svg{width:128px;height:128px;display:block}
+.qrblock .qh{font-size:15px;color:#6b7385;text-align:left;line-height:1.5}
+#qrBig{display:none;position:fixed;inset:0;background:rgba(16,24,32,.95);z-index:9999;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:22px}
+#qrBig.on{display:flex}
+#qrBig svg{width:min(78vw,78vh);height:auto;background:#fff;padding:18px;border-radius:18px}
+#qrBig .u{font-size:15px;color:#a9c7d8;word-break:break-all;text-align:center}
+#qrBig .x{font-size:15px;color:#7e94a5}
 </style>
 </head>
 <body>
@@ -68,10 +81,26 @@ details summary{cursor:pointer;font-weight:700;color:var(--muted)}
   <header>
     <h1>🏅 대표 선수를 뽑아라</h1>
     <div class="steps" id="dots"></div>
+    <span id="qrm"></span>
   </header>
   <div id="view"></div>
 </div>
 
+<!-- QR 크게 보기 — 무대(#stage)·화면을 다시 그리는 곳 밖에 둔다 -->
+<div id="qrBig" onclick="hideQR()"><div id="qrBigIn"></div><div class="u" id="qrUrl"></div><div class="x">아무 데나 누르면 닫혀요</div></div>
+<script>
+/* QR — 작으면 멀리서 안 찍힌다. 눌러서 화면 가득 키운다.
+   ⚠ 큰 QR 둘레의 흰 여백(#qrBig svg 의 padding)을 없애지 말 것 — 여백이 없으면 인식이 떨어진다. */
+const URL_SELF = "https://leixlix-pixel.github.io/toolbox/pick-the-player.html";
+const QRV = 37;
+const QRP = "<path fill=\"#ffffff\" d=\"M0 0h37v37H0z\"/><path stroke=\"#000000\" d=\"M2 2.5h7m1 0h1m1 0h1m1 0h2m2 0h4m3 0h1m2 0h7M2 3.5h1m5 0h1m1 0h3m1 0h2m3 0h1m2 0h1m1 0h2m2 0h1m5 0h1M2 4.5h1m1 0h3m1 0h1m2 0h1m1 0h1m3 0h1m2 0h3m3 0h1m1 0h1m1 0h3m1 0h1M2 5.5h1m1 0h3m1 0h1m1 0h1m2 0h2m1 0h1m2 0h1m1 0h2m1 0h3m1 0h1m1 0h3m1 0h1M2 6.5h1m1 0h3m1 0h1m3 0h1m2 0h2m4 0h1m1 0h2m3 0h1m1 0h3m1 0h1M2 7.5h1m5 0h1m4 0h3m2 0h5m1 0h1m1 0h1m1 0h1m5 0h1M2 8.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M10 9.5h3m1 0h1m3 0h2m2 0h1m1 0h1M2 10.5h1m1 0h2m1 0h3m1 0h1m1 0h2m1 0h6m1 0h1m1 0h1m2 0h1m2 0h1m1 0h2M2 11.5h6m2 0h3m1 0h1m5 0h6m2 0h2m1 0h2m1 0h1M3 12.5h3m2 0h1m3 0h1m1 0h1m1 0h1m2 0h2m3 0h2m3 0h3m1 0h2M2 13.5h6m2 0h1m1 0h7m1 0h3m1 0h1m2 0h1m1 0h1m1 0h1m1 0h1M4 14.5h2m1 0h4m6 0h1m1 0h1m4 0h3m3 0h2m1 0h1M2 15.5h4m1 0h1m1 0h2m1 0h1m4 0h5m1 0h1m2 0h1m2 0h1m2 0h2M6 16.5h1m1 0h1m4 0h4m2 0h3m2 0h1m1 0h1m1 0h2m1 0h2M2 17.5h1m2 0h1m1 0h1m1 0h4m1 0h2m1 0h2m3 0h2m1 0h4m1 0h3M4 18.5h1m1 0h1m1 0h1m1 0h1m1 0h6m2 0h4m1 0h4m1 0h3M2 19.5h1m3 0h1m2 0h5m2 0h2m4 0h7m1 0h2m2 0h1M3 20.5h2m3 0h1m2 0h4m1 0h5m2 0h1m3 0h4m1 0h2M2 21.5h1m1 0h2m1 0h1m2 0h2m1 0h2m1 0h1m1 0h2m2 0h1m2 0h1m1 0h1m2 0h1m2 0h1M4 22.5h6m1 0h4m1 0h1m1 0h2m3 0h1m1 0h1m5 0h2m1 0h1M2 23.5h1m1 0h1m4 0h1m1 0h4m1 0h1m1 0h5m2 0h1m1 0h2m2 0h1m2 0h1M7 24.5h4m1 0h2m1 0h1m3 0h1m2 0h1m1 0h4m2 0h1m1 0h3M3 25.5h1m5 0h1m1 0h1m3 0h2m3 0h2m5 0h1m2 0h2m1 0h1M2 26.5h1m2 0h1m1 0h2m1 0h2m1 0h1m2 0h4m2 0h1m1 0h7m2 0h2M10 27.5h4m3 0h2m1 0h2m2 0h3m3 0h2M2 28.5h7m1 0h1m3 0h2m2 0h5m2 0h2m1 0h1m1 0h1m2 0h1M2 29.5h1m5 0h1m1 0h4m3 0h1m2 0h1m2 0h4m3 0h5M2 30.5h1m1 0h3m1 0h1m3 0h2m3 0h2m1 0h2m1 0h1m1 0h6m1 0h2M2 31.5h1m1 0h3m1 0h1m1 0h1m3 0h4m4 0h1m1 0h2m3 0h1m1 0h2m1 0h1M2 32.5h1m1 0h3m1 0h1m1 0h3m1 0h1m2 0h1m4 0h2m1 0h2m1 0h2m2 0h1M2 33.5h1m5 0h1m4 0h2m1 0h1m2 0h1m5 0h2m1 0h3m3 0h1M2 34.5h7m1 0h3m2 0h1m1 0h4m2 0h1m1 0h1m1 0h1m2 0h1m1 0h1\"/>";
+function qrSvg(px){ return '<svg viewBox="0 0 '+QRV+' '+QRV+'" width="'+px+'" height="'+px+'" shape-rendering="crispEdges">'+QRP+'</svg>'; }
+function showQR(ev){ if (ev) ev.stopPropagation(); document.getElementById('qrBigIn').innerHTML = qrSvg(520); document.getElementById('qrUrl').textContent = URL_SELF; document.getElementById('qrBig').classList.add('on'); }
+function hideQR(){ document.getElementById('qrBig').classList.remove('on'); }
+function qrMini(){ return '<button class="qrmini" onclick="showQR(event)" title="QR 크게 보기">' + qrSvg(44) + '</button>'; }
+function qrBlock(){ return '<div class="qrblock"><button onclick="showQR(event)" title="QR 크게 보기">' + qrSvg(128) + '</button><div class="qh">🔍 <b>눌러서 크게</b><br>태블릿 카메라로 찍어 들어오세요</div></div>'; }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') hideQR(); });
+</script>
 <script>
 /* ============ 자료 (가상의 반) ============
    연습 횟수를 일부러 다르게 두었다 — 합계로는 비교가 안 된다는 것을 스스로 부딪히게.
@@ -172,6 +201,7 @@ R[0] = () => `
     <h2>오늘 할 일</h2>
     <p>① 합계로 뽑아 보고 → ② 평균으로 뽑아 보고 → ③ 근거를 가려 보고 → ④ 뜻밖의 일을 겪은 뒤 → ⑤ <b>누구를 뽑을지 공책에 써서</b> 발표해요.</p>
     <p class="hint">계산기는 선생님이 허락할 때만 써요.</p>
+    ${qrBlock()}
   </div>
   <details class="card"><summary>선생님용 메모</summary>
     <p class="hint">합계 1등(도헌 100)과 평균 1등(채율 26)이 다르게 짜 두었다. 채율은 연습 2번뿐이라 평균을 믿기 어렵고, 4단계에서 세 번째 기록 8개가 들어오면 유담·도헌·채율이 평균 20으로 셋이 같아진다 — 평균만으로는 못 정하고 자료의 수·고른 정도를 끌어와야 한다. 5단계는 평가지의 「본선에 나가려면 적어도 몇 개」 문항과 같은 꼴이다. 앱은 공책에 쓰기 전까지만 데려간다. 기록은 이 태블릿에만 남고, 맨 아래 「처음부터」로 지울 수 있다.</p>
@@ -348,6 +378,7 @@ function resetAll(){
 }
 
 function render(){ dots(); view.innerHTML = R[S.step](); }
+document.getElementById('qrm').innerHTML = qrMini();
 render();
 </script>
 </body>

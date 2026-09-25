@@ -56,6 +56,19 @@ table.res{border-collapse:collapse;font-size:22px;width:100%}
 .res th,.res td{border:2px solid var(--line);padding:8px;text-align:center;background:#fff}
 .res th{background:var(--sky)}
 #arrowR,#arrowD{transition:transform 1.6s cubic-bezier(.15,.8,.2,1);transform-origin:215px 215px}
+
+/* QR — 작게 두고 누르면 화면 가득. 교실 TV에 띄우거나 멀리서 찍을 때 */
+.qrmini{background:#fff;border:2px solid #d9d2c3;border-radius:10px;padding:4px;line-height:0;cursor:pointer;min-height:0}
+.qrmini svg{width:44px;height:44px;display:block}
+.qrblock{display:flex;align-items:center;gap:14px;justify-content:center;margin-top:12px}
+.qrblock button{background:#fff;border:3px solid #eef3f5;border-radius:12px;padding:7px;line-height:0;cursor:pointer;min-height:0}
+.qrblock svg{width:128px;height:128px;display:block}
+.qrblock .qh{font-size:15px;color:#6b7385;text-align:left;line-height:1.5}
+#qrBig{display:none;position:fixed;inset:0;background:rgba(16,24,32,.95);z-index:9999;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:22px}
+#qrBig.on{display:flex}
+#qrBig svg{width:min(78vw,78vh);height:auto;background:#fff;padding:18px;border-radius:18px}
+#qrBig .u{font-size:15px;color:#a9c7d8;word-break:break-all;text-align:center}
+#qrBig .x{font-size:15px;color:#7e94a5}
 </style>
 </head>
 <body>
@@ -120,10 +133,26 @@ table.res{border-collapse:collapse;font-size:22px;width:100%}
   </main>
 </div>
 
+<!-- QR 크게 보기 — 무대(#stage)·화면을 다시 그리는 곳 밖에 둔다 -->
+<div id="qrBig" onclick="hideQR()"><div id="qrBigIn"></div><div class="u" id="qrUrl"></div><div class="x">아무 데나 누르면 닫혀요</div></div>
+<script>
+/* QR — 작으면 멀리서 안 찍힌다. 눌러서 화면 가득 키운다.
+   ⚠ 큰 QR 둘레의 흰 여백(#qrBig svg 의 padding)을 없애지 말 것 — 여백이 없으면 인식이 떨어진다. */
+const URL_SELF = "https://leixlix-pixel.github.io/toolbox/spinner-lab.html";
+const QRV = 37;
+const QRP = "<path fill=\"#ffffff\" d=\"M0 0h37v37H0z\"/><path stroke=\"#000000\" d=\"M2 2.5h7m1 0h3m2 0h1m2 0h4m3 0h1m2 0h7M2 3.5h1m5 0h1m1 0h1m2 0h3m3 0h1m2 0h4m2 0h1m5 0h1M2 4.5h1m1 0h3m1 0h1m3 0h2m3 0h1m3 0h2m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1M2 5.5h1m1 0h3m1 0h1m1 0h1m1 0h3m1 0h1m1 0h2m1 0h1m2 0h3m1 0h1m1 0h3m1 0h1M2 6.5h1m1 0h3m1 0h1m2 0h1m2 0h3m3 0h2m1 0h1m2 0h1m1 0h1m1 0h3m1 0h1M2 7.5h1m5 0h1m2 0h1m2 0h2m3 0h3m2 0h1m3 0h1m5 0h1M2 8.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M10 9.5h1m3 0h1m4 0h1m1 0h1m2 0h1m1 0h1M2 10.5h1m1 0h2m1 0h3m2 0h1m3 0h1m1 0h3m2 0h1m1 0h1m2 0h1m2 0h1m1 0h2M2 11.5h1m1 0h1m4 0h2m9 0h6m2 0h2m1 0h2m1 0h1M3 12.5h2m2 0h2m1 0h1m5 0h1m2 0h2m3 0h2m3 0h3m1 0h2M3 13.5h1m1 0h1m5 0h2m1 0h5m2 0h2m4 0h1m1 0h1m1 0h1m1 0h1M2 14.5h1m1 0h6m2 0h1m4 0h1m1 0h1m4 0h3m3 0h2m1 0h1M4 15.5h1m1 0h2m5 0h1m1 0h1m2 0h2m1 0h4m1 0h1m2 0h1m2 0h2M2 16.5h2m2 0h3m2 0h1m4 0h6m2 0h1m1 0h1m1 0h2m1 0h2M3 17.5h2m2 0h1m1 0h1m2 0h2m1 0h2m1 0h1m2 0h1m1 0h1m2 0h3m1 0h3M5 18.5h1m1 0h2m2 0h1m2 0h1m1 0h2m2 0h1m1 0h2m2 0h3m1 0h3M4 19.5h1m1 0h1m2 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m1 0h5m1 0h2m2 0h1M3 20.5h4m1 0h1m1 0h2m2 0h5m8 0h4m1 0h2M3 21.5h2m1 0h2m1 0h1m1 0h1m3 0h1m2 0h3m1 0h1m2 0h1m1 0h1m2 0h1m2 0h1M3 22.5h1m1 0h1m1 0h2m1 0h3m6 0h2m2 0h3m5 0h2m1 0h1M2 23.5h1m1 0h1m4 0h1m1 0h3m2 0h2m1 0h4m2 0h1m1 0h2m2 0h1m2 0h1M5 24.5h1m1 0h3m2 0h1m1 0h1m3 0h2m4 0h2m1 0h1m2 0h1m1 0h3M3 25.5h1m2 0h1m4 0h3m1 0h2m1 0h1m1 0h2m5 0h1m2 0h2m1 0h1M2 26.5h1m1 0h1m1 0h4m1 0h1m5 0h3m2 0h1m1 0h1m1 0h5m3 0h1M10 27.5h2m2 0h1m2 0h2m1 0h2m1 0h4m3 0h2M2 28.5h7m1 0h5m3 0h1m1 0h3m2 0h2m1 0h1m1 0h1m2 0h1M2 29.5h1m5 0h1m1 0h1m2 0h3m1 0h1m2 0h1m2 0h4m3 0h5M2 30.5h1m1 0h3m1 0h1m3 0h3m2 0h1m1 0h1m1 0h10m1 0h2M2 31.5h1m1 0h3m1 0h1m1 0h4m1 0h2m5 0h1m1 0h2m3 0h1m1 0h2m1 0h1M2 32.5h1m1 0h3m1 0h1m1 0h2m3 0h2m6 0h1m1 0h2m1 0h2m2 0h1M2 33.5h1m5 0h1m6 0h1m1 0h3m6 0h1m1 0h3m3 0h1M2 34.5h7m1 0h1m1 0h3m1 0h5m2 0h1m1 0h1m2 0h1m1 0h1m1 0h1\"/>";
+function qrSvg(px){ return '<svg viewBox="0 0 '+QRV+' '+QRV+'" width="'+px+'" height="'+px+'" shape-rendering="crispEdges">'+QRP+'</svg>'; }
+function showQR(ev){ if (ev) ev.stopPropagation(); document.getElementById('qrBigIn').innerHTML = qrSvg(520); document.getElementById('qrUrl').textContent = URL_SELF; document.getElementById('qrBig').classList.add('on'); }
+function hideQR(){ document.getElementById('qrBig').classList.remove('on'); }
+function qrMini(){ return '<button class="qrmini" onclick="showQR(event)" title="QR 크게 보기">' + qrSvg(44) + '</button>'; }
+function qrBlock(){ return '<div class="qrblock"><button onclick="showQR(event)" title="QR 크게 보기">' + qrSvg(128) + '</button><div class="qh">🔍 <b>눌러서 크게</b><br>태블릿 카메라로 찍어 들어오세요</div></div>'; }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') hideQR(); });
+</script>
 <script>
 const stage = document.getElementById('stage');
 function fit(){ const s = Math.min(innerWidth/1280, innerHeight/720); stage.style.transform = `translate(-50%,-50%) scale(${s})`; }
 addEventListener('resize', fit); fit();
+document.querySelector('.tabs').insertAdjacentHTML('beforeend', qrMini());
 document.querySelectorAll('.tab').forEach(b => b.onclick = () => {
   document.querySelectorAll('.tab').forEach(x => x.classList.toggle('on', x === b));
   document.querySelectorAll('.pane').forEach(p => p.classList.toggle('on', p.id === b.dataset.t));

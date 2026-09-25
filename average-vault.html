@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>평균 금고 — 도서관 비밀 금고를 열어라</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1d2433;--navy:#1f3a68;--navy2:#2f5597;--red:#d64541;--gold:#f2b134;--paper:#fbf8f1;--line:#d9d2c3;--muted:#6b7385;--green:#2e9e6a;--sky:#e8f0fb;--wall:#e9dcc3;--floor:#b98a5a}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#1c2436;overflow:hidden}
+body{font-family:'Noto Sans KR',sans-serif;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;color:var(--ink)}
+#stage{position:absolute;left:50%;top:50%;width:1280px;height:720px;transform-origin:center;border-radius:14px;overflow:hidden;background:linear-gradient(var(--wall) 0 72%,var(--floor) 72% 100%)}
+.top{position:absolute;left:0;right:0;top:0;height:64px;display:flex;align-items:center;gap:14px;padding:0 22px;background:rgba(31,58,104,.92);color:#fff}
+.top h1{margin:0;font-size:26px;font-weight:900}
+.top .who{font-size:18px;opacity:.85}
+.top .sp{flex:1}
+.tb{font:700 17px 'Noto Sans KR';border:none;border-radius:10px;padding:8px 14px;min-height:44px;background:rgba(255,255,255,.16);color:#fff;cursor:pointer}
+.keys{display:flex;gap:6px}
+.key{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:22px}
+.key.on{background:var(--gold)}
+/* 방 */
+.obj{position:absolute;display:flex;flex-direction:column;align-items:center;cursor:pointer;transition:transform .15s}
+.obj:active{transform:scale(.95)}
+.obj .em{font-size:86px;line-height:1;filter:drop-shadow(0 4px 3px rgba(0,0,0,.2))}
+.obj .lb{margin-top:6px;background:#fff;border:2px solid var(--navy2);border-radius:999px;padding:3px 14px;font-weight:700;font-size:17px;color:var(--navy)}
+.obj.solved .lb{background:var(--green);border-color:var(--green);color:#fff}
+.obj.glow .em{animation:glow 1.8s ease-in-out infinite}
+@keyframes glow{0%,100%{filter:drop-shadow(0 0 0 rgba(242,177,52,0))}50%{filter:drop-shadow(0 0 18px rgba(242,177,52,.95))}}
+.fl{position:absolute;font-size:54px;cursor:pointer}
+.shelf{position:absolute;background:#8a6039;height:16px;border-radius:4px;box-shadow:0 5px 0 #6d4a2a}
+#bubble{position:absolute;max-width:360px;background:#fff;border:2px solid var(--ink);border-radius:14px;padding:10px 14px;font-size:18px;display:none;z-index:4}
+/* 창 */
+#modal{position:absolute;inset:0;background:rgba(20,28,45,.55);display:none;align-items:center;justify-content:center;z-index:5}
+#modal.on{display:flex}
+.panel{width:1080px;height:620px;background:var(--paper);border-radius:18px;padding:20px 26px;display:flex;flex-direction:column;gap:10px;position:relative}
+.panel h2{margin:0;font-size:28px;color:var(--navy)}
+.panel .x{position:absolute;right:16px;top:14px}
+.story{font-size:20px;line-height:1.55}
+.story b{color:var(--red)}
+.body{flex:1;min-height:0;display:flex;gap:20px}
+.lcd{background:#14261b;color:#6dff9b;font:900 64px 'Noto Sans KR';border-radius:12px;padding:8px 22px;min-width:220px;text-align:right;box-shadow:inset 0 0 12px #000}
+.dial{display:flex;flex-direction:column;align-items:center;gap:12px}
+.pad{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.btn{font:700 20px 'Noto Sans KR';border:none;border-radius:12px;padding:10px 14px;min-height:54px;cursor:pointer;background:var(--sky);color:var(--navy)}
+.btn.main{background:var(--navy2);color:#fff}
+.btn.hint{background:#fff3d6;color:#7a5200}
+.btn:disabled{opacity:.35}
+.say{font-size:20px;line-height:1.5;min-height:60px;background:#fff;border:2px solid var(--line);border-radius:12px;padding:10px 14px}
+.say .bad{color:var(--red);font-weight:700}
+.say .good{color:var(--green);font-weight:900}
+table.d{border-collapse:collapse;font-size:20px}
+.d th,.d td{border:2px solid var(--line);padding:8px 14px;text-align:center;background:#fff}
+.d th{background:var(--sky);color:var(--navy)}
+.d td.q{background:#fff3d6;font-weight:900;color:var(--red)}
+/* 물통 */
+.tanks{display:flex;gap:26px;align-items:flex-end;height:360px;padding:0 10px}
+.tank{width:120px;height:340px;border:4px solid var(--navy2);border-top:none;border-radius:0 0 16px 16px;position:relative;cursor:pointer;background:#fff}
+.tank.sel{box-shadow:0 0 0 5px var(--gold)}
+.tank .w{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(#7fc3f3,#3d8fd6);border-radius:0 0 12px 12px;transition:height .25s}
+.tank .n{position:absolute;left:0;right:0;top:-34px;text-align:center;font-weight:900;font-size:22px}
+.tank .tk{position:absolute;left:-12px;width:10px;height:2px;background:var(--muted)}
+/* 줄 세우기 */
+.cards{display:flex;gap:12px;flex-wrap:wrap}
+.tcard{width:190px;border:2.5px solid var(--navy2);border-radius:12px;background:#fff;padding:10px;font-size:18px;cursor:pointer;line-height:1.5}
+.tcard.used{opacity:.25;pointer-events:none}
+.tcard b{font-size:21px;color:var(--navy)}
+.slots{display:flex;gap:12px;margin-top:10px}
+.slot{width:190px;height:96px;border:2.5px dashed var(--navy2);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700;color:var(--muted);cursor:pointer;background:#f7faff;text-align:center}
+.slot.full{border-style:solid;color:var(--ink);background:#fff}
+/* 시작·끝 */
+#cover{position:absolute;inset:0;background:rgba(20,28,45,.82);display:flex;align-items:center;justify-content:center;z-index:9}
+.cv{background:var(--paper);border-radius:20px;padding:30px 40px;width:760px;text-align:center}
+.cv h1{margin:0 0 6px;font-size:40px;color:var(--navy)}
+.cv p{font-size:20px;line-height:1.6}
+.nums{display:grid;grid-template-columns:repeat(10,1fr);gap:6px;margin:14px 0}
+.nums button{font:700 18px 'Noto Sans KR';height:46px;border-radius:10px;border:2px solid var(--line);background:#fff;cursor:pointer}
+.nums button.on{background:var(--navy2);color:#fff;border-color:var(--navy2)}
+.toast{position:absolute;left:50%;top:84px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 20px;border-radius:999px;font-size:19px;z-index:8;display:none}
+.shake{animation:sh .35s}
+@keyframes sh{0%,100%{transform:translateX(0)}25%{transform:translateX(-10px)}75%{transform:translateX(10px)}}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="top">
+    <h1>🔐 평균 금고</h1><span class="who" id="who"></span>
+    <span class="sp"></span>
+    <div class="keys" id="keys"></div>
+    <button class="tb" id="snd">🔊</button>
+  </div>
+  <div class="shelf" style="left:60px;top:250px;width:360px"></div>
+  <div class="shelf" style="left:860px;top:250px;width:360px"></div>
+  <div id="room"></div>
+  <div id="bubble"></div>
+  <div class="toast" id="toast"></div>
+  <div id="modal"><div class="panel" id="panel"></div></div>
+  <div id="cover"></div>
+</div>
+
+<script>
+/* ============ 무대 ============ */
+const stage = document.getElementById('stage');
+function fit(){ const s = Math.min(innerWidth/1280, innerHeight/720); stage.style.transform = `translate(-50%,-50%) scale(${s})`; }
+addEventListener('resize', fit); fit();
+
+/* ============ 소리 (NOTES-escape-room.md 의 SND) ============ */
+const SND = {
+  ctx:null, vol:.55,
+  init(){ try{ this.ctx = this.ctx || new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} },
+  tone(f,dur,type,vol,delay,slide){ if(!this.ctx||this.vol<=0) return; const t0=this.ctx.currentTime+(delay||0);
+    const o=this.ctx.createOscillator(), g=this.ctx.createGain(); o.type=type||'square'; o.frequency.setValueAtTime(f,t0);
+    if(slide) o.frequency.exponentialRampToValueAtTime(Math.max(40,slide),t0+dur);
+    g.gain.setValueAtTime(.0001,t0); g.gain.exponentialRampToValueAtTime((vol??.16)*this.vol,t0+.012); g.gain.exponentialRampToValueAtTime(.0001,t0+dur);
+    o.connect(g); g.connect(this.ctx.destination); o.start(t0); o.stop(t0+dur+.05); },
+  click(){ this.tone(680,.06,'square',.10); },
+  tap(){ this.tone(440,.05,'triangle',.09); },
+  ok(){ [523,659,784,1047].forEach((f,i)=>this.tone(f,.16,'triangle',.15,i*.075)); },
+  bad(){ this.tone(220,.22,'sawtooth',.13,0,110); this.tone(160,.26,'square',.08,.06,90); },
+  get(){ [784,1047,1319].forEach((f,i)=>this.tone(f,.14,'sine',.18,i*.06)); },
+  pour(){ this.tone(900,.18,'sine',.08,0,500); }
+};
+document.getElementById('snd').onclick = () => { SND.vol = SND.vol ? 0 : .55; document.getElementById('snd').textContent = SND.vol ? '🔊' : '🔇'; };
+
+/* ============ 출석번호로 아이마다 다른 숫자 (NOTES-slow-by-design C) ============ */
+function seedFrom(s){ let h=2166136261; for(const c of String(s)) h=Math.imul(h^c.charCodeAt(0),16777619); return h>>>0; }
+function rngFrom(seed){ let x=seed||1; return ()=>((x=Math.imul(x^x>>>15,2246822507)^Math.imul(x^x>>>13,3266489909))>>>0)/4294967296; }
+function makeGame(no){
+  const r = rngFrom(seedFrom('vault-'+no)), ri = (a,b)=>a+Math.floor(r()*(b-a+1));
+  const G = {};
+  // ② 독서 달력: 5일 평균 M, 금요일 빈칸
+  for(;;){ const M = ri(20,30), four = [0,0,0,0].map(()=>M+ri(-8,8)); const x = 5*M - four.reduce((a,b)=>a+b,0);
+    if (x>=8 && x<=45 && x!==M && !four.includes(x)){ G.read = {M, four, x}; break; } }
+  // ③ 키재기판: n명 평균 A, 새 친구가 오면 평균 A+d
+  { const n = ri(4,5), A = ri(141,149), d = ri(1,2); G.tall = {n, A, d, x:(n+1)*(A+d) - n*A}; }
+  // ① 물통: 4통 평균 m — 금고 번호(①②③ 답의 평균)가 자연수가 되도록 m 을 고른다
+  for (const m of [6,5,7,4,8]){ if ((m + G.read.x + G.tall.x) % 3 === 0){ G.m = m; break; } }
+  for(;;){ const lv = [0,0,0].map(()=>ri(1,10)); const last = 4*G.m - lv.reduce((a,b)=>a+b,0);
+    if (last>=1 && last<=10){ lv.push(last); if (new Set(lv).size>1 && Math.max(...lv)-Math.min(...lv)>=4){ G.tanks = lv; break; } } }
+  G.code = (G.m + G.read.x + G.tall.x) / 3;
+  // ④ 모둠 순위판: 합계 순서와 평균 순서가 달라야 한다
+  const teams = ['별','달','해','숲','강'];
+  for(;;){ const means = []; while(means.length<5){ const v = ri(14,30); if(!means.includes(v)) means.push(v); }
+    const t = teams.map((nm,i)=>{ const c = ri(3,6); return {nm:nm+' 모둠', c, sum:means[i]*c, mean:means[i]}; });
+    const bySum = [...t].sort((a,b)=>b.sum-a.sum).map(x=>x.nm).join(), byMean = [...t].sort((a,b)=>b.mean-a.mean).map(x=>x.nm).join();
+    if (bySum !== byMean && new Set(t.map(x=>x.sum)).size===5){ G.teams = t; G.order = [...t].sort((a,b)=>b.mean-a.mean).map(x=>x.nm); break; } }
+  return G;
+}
+
+/* ============ 상태 ============ */
+const KEY = 'average-vault-v1';
+let S = null, G = null;
+try { S = JSON.parse(localStorage.getItem(KEY)); } catch(e){}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+function fresh(no){ return {no, solved:{}, first:{}, tries:{}, hint:{}, tanks:null, dial:{}, slots:[], done:false}; }
+
+/* ============ 장치 ============ */
+const DEV = {
+  tank:{em:'🪣', lb:'① 물통 네 개', x:110, y:120},
+  read:{em:'📅', lb:'② 독서 달력', x:520, y:110},
+  tall:{em:'📏', lb:'③ 키재기판', x:930, y:120},
+  rank:{em:'🏆', lb:'④ 모둠 순위판', x:230, y:420},
+  vault:{em:'🗄️', lb:'금고', x:800, y:400}
+};
+const FLAVOR = [
+  {em:'🕰️', x:1150, y:300, lines:['째깍째깍. 도서관 문 닫을 시간이 다가온다.','시계는 평균적으로 정확하다고 한다… 무슨 뜻일까?']},
+  {em:'🐟', x:640, y:560, lines:['물고기가 뻐끔뻐끔. 금고 번호는 모르는 눈치다.','어항 물 높이는 딱 고르다. 부럽다.']},
+  {em:'📚', x:360, y:186, lines:['「평균의 비밀」이라는 책. 첫 장에 이렇게 적혀 있다 — 고르게 하면 보인다.','책등에 먼지가 수북하다.']},
+  {em:'🪴', x:1180, y:560, lines:['화분 밑에 쪽지가 있다: 「금고 번호는 ①②③의 답을 고르게 한 수」','잎이 세 장. 아니 네 장.']},
+  {em:'🧸', x:500, y:600, lines:['곰 인형이 「나는 평균 키야」라고 우긴다.','인형 배에 「②번부터 풀어도 돼」라고 쓰여 있다.']}
+];
+const HINTS = {
+  tank:['물이 많은 통을 누르고, 적은 통을 누르면 1 L 씩 옮겨져.','모든 통의 물을 더한 양은 옮겨도 변하지 않아.','네 통의 물을 모두 더해서 4로 나누면, 한 통에 몇 L 가 되어야 하는지 알 수 있어.'],
+  read:['평균이 ○분이라는 건, 5일을 고르게 하면 하루에 ○분이라는 뜻이야.','5일 동안 읽은 시간을 모두 더하면 (평균) × 5 분이 되어야 해.','5일의 합에서 월~목의 합을 빼면 금요일이 나와.'],
+  tall:['새 친구가 오기 전과 온 뒤, 모두의 키를 더한 값을 각각 생각해 봐.','(평균) × (사람 수) = (모두 더한 키) 야.','온 뒤의 합 − 오기 전의 합 = 새 친구의 키.'],
+  rank:['합계가 크다고 잘한 걸까? 모둠마다 사람 수가 달라.','모둠마다 (합계) ÷ (사람 수) 로 평균을 구해 봐.','평균이 큰 모둠부터 차례로 칸에 놓아. 다 놓고 한 번에 확인해.'],
+  vault:['화분 밑 쪽지를 읽어 봐. 번호는 ①②③의 답과 관계가 있어.','①②③에서 구한 세 수를 공책에 적어 봐.','세 수를 고르게 한 수 = 세 수의 평균. 모두 더해서 3으로 나눠.']
+};
+
+/* ============ 방 그리기 ============ */
+function renderRoom(){
+  document.getElementById('who').textContent = S ? `${S.no}번 탐정` : '';
+  const room = document.getElementById('room'); room.innerHTML = '';
+  const need = ['tank','read','tall','rank'];
+  const next = need.find(k=>!S.solved[k]);
+  for (const k in DEV){
+    const d = DEV[k], el = document.createElement('div');
+    const open = k !== 'vault' || need.every(x=>S.solved[x]);
+    el.className = 'obj' + (S.solved[k] ? ' solved' : '') + ((k===next || (k==='vault' && open && !S.solved.vault)) ? ' glow' : '');
+    el.style.left = d.x+'px'; el.style.top = d.y+'px';
+    el.innerHTML = `<div class="em">${k==='vault' && S.solved.vault ? '🎉' : d.em}</div><div class="lb">${d.lb}${S.solved[k]?' ✔':''}</div>`;
+    el.onclick = () => { SND.init(); SND.click(); openDev(k); };
+    room.appendChild(el);
+  }
+  FLAVOR.forEach((f,i)=>{ const el = document.createElement('div'); el.className='fl'; el.textContent=f.em; el.style.left=f.x+'px'; el.style.top=f.y+'px';
+    el.onclick = () => { SND.init(); SND.tap(); f.n = ((f.n??-1)+1) % f.lines.length; bubble(f.x-120, f.y-70, f.lines[f.n]); };
+    room.appendChild(el); });
+  document.getElementById('keys').innerHTML = need.map(k=>`<div class="key ${S.solved[k]?'on':''}">${S.solved[k]?'🔑':'·'}</div>`).join('');
+}
+let bt;
+function bubble(x,y,txt){ const b = document.getElementById('bubble'); b.textContent = txt; b.style.left = Math.max(10,Math.min(900,x))+'px'; b.style.top = Math.max(70,y)+'px'; b.style.display='block'; clearTimeout(bt); bt = setTimeout(()=>b.style.display='none', 3500); }
+function toast(t){ const e = document.getElementById('toast'); e.textContent = t; e.style.display='block'; setTimeout(()=>e.style.display='none', 2600); }
+
+/* ============ 창 ============ */
+const modal = document.getElementById('modal'), panel = document.getElementById('panel');
+let cur = null;
+function closeDev(){ modal.classList.remove('on'); cur = null; renderRoom(); }
+function frame(k, title, story, body){
+  const h = S.hint[k]||0;
+  panel.innerHTML = `<button class="btn x" onclick="closeDev()">✕ 닫기</button>
+    <h2>${title}</h2><div class="story">${story}</div>
+    <div class="body">${body}</div>
+    <div style="display:flex;gap:10px;align-items:stretch">
+      <div class="say" id="say" style="flex:1">${S.solved[k] ? '<span class="good">이미 풀었어!</span> ' + solvedLine(k) : (h ? '💡 ' + HINTS[k].slice(0,h).map((x,i)=>`${i+1}단계: ${x}`).join('<br>') : '')}</div>
+      <button class="btn hint" ${h>=3||S.solved[k]?'disabled':''} onclick="giveHint('${k}')">힌트 ${Math.min(h+1,3)}/3</button>
+    </div>`;
+}
+function giveHint(k){ S.hint[k] = Math.min(3,(S.hint[k]||0)+1); save(); SND.tap(); openDev(k); if (S.hint[k]>=3) sayHTML(document.getElementById('say').innerHTML + '<br><span class="hint">여기까지가 끝이야. 답은 안 알려 줘.</span>'); }
+function sayHTML(h){ document.getElementById('say').innerHTML = h; }
+function tried(k, ok){ S.tries[k] = (S.tries[k]||0)+1; if (ok){ S.solved[k] = true; if (S.first[k]==null) S.first[k] = S.tries[k]===1; } save(); }
+function fail(k, msg){ tried(k,false); SND.bad(); panel.classList.remove('shake'); void panel.offsetWidth; panel.classList.add('shake'); sayHTML('<span class="bad">딸깍… 안 열린다.</span> ' + msg); }
+function win(k){ tried(k,true); SND.ok(); setTimeout(()=>SND.get(), 350); sayHTML('<span class="good">철컥! 열렸다!</span> ' + solvedLine(k)); renderRoom(); toast(k==='vault' ? '금고가 열렸어!' : '열쇠를 하나 얻었다 🔑'); if (k==='vault') setTimeout(ending, 1600); }
+function solvedLine(k){
+  return {
+    tank:`물통마다 <b>${G.m} L</b>. 공책에 적어 두자.`,
+    read:`금요일에는 <b>${G.read.x}분</b> 읽었어. 공책에 적어 두자.`,
+    tall:`새 친구의 키는 <b>${G.tall.x} cm</b>. 공책에 적어 두자.`,
+    rank:`평균으로 줄 세우니 ${G.order.join(' → ')} 순서야.`,
+    vault:`금고 번호는 <b>${G.code}</b>!`
+  }[k];
+}
+
+/* 다이얼 (②③ · 금고) */
+function dialHTML(k, max){
+  const v = S.dial[k] ?? 0;
+  return `<div class="dial"><div class="lcd" id="lcd">${v}</div>
+    <div class="pad">${[-10,-1,1,10].map(d=>`<button class="btn" onclick="turn('${k}',${d},${max})">${d>0?'+':''}${d}</button>`).join('')}</div>
+    <button class="btn main" style="width:100%" ${S.solved[k]?'disabled':''} onclick="check('${k}')">돌려서 열어 보기</button></div>`;
+}
+function turn(k,d,max){ if (S.solved[k]) return; S.dial[k] = Math.max(0, Math.min(max, (S.dial[k]??0)+d)); save(); SND.tap(); document.getElementById('lcd').textContent = S.dial[k]; }
+
+function openDev(k){
+  cur = k; modal.classList.add('on');
+  if (k==='tank'){
+    if (!S.tanks) S.tanks = [...G.tanks];
+    const tot = S.tanks.reduce((a,b)=>a+b,0);
+    frame(k,'① 물통 네 개',
+      `물통 네 개에 물이 들쭉날쭉 들어 있다. 물통 뚜껑에 <b>「네 통을 고르게 하면 열린다」</b>고 적혀 있다. 물이 많은 통을 누르고, 적은 통을 누르면 <b>1 L</b>씩 옮겨 부어진다.`,
+      `<div class="tanks">${S.tanks.map((v,i)=>`<div class="tank ${tankSel===i?'sel':''}" onclick="tapTank(${i})">${[...Array(10)].map((_,j)=>`<div class="tk" style="bottom:${(j+1)*34}px"></div>`).join('')}<div class="w" style="height:${v*34}px"></div><div class="n">${v} L</div></div>`).join('')}</div>
+       <div style="flex:1;font-size:20px;line-height:1.7;padding-top:20px">물 모두: <b>${tot} L</b><br>옮긴 횟수: <b>${S.pour||0}번</b><br><span style="color:var(--muted);font-size:17px">한 번 더 누르면 선택이 풀려.</span></div>`);
+  }
+  if (k==='read'){
+    const R = G.read;
+    frame(k,'② 독서 달력',
+      `도서관 달력에 담임선생님의 한 주 독서 시간이 적혀 있는데, 금요일 칸이 지워졌다. 아래에는 <b>「이번 주 하루 평균 ${R.M}분」</b>이라고 쓰여 있다. 금요일에는 몇 분 읽었을까? 다이얼을 맞춰 보자.`,
+      `<div><table class="d"><tr><th>요일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th></tr>
+        <tr><th>독서 시간(분)</th>${R.four.map(v=>`<td>${v}</td>`).join('')}<td class="q">?</td></tr></table>
+        <p style="font-size:19px;color:var(--muted)">하루 평균 <b style="color:var(--red)">${R.M}분</b></p></div>${dialHTML(k,99)}`);
+  }
+  if (k==='tall'){
+    const T = G.tall;
+    frame(k,'③ 키재기판',
+      `키재기판에 이렇게 적혀 있다. <b>「우리 모둠 ${T.n}명의 키의 평균은 ${T.A} cm였는데, 새 친구가 한 명 들어온 뒤 평균이 ${T.A+T.d} cm가 되었다.」</b> 새 친구의 키는 몇 cm일까?`,
+      `<div style="flex:1;font-size:20px;line-height:1.8"><table class="d"><tr><th></th><th>사람 수</th><th>키의 평균</th></tr>
+        <tr><th>새 친구가 오기 전</th><td>${T.n}명</td><td>${T.A} cm</td></tr>
+        <tr><th>새 친구가 온 뒤</th><td>${T.n+1}명</td><td>${T.A+T.d} cm</td></tr></table></div>${dialHTML(k,199)}`);
+  }
+  if (k==='rank'){
+    const used = new Set(S.slots.filter(Boolean));
+    frame(k,'④ 모둠 순위판',
+      `독서 골든벨 모둠 순위판이 뒤죽박죽 떨어져 있다. 판 아래에 <b>「모둠 사람 수가 달라서 한 사람당 맞힌 문제 수(평균)로 순위를 정함」</b>이라고 적혀 있다. 카드를 눌러 1등부터 차례로 칸에 놓자. 다 놓고 한 번에 확인!`,
+      `<div><div class="cards">${G.teams.map(t=>`<div class="tcard ${used.has(t.nm)?'used':''}" onclick="tapTeam('${t.nm}')"><b>${t.nm}</b><br>${t.c}명 · 모두 ${t.sum}문제</div>`).join('')}</div>
+        <div class="slots">${[0,1,2,3,4].map(i=>`<div class="slot ${S.slots[i]?'full':''}" onclick="tapSlot(${i})">${S.slots[i] ? S.slots[i] : (i+1)+'등'}</div>`).join('')}</div>
+        <div style="margin-top:12px;display:flex;gap:10px"><button class="btn main" ${S.slots.filter(Boolean).length<5||S.solved.rank?'disabled':''} onclick="checkRank()">순위판 걸기</button><button class="btn" ${S.solved.rank?'disabled':''} onclick="S.slots=[];save();openDev('rank')">모두 빼기</button></div></div>`);
+  }
+  if (k==='vault'){
+    const ready = ['tank','read','tall','rank'].every(x=>S.solved[x]);
+    frame(k,'도서관 비밀 금고',
+      ready ? `열쇠 네 개를 꽂으니 번호판이 켜졌다! 번호판 위에 이렇게 새겨져 있다. <b>「①②③에서 얻은 세 수를 고르게 한 수」</b>`
+            : `열쇠 구멍이 네 개 있다. 아직 열쇠가 모자라다. (지금 ${['tank','read','tall','rank'].filter(x=>S.solved[x]).length}개)`,
+      ready ? `<div style="flex:1;font-size:19px;color:var(--muted);line-height:1.7">①②③에서 공책에 적어 둔 수를 떠올려 봐.<br>잊었으면 방으로 돌아가 그 장치를 다시 눌러 보면 돼.</div>${dialHTML(k,999)}` : '');
+  }
+}
+let tankSel = null;
+function tapTank(i){
+  if (S.solved.tank) return;
+  if (tankSel === null){ if (S.tanks[i]>0){ tankSel = i; SND.tap(); } }
+  else if (tankSel === i){ tankSel = null; }
+  else if (S.tanks[i] < 10){ S.tanks[tankSel]--; S.tanks[i]++; S.pour = (S.pour||0)+1; tankSel = null; SND.pour(); save(); }
+  else tankSel = null;
+  openDev('tank');
+  if (S.tanks.every(v=>v===S.tanks[0])) win('tank');
+}
+function tapTeam(nm){ if (S.solved.rank) return; const i = [0,1,2,3,4].find(j=>!S.slots[j]); if (i==null) return; S.slots[i] = nm; SND.tap(); save(); openDev('rank'); }
+function tapSlot(i){ if (S.solved.rank || !S.slots[i]) return; S.slots[i] = null; SND.tap(); save(); openDev('rank'); }
+function checkRank(){
+  const ok = S.slots.join() === G.order.join();
+  if (ok) { win('rank'); return; }
+  const bySum = [...G.teams].sort((a,b)=>b.sum-a.sum).map(x=>x.nm).join();
+  fail('rank', S.slots.join() === bySum
+    ? '이건 <b>합계</b> 순서야. 판 아래 글씨를 다시 읽어 봐 — 사람 수가 달라.'
+    : '순서가 맞지 않아. 어느 칸이 틀렸는지는 알려 주지 않아 — 모둠마다 평균을 공책에 구해 보고 다시 놓아 봐.');
+}
+function check(k){
+  const v = S.dial[k] ?? 0;
+  if (k==='read'){
+    const R = G.read, sum4 = R.four.reduce((a,b)=>a+b,0);
+    if (v === R.x) return win(k);
+    if (v === R.M) return fail(k, `평균 ${R.M}분을 그대로 넣었네. 금요일이 평균과 똑같으면 5일 평균이 정말 ${R.M}분이 될까?`);
+    if (v === 5*R.M) return fail(k, `${v}분은 <b>5일을 모두 더한</b> 시간이야. 여기서 월~목을 빼야 금요일이 남아.`);
+    if (v === sum4) return fail(k, `${v}분은 월~목을 더한 시간이야. 5일 합계는 얼마여야 할까?`);
+    if (v === Math.round(sum4/4)) return fail(k, `월~목 4일의 평균을 구했구나. 우리가 알고 싶은 건 금요일 하루야.`);
+    return fail(k, '금요일에 이 시간을 넣고 5일 평균을 직접 계산해 봐. 평균이 맞게 나오나?');
+  }
+  if (k==='tall'){
+    const T = G.tall, before = T.n*T.A, after = (T.n+1)*(T.A+T.d);
+    if (v === T.x) return win(k);
+    if (v === T.A+T.d) return fail(k, `새 친구의 키가 새 평균과 같다면, 평균이 올라갈 수 있을까?`);
+    if (v === T.A) return fail(k, '그건 새 친구가 오기 <b>전</b>의 평균이야. 평균이 올라갔다는 건 새 친구가 평균보다 크다는 뜻이야.');
+    if (v === after || v === before) return fail(k, `${v} cm는 여러 명의 키를 <b>모두 더한</b> 값이야. 한 사람의 키가 될 수 없지!`);
+    if (v === after - before + T.A) return fail(k, '계산을 한 번 더 확인해 봐. (온 뒤의 합) − (오기 전의 합) 이야.');
+    return fail(k, `오기 전 ${T.n}명의 키를 모두 더하면? 온 뒤 ${T.n+1}명의 키를 모두 더하면? 둘을 공책에 적어 봐.`);
+  }
+  if (k==='vault'){
+    const a = [G.m, G.read.x, G.tall.x], sum = a[0]+a[1]+a[2];
+    if (v === G.code) return win(k);
+    if (v === sum) return fail(k, '세 수를 모두 더한 수야. 「고르게 한 수」라고 했지?');
+    if (a.includes(v)) return fail(k, '그건 한 장치의 답이야. 세 수를 모두 써야 해.');
+    return fail(k, '①②③의 답을 공책에 다시 확인하고 계산해 봐.');
+  }
+}
+
+/* ============ 시작·끝 ============ */
+const cover = document.getElementById('cover');
+function start(){
+  let pick = S ? S.no : null;
+  cover.style.display = 'flex';
+  cover.innerHTML = `<div class="cv"><h1>🔐 평균 금고</h1>
+    <p>도서관 문 닫기 전, 사서 선생님이 금고 번호를 잊어버렸다!<br>방 안의 장치 넷을 풀어 열쇠를 모으고, 금고를 열어 줘.</p>
+    <p style="font-size:18px;color:var(--muted)">내 출석번호를 눌러. 번호마다 숫자가 달라서 옆 친구 답은 안 통해!</p>
+    <div class="nums">${[...Array(30)].map((_,i)=>`<button class="${pick===i+1?'on':''}" data-n="${i+1}">${i+1}</button>`).join('')}</div>
+    <button class="btn main" id="go" style="width:100%;font-size:22px" ${pick?'':'disabled'}>${S && S.no ? '이어서 하기' : '시작하기'}</button>
+    ${S && S.no ? '<button class="btn" id="reset" style="margin-top:8px;width:100%">처음부터 (기록 지우기)</button>' : ''}</div>`;
+  cover.querySelectorAll('.nums button').forEach(b=>b.onclick=()=>{ pick = +b.dataset.n; cover.querySelectorAll('.nums button').forEach(x=>x.classList.toggle('on',x===b)); document.getElementById('go').disabled = false; });
+  document.getElementById('go').onclick = () => {
+    SND.init(); SND.click();
+    if (!S || S.no !== pick) S = fresh(pick);
+    G = makeGame(S.no); save(); cover.style.display = 'none'; renderRoom();
+  };
+  const rs = document.getElementById('reset'); if (rs) rs.onclick = () => { S = null; try{ localStorage.removeItem(KEY); }catch(e){} start(); };
+}
+function ending(){
+  closeDev();
+  const first = ['tank','read','tall','rank','vault'].filter(k=>S.first[k]).length;
+  cover.style.display = 'flex';
+  cover.innerHTML = `<div class="cv"><h1>🎉 금고가 열렸다!</h1>
+    <p>금고 안에는 사서 선생님의 쪽지가 들어 있었다.<br><b style="font-family:Gaegu;font-size:28px;color:var(--navy)">「평균은 들쭉날쭉한 것을 고르게 한 값이란다. 고마워, 탐정!」</b></p>
+    <p>한 번에 연 장치 <b>${first} / 5</b></p>
+    <p style="font-size:18px;color:var(--muted)">다 끝냈다면: 짝에게 ② 독서 달력을 <b>어떻게 풀었는지</b> 설명해 주고, 짝의 번호로 문제를 하나 더 풀어 봐.</p>
+    <button class="btn" onclick="cover.style.display='none';renderRoom()">방 둘러보기</button></div>`;
+}
+start();
+</script>
+</body>
+</html>

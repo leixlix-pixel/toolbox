@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>고르게 만들기판 — 평균이란</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1d2433;--navy:#1f3a68;--navy2:#2f5597;--red:#d64541;--gold:#f2b134;--paper:#fbf8f1;--line:#d9d2c3;--muted:#6b7385;--green:#2e9e6a;--sky:#e8f0fb}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#233049;overflow:hidden}
+body{font-family:'Noto Sans KR',sans-serif;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;color:var(--ink)}
+#stage{position:absolute;left:50%;top:50%;width:1280px;height:720px;transform-origin:center center;background:var(--paper);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+header{display:flex;align-items:center;gap:18px;padding:14px 26px 10px;border-bottom:2px solid var(--line)}
+header h1{margin:0;font-size:30px;font-weight:900;color:var(--navy);white-space:nowrap}
+header h1 small{font-family:'Gaegu';font-size:24px;color:var(--red);margin-left:8px}
+.tabs{display:flex;gap:8px;margin-left:auto}
+.tab{font:700 18px 'Noto Sans KR';border:2px solid var(--navy2);background:#fff;color:var(--navy2);border-radius:999px;padding:9px 18px;min-height:48px;cursor:pointer}
+.tab.on{background:var(--navy2);color:#fff}
+main{flex:1;min-height:0;position:relative}
+.pane{position:absolute;inset:0;display:none;padding:14px 26px 18px}
+.pane.on{display:flex;gap:20px}
+.side{width:330px;flex:none;display:flex;flex-direction:column;gap:12px}
+.chartwrap{flex:1;min-width:0;background:#fff;border:2px solid var(--line);border-radius:14px;position:relative;display:flex;flex-direction:column}
+.chartwrap .ttl{font-size:21px;font-weight:700;padding:10px 16px 0;color:var(--navy)}
+.chartwrap svg{flex:1;min-height:0;width:100%}
+.card{background:#fff;border:2px solid var(--line);border-radius:14px;padding:12px 14px}
+.card h3{margin:0 0 6px;font-size:18px;color:var(--muted);font-weight:700}
+.big{font-size:30px;font-weight:900;color:var(--navy)}
+.btn{font:700 18px 'Noto Sans KR';border:none;border-radius:12px;padding:10px 14px;min-height:48px;cursor:pointer;background:var(--sky);color:var(--navy)}
+.btn.main{background:var(--navy2);color:#fff}
+.btn.warn{background:#fdecea;color:var(--red)}
+.btn:disabled{opacity:.4}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row .btn{flex:1}
+.sel{font:700 17px 'Noto Sans KR';padding:8px;border-radius:10px;border:2px solid var(--line);min-height:48px;width:100%;background:#fff}
+.msg{font-size:19px;line-height:1.5;min-height:58px}
+.msg b{color:var(--red)}
+.formula{font-size:20px;line-height:1.6}
+.formula .eq{font-size:26px;font-weight:900;color:var(--red)}
+.hint{font-size:16px;color:var(--muted);line-height:1.45}
+.q{font-family:'Gaegu';font-size:27px;color:var(--navy);line-height:1.3}
+.pill{display:inline-block;background:var(--gold);color:#3a2a00;border-radius:999px;padding:2px 12px;font-weight:700;font-size:17px}
+/* 두 도시 */
+.cities{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.city{background:#fff;border:2px solid var(--line);border-radius:14px;display:flex;flex-direction:column;padding:10px 12px}
+.city h2{margin:0;font-size:24px;color:var(--navy)}
+.city .avg{font-size:44px;font-weight:900;color:var(--red);text-align:center;margin:6px 0}
+.city svg{flex:1;min-height:0;width:100%}
+.cover{flex:1;display:flex;align-items:center;justify-content:center;font-size:72px;color:var(--line)}
+/* 도전 */
+.chal{font-size:21px;line-height:1.5}
+.chal b{color:var(--red)}
+.okbox{font-size:20px;line-height:1.5;min-height:90px}
+.good{color:var(--green);font-weight:900}
+.bad{color:var(--red);font-weight:700}
+.bar-nav{position:absolute;bottom:0;left:0;right:0;height:0}
+#fs{font:700 15px 'Noto Sans KR';border:none;border-radius:10px;padding:8px 10px;min-height:40px;background:var(--sky);color:var(--navy);cursor:pointer}
+</style>
+</head>
+<body>
+<div id="stage">
+  <header>
+    <h1>고르게 만들기판<small>평균은 어디에 있을까?</small></h1>
+    <div class="tabs">
+      <button class="tab on" data-t="p1">① 고르게 하기</button>
+      <button class="tab" data-t="p2">② 한 명이 튀면</button>
+      <button class="tab" data-t="p3">③ 두 도시</button>
+      <button class="tab" data-t="p4">④ 평균 만들기 도전</button>
+      <button id="fs" onclick="document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen()">⛶</button>
+    </div>
+  </header>
+  <main>
+    <!-- ① 고르게 하기 -->
+    <section class="pane on" id="p1">
+      <div class="chartwrap">
+        <div class="ttl" id="l-title"></div>
+        <svg id="l-svg" viewBox="0 0 880 560"></svg>
+      </div>
+      <div class="side">
+        <select class="sel" id="l-set"></select>
+        <div class="card">
+          <h3>지금 상태</h3>
+          <div class="formula" id="l-sum"></div>
+        </div>
+        <div class="card msg" id="l-msg"></div>
+        <div class="row">
+          <button class="btn" id="l-guessbtn">예상선 긋기</button>
+          <button class="btn" id="l-meanbtn">평균선 보기</button>
+        </div>
+        <div class="row">
+          <button class="btn" id="l-split" disabled>남은 것 나누기</button>
+          <button class="btn main" id="l-calc">식으로 보기</button>
+        </div>
+        <div class="row">
+          <button class="btn" id="l-undo">한 칸 되돌리기</button>
+          <button class="btn warn" id="l-reset">처음으로</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ② 한 명이 튀면 -->
+    <section class="pane" id="p2">
+      <div class="chartwrap">
+        <div class="ttl">나원이네 모둠 1분 줄넘기 기록 <span class="hint">— 막대를 눌러 고른 뒤 아래 조절대를 움직여요</span></div>
+        <svg id="o-svg" viewBox="0 0 880 500"></svg>
+        <div style="padding:6px 18px 14px;display:flex;align-items:center;gap:14px">
+          <span id="o-who" style="font-size:20px;font-weight:700;width:150px"></span>
+          <input type="range" id="o-range" min="0" max="200" step="1" style="flex:1;height:40px">
+        </div>
+      </div>
+      <div class="side">
+        <div class="card"><h3>평균</h3><div class="big" id="o-mean"></div></div>
+        <div class="card"><h3>평균보다 많이 넘은 사람</h3><div class="big" id="o-above"></div></div>
+        <div class="card q" id="o-q">한 명이 180번을 넘으면<br>평균은 어떻게 될까?<br>먼저 공책에 예상해 보자.</div>
+        <div class="row">
+          <button class="btn main" id="o-jump">시온이가 180번!</button>
+          <button class="btn warn" id="o-reset">처음으로</button>
+        </div>
+        <div class="hint">생각할 것: 이때의 평균은 우리 모둠을 잘 나타낼까? 모둠 소개에 「우리 모둠은 평균 ○번 넘어요」라고 써도 될까?</div>
+      </div>
+    </section>
+
+    <!-- ③ 두 도시 -->
+    <section class="pane" id="p3" style="flex-direction:column">
+      <div class="q" style="font-size:28px">두 도시 모두 연평균 기온이 20℃야. 1월에 여행 간다면 옷을 똑같이 챙기면 될까?</div>
+      <div class="cities">
+        <div class="city"><h2>가 도시</h2><div class="avg">연평균 20℃</div><div class="cover" id="c1c">?</div><svg id="c1" viewBox="0 0 520 300" style="display:none"></svg></div>
+        <div class="city"><h2>나 도시</h2><div class="avg">연평균 20℃</div><div class="cover" id="c2c">?</div><svg id="c2" viewBox="0 0 520 300" style="display:none"></svg></div>
+      </div>
+      <div class="row" style="flex:none">
+        <button class="btn main" id="c-show" style="flex:none;width:260px">달마다 기온 보기</button>
+        <span class="hint" style="align-self:center">가상의 두 도시예요. 월 기온을 모두 더하면 둘 다 240, 240 ÷ 12 = 20. 평균이 같아도 자료가 퍼진 모습은 다를 수 있어요.</span>
+      </div>
+    </section>
+
+    <!-- ④ 도전 -->
+    <section class="pane" id="p4">
+      <div class="chartwrap">
+        <div class="ttl" id="d-title"></div>
+        <svg id="d-svg" viewBox="0 0 880 560"></svg>
+      </div>
+      <div class="side">
+        <div class="card chal" id="d-task"></div>
+        <div class="row">
+          <button class="btn main" id="d-check">확인하기</button>
+          <button class="btn" id="d-next">다음 도전</button>
+        </div>
+        <div class="card okbox" id="d-ok">막대 위아래의 ＋ － 를 눌러 높이를 바꿔요.<br>다 만들면 <b>확인하기</b>.</div>
+        <div class="hint">답이 하나가 아니에요. 짝과 만든 것을 비교해 보고, 어떻게 찾았는지 공책에 적어 보세요.</div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+/* ---------- 무대 맞추기 ---------- */
+const stage = document.getElementById('stage');
+function fit(){ const s = Math.min(innerWidth/1280, innerHeight/720); stage.style.transform = `translate(-50%,-50%) scale(${s})`; }
+addEventListener('resize', fit); fit();
+
+document.querySelectorAll('.tab').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.tab').forEach(x => x.classList.toggle('on', x === b));
+  document.querySelectorAll('.pane').forEach(p => p.classList.toggle('on', p.id === b.dataset.t));
+});
+
+const NS = 'http://www.w3.org/2000/svg';
+function el(tag, attrs, parent, text){
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (text != null) e.textContent = text;
+  if (parent) parent.appendChild(e);
+  return e;
+}
+const fmt = n => (Math.round(n*100)/100).toString();
+
+/* =========================================================
+   ① 고르게 하기 — ○표를 옮겨 막대를 평평하게
+   ========================================================= */
+const SETS = {
+  yuna:{title:'경기별 유나의 제기차기 횟수 (교과서 133쪽)', unit:'회', labels:['1경기','2경기','3경기','4경기','5경기','6경기'], vals:[8,9,5,4,2,8]},
+  book:{title:'시온이네 모둠 한 주 동안 읽은 책', unit:'권', labels:['시온','나원','재율','선하','유건'], vals:[3,7,2,6,7]},
+  odd:{title:'도헌이네 모둠 칭찬 붙임딱지', unit:'장', labels:['도헌','채율','소하','유담'], vals:[4,9,6,3]},
+  big:{title:'진하네 모둠 쉬는 시간 물 마신 컵', unit:'컵', labels:['진하','시온','선하','재율','나원','유건'], vals:[1,10,3,9,2,5]}
+};
+const SETNAMES = {yuna:'유나의 제기차기 (교과서)', book:'모둠 독서 (딱 나누어져요)', odd:'칭찬 붙임딱지 (남는 게 있어요)', big:'물 마신 컵 (차이가 커요)'};
+const L = {};
+const lset = document.getElementById('l-set');
+for (const k in SETS){ const o = document.createElement('option'); o.value = k; o.textContent = SETNAMES[k]; lset.appendChild(o); }
+lset.onchange = () => lLoad(lset.value);
+
+function lLoad(k){
+  const d = SETS[k];
+  Object.assign(L, {key:k, d, vals:[...d.vals], orig:[...d.vals], sel:null, hist:[], guess:null, guessMode:false, showMean:false, split:false, calc:false});
+  lDraw();
+}
+const CELL = 46, BASE = 500, TOP = 40;
+function lGeom(){
+  const n = L.vals.length, left = 90, w = 880 - left - 30, cw = w / n;
+  return {n, left, cw, cx: i => left + cw*(i+0.5)};
+}
+function lDraw(){
+  const svg = document.getElementById('l-svg'); svg.innerHTML = '';
+  const g = lGeom(), sum = L.vals.reduce((a,b)=>a+b,0), mean = sum / g.n;
+  document.getElementById('l-title').textContent = L.d.title;
+  // 눈금
+  for (let v=0; v<=10; v++){
+    const y = BASE - v*CELL;
+    el('line',{x1:g.left-10,x2:850,y1:y,y2:y,stroke:v?'#eee8dc':'#9aa3b5','stroke-width':v?1:2},svg);
+    el('text',{x:g.left-22,y:y+6,'text-anchor':'end','font-size':18,fill:'#6b7385'},svg,v);
+  }
+  el('text',{x:24,y:TOP-12,'font-size':17,fill:'#6b7385'},svg,'('+L.d.unit+')');
+  // 예상선 긋는 띠
+  const ruler = el('rect',{x:0,y:BASE-10*CELL-10,width:g.left-6,height:10*CELL+20,fill:L.guessMode?'#fff3d6':'transparent',style:'cursor:pointer'},svg);
+  // 막대(○)
+  const splitOn = L.split;
+  const fl = Math.floor(mean), frac = mean - fl;
+  for (let i=0; i<g.n; i++){
+    const x = g.cx(i), v = L.vals[i], o = L.orig[i];
+    el('rect',{x:x-g.cw/2+6,y:TOP-20,width:g.cw-12,height:BASE-TOP+20,fill:L.sel===i?'#fff6dd':'transparent',rx:10},svg);
+    if (!splitOn){
+      for (let k=0; k<Math.max(v,o); k++){
+        const y = BASE - (k+0.5)*CELL;
+        if (k < v){
+          const moved = k >= o; // 옮겨 온 것
+          const isTop = k === v-1 && L.sel === i;
+          el('circle',{cx:x,cy:y,r:18,fill:isTop?'#f2b134':(moved?'#bcd3f5':'#fff'),stroke:moved?'#2f5597':'#1d2433','stroke-width':3},svg);
+        } else {
+          // 옮겨 간 자리 — 교과서처럼 흔적을 남긴다
+          el('circle',{cx:x,cy:y,r:18,fill:'none',stroke:'#c9c1b1','stroke-width':2,'stroke-dasharray':'5 5'},svg);
+          el('line',{x1:x-12,y1:y-12,x2:x+12,y2:y+12,stroke:'#d64541','stroke-width':3},svg);
+        }
+      }
+    } else {
+      for (let k=0; k<fl; k++) el('circle',{cx:x,cy:BASE-(k+0.5)*CELL,r:18,fill:'#fff',stroke:'#1d2433','stroke-width':3},svg);
+      if (frac > 0){
+        const y = BASE - (fl+0.5)*CELL, id = 'cp'+i;
+        const cp = el('clipPath',{id},svg); el('rect',{x:x-20,y:y+18-36*frac,width:40,height:36*frac+2},cp);
+        el('circle',{cx:x,cy:y,r:18,fill:'none',stroke:'#c9c1b1','stroke-width':2,'stroke-dasharray':'4 4'},svg);
+        el('circle',{cx:x,cy:y,r:18,fill:'#bcd3f5',stroke:'#2f5597','stroke-width':3,'clip-path':`url(#${id})`},svg);
+      }
+    }
+    el('text',{x,y:BASE+30,'text-anchor':'middle','font-size':19,'font-weight':700,fill:'#1d2433'},svg,L.d.labels[i]);
+    el('text',{x,y:TOP-2,'text-anchor':'middle','font-size':18,fill:'#6b7385'},svg,splitOn?fmt(mean):v);
+    const hit = el('rect',{x:x-g.cw/2,y:TOP-20,width:g.cw,height:BASE-TOP+40,fill:'transparent',style:'cursor:pointer'},svg);
+    hit.onclick = () => lTap(i);
+  }
+  // 예상선
+  if (L.guess != null){
+    const y = BASE - L.guess*CELL;
+    el('line',{x1:g.left,x2:850,y1:y,y2:y,stroke:'#f2b134','stroke-width':5,'stroke-dasharray':'14 8'},svg);
+    el('text',{x:852,y:y-8,'text-anchor':'end','font-size':18,'font-weight':700,fill:'#b27a00'},svg,'예상 '+fmt(L.guess));
+  }
+  if (L.showMean){
+    const y = BASE - mean*CELL;
+    el('line',{x1:g.left,x2:850,y1:y,y2:y,stroke:'#d64541','stroke-width':4},svg);
+    el('text',{x:g.left+6,y:y-8,'font-size':19,'font-weight':900,fill:'#d64541'},svg,'평균 '+fmt(mean));
+  }
+  ruler.onclick = ev => {
+    if (!L.guessMode) return;
+    const pt = svg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY;
+    const p = pt.matrixTransform(svg.getScreenCTM().inverse());
+    L.guess = Math.max(0, Math.min(10, Math.round((BASE - p.y)/CELL*2)/2));
+    L.guessMode = false; lDraw();
+  };
+  if (L.guessMode){
+    el('text',{x:g.left-40,y:TOP+14,'font-size':16,'font-weight':700,fill:'#b27a00','text-anchor':'middle'},svg,'여기를');
+    el('text',{x:g.left-40,y:TOP+34,'font-size':16,'font-weight':700,fill:'#b27a00','text-anchor':'middle'},svg,'눌러요');
+  }
+  lSide(sum, mean);
+}
+function lTap(i){
+  if (L.split) return;
+  if (L.sel === null){ if (L.vals[i] > 0) L.sel = i; }
+  else if (L.sel === i) L.sel = null;
+  else {
+    if (L.vals[i] >= 10) { L.sel = null; lDraw(); return; }
+    L.hist.push([...L.vals]);
+    L.vals[L.sel]--; L.vals[i]++; L.sel = null;
+  }
+  lDraw();
+}
+function lSide(sum, mean){
+  const n = L.vals.length, mx = Math.max(...L.vals), mn = Math.min(...L.vals);
+  const flat = mx === mn, stuck = !flat && mx - mn === 1;
+  const moves = L.hist.length;
+  document.getElementById('l-sum').innerHTML =
+    `○의 수 모두 <b>${sum}</b>개 · 막대 <b>${n}</b>개<br>옮긴 횟수 <b>${moves}</b>번` +
+    (L.calc ? `<br><span class="eq">${sum} ÷ ${n} = ${fmt(mean)}</span><br><span class="hint">(평균) = (모두 더한 수) ÷ (자료의 수)</span>` : '');
+  let m;
+  if (L.split) m = `남은 <b>${sum - n*Math.floor(mean)}</b>개를 ${n}곳에 똑같이 나누면 한 곳에 <b>${fmt(mean-Math.floor(mean))}</b>씩.<br>그래서 평균은 <b>${fmt(mean)}</b>.`;
+  else if (flat) m = `모두 <b>${mx}</b>(으)로 고르게 되었어!<br>이 값이 바로 <b>평균</b>이야.`;
+  else if (stuck) m = `더 옮기면 다시 울퉁불퉁해져.<br>남은 ○를 <b>쪼개서</b> 나누면 어떨까?`;
+  else if (L.sel !== null) m = `노란 ○를 어디로 옮길까?<br>옮길 막대를 눌러.`;
+  else if (moves === 0) m = `높은 막대를 누르고, 낮은 막대를 누르면<br>○가 하나 옮겨 가.`;
+  else m = `옮겨도 ○의 수 <b>${sum}</b>개는 그대로야.<br>계속 고르게 만들어 보자.`;
+  document.getElementById('l-msg').innerHTML = m;
+  document.getElementById('l-split').disabled = !stuck && !L.split;
+  document.getElementById('l-split').textContent = L.split ? '○로 돌아가기' : '남은 것 나누기';
+  document.getElementById('l-meanbtn').textContent = L.showMean ? '평균선 숨기기' : '평균선 보기';
+  document.getElementById('l-guessbtn').textContent = L.guessMode ? '왼쪽 눈금을 눌러요' : (L.guess==null ? '예상선 긋기' : '예상선 다시 긋기');
+}
+document.getElementById('l-guessbtn').onclick = () => { L.guessMode = !L.guessMode; lDraw(); };
+document.getElementById('l-meanbtn').onclick = () => { L.showMean = !L.showMean; lDraw(); };
+document.getElementById('l-split').onclick = () => { L.split = !L.split; L.sel = null; lDraw(); };
+document.getElementById('l-calc').onclick = () => { L.calc = !L.calc; lDraw(); };
+document.getElementById('l-undo').onclick = () => { if (L.hist.length){ L.vals = L.hist.pop(); L.sel = null; L.split = false; lDraw(); } };
+document.getElementById('l-reset').onclick = () => lLoad(L.key);
+lLoad('yuna');
+
+/* =========================================================
+   ② 한 명이 튀면 — 극단값 하나가 평균을 끌어당긴다
+   ========================================================= */
+const O0 = [52,48,55,50,45];
+const O = {names:['시온','나원','재율','선하','유건'], vals:[...O0], sel:0};
+const orange = document.getElementById('o-range');
+function oDraw(){
+  const svg = document.getElementById('o-svg'); svg.innerHTML = '';
+  const B = 440, T = 30, H = B - T, MAX = 200, left = 80, cw = (860-left)/5;
+  const y = v => B - v/MAX*H;
+  for (let v=0; v<=MAX; v+=50){
+    el('line',{x1:left-8,x2:860,y1:y(v),y2:y(v),stroke:v?'#eee8dc':'#9aa3b5','stroke-width':v?1:2},svg);
+    el('text',{x:left-16,y:y(v)+6,'text-anchor':'end','font-size':17,fill:'#6b7385'},svg,v);
+  }
+  el('text',{x:10,y:T+30,'font-size':16,fill:'#6b7385'},svg,'(번)');
+  const mean = O.vals.reduce((a,b)=>a+b,0)/5;
+  O.vals.forEach((v,i) => {
+    const x = left + cw*i + 18, w = cw - 36;
+    const r = el('rect',{x,y:y(v),width:w,height:B-y(v),rx:8,fill:O.sel===i?'#f2b134':(v>mean?'#2f5597':'#9fb7de'),stroke:O.sel===i?'#b27a00':'none','stroke-width':3,style:'cursor:pointer'},svg);
+    el('text',{x:x+w/2,y:y(v)-8,'text-anchor':'middle','font-size':20,'font-weight':700,fill:'#1d2433'},svg,v);
+    el('text',{x:x+w/2,y:B+28,'text-anchor':'middle','font-size':19,'font-weight':700,fill:'#1d2433'},svg,O.names[i]);
+    const hit = el('rect',{x:x-10,y:T,width:w+20,height:B-T+40,fill:'transparent',style:'cursor:pointer'},svg);
+    hit.onclick = () => { O.sel = i; oDraw(); };
+  });
+  el('line',{x1:left,x2:860,y1:y(mean),y2:y(mean),stroke:'#d64541','stroke-width':4,'stroke-dasharray':'12 6'},svg);
+  el('text',{x:858,y:y(mean)-8,'text-anchor':'end','font-size':19,'font-weight':900,fill:'#d64541'},svg,'평균 '+fmt(mean));
+  document.getElementById('o-mean').textContent = fmt(mean) + '번';
+  const above = O.vals.filter(v=>v>mean).length;
+  document.getElementById('o-above').innerHTML = `${above}명 <span style="font-size:18px;color:#6b7385">/ 5명</span>`;
+  document.getElementById('o-who').textContent = O.names[O.sel] + ' ' + O.vals[O.sel] + '번';
+  orange.value = O.vals[O.sel];
+}
+orange.oninput = () => { O.vals[O.sel] = +orange.value; oDraw(); };
+document.getElementById('o-jump').onclick = () => { O.sel = 0; O.vals[0] = 180; oDraw(); };
+document.getElementById('o-reset').onclick = () => { O.vals = [...O0]; O.sel = 0; oDraw(); };
+oDraw();
+
+/* =========================================================
+   ③ 두 도시 — 평균이 같아도 모습이 다르다 (가상의 도시)
+   ========================================================= */
+const CITY = { c1:[8,10,15,20,25,28,31,32,28,22,14,7], c2:[18,18,19,20,21,21,22,22,21,20,19,19] };
+function cityDraw(id){
+  const svg = document.getElementById(id), d = CITY[id]; svg.innerHTML = '';
+  const B = 260, T = 20, left = 44, cw = (510-left)/12, y = v => B - v/35*(B-T);
+  for (let v=0; v<=35; v+=10){
+    el('line',{x1:left,x2:510,y1:y(v),y2:y(v),stroke:v?'#eee8dc':'#9aa3b5'},svg);
+    el('text',{x:left-8,y:y(v)+5,'text-anchor':'end','font-size':14,fill:'#6b7385'},svg,v);
+  }
+  d.forEach((v,i) => {
+    const x = left + cw*i + 4, w = cw - 8, jan = i === 0;
+    el('rect',{x,y:y(v),width:w,height:B-y(v),rx:3,fill:jan?'#d64541':(v>=20?'#f2a65a':'#7fa6db')},svg);
+    el('text',{x:x+w/2,y:y(v)-5,'text-anchor':'middle','font-size':14,'font-weight':jan?900:400,fill:jan?'#d64541':'#1d2433'},svg,v);
+    el('text',{x:x+w/2,y:B+20,'text-anchor':'middle','font-size':14,fill:'#1d2433'},svg,(i+1)+'월');
+  });
+  el('line',{x1:left,x2:510,y1:y(20),y2:y(20),stroke:'#1d2433','stroke-width':2.5,'stroke-dasharray':'8 5'},svg);
+  el('rect',{x:left+2,y:y(20)-44,width:74,height:22,rx:4,fill:'#fff'},svg);el('text',{x:left+6,y:y(20)-27,'font-size':15,'font-weight':700},svg,'평균 20℃');
+  el('text',{x:left,y:12,'font-size':13,fill:'#6b7385'},svg,'(℃)');
+}
+document.getElementById('c-show').onclick = () => {
+  ['c1','c2'].forEach(id => { document.getElementById(id).style.display = ''; document.getElementById(id+'c').style.display = 'none'; cityDraw(id); });
+};
+
+/* =========================================================
+   ④ 평균 만들기 도전 — 답이 여럿인 만들기 문제
+   ========================================================= */
+const CH = [
+  {n:5, text:'막대 <b>5개</b>로 평균이 <b>6</b>이 되게 만들어요.<br>단, <b>같은 높이의 막대가 하나도 없게!</b>',
+   check:v => new Set(v).size === 5, rule:'같은 높이인 막대가 있어요.', mean:6},
+  {n:4, text:'막대 <b>4개</b>, 평균 <b>5</b>.<br>단, 막대 하나는 꼭 <b>1</b>이어야 해요.',
+   check:v => v.includes(1), rule:'높이가 1인 막대가 없어요.', mean:5},
+  {n:6, text:'막대 <b>6개</b>, 평균 <b>4</b>.<br>단, 가장 큰 것과 가장 작은 것의 차이가 <b>8 이상</b>!',
+   check:v => Math.max(...v) - Math.min(...v) >= 8, rule:'가장 큰 것과 가장 작은 것의 차이가 8보다 작아요.', mean:4},
+  {n:5, text:'막대 <b>5개</b>, 평균 <b>7</b>.<br>단, 평균보다 큰 막대는 <b>딱 1개</b>뿐!',
+   check:v => v.filter(x=>x>7).length === 1, rule:'평균(7)보다 큰 막대가 딱 1개가 아니에요.', mean:7}
+];
+const D = {i:0, vals:[]};
+function dLoad(i){ D.i = i; D.vals = Array(CH[i].n).fill(0); document.getElementById('d-ok').innerHTML = '막대 위아래의 ＋ － 를 눌러 높이를 바꿔요.<br>다 만들면 <b>확인하기</b>.'; dDraw(); }
+function dDraw(){
+  const c = CH[D.i], svg = document.getElementById('d-svg'); svg.innerHTML = '';
+  document.getElementById('d-title').textContent = `도전 ${D.i+1} / ${CH.length}`;
+  document.getElementById('d-task').innerHTML = c.text;
+  const B = 470, left = 70, cw = (860-left)/c.n, cell = 38;
+  for (let v=0; v<=10; v++){
+    el('line',{x1:left-8,x2:860,y1:B-v*cell,y2:B-v*cell,stroke:v?'#eee8dc':'#9aa3b5','stroke-width':v?1:2},svg);
+    el('text',{x:left-16,y:B-v*cell+6,'text-anchor':'end','font-size':17,fill:'#6b7385'},svg,v);
+  }
+  D.vals.forEach((v,i) => {
+    const x = left + cw*i + cw/2, w = Math.min(90, cw-30);
+    el('rect',{x:x-w/2,y:B-v*cell,width:w,height:v*cell,rx:6,fill:'#9fb7de',stroke:'#2f5597','stroke-width':2},svg);
+    const plus = el('g',{style:'cursor:pointer'},svg);
+    el('circle',{cx:x,cy:40,r:24,fill:'#2f5597'},plus); el('text',{x,y:49,'text-anchor':'middle','font-size':28,'font-weight':900,fill:'#fff'},plus,'＋');
+    plus.onclick = () => { if (D.vals[i] < 10){ D.vals[i]++; dDraw(); } };
+    const minus = el('g',{style:'cursor:pointer'},svg);
+    el('circle',{cx:x,cy:B+40,r:24,fill:'#e7ecf5'},minus); el('text',{x,y:B+49,'text-anchor':'middle','font-size':28,'font-weight':900,fill:'#2f5597'},minus,'－');
+    minus.onclick = () => { if (D.vals[i] > 0){ D.vals[i]--; dDraw(); } };
+    el('text',{x:x+w/2+6,y:B-v*cell-6,'font-size':19,'font-weight':700,fill:'#1d2433'},svg,v);
+  });
+}
+document.getElementById('d-check').onclick = () => {
+  const c = CH[D.i], sum = D.vals.reduce((a,b)=>a+b,0), mean = sum / c.n, ok = document.getElementById('d-ok');
+  const probs = [];
+  if (sum !== c.mean * c.n) probs.push(`지금 평균은 ${sum} ÷ ${c.n} = <b>${fmt(mean)}</b>이에요.`);
+  if (!c.check(D.vals)) probs.push(c.rule);
+  ok.innerHTML = probs.length
+    ? '<span class="bad">아직이에요.</span><br>' + probs.join('<br>') + (sum !== c.mean*c.n ? '<br><span class="hint">평균이 ' + c.mean + '이 되려면 모두 더한 수가 얼마여야 할까?</span>' : '')
+    : `<span class="good">성공!</span> ${D.vals.join(' + ')} = ${sum}<br>${sum} ÷ ${c.n} = ${c.mean}<br><span class="hint">짝은 어떻게 만들었는지 비교해 봐요.</span>`;
+};
+document.getElementById('d-next').onclick = () => dLoad((D.i+1) % CH.length);
+dLoad(0);
+</script>
+</body>
+</html>

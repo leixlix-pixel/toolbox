@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>회전판 공방 — 가능성을 말과 수로</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1d2433;--navy:#1f3a68;--navy2:#2f5597;--red:#d64541;--gold:#f2b134;--paper:#fbf8f1;--line:#d9d2c3;--muted:#6b7385;--green:#2e9e6a;--sky:#e8f0fb;
+  --cR:#e5484d;--cY:#f5c518;--cB:#3b82f6}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#233049;overflow:hidden}
+body{font-family:'Noto Sans KR',sans-serif;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;color:var(--ink)}
+#stage{position:absolute;left:50%;top:50%;width:1280px;height:720px;transform-origin:center;background:var(--paper);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+header{display:flex;align-items:center;gap:18px;padding:14px 26px 10px;border-bottom:2px solid var(--line)}
+header h1{margin:0;font-size:30px;font-weight:900;color:var(--navy);white-space:nowrap}
+header h1 small{font-family:'Gaegu';font-size:24px;color:var(--red);margin-left:8px}
+.tabs{display:flex;gap:8px;margin-left:auto}
+.tab{font:700 18px 'Noto Sans KR';border:2px solid var(--navy2);background:#fff;color:var(--navy2);border-radius:999px;padding:9px 18px;min-height:48px;cursor:pointer}
+.tab.on{background:var(--navy2);color:#fff}
+main{flex:1;min-height:0;position:relative}
+.pane{position:absolute;inset:0;display:none;padding:14px 26px 16px;gap:20px}
+.pane.on{display:flex}
+.btn{font:700 19px 'Noto Sans KR';border:none;border-radius:12px;padding:10px 16px;min-height:50px;cursor:pointer;background:var(--sky);color:var(--navy)}
+.btn.main{background:var(--navy2);color:#fff}
+.btn:disabled{opacity:.35}
+.card{background:#fff;border:2px solid var(--line);border-radius:14px;padding:12px 16px}
+.fb{font-size:19px;line-height:1.55}
+.fb .good{color:var(--green);font-weight:900}
+.fb .bad{color:var(--red);font-weight:700}
+.hint{font-size:16px;color:var(--muted);line-height:1.5}
+/* 줄 세우기 */
+#p1{flex-direction:column}
+.pool{display:flex;flex-wrap:wrap;gap:8px;min-height:92px;align-content:flex-start}
+.sc{background:#fff;border:2px solid var(--navy2);border-radius:10px;padding:7px 10px;font-size:16px;line-height:1.4;cursor:pointer;max-width:290px}
+.sc.sel{background:var(--gold);border-color:#b27a00}
+.line{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;flex:1;min-height:0}
+.bin{border:2.5px dashed var(--navy2);border-radius:14px;background:#f7faff;padding:8px;cursor:pointer;display:flex;flex-direction:column;gap:6px;overflow:hidden}
+.bin h3{margin:0;font-size:19px;color:var(--navy);text-align:center}
+.bin .num{font-size:24px;font-weight:900;color:var(--red);text-align:center;min-height:30px}
+.bin .sc{max-width:none;font-size:15px;border-color:#9fb7de}
+.scale{height:10px;border-radius:5px;background:linear-gradient(90deg,#c9d6ee,var(--navy2));margin:0 6px}
+/* 회전판 */
+.spin-wrap{width:470px;flex:none;display:flex;flex-direction:column;align-items:center;gap:10px}
+.spin-wrap svg{width:430px;height:430px}
+.wedge{cursor:pointer;stroke:#1d2433;stroke-width:3}
+.palette{display:flex;gap:10px}
+.pc{width:64px;height:54px;border-radius:12px;border:4px solid transparent;cursor:pointer}
+.pc.on{border-color:#1d2433;box-shadow:0 0 0 3px #fff inset}
+.side{flex:1;display:flex;flex-direction:column;gap:12px;min-width:0}
+.order{font-size:23px;line-height:1.55}
+.order b{color:var(--red)}
+.tally{display:flex;gap:10px}
+.tally div{flex:1;border-radius:10px;padding:8px;text-align:center;font-weight:900;font-size:22px;color:#fff}
+table.res{border-collapse:collapse;font-size:22px;width:100%}
+.res th,.res td{border:2px solid var(--line);padding:8px;text-align:center;background:#fff}
+.res th{background:var(--sky)}
+#arrowR,#arrowD{transition:transform 1.6s cubic-bezier(.15,.8,.2,1);transform-origin:215px 215px}
+</style>
+</head>
+<body>
+<div id="stage">
+  <header>
+    <h1>회전판 공방<small>일어날 가능성은 얼마나 될까?</small></h1>
+    <div class="tabs">
+      <button class="tab on" data-t="p1">① 가능성 줄 세우기</button>
+      <button class="tab" data-t="p2">② 주문대로 만들기</button>
+      <button class="tab" data-t="p3">③ 범인 회전판 찾기</button>
+    </div>
+  </header>
+  <main>
+    <!-- ① 줄 세우기 -->
+    <section class="pane on" id="p1">
+      <div class="hint" style="font-size:18px">카드를 누르고, 알맞은 칸을 눌러 옮겨요. <b>모두 놓은 뒤에</b> 한 번에 확인해요. 칸 안의 카드를 누르면 다시 빠져요.</div>
+      <div class="pool" id="pool"></div>
+      <div class="scale"></div>
+      <div class="line" id="line"></div>
+      <div style="display:flex;gap:12px;align-items:center">
+        <button class="btn main" id="l-check">확인하기</button>
+        <div class="fb" id="l-fb" style="flex:1"></div>
+      </div>
+    </section>
+
+    <!-- ② 주문대로 만들기 -->
+    <section class="pane" id="p2">
+      <div class="spin-wrap">
+        <svg id="svgR" viewBox="0 0 430 430"></svg>
+        <div class="palette" id="palR"></div>
+      </div>
+      <div class="side">
+        <div class="card order" id="r-order"></div>
+        <div class="card fb" id="r-fb">칸을 눌러 색칠해요. 여덟 칸을 모두 칠한 뒤 <b>주문 확인</b>.</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn main" id="r-check">주문 확인</button>
+          <button class="btn" id="r-spin" disabled>20번 돌려 보기</button>
+          <button class="btn" id="r-next">다음 주문</button>
+          <button class="btn" id="r-clear">지우기</button>
+        </div>
+        <div class="tally" id="r-tally"></div>
+      </div>
+    </section>
+
+    <!-- ③ 범인 회전판 찾기 -->
+    <section class="pane" id="p3">
+      <div class="spin-wrap">
+        <svg id="svgD" viewBox="0 0 430 430"></svg>
+        <div class="palette" id="palD"></div>
+      </div>
+      <div class="side">
+        <div class="card order" style="font-size:21px">어느 모둠이 여덟 칸짜리 회전판을 몰래 돌렸어요. 결과표만 남아 있어요.<br><b>어떤 회전판이었을지</b> 왼쪽에 색칠해서 맞혀 봐요.</div>
+        <table class="res" id="d-res"></table>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn main" id="d-check">이 회전판이 범인!</button>
+          <button class="btn" id="d-more">1000번 더 돌린 결과 보기</button>
+          <button class="btn" id="d-new">새 사건</button>
+        </div>
+        <div class="card fb" id="d-fb">결과표를 보고, 어느 색이 많이 나왔는지부터 살펴봐요.</div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+const stage = document.getElementById('stage');
+function fit(){ const s = Math.min(innerWidth/1280, innerHeight/720); stage.style.transform = `translate(-50%,-50%) scale(${s})`; }
+addEventListener('resize', fit); fit();
+document.querySelectorAll('.tab').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.tab').forEach(x => x.classList.toggle('on', x === b));
+  document.querySelectorAll('.pane').forEach(p => p.classList.toggle('on', p.id === b.dataset.t));
+});
+const shuffle = a => { for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+
+/* =========================================================
+   ① 가능성 줄 세우기 — 10장을 5칸에, 채점은 한 번에 (부분 피드백 없음)
+   칸마다 카드 수를 일부러 다르게 두었다 (2·2·2·3·1).
+   ========================================================= */
+const BINS = [
+  {k:0, t:'불가능하다', n:'0'},
+  {k:1, t:'~아닐 것 같다', n:''},
+  {k:2, t:'반반이다', n:'½'},
+  {k:3, t:'~일 것 같다', n:''},
+  {k:4, t:'확실하다', n:'1'}
+];
+const CARDS = [
+  {t:'주사위를 한 번 던지면 7이 나올 것이다.', k:0, h:'주사위 눈에는 어떤 수들이 있나요?'},
+  {t:'흰 공만 5개 든 주머니에서 공 1개를 꺼내면 검은 공일 것이다.', k:0, h:'주머니에 검은 공이 들어 있나요?'},
+  {t:'주사위를 한 번 던지면 1이 나올 것이다.', k:1, h:'여섯 가지 눈 중에서 1은 몇 가지인가요?'},
+  {t:'제비 10장 중 당첨이 1장일 때, 1장을 뽑으면 당첨일 것이다.', k:1, h:'당첨 제비와 꽝 제비는 각각 몇 장인가요?'},
+  {t:'동전을 한 번 던지면 숫자 면이 나올 것이다.', k:2, h:'동전에는 면이 몇 개 있나요?'},
+  {t:'빨간 공 2개, 파란 공 2개가 든 주머니에서 1개를 꺼내면 파란 공일 것이다.', k:2, h:'파란 공과 빨간 공의 수를 견주어 보세요.'},
+  {t:'주사위를 한 번 던지면 2 이상인 수가 나올 것이다.', k:3, h:'2 이상인 눈은 몇 가지이고, 아닌 눈은 몇 가지인가요?'},
+  {t:'빨간 공 3개, 파란 공 1개가 든 주머니에서 1개를 꺼내면 빨간 공일 것이다.', k:3, h:'빨간 공이 전체의 절반보다 많나요, 적나요?'},
+  {t:'제비 10장 중 당첨이 9장일 때, 1장을 뽑으면 당첨일 것이다.', k:3, h:'꽝 제비가 한 장이라도 있나요?'},
+  {t:'주사위를 한 번 던지면 6 이하인 수가 나올 것이다.', k:4, h:'6보다 큰 눈이 주사위에 있나요?'}
+];
+const ORDER = shuffle(CARDS.map((_,i)=>i));   // 화면 순서만 섞는다
+const place = {}; let pick = null, lDone = false;
+function lDraw(){
+  const card = i => `<div class="sc ${pick===i?'sel':''}" data-c="${i}">${CARDS[i].t}</div>`;
+  document.getElementById('pool').innerHTML = ORDER.filter(i=>place[i]==null).map(card).join('') || '<span class="hint">카드를 모두 놓았어요.</span>';
+  document.getElementById('line').innerHTML = BINS.map(b=>`<div class="bin" data-b="${b.k}"><h3>${b.t}</h3><div class="num">${b.n}</div>${ORDER.filter(i=>place[i]===b.k).map(card).join('')}</div>`).join('');
+  document.querySelectorAll('#p1 .sc').forEach(e => e.onclick = ev => { ev.stopPropagation(); if (lDone) return; const i = +e.dataset.c;
+    if (place[i] != null && pick !== i){ delete place[i]; pick = null; } else pick = pick === i ? null : i; lDraw(); });
+  document.querySelectorAll('#p1 .bin').forEach(e => e.onclick = () => { if (pick == null || lDone) return; place[pick] = +e.dataset.b; pick = null; lDraw(); });
+  document.getElementById('l-check').disabled = lDone || ORDER.some(i=>place[i]==null);
+}
+let lTries = 0;
+document.getElementById('l-check').onclick = () => {
+  lTries++;
+  const ok = CARDS.every((c,i)=>place[i]===c.k), fb = document.getElementById('l-fb');
+  if (ok){ lDone = true; lDraw(); fb.innerHTML = `<span class="good">모두 제자리!</span> (${lTries}번 만에) ‘반반이다’는 수로 ½, ‘불가능하다’는 0, ‘확실하다’는 1이에요.`; return; }
+  fb.innerHTML = `<span class="bad">아직 제자리가 아닌 카드가 있어요.</span> 어느 카드인지는 알려 주지 않아요. 카드마다 스스로 물어봐요 — 「일어날 수 있는 경우는 몇 가지이고, 그중 이 일은 몇 가지?」`;
+};
+lDraw();
+
+/* =========================================================
+   회전판 그리기 (공용) — 8칸, 색: R Y B, 빈칸 W
+   ========================================================= */
+const COL = {R:'#e5484d', Y:'#f5c518', B:'#3b82f6', W:'#ffffff'};
+const CNAME = {R:'빨간색', Y:'노란색', B:'파란색'};
+function wedgePath(i, n=8, r=190, c=215){
+  const a0 = (i/n)*2*Math.PI - Math.PI/2, a1 = ((i+1)/n)*2*Math.PI - Math.PI/2;
+  return `M${c},${c} L${c+r*Math.cos(a0)},${c+r*Math.sin(a0)} A${r},${r} 0 0 1 ${c+r*Math.cos(a1)},${c+r*Math.sin(a1)} Z`;
+}
+function drawSpinner(svgId, cells, onTap, arrowId){
+  const svg = document.getElementById(svgId);
+  svg.innerHTML = cells.map((c,i)=>`<path class="wedge" data-i="${i}" d="${wedgePath(i)}" fill="${COL[c]}"/>`).join('')
+    + `<circle cx="215" cy="215" r="16" fill="#1d2433"/>`
+    + `<g id="${arrowId}"><polygon points="215,50 203,215 227,215" fill="#1d2433"/><circle cx="215" cy="215" r="8" fill="#fff"/></g>`;
+  svg.querySelectorAll('.wedge').forEach(w => w.onclick = () => onTap(+w.dataset.i));
+}
+function palette(id, get, set){
+  const el = document.getElementById(id);
+  el.innerHTML = ['R','Y','B','W'].map(c=>`<div class="pc ${get()===c?'on':''}" data-c="${c}" style="background:${COL[c]};${c==='W'?'border-style:dashed;border-color:#9aa3b5':''}" title="${c==='W'?'지우개':CNAME[c]}"></div>`).join('');
+  el.querySelectorAll('.pc').forEach(p => p.onclick = () => { set(p.dataset.c); palette(id, get, set); });
+}
+const count = cells => ({R:cells.filter(c=>c==='R').length, Y:cells.filter(c=>c==='Y').length, B:cells.filter(c=>c==='B').length, W:cells.filter(c=>c==='W').length});
+function word(n){ return n===0?'불가능하다':n===8?'확실하다':n===4?'반반이다':n<4?'~아닐 것 같다':'~일 것 같다'; }
+let spinAngle = {arrowR:0, arrowD:0};
+function spinTo(arrowId, idx){
+  const target = idx*45 + 10 + Math.random()*25;           // 칸 안의 한 곳
+  const base = spinAngle[arrowId] - (spinAngle[arrowId] % 360);
+  spinAngle[arrowId] = base + 360*4 + target;
+  document.getElementById(arrowId).style.transform = `rotate(${spinAngle[arrowId]}deg)`;
+}
+
+/* =========================================================
+   ② 주문대로 만들기 — 답이 여럿인 만들기 문제
+   ========================================================= */
+const ORDERS = [
+  {t:'화살이 <b>빨간색</b>에 멈출 가능성이 <b>‘반반이다’</b>인 회전판', ok:c=>c.R===4},
+  {t:'화살이 <b>파란색</b>에 멈출 가능성이 <b>‘확실하다’</b>인 회전판', ok:c=>c.B===8},
+  {t:'<b>노란색</b>에 멈출 가능성은 <b>‘불가능하다’</b>, <b>빨간색</b>은 <b>‘~일 것 같다’</b>인 회전판', ok:c=>c.Y===0&&c.R>=5&&c.R<=7},
+  {t:'<b>빨간색</b>은 <b>‘반반이다’</b>, 그리고 <b>노란색</b>에 멈출 가능성이 <b>파란색</b>보다 큰 회전판', ok:c=>c.R===4&&c.Y>c.B},
+  {t:'세 색을 모두 쓰고, <b>파란색</b>은 <b>‘~아닐 것 같다’</b>, 가장 멈추기 쉬운 색은 <b>노란색</b>인 회전판', ok:c=>c.R>0&&c.Y>0&&c.B>0&&c.B<4&&c.Y>c.R&&c.Y>c.B},
+  {t:'빨간색에 멈출 가능성을 수로 나타내면 <b>0</b>, 파란색은 <b>½</b>인 회전판', ok:c=>c.R===0&&c.B===4}
+];
+const RS = {cells:Array(8).fill('W'), color:'R', o:0, done:false};
+function rDraw(){
+  drawSpinner('svgR', RS.cells, i => { if (RS.done) return; RS.cells[i] = RS.color; rDraw(); }, 'arrowR');
+  document.getElementById('arrowR').style.transform = `rotate(${spinAngle.arrowR}deg)`;
+  palette('palR', ()=>RS.color, c=>RS.color=c);
+  document.getElementById('r-order').innerHTML = `<span class="hint">주문 ${RS.o+1} / ${ORDERS.length}</span><br>${ORDERS[RS.o].t}을 만들어 주세요!`;
+  document.getElementById('r-spin').disabled = !RS.done;
+}
+document.getElementById('r-check').onclick = () => {
+  const c = count(RS.cells), fb = document.getElementById('r-fb');
+  if (c.W){ fb.innerHTML = `<span class="bad">아직 칠하지 않은 칸이 ${c.W}칸 있어요.</span>`; return; }
+  const now = ['R','Y','B'].map(k=>`${CNAME[k]} ${c[k]}칸 → <b>${word(c[k])}</b>`).join('<br>');
+  if (ORDERS[RS.o].ok(c)){ RS.done = true; fb.innerHTML = `<span class="good">주문 완성!</span><br>${now}<br><span class="hint">짝은 다르게 만들었나요? 답이 하나가 아닐 수도 있어요.</span>`; }
+  else fb.innerHTML = `<span class="bad">주문과 달라요.</span> 지금 회전판은<br>${now}`;
+  rDraw();
+};
+document.getElementById('r-spin').onclick = () => {
+  const t = {R:0,Y:0,B:0}; let last = 0;
+  for (let k=0;k<20;k++){ last = Math.floor(Math.random()*8); t[RS.cells[last]]++; }
+  spinTo('arrowR', last);
+  setTimeout(()=>{ document.getElementById('r-tally').innerHTML = ['R','Y','B'].map(k=>`<div style="background:${COL[k]};${k==='Y'?'color:#3a2a00':''}">${CNAME[k]} ${t[k]}번</div>`).join(''); }, 1600);
+};
+document.getElementById('r-next').onclick = () => { RS.o = (RS.o+1)%ORDERS.length; RS.done = false; document.getElementById('r-fb').innerHTML = '칸을 눌러 색칠해요. 여덟 칸을 모두 칠한 뒤 <b>주문 확인</b>.'; document.getElementById('r-tally').innerHTML=''; rDraw(); };
+document.getElementById('r-clear').onclick = () => { if (RS.done) return; RS.cells = Array(8).fill('W'); rDraw(); };
+rDraw();
+
+/* =========================================================
+   ③ 범인 회전판 찾기 — 결과표만 보고 회전판을 칠한다
+   결과표에서 답을 가릴 수 있을 때만 문제로 낸다(가장 가까운 설계가 범인 하나뿐).
+   ========================================================= */
+const DS = {cells:Array(8).fill('W'), color:'R', hidden:null, res:null, more:null, tries:0, done:false};
+function designs(){ const out=[]; for(let r=0;r<=8;r++) for(let y=0;y<=8-r;y++) out.push({R:r,Y:y,B:8-r-y}); return out; }
+function simulate(d, n){ const t={R:0,Y:0,B:0}; for(let i=0;i<n;i++){ const x=Math.random()*8; t[x<d.R?'R':x<d.R+d.Y?'Y':'B']++; } return t; }
+function nearest(res, n){ let best=null, bd=1e9, tie=false;
+  for (const d of designs()){ const dist = ['R','Y','B'].reduce((s,k)=>s+Math.abs(res[k]-d[k]/8*n),0); if (dist < bd-1e-9){ bd=dist; best=d; tie=false; } else if (Math.abs(dist-bd)<1e-9) tie=true; }
+  return tie ? null : best; }
+function newCase(){
+  const pool = designs().filter(d => [d.R,d.Y,d.B].filter(v=>v>0).length >= 2);
+  for(;;){ const h = pool[Math.floor(Math.random()*pool.length)], res = simulate(h,100), nb = nearest(res,100);
+    if (nb && nb.R===h.R && nb.Y===h.Y){ Object.assign(DS, {hidden:h, res, more:null, cells:Array(8).fill('W'), tries:0, done:false}); break; } }
+  document.getElementById('d-fb').innerHTML = '결과표를 보고, 어느 색이 많이 나왔는지부터 살펴봐요.';
+  dDraw();
+}
+function dDraw(){
+  drawSpinner('svgD', DS.cells, i => { if (DS.done) return; DS.cells[i] = DS.color; dDraw(); }, 'arrowD');
+  document.getElementById('arrowD').style.transform = `rotate(${spinAngle.arrowD}deg)`;
+  palette('palD', ()=>DS.color, c=>DS.color=c);
+  const row = (lb, t) => `<tr><th>${lb}</th>${['R','Y','B'].map(k=>`<td>${t[k]}</td>`).join('')}</tr>`;
+  document.getElementById('d-res').innerHTML = `<tr><th></th>${['R','Y','B'].map(k=>`<th style="color:${COL[k]==='#f5c518'?'#a07c00':COL[k]}">${CNAME[k]}</th>`).join('')}</tr>`
+    + row('100번 돌린 결과', DS.res) + (DS.more ? row('1000번 더 돌린 결과', DS.more) : '');
+  document.getElementById('d-more').disabled = !!DS.more;
+}
+document.getElementById('d-check').onclick = () => {
+  const c = count(DS.cells), fb = document.getElementById('d-fb'), h = DS.hidden;
+  if (c.W){ fb.innerHTML = `<span class="bad">아직 칠하지 않은 칸이 ${c.W}칸 있어요.</span>`; return; }
+  DS.tries++;
+  if (c.R===h.R && c.Y===h.Y){
+    DS.done = true; dDraw();
+    spinTo('arrowD', Math.floor(Math.random()*8));   // 맞힌 기념으로 한 바퀴
+    fb.innerHTML = `<span class="good">범인을 찾았다!</span> (${DS.tries}번 만에) 빨간색 ${h.R}칸, 노란색 ${h.Y}칸, 파란색 ${h.B}칸.<br><span class="hint">칸이 많은 색일수록 결과표에서도 많이 나왔지요? 그런데 결과가 칸 수와 딱 맞지는 않아요 — 왜 그럴까요?</span>`;
+    return;
+  }
+  // 네 회전판이었다면 100번 중 몇 번쯤 나왔을까 — 비교할 근거를 준다(정답 칸 수는 알려 주지 않는다)
+  fb.innerHTML = `<span class="bad">이 회전판은 아닌 것 같아요.</span><br>네 회전판을 100번 돌리면 대략 ` +
+    ['R','Y','B'].map(k=>`${CNAME[k]} <b>${Math.round(c[k]/8*100)}번</b>`).join(', ') + ` 쯤 나와야 해요.<br>결과표와 견주어 보세요.`;
+};
+document.getElementById('d-more').onclick = () => { DS.more = simulate(DS.hidden, 1000); dDraw(); };
+document.getElementById('d-new').onclick = newCase;
+newCase();
+</script>
+</body>
+</html>

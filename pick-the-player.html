@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>대표 선수를 뽑아라 — 평균으로 결정하기</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1d2433;--navy:#1f3a68;--navy2:#2f5597;--red:#d64541;--gold:#f2b134;--paper:#fbf8f1;--line:#d9d2c3;--muted:#6b7385;--green:#2e9e6a;--sky:#e8f0fb}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);font-family:'Noto Sans KR',sans-serif;color:var(--ink);touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;font-size:18px}
+.wrap{max-width:1080px;margin:0 auto;padding:14px 16px 40px}
+header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+header h1{margin:0;font-size:28px;font-weight:900;color:var(--navy)}
+.steps{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap}
+.dot{width:40px;height:40px;border-radius:50%;border:2px solid var(--line);background:#fff;font-weight:700;color:var(--muted);display:flex;align-items:center;justify-content:center;font-size:16px}
+.dot.on{border-color:var(--navy2);background:var(--navy2);color:#fff}
+.dot.done{border-color:var(--green);color:var(--green)}
+.card{background:#fff;border:2px solid var(--line);border-radius:16px;padding:16px 18px;margin-bottom:14px}
+.card h2{margin:0 0 8px;font-size:23px;color:var(--navy)}
+.say{font-family:'Gaegu';font-size:25px;color:var(--navy);line-height:1.35}
+p{line-height:1.6;margin:6px 0}
+b.r{color:var(--red)}
+/* 기록표 */
+table.rec{border-collapse:collapse;width:100%;font-size:18px}
+.rec th,.rec td{border:1.5px solid var(--line);padding:7px 6px;text-align:center}
+.rec th{background:var(--sky);color:var(--navy)}
+.rec td.nm{font-weight:900;width:80px}
+.rec td.empty{background:#f4f1ea}
+.rec td.new{background:#fff3d6;font-weight:900}
+.rec input{width:88px;font:700 20px 'Noto Sans KR';text-align:center;padding:6px;border:2px solid var(--line);border-radius:8px;user-select:text}
+.rec input.bad{border-color:var(--red);background:#fdecea}
+.rec input.ok{border-color:var(--green);background:#e9f7ef}
+.btn{font:700 19px 'Noto Sans KR';border:none;border-radius:12px;padding:12px 22px;min-height:52px;cursor:pointer;background:var(--sky);color:var(--navy)}
+.btn.main{background:var(--navy2);color:#fff}
+.btn:disabled{opacity:.35}
+.nav{display:flex;gap:10px;justify-content:space-between;margin-top:6px}
+.fb{font-size:19px;line-height:1.55;margin-top:10px;min-height:28px}
+.good{color:var(--green);font-weight:900}
+.bad{color:var(--red);font-weight:700}
+.hint{font-size:16px;color:var(--muted);line-height:1.5}
+.rank{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.rank div{background:var(--sky);border-radius:10px;padding:8px 12px;font-weight:700}
+.rank div.top{background:var(--gold)}
+/* 분류 */
+.pool{display:flex;flex-wrap:wrap;gap:10px;min-height:60px}
+.cardx{background:#fff;border:2px solid var(--navy2);border-radius:12px;padding:10px 12px;font-size:17px;line-height:1.45;cursor:pointer;max-width:320px}
+.cardx.sel{background:var(--gold);border-color:#b27a00}
+.bins{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:12px}
+.bin{border:2.5px dashed var(--navy2);border-radius:14px;padding:10px;min-height:120px;cursor:pointer;background:#f7faff}
+.bin h3{margin:0 0 8px;font-size:18px;color:var(--navy)}
+.bin .cardx{max-width:none;margin-bottom:8px;border-color:#9fb7de}
+.helps{margin-top:10px;padding-left:22px}
+.helps li{margin:6px 0;line-height:1.5}
+/* 결정 */
+.cands{display:flex;gap:10px;flex-wrap:wrap}
+.cand{border:2.5px solid var(--line);border-radius:14px;background:#fff;padding:12px 18px;font-size:22px;font-weight:900;cursor:pointer;min-width:110px;text-align:center}
+.cand.sel{border-color:var(--red);background:#fdecea;color:var(--red)}
+.frame{border:2px solid var(--line);border-radius:12px;padding:12px 16px;background:#fffdf7;font-size:19px;line-height:2.1}
+.frame u{text-decoration:none;border-bottom:2px solid var(--muted);display:inline-block;min-width:180px}
+.check{list-style:none;padding-left:4px}.check li{margin:6px 0;font-size:18px}
+details summary{cursor:pointer;font-weight:700;color:var(--muted)}
+@media (max-width:640px){ .bins{grid-template-columns:1fr} .rec{font-size:15px} .rec input{width:64px;font-size:17px} header h1{font-size:23px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🏅 대표 선수를 뽑아라</h1>
+    <div class="steps" id="dots"></div>
+  </header>
+  <div id="view"></div>
+</div>
+
+<script>
+/* ============ 자료 (가상의 반) ============
+   연습 횟수를 일부러 다르게 두었다 — 합계로는 비교가 안 된다는 것을 스스로 부딪히게.
+   유담 3번 60/20 · 진하 6번 90/15 · 소하 4번 76/19 · 채율 2번 52/26 · 도헌 5번 100/20 */
+const P = [
+  {nm:'유담', rec:[18,22,20]},
+  {nm:'진하', rec:[14,16,15,17,13,15]},
+  {nm:'소하', rec:[21,9,24,22]},
+  {nm:'채율', rec:[27,25]},
+  {nm:'도헌', rec:[19,21,20,18,22]}
+];
+const TWIST = 8;               // 채율이의 세 번째 기록 → (27+25+8)÷3 = 20, 셋이 동점
+const sum = a => a.reduce((x,y)=>x+y,0);
+const avg = a => sum(a)/a.length;
+
+const SORT_BINS = [
+  {k:'mean', t:'① 평균을 비교한 근거'},
+  {k:'count', t:'② 연습한 횟수(자료의 수)를 따진 근거'},
+  {k:'even', t:'③ 기록이 고른지를 따진 근거'},
+  {k:'no', t:'④ 근거로 쓸 수 없는 말'}
+];
+const SORT_CARDS = [
+  {t:'채율이의 평균은 26개로 다섯 명 중 가장 높다.', k:'mean', h:'이 말은 무엇과 무엇을 견주고 있나요?'},
+  {t:'유담이와 도헌이는 평균이 20개로 같다.', k:'mean', h:'「20개」는 어떻게 구한 값인가요?'},
+  {t:'채율이는 2번만 연습해서, 한 번만 더 차도 평균이 크게 바뀔 수 있다.', k:'count', h:'「2번만」이라는 말이 무엇을 걱정하고 있나요?'},
+  {t:'도헌이는 5번이나 찼으니 도헌이의 평균은 믿을 만하다.', k:'count', h:'「5번이나」가 왜 믿음을 줄까요?'},
+  {t:'소하는 9개를 찬 날이 한 번 있어서 평균이 낮아졌다.', k:'even', h:'기록 하나가 다른 기록들과 얼마나 다른가요?'},
+  {t:'도헌이의 기록은 18개에서 22개 사이로 매번 비슷하다.', k:'even', h:'「매번 비슷하다」는 기록의 어떤 모습을 말하나요?'},
+  {t:'진하의 기록은 13개에서 17개 사이라서 크게 들쭉날쭉하지 않다.', k:'even', h:'가장 적게 찬 날과 가장 많이 찬 날의 차이는 몇 개인가요?'},
+  {t:'합계가 100개로 가장 큰 도헌이가 제일 잘 찬다.', k:'no', h:'연습 횟수가 다른 사람끼리 합계를 견주어도 될까요?'},
+  {t:'채율이는 반에서 인기가 많으니까 대표가 되어야 한다.', k:'no', h:'이 말은 제기차기 기록과 관계가 있나요?'}
+];
+
+/* ============ 상태 (이어하기) ============ */
+const KEY = 'pick-the-player-v2';
+let S = {step:0, done:{}, first:{}, tries:{}, place:{}, pick:null, order:null};
+try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && typeof s.step === 'number') S = Object.assign(S, s); } catch(e){}
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} }
+if (!S.order){ // 분류 카드는 화면 순서만 섞는다 (원본 번호에 해설을 묶어 둔다)
+  S.order = SORT_CARDS.map((_,i)=>i);
+  for (let i=S.order.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [S.order[i],S.order[j]]=[S.order[j],S.order[i]]; }
+}
+const STEPS = ['시작','합계','평균','근거','반전','거꾸로','결정'];
+const view = document.getElementById('view');
+
+function dots(){
+  document.getElementById('dots').innerHTML = STEPS.map((s,i)=>`<div class="dot ${i===S.step?'on':''} ${S.done[i]?'done':''}" title="${s}">${i}</div>`).join('');
+}
+function go(n){ S.step = n; save(); render(); scrollTo(0,0); }
+function tryMark(step, ok){
+  S.tries[step] = (S.tries[step]||0) + 1;
+  if (ok){ S.done[step] = true; if (S.first[step] == null) S.first[step] = S.tries[step] === 1; }
+  save();
+}
+function navHTML(canNext){
+  return `<div class="nav">
+    ${S.step>0?`<button class="btn" onclick="go(${S.step-1})">◀ 앞으로</button>`:'<span></span>'}
+    ${S.step<STEPS.length-1?`<button class="btn main" ${canNext?'':'disabled'} onclick="go(${S.step+1})">다음 ▶</button>`:''}
+  </div>`;
+}
+
+/* 기록표 — mode: 'plain' | 'sum' | 'avg' | 'twist' */
+function recTable(mode){
+  const maxN = 6;
+  let h = '<table class="rec"><tr><th>이름</th>';
+  for (let i=1;i<=maxN;i++) h += `<th>${i}번째</th>`;
+  if (mode==='sum') h += '<th>합계(개)</th>';
+  if (mode==='avg') h += '<th>합계</th><th>평균(개)</th>';
+  h += '</tr>';
+  P.forEach((p,pi) => {
+    let rec = p.rec;
+    if (mode==='twist' && p.nm==='채율') rec = [...rec, TWIST];
+    h += `<tr><td class="nm">${p.nm}</td>`;
+    for (let i=0;i<maxN;i++){
+      const isNew = mode==='twist' && p.nm==='채율' && i===2;
+      h += i<rec.length ? `<td class="${isNew?'new':''}">${rec[i]}</td>` : '<td class="empty"></td>';
+    }
+    if (mode==='sum') h += `<td><input inputmode="numeric" id="in${pi}" value="${S.done[1]?sum(p.rec):''}"></td>`;
+    if (mode==='avg') h += `<td>${sum(p.rec)}</td><td><input inputmode="decimal" id="in${pi}" value="${S.done[2]?avg(p.rec):''}"></td>`;
+    h += '</tr>';
+  });
+  return h + '</table>';
+}
+function readNum(id){ const v = document.getElementById(id).value.trim(); return v===''?NaN:Number(v); }
+
+/* ============ 화면들 ============ */
+const R = [];
+
+R[0] = () => `
+  <div class="card">
+    <h2>반 대항 제기차기 대회</h2>
+    <p class="say">다음 주에 반 대항 제기차기 대회가 열려. 우리 반에서 <b class="r">대표 선수 한 명</b>을 보내야 해!</p>
+    <p>후보는 다섯 명. 쉬는 시간마다 연습한 기록을 적어 두었는데, <b>사람마다 연습한 횟수가 달라.</b></p>
+    ${recTable('plain')}
+    <p class="hint">대회 규칙: 대표 선수는 대회 날 제기를 3번 차고, 그 3번의 평균으로 순위를 정해요.</p>
+  </div>
+  <div class="card">
+    <h2>오늘 할 일</h2>
+    <p>① 합계로 뽑아 보고 → ② 평균으로 뽑아 보고 → ③ 근거를 가려 보고 → ④ 뜻밖의 일을 겪은 뒤 → ⑤ <b>누구를 뽑을지 공책에 써서</b> 발표해요.</p>
+    <p class="hint">계산기는 선생님이 허락할 때만 써요.</p>
+  </div>
+  <details class="card"><summary>선생님용 메모</summary>
+    <p class="hint">합계 1등(도헌 100)과 평균 1등(채율 26)이 다르게 짜 두었다. 채율은 연습 2번뿐이라 평균을 믿기 어렵고, 4단계에서 세 번째 기록 8개가 들어오면 유담·도헌·채율이 평균 20으로 셋이 같아진다 — 평균만으로는 못 정하고 자료의 수·고른 정도를 끌어와야 한다. 5단계는 평가지의 「본선에 나가려면 적어도 몇 개」 문항과 같은 꼴이다. 앱은 공책에 쓰기 전까지만 데려간다. 기록은 이 태블릿에만 남고, 맨 아래 「처음부터」로 지울 수 있다.</p>
+  </details>
+  ${navHTML(true)}`;
+
+R[1] = () => `
+  <div class="card">
+    <h2>1. 합계로 뽑으면?</h2>
+    <p class="say">"많이 찬 사람이 잘 차는 거지! 다 더해 보자."</p>
+    ${recTable('sum')}
+    <div style="margin-top:12px"><button class="btn main" onclick="chkSum()">채점하기</button></div>
+    <div class="fb" id="fb">${S.done[1]?sumDone():''}</div>
+  </div>
+  ${navHTML(S.done[1])}`;
+function sumDone(){
+  const r = P.map(p=>({nm:p.nm,v:sum(p.rec),n:p.rec.length})).sort((a,b)=>b.v-a.v);
+  return `<span class="good">모두 맞았어!</span> 합계 순위:
+    <div class="rank">${r.map((x,i)=>`<div class="${i===0?'top':''}">${i+1}. ${x.nm} ${x.v}개 <span class="hint">(${x.n}번)</span></div>`).join('')}</div>
+    <p class="say" style="margin-top:10px">잠깐… 진하가 2등? 진하는 한 번에 13~17개밖에 못 찼는데?<br>채율이는 한 번에 25개 넘게 찼는데 꼴찌야. 이상하지 않아?</p>
+    <p><b>왜 이런 일이 생겼는지</b> 짝과 이야기해 보고 다음으로 가요.</p>`;
+}
+function chkSum(){
+  let ok = true;
+  P.forEach((p,i)=>{ const inp = document.getElementById('in'+i); const g = readNum('in'+i) === sum(p.rec); inp.className = g?'ok':'bad'; ok = ok && g; });
+  tryMark(1, ok);
+  document.getElementById('fb').innerHTML = ok ? sumDone() : '<span class="bad">빨간 칸을 다시 더해 봐.</span>';
+  if (ok) render();
+}
+
+R[2] = () => `
+  <div class="card">
+    <h2>2. 평균으로 뽑으면?</h2>
+    <p class="say">"연습한 횟수가 다르니까, 한 번에 몇 개쯤 차는지로 견주자."</p>
+    ${recTable('avg')}
+    <p class="hint">(평균) = (합계) ÷ (연습한 횟수)</p>
+    <div><button class="btn main" onclick="chkAvg()">채점하기</button></div>
+    <div class="fb" id="fb">${S.done[2]?avgDone():''}</div>
+  </div>
+  ${navHTML(S.done[2])}`;
+function avgDone(){
+  const r = P.map(p=>({nm:p.nm,v:avg(p.rec),n:p.rec.length})).sort((a,b)=>b.v-a.v);
+  return `<span class="good">모두 맞았어!</span> 평균 순위:
+    <div class="rank">${r.map((x,i)=>`<div class="${i===0?'top':''}">${x.nm} ${x.v}개 <span class="hint">(${x.n}번)</span></div>`).join('')}</div>
+    <p class="say" style="margin-top:10px">평균으로 보니 채율이가 1등! 그럼 채율이로 정하면 끝일까?</p>`;
+}
+function chkAvg(){
+  let ok = true;
+  P.forEach((p,i)=>{ const inp = document.getElementById('in'+i); const g = readNum('in'+i) === avg(p.rec); inp.className = g?'ok':'bad'; ok = ok && g; });
+  tryMark(2, ok);
+  document.getElementById('fb').innerHTML = ok ? avgDone() : '<span class="bad">빨간 칸을 다시 계산해 봐.</span> <span class="hint">합계를 연습한 횟수로 나눴나요?</span>';
+  if (ok) render();
+}
+
+/* 3. 근거 가르기 — 8장을 4칸에. 다 놓은 뒤 한 번에 채점, 틀린 카드를 알려 주지 않는다 */
+let pickCard = null;
+R[3] = () => {
+  const placed = S.place;
+  const pool = S.order.filter(i => placed[i] == null);
+  const cardHTML = i => `<div class="cardx ${pickCard===i?'sel':''}" onclick="event.stopPropagation();tapCard(${i})">${SORT_CARDS[i].t}</div>`;
+  return `
+  <div class="card">
+    <h2>3. 근거를 가려 보자</h2>
+    <p>친구들이 한 말이에요. 카드를 누르고, 알맞은 칸을 눌러 옮겨요. <b>카드를 다 놓으면</b> 채점할 수 있어요.</p>
+    <div class="pool">${pool.map(cardHTML).join('') || '<span class="hint">카드를 모두 놓았어요. 칸 안의 카드를 누르면 다시 꺼낼 수 있어요.</span>'}</div>
+    <div class="bins">${SORT_BINS.map(b=>`<div class="bin" onclick="tapBin('${b.k}')"><h3>${b.t}</h3>${S.order.filter(i=>placed[i]===b.k).map(cardHTML).join('')}</div>`).join('')}</div>
+    <div style="margin-top:12px"><button class="btn main" ${pool.length?'disabled':''} onclick="chkSort()">채점하기</button></div>
+    <div class="fb" id="fb">${S.done[3]?sortDone():''}</div>
+  </div>
+  ${navHTML(S.done[3])}`;
+};
+function tapCard(i){
+  if (S.done[3]) return;
+  if (S.place[i] != null && pickCard !== i){ delete S.place[i]; pickCard = null; save(); render(); return; }
+  pickCard = pickCard === i ? null : i; render();
+}
+function tapBin(k){
+  if (pickCard == null || S.done[3]) return;
+  S.place[pickCard] = k; pickCard = null; save(); render();
+}
+function sortDone(){
+  return `<span class="good">모두 제자리!</span>
+    <p>평균만 보지 않고 <b>몇 번 찼는지(자료의 수)</b>, <b>기록이 고른지</b>도 근거가 될 수 있어요.
+    합계는 연습한 횟수가 다르면 견줄 수 없어서 근거가 되지 못해요.</p>`;
+}
+function chkSort(){
+  const ok = SORT_CARDS.every((c,i)=>S.place[i]===c.k);
+  tryMark(3, ok);
+  if (ok){ render(); return; }
+  document.getElementById('fb').innerHTML = `<span class="bad">아직 제자리가 아닌 카드가 있어요.</span> 어느 카드인지는 알려 주지 않아요 — 아래 질문을 읽고 카드를 하나씩 다시 살펴봐요.
+    <ol class="helps">${S.order.map(i=>`<li><b>「${SORT_CARDS[i].t.slice(0,14)}…」</b> ${SORT_CARDS[i].h}</li>`).join('')}</ol>`;
+}
+
+R[4] = () => `
+  <div class="card">
+    <h2>4. 뜻밖의 일!</h2>
+    <p class="say">대회 이틀 전, 채율이가 한 번 더 연습했어. 그런데 이번에는 <b class="r">${TWIST}개</b>밖에 못 찼대.</p>
+    ${recTable('twist')}
+    <p style="margin-top:12px">채율이의 새 평균은 몇 개일까요? <input inputmode="decimal" id="tw" value="${S.done[4]?20:''}" style="width:100px;font:700 22px 'Noto Sans KR';text-align:center;padding:6px;border:2px solid var(--line);border-radius:8px;user-select:text"> 개
+      <button class="btn main" onclick="chkTwist()">채점하기</button></p>
+    <div class="fb" id="fb">${S.done[4]?twistDone():''}</div>
+  </div>
+  ${navHTML(S.done[4])}`;
+function twistDone(){
+  return `<span class="good">맞았어! (27 + 25 + ${TWIST}) ÷ 3 = 20</span>
+    <div class="rank"><div class="top">유담 20개 (3번)</div><div class="top">도헌 20개 (5번)</div><div class="top">채율 20개 (3번)</div><div>소하 19개 (4번)</div><div>진하 15개 (6번)</div></div>
+    <p class="say" style="margin-top:10px">이제 세 명의 평균이 똑같이 20개야! 평균만으로는 못 정해.</p>
+    <p>3단계에서 가려 둔 <b>②, ③번 칸의 근거</b>를 써 보자. 세 사람의 기록을 다시 보고, 누가 대회 날 3번 찼을 때 가장 믿음직할지 짝과 이야기해요.</p>`;
+}
+function chkTwist(){
+  const ok = readNum('tw') === 20;
+  document.getElementById('tw').className = ok?'ok':'bad';
+  tryMark(4, ok);
+  if (ok) render(); else document.getElementById('fb').innerHTML = '<span class="bad">다시 계산해 봐.</span> <span class="hint">이제 채율이는 몇 번 연습했나요?</span>';
+}
+
+R[5] = () => `
+  <div class="card">
+    <h2>5. 거꾸로 생각하기</h2>
+    <p>대표가 못 된 친구들도 다음 대회를 준비해요.</p>
+    <p><b>(1)</b> 소하는 지금까지 4번 찼어요 (21, 9, 24, 22). 5번째에 몇 개를 차야 5번의 평균이 <b class="r">20개</b>가 될까요?
+      <br><input inputmode="numeric" id="q1" value="${S.done[5]?24:''}" style="width:100px;font:700 22px 'Noto Sans KR';text-align:center;padding:6px;border:2px solid var(--line);border-radius:8px;margin-top:6px;user-select:text"> 개</p>
+    <p><b>(2)</b> 진하는 지금까지 6번 찼어요 (합계 90개). 7번째에 몇 개를 차야 7번의 평균이 <b class="r">16개</b>가 될까요?
+      <br><input inputmode="numeric" id="q2" value="${S.done[5]?22:''}" style="width:100px;font:700 22px 'Noto Sans KR';text-align:center;padding:6px;border:2px solid var(--line);border-radius:8px;margin-top:6px;user-select:text"> 개</p>
+    <button class="btn main" onclick="chkBack()">채점하기</button>
+    <div class="fb" id="fb">${S.done[5]?backDone():''}</div>
+  </div>
+  ${navHTML(S.done[5])}`;
+function backDone(){
+  return `<span class="good">둘 다 맞았어!</span>
+    <p>(1) 평균 20개로 5번 → 모두 20 × 5 = 100개. 지금까지 76개 → 100 − 76 = <b>24개</b><br>
+       (2) 평균 16개로 7번 → 모두 16 × 7 = 112개. 지금까지 90개 → 112 − 90 = <b>22개</b></p>
+    <p class="hint">평균을 알면 (평균) × (자료의 수) 로 합계를 거꾸로 구할 수 있어요. 평가에도 나오는 생각이에요!</p>`;
+}
+function chkBack(){
+  const a = readNum('q1') === 24, b = readNum('q2') === 22;
+  document.getElementById('q1').className = a?'ok':'bad'; document.getElementById('q2').className = b?'ok':'bad';
+  tryMark(5, a && b);
+  if (a && b) render(); else document.getElementById('fb').innerHTML = '<span class="bad">빨간 칸을 다시 생각해 봐.</span> <span class="hint">평균이 ○개가 되려면, 모두 합해서 몇 개가 되어야 할까?</span>';
+}
+
+R[6] = () => {
+  const firstOK = [1,2,3,4,5].filter(i=>S.first[i]).length;
+  return `
+  <div class="card">
+    <h2>6. 나의 결정</h2>
+    <p>대표로 뽑을 친구를 골라요. 정답은 없어요 — <b>근거</b>가 중요해요.</p>
+    <div class="cands">${P.map(p=>`<div class="cand ${S.pick===p.nm?'sel':''}" onclick="S.pick='${p.nm}';save();render()">${p.nm}</div>`).join('')}</div>
+  </div>
+  ${S.pick?`
+  <div class="card">
+    <h2>공책에 이렇게 써 봐요</h2>
+    <div class="frame">
+      나는 <b class="r">${S.pick}</b>(이)를 대표 선수로 뽑겠습니다.<br>
+      왜냐하면 ${S.pick}의 평균은 <u></u> 개이고, <u></u> 때문입니다.<br>
+      <u style="min-width:120px"></u>(이)를 뽑지 않은 까닭은 <u style="min-width:260px"></u> 때문입니다.
+    </div>
+    <p style="margin-top:14px"><b>다 쓰고 스스로 점검해요</b></p>
+    <ul class="check">
+      <li>☐ 평균을 <b>계산해서</b> 숫자로 적었나요?</li>
+      <li>☐ 평균 말고 <b>다른 근거</b>(연습 횟수, 기록이 고른지)를 하나 더 들었나요?</li>
+      <li>☐ 다른 후보를 뽑지 않은 까닭도 썼나요?</li>
+    </ul>
+  </div>`:''}
+  <div class="card">
+    <p>한 번에 맞힌 단계 <b>${firstOK} / 5</b> <span class="hint">— 빨리 끝내는 것보다 한 번에 맞히는 게 더 멋져요.</span></p>
+    <button class="btn" onclick="resetAll()">처음부터 (기록 지우기)</button>
+  </div>
+  ${navHTML(false)}`;
+};
+function resetAll(){
+  try { localStorage.removeItem(KEY); } catch(e){}
+  S = {step:0, done:{}, first:{}, tries:{}, place:{}, pick:null, order:S.order}; save(); render();
+}
+
+function render(){ dots(); view.innerHTML = R[S.step](); }
+render();
+</script>
+</body>
+</html>

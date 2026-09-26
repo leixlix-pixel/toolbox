@@ -9,6 +9,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
   --ink:#1c2430; --muted:#6d6b66; --line:#e2ddd2; --paper:#f6f2e9; --card:#fff;
+  --row-alt:#fbf9f4; --hover:#eef4fb;
   --social:#c0392b; --korean:#1d5b95; --math:#2e7d5b; --music:#c8963e;
   --art:#7d4a86; --ethics:#d1712f; --practical:#2b7a8c; --extra:#5c6470;
 }
@@ -25,32 +26,81 @@ header p{font-size:14px;opacity:.8;margin-top:3px}
   font-family:inherit;font-size:17px;font-weight:500;color:var(--ink);min-height:48px}
 #q:focus{outline:3px solid #4a86c4}
 
-.chips{max-width:1180px;margin:16px auto 0;padding:0 20px;
-  display:flex;gap:8px;flex-wrap:wrap}
-.chip{min-height:42px;padding:8px 16px;border:2px solid var(--line);border-radius:999px;
-  background:#fff;font-family:inherit;font-size:15px;font-weight:700;color:var(--muted);cursor:pointer}
-.chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
-
 main{max-width:1180px;margin:0 auto;padding:0 20px}
-section{margin-top:26px}
-h2{font-size:19px;font-weight:900;display:flex;align-items:center;gap:9px;margin-bottom:11px}
-h2 .dot{width:13px;height:13px;border-radius:4px;display:inline-block}
-h2 .n{font-size:14px;font-weight:700;color:var(--muted)}
 
-.grid{display:grid;gap:11px;grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
-a.item{display:block;background:var(--card);border:1px solid var(--line);border-radius:13px;
-  padding:14px 16px;text-decoration:none;color:inherit;border-left-width:7px;
-  box-shadow:0 2px 7px rgba(30,25,15,.06);transition:transform .08s,box-shadow .08s}
-a.item:active{transform:translateY(2px);box-shadow:0 1px 3px rgba(30,25,15,.08)}
-a.item .t{font-size:17px;font-weight:700;line-height:1.35}
-a.item .f{font-size:12.5px;color:var(--muted);margin-top:6px;word-break:break-all}
-a.item .badge{display:inline-block;font-size:11.5px;font-weight:900;color:#fff;
-  background:var(--ink);border-radius:5px;padding:2px 7px;margin-left:6px;vertical-align:2px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:16px 0 10px}
+.bar button{min-height:42px;padding:8px 16px;border:2px solid var(--line);border-radius:10px;
+  background:#fff;font-family:inherit;font-size:15px;font-weight:700;color:var(--muted);cursor:pointer}
+.bar button:active{transform:translateY(1px)}
+.bar .sp{flex:1}
+.bar .total{font-size:14px;color:var(--muted);font-weight:500}
 
-#recent{margin-top:22px}
-#recent .grid{grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+#recent{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 12px}
+#recent[hidden]{display:none}
+#recent .lab{font-size:14px;font-weight:700;color:var(--muted);margin-right:2px}
+#recent a{display:inline-block;max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  font-size:14px;font-weight:500;color:var(--ink);text-decoration:none;background:#fff;
+  border:1px solid var(--line);border-left:5px solid;border-radius:8px;padding:7px 11px}
+
+/* ── 트리 표 ── */
+.tree{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;
+  box-shadow:0 2px 7px rgba(30,25,15,.06)}
+.row{display:flex;align-items:center;min-height:46px;border-top:1px solid var(--line);
+  text-decoration:none;color:inherit;cursor:pointer;user-select:none}
+.tree > .row:first-child{border-top:0}
+.row:hover{background:var(--hover)}
+.row .no{flex:0 0 74px;padding-left:14px;font-size:14px;font-weight:700;color:var(--muted);
+  font-variant-numeric:tabular-nums;align-self:stretch;display:flex;align-items:center;
+  border-right:1px solid var(--line)}
+.row .body{flex:1;min-width:0;display:flex;align-items:center;gap:9px;padding:8px 14px 8px 12px}
+.caret{flex:0 0 22px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;
+  color:var(--muted);transition:transform .12s}
+.caret svg{width:11px;height:11px}
+.open > .body .caret{transform:rotate(90deg)}
+.ico{flex:0 0 auto;display:flex;align-items:center}
+.ico svg{display:block}
+.name{min-width:0;flex:1}
+.cnt{flex:0 0 auto;font-size:13px;font-weight:700;color:var(--muted);background:var(--paper);
+  border-radius:999px;padding:2px 10px}
+
+/* 과목 */
+.lv0{background:#fdfcf8}
+.lv0 .name{font-size:18px;font-weight:900}
+.lv0 .no{color:var(--ink)}
+/* 단원 */
+.lv1 .body{padding-left:40px}
+.lv1 .name{font-size:16px;font-weight:700}
+.lv1 .name .un{color:var(--muted);font-weight:700;margin-right:6px}
+/* 자료 */
+.lv2{background:var(--card)}
+.lv2:nth-of-type(even){background:var(--row-alt)}
+.lv2 .body{padding-left:100px}
+.lv2 .no{font-weight:500;font-size:13px}
+.lv2 .name{font-size:15.5px;line-height:1.4}
+.lv2 .name b{font-weight:700}
+.lv2 .name .sub{color:var(--muted);font-weight:400}
+.lv2 .name .fn{display:block;font-size:12px;color:#9a978f;margin-top:1px;word-break:break-all}
+.lv2:hover{background:var(--hover)}
+.tag{flex:0 0 auto;font-size:11.5px;font-weight:900;border-radius:5px;padding:2px 7px;
+  border:1.5px solid;white-space:nowrap}
+.tag.new{color:#fff}
+mark{background:#ffe58a;color:inherit;border-radius:3px;padding:0 1px}
+
+.kids{display:none}
+.open + .kids{display:block}
+.searching .kids{display:block}
+
 #empty{display:none;text-align:center;color:var(--muted);font-size:16px;padding:50px 0}
-footer{max-width:1180px;margin:36px auto 0;padding:0 20px;font-size:13px;color:var(--muted)}
+footer{max-width:1180px;margin:30px auto 0;padding:0 20px;font-size:13px;color:var(--muted)}
+
+@media (max-width:640px){
+  main{padding:0 12px}
+  .row .no{display:none}
+  .lv1 .body{padding-left:30px}
+  .lv2 .body{padding-left:52px}
+  .lv2 .name .fn{display:none}
+  .tag{display:none}
+}
 </style>
 </head>
 <body>
@@ -58,24 +108,25 @@ footer{max-width:1180px;margin:36px auto 0;padding:0 20px;font-size:13px;color:v
 <header>
   <div class="wrap">
     <h1>5학년 수업자료</h1>
-    <p>태블릿·교실 TV에서 바로 열립니다. 이 페이지만 북마크해 두세요.</p>
+    <p>과목을 누르면 단원이, 단원을 누르면 자료가 차시 순서대로 열립니다.</p>
     <input id="q" type="search" placeholder="제목으로 찾기 — 예: 인권, 픽토그램, 화음" autocomplete="off">
   </div>
 </header>
 
-<div class="chips" id="chips"></div>
-
 <main>
-  <section id="recent" hidden>
-    <h2><span class="dot" style="background:var(--extra)"></span>최근에 연 자료</h2>
-    <div class="grid" id="recentGrid"></div>
-  </section>
-  <div id="list"></div>
+  <div class="bar">
+    <button id="openAll" type="button">모두 펼치기</button>
+    <button id="closeAll" type="button">모두 접기</button>
+    <span class="sp"></span>
+    <span class="total" id="total"></span>
+  </div>
+  <div id="recent" hidden></div>
+  <div class="tree" id="tree"></div>
   <div id="empty">찾는 자료가 없습니다.</div>
 </main>
 
 <footer>
-  파일을 새로 올리면 이 목록에도 한 줄 추가해야 보입니다.<br>
+  파일을 새로 올리면 이 목록에도 한 줄 추가해야 보입니다. 단원(<b>u</b>)을 안 적은 줄은 그 과목 맨 위 「단원 미정」에 모입니다.<br>
   저장소 <b>leixlix-pixel/toolbox</b> · 주소는 <b>github.io/toolbox/파일명</b> 형식입니다.
 </footer>
 
@@ -91,233 +142,402 @@ const SUBJECTS = [
   { key:'extra',     name:'창체',  color:'var(--extra)' }
 ];
 
-/* file = 저장소 안 경로 (그대로 주소가 된다) */
+/* 단원 — 여기 적힌 순서대로 보인다. 자료가 없는 단원은 안 보인다.
+   ITEMS 의 u 가 여기 없으면 「N단원」 이름으로 그 과목 뒤에 붙는다. */
+const UNITS = {
+  social: [
+    { u:'1-1', n:'1단원', name:'선사시대와 고조선' },
+    { u:'1-2', n:'1단원', name:'삼국·가야·통일신라·발해' },
+    { u:'1-3', n:'1단원', name:'고려' },
+    { u:'2',   n:'2단원', name:'달라지는 시대, 변화하는 생활 모습 — 조선' },
+    { u:'etc', n:'',      name:'그 밖의 자료' }
+  ],
+  korean: [
+    { u:'r',    n:'독서',  name:'여러 가지 형태의 책을 읽어요' },
+    { u:'1',    n:'1단원', name:'작품에 대한 의견을 나누어요' },
+    { u:'2',    n:'2단원', name:'올바른 문장으로 글을 써요' },
+    { u:'3',    n:'3단원', name:'표준어와 방언을 알아봐요' },
+    { u:'4',    n:'4단원', name:'의견을 조정해요' },
+    { u:'5',    n:'5단원', name:'추론하며 읽어요' },
+    { u:'book', n:'',      name:'온작품 읽기 — 책과 노니는 집' }
+  ],
+  math: [
+    { u:'1', n:'1단원', name:'수의 범위와 어림하기' },
+    { u:'2', n:'2단원', name:'분수의 곱셈' },
+    { u:'3', n:'3단원', name:'합동과 대칭' },
+    { u:'4', n:'4단원', name:'소수의 곱셈' },
+    { u:'5', n:'5단원', name:'직육면체' },
+    { u:'6', n:'6단원', name:'평균과 가능성' }
+  ],
+  music: [
+    { u:'3', n:'3단원', name:'음악의 즐거움을 함께해요' },
+    { u:'4', n:'4단원', name:'음악으로 행복을 나누어요' }
+  ],
+  art: [
+    { u:'6',  n:'6단원',  name:'시각 이미지로 소통하는 우리' },
+    { u:'7',  n:'7단원',  name:'먹과 색이 어우러진 우리 그림' },
+    { u:'8',  n:'8단원',  name:'요리조리 미술 탐험' },
+    { u:'9',  n:'9단원',  name:'반짝반짝 디자인 마술사' },
+    { u:'10', n:'10단원', name:'우주로 날아간 미술' },
+    { u:'c2', n:'창의 공작소 2', name:'무한으로 열리는 또 다른 세상' }
+  ],
+  ethics: [
+    { u:'5', n:'5단원', name:'모두에게 인권을' },
+    { u:'6', n:'6단원', name:'공동체를 정의롭게!' },
+    { u:'7', n:'7단원', name:'지구의 내일을 심는 우리' },
+    { u:'8', n:'8단원', name:'우리들의 인공지능 로봇 이야기' }
+  ],
+  practical: [
+    { u:'4', n:'4단원', name:'생활과 수송' },
+    { u:'5', n:'5단원', name:'건설과 디지털 기술' },
+    { u:'6', n:'6단원', name:'나의 생활 자원 관리' },
+    { u:'7', n:'7단원', name:'컴퓨터와 프로그래밍' }
+  ],
+  extra: [
+    { u:'club',    n:'', name:'동아리' },
+    { u:'friend',  n:'', name:'친구사랑' },
+    { u:'health',  n:'', name:'보건' },
+    { u:'lang',    n:'', name:'언어문화개선교육' },
+    { u:'dokdo',   n:'', name:'독도교육' },
+    { u:'safety',  n:'', name:'안전 — 소방 대피 훈련' },
+    { u:'chuseok', n:'', name:'계기교육 — 추석' },
+    { u:'disab',   n:'', name:'장애이해교육' },
+    { u:'meeting', n:'', name:'학급회의' },
+    { u:'gamble',  n:'', name:'도박예방교육' }
+  ]
+};
+
+/* f = 저장소 안 경로 (그대로 주소가 된다) · u = 단원 (UNITS 의 키)
+   한 단원 안에서는 적힌 순서가 곧 차시 순서다. 줄 끝 쉼표는 마지막 줄에도 둔다. */
 const ITEMS = [
   /* ── 사회 ── */
-  { s:'social', t:'고려 사건 고리 카드 — 18장을 원인과 결과로 잇기 (잘라 쓰는 카드)', f:'goryeo-event-chain-cards.html', tag:'NEW' },
-  { s:'social', t:'고려 모둠 조사 학습지 — 6모둠 × 4항목, A4 조사·발표·전시', f:'goryeo-group-research.html', tag:'NEW' },
-  { s:'social', t:'고려의 유물 — 누가 쓰고, 누가 만들고, 지금 어디에', f:'goryeo-artifacts.html', tag:'NEW' },
-  { s:'social', t:'고려의 전쟁 — 흐름과 사람들 (거란·여진·몽골·홍건적·왜구, 인물 9명)', f:'goryeo-wars-flow-and-people.html', tag:'NEW' },
-  { s:'social', t:'고려는 누구에게 좋은 나라였나 — 고려 단원 마무리 학습지', f:'goryeo-unit-wrapup.html', tag:'NEW' },
-  { s:'social', t:'조선 모둠 토의 진행판 — 타이머·되묻는 말·영상 링크 (교사용 · 8차시)', f:'joseon-discussion-board.html', tag:'NEW' },
-  { s:'social', t:'조선 모둠 토의 학습지 8장 (인쇄용 · 토의 30분 + 여유 10분)', f:'joseon-discussion-worksheets.html', tag:'NEW' },
-  { s:'social', t:'고려 낱말 다지기 — 혼자 하는 키워드 앱 (교과서 46~62쪽 · 틀리면 다시 나온다)', f:'goryeo-keyword-drill.html', tag:'NEW' },
-  { s:'social', t:'고려 모둠 토의 진행판 — 타이머와 되묻는 말 (교사용 · 7차시)', f:'goryeo-discussion-board.html', tag:'NEW' },
-  { s:'social', t:'고려 모둠 토의 학습지 7장 (인쇄용 · 토의 → 교과서 → 판단)', f:'goryeo-discussion-worksheets.html', tag:'NEW' },
-  { s:'social', t:'시간여행자 — 돌아가는 길 (선사시대부터 발해까지 · 복습 게임)', f:'time-traveler-ancient-korea.html' },
-  { s:'social', t:'한강을 가진 나라가 이겼다 — 삼국의 전성기 지도 겹쳐 보기', f:'hangang-contest.html' },
-  { s:'social', t:'가야는 왜 나라가 되지 못했을까', f:'gaya-why-not-a-kingdom.html' },
-  { s:'social', t:'절은 왜 산에 있을까 — 삼국·통일신라의 불교와 왕권', f:'buddhism-and-royal-power.html' },
-  { s:'social', t:'불교는 왜 밀려났을까 — 고려에서 조선으로', f:'buddhism-to-confucianism.html' },
-  { s:'social', t:'삼국·가야·발해 인물 조사 학습지 (24인 · 인쇄용)', f:'samguk-figures-research.html' },
-  { s:'social', t:'바위에 남은 307개의 그림 — 울주 대곡리 반구대 암각화', f:'10 bangudae-petroglyphs.html' },
-  { s:'social', t:'왜 한반도에 고인돌이 이렇게 많을까 — 형태와 구성으로 읽기', f:'dolmen-korea.html' },
-  { s:'social', t:'밥상 위의 4천 년 — 쌀은 언제부터 먹기 시작했을까요', f:'11 korean-food-history.html' },
-  { s:'social', t:'경복궁 탐험대', f:'gyeongbokgung-explore.html' },
-  { s:'social', t:'시간을 건너온 문물 — 소단원 정리', f:'joseon-review.html' },
-  { s:'social', t:'고대 삼국의 식탁 이야기', f:'samguk-food-culture.html' },
-  { s:'social', t:'통일신라와 발해 — 교류와 문화', f:'silla-balhae-activity.html' },
-  { s:'social', t:'설문 그래프 만들기', f:'survey-graph-maker.html' },
+  { s:'social', u:'1-1', t:'왜 한반도에 고인돌이 이렇게 많을까 — 형태와 구성으로 읽기', f:'dolmen-korea.html' },
+  { s:'social', u:'1-1', t:'바위에 남은 307개의 그림 — 울주 대곡리 반구대 암각화', f:'10 bangudae-petroglyphs.html' },
+  { s:'social', u:'1-1', t:'밥상 위의 4천 년 — 쌀은 언제부터 먹기 시작했을까요', f:'11 korean-food-history.html' },
+  { s:'social', u:'1-2', t:'한강을 가진 나라가 이겼다 — 삼국의 전성기 지도 겹쳐 보기', f:'hangang-contest.html' },
+  { s:'social', u:'1-2', t:'가야는 왜 나라가 되지 못했을까', f:'gaya-why-not-a-kingdom.html' },
+  { s:'social', u:'1-2', t:'고대 삼국의 식탁 이야기', f:'samguk-food-culture.html' },
+  { s:'social', u:'1-2', t:'절은 왜 산에 있을까 — 삼국·통일신라의 불교와 왕권', f:'buddhism-and-royal-power.html' },
+  { s:'social', u:'1-2', t:'통일신라와 발해 — 교류와 문화', f:'silla-balhae-activity.html' },
+  { s:'social', u:'1-2', t:'삼국·가야·발해 인물 조사 학습지 (24인 · 인쇄용)', f:'samguk-figures-research.html' },
+  { s:'social', u:'1-2', t:'시간여행자 — 돌아가는 길 (선사시대부터 발해까지 · 복습 게임)', f:'time-traveler-ancient-korea.html' },
+  { s:'social', u:'1-3', t:'고려 모둠 토의 진행판 — 타이머와 되묻는 말 (교사용 · 7차시)', f:'goryeo-discussion-board.html', tag:'NEW' },
+  { s:'social', u:'1-3', t:'고려 모둠 토의 학습지 7장 (인쇄용 · 토의 → 교과서 → 판단)', f:'goryeo-discussion-worksheets.html', tag:'NEW' },
+  { s:'social', u:'1-3', t:'고려 낱말 다지기 — 혼자 하는 키워드 앱 (교과서 46~62쪽 · 틀리면 다시 나온다)', f:'goryeo-keyword-drill.html', tag:'NEW' },
+  { s:'social', u:'1-3', t:'고려의 전쟁 — 흐름과 사람들 (거란·여진·몽골·홍건적·왜구, 인물 9명)', f:'goryeo-wars-flow-and-people.html', tag:'NEW' },
+  { s:'social', u:'1-3', t:'고려의 유물 — 누가 쓰고, 누가 만들고, 지금 어디에', f:'goryeo-artifacts.html', tag:'NEW' },
+  { s:'social', u:'1-3', t:'고려 모둠 조사 학습지 — 6모둠 × 4항목, A4 조사·발표·전시', f:'goryeo-group-research.html', tag:'NEW' },
+  { s:'social', u:'1-3', t:'고려 사건 고리 카드 — 18장을 원인과 결과로 잇기 (잘라 쓰는 카드)', f:'goryeo-event-chain-cards.html', tag:'NEW' },
+  { s:'social', u:'1-3', t:'고려는 누구에게 좋은 나라였나 — 고려 단원 마무리 학습지', f:'goryeo-unit-wrapup.html', tag:'NEW' },
+  { s:'social', u:'1-3', t:'불교는 왜 밀려났을까 — 고려에서 조선으로', f:'buddhism-to-confucianism.html' },
+  { s:'social', u:'2', t:'조선 모둠 토의 진행판 — 타이머·되묻는 말·영상 링크 (교사용 · 8차시)', f:'joseon-discussion-board.html', tag:'NEW' },
+  { s:'social', u:'2', t:'조선 모둠 토의 학습지 8장 (인쇄용 · 토의 30분 + 여유 10분)', f:'joseon-discussion-worksheets.html', tag:'NEW' },
+  { s:'social', u:'2', t:'경복궁 탐험대', f:'gyeongbokgung-explore.html' },
+  { s:'social', u:'2', t:'시간을 건너온 문물 — 소단원 정리', f:'joseon-review.html' },
+  { s:'social', u:'etc', t:'설문 그래프 만들기', f:'survey-graph-maker.html' },
 
   /* ── 국어 ── */
-  { s:'korean', t:'내 글은 생각한 대로 읽혔을까 — 매체로 의견 주고받기 기록지', f:'media-practice-log.html', tag:'NEW' },
-  { s:'korean', t:'학급 누리집 글쓰기 활동지 — 읽을 사람·공개 범위·제목·짝 점검', f:'class-board-writing-sheet.html', tag:'NEW' },
-  { s:'korean', t:'누리집에 올리는 글은 누가 읽을까 — 매체에 알맞게 글 쓰기', f:'media-writing-class-board.html', tag:'NEW' },
-  { s:'korean', t:'빈칸 수사대 — 추론하며 읽어요 단원 확인 게임 6방 (태블릿 · 한 사건을 파고든다)', f:'inference-detective.html', tag:'NEW' },
-  { s:'korean', t:'의견을 조정해요 진행판 — 옛 회의 셋·집행 카드·되묻는 말 (교사용 · 4단원 6차시)', f:'discussion-board.html', tag:'NEW' },
-  { s:'korean', t:'의견을 조정해요 학습지 6차시 8쪽 (인쇄용 · 읽기 카드·집행 카드 포함)', f:'discussion-worksheets.html', tag:'NEW' },
-  { s:'korean', t:'말 심사실 — 표준어와 방언 단원 확인 게임 6단계 (태블릿 · 찍기로는 안 풀린다)', f:'dialect-inspector.html', tag:'NEW' },
-  { s:'korean', t:'표준어와 방언 진행판 — 먼저 판단하기·역할극 웃음 세기·영상 링크 (교사용 · 3단원 8차시)', f:'dialect-board.html', tag:'NEW' },
-  { s:'korean', t:'표준어와 방언 학습지 8차시 11쪽 (인쇄용 · 대본 틀·말 카드 포함)', f:'dialect-worksheets.html', tag:'NEW' },
-  { s:'korean', t:'책과 노니는 집 · 1차시 학습지', f:'01 bookhouse-emotion-copying.html' },
-  { s:'korean', t:'책과 노니는 집 · 2차시 편지지', f:'02 bookhouse-letter.html' },
-  { s:'korean', t:'문장 정비소 — 올바른 문장으로 글을 써요', f:'sentence-garage.html' },
-  { s:'korean', t:'서평 카드 만들기 — 패들렛에 올릴 세로 이미지', f:'book-review-card.html', tag:'NEW' },
-  { s:'korean', t:'기억 보관소 — 문장 성분·호응 방탈출', f:'memory-vault.html', tag:'NEW' },
+  { s:'korean', u:'r', t:'서평 카드 만들기 — 패들렛에 올릴 세로 이미지', f:'book-review-card.html' },
+  { s:'korean', u:'2', t:'문장 정비소 — 올바른 문장으로 글을 써요', f:'sentence-garage.html' },
+  { s:'korean', u:'2', t:'기억 보관소 — 문장 성분·호응 방탈출', f:'memory-vault.html' },
+  { s:'korean', u:'2', t:'누리집에 올리는 글은 누가 읽을까 — 매체에 알맞게 글 쓰기', f:'media-writing-class-board.html', tag:'NEW' },
+  { s:'korean', u:'2', t:'학급 누리집 글쓰기 활동지 — 읽을 사람·공개 범위·제목·짝 점검', f:'class-board-writing-sheet.html', tag:'NEW' },
+  { s:'korean', u:'2', t:'내 글은 생각한 대로 읽혔을까 — 매체로 의견 주고받기 기록지', f:'media-practice-log.html', tag:'NEW' },
+  { s:'korean', u:'3', t:'표준어와 방언 진행판 — 먼저 판단하기·역할극 웃음 세기·영상 링크 (교사용 · 3단원 8차시)', f:'dialect-board.html', tag:'NEW' },
+  { s:'korean', u:'3', t:'표준어와 방언 학습지 8차시 11쪽 (인쇄용 · 대본 틀·말 카드 포함)', f:'dialect-worksheets.html', tag:'NEW' },
+  { s:'korean', u:'3', t:'말 심사실 — 표준어와 방언 단원 확인 게임 6단계 (태블릿 · 찍기로는 안 풀린다)', f:'dialect-inspector.html', tag:'NEW' },
+  { s:'korean', u:'4', t:'의견을 조정해요 진행판 — 옛 회의 셋·집행 카드·되묻는 말 (교사용 · 4단원 6차시)', f:'discussion-board.html', tag:'NEW' },
+  { s:'korean', u:'4', t:'의견을 조정해요 학습지 6차시 8쪽 (인쇄용 · 읽기 카드·집행 카드 포함)', f:'discussion-worksheets.html', tag:'NEW' },
+  { s:'korean', u:'5', t:'빈칸 수사대 — 추론하며 읽어요 단원 확인 게임 6방 (태블릿 · 한 사건을 파고든다)', f:'inference-detective.html', tag:'NEW' },
+  { s:'korean', u:'book', t:'책과 노니는 집 · 1차시 학습지', f:'01 bookhouse-emotion-copying.html' },
+  { s:'korean', u:'book', t:'책과 노니는 집 · 2차시 편지지', f:'02 bookhouse-letter.html' },
 
   /* ── 수학 ── */
-  { s:'math', t:'회전판 공방 — 가능성을 말과 수로', f:'spinner-lab.html', tag:'NEW' },
-  { s:'math', t:'평균 금고 — 번호마다 다른 방탈출', f:'average-vault.html', tag:'NEW' },
-  { s:'math', t:'대표 선수를 뽑아라 — 합계일까, 평균일까', f:'pick-the-player.html', tag:'NEW' },
-  { s:'math', t:'고르게 만들기판 — 평균은 어디에 있을까?', f:'level-it-out.html', tag:'NEW' },
-  { s:'math', t:'소수 곱셈 우주 탐사대 — 내 실력 맞춤 연습', f:'decimal-space-quest.html', tag:'NEW' },
-  { s:'math', t:'소수점 연구소 — 소수 곱셈 원리 깨닫기', f:'decimal-point-lab.html', tag:'NEW' },
-  { s:'math', t:'소수의 곱셈 — 점을 떼었다가 다시 붙인다 (설명 PPT)', f:'decimal-multiplication.html', tag:'NEW' },
-  { s:'math', t:'분수의 곱셈 — 딱 한 줄로 끝내기', f:'03 fraction-multiplication.html' },
-  { s:'math', t:'수의 범위와 올림·버림·반올림 챌린지', f:'number-range-rounding-game.html' },
-  { s:'math', t:'분수의 곱셈 체험관 — 방 8개와 관장님 대결', f:'fraction-multiplication-game.html', tag:'NEW' },
-  { s:'math', t:'분수 미궁 — 작아져라! (혼자 계속 하는 게임)', f:'fraction-shrink-dungeon.html', tag:'NEW' },
-  { s:'math', t:'대분수 × 대분수 — 그림으로 보면 조각이 넷', f:'mixed-number-multiplication.html', tag:'NEW' },
-  { s:'math', t:'합동과 대칭 — 포개면 딱 맞는다 (개념·문제 적용)', f:'congruence-symmetry.html', tag:'NEW' },
-  { s:'math', t:'대칭 감별사 — 선대칭? 점대칭? 18개 빨리 맞히기', f:'symmetry-detective.html', tag:'NEW' },
-  { s:'math', t:'합동 짝 찾기 — 포개면 딱 맞는 도형 18개 찾기', f:'congruence-finder.html', tag:'NEW' },
-  { s:'math', t:'거울 공방 — 합동과 대칭으로 모양 완성하는 퍼즐 28판', f:'mirror-workshop.html', tag:'NEW' },
+  { s:'math', u:'1', t:'수의 범위와 올림·버림·반올림 챌린지', f:'number-range-rounding-game.html' },
+  { s:'math', u:'2', t:'분수의 곱셈 — 딱 한 줄로 끝내기', f:'03 fraction-multiplication.html' },
+  { s:'math', u:'2', t:'분수의 곱셈 체험관 — 방 8개와 관장님 대결', f:'fraction-multiplication-game.html' },
+  { s:'math', u:'2', t:'분수 미궁 — 작아져라! (혼자 계속 하는 게임)', f:'fraction-shrink-dungeon.html' },
+  { s:'math', u:'2', t:'대분수 × 대분수 — 그림으로 보면 조각이 넷', f:'mixed-number-multiplication.html' },
+  { s:'math', u:'3', t:'합동과 대칭 — 포개면 딱 맞는다 (개념·문제 적용)', f:'congruence-symmetry.html' },
+  { s:'math', u:'3', t:'대칭 감별사 — 선대칭? 점대칭? 18개 빨리 맞히기', f:'symmetry-detective.html' },
+  { s:'math', u:'3', t:'합동 짝 찾기 — 포개면 딱 맞는 도형 18개 찾기', f:'congruence-finder.html' },
+  { s:'math', u:'3', t:'거울 공방 — 합동과 대칭으로 모양 완성하는 퍼즐 28판', f:'mirror-workshop.html' },
+  { s:'math', u:'4', t:'소수의 곱셈 — 점을 떼었다가 다시 붙인다 (설명 PPT)', f:'decimal-multiplication.html', tag:'NEW' },
+  { s:'math', u:'4', t:'소수점 연구소 — 소수 곱셈 원리 깨닫기', f:'decimal-point-lab.html', tag:'NEW' },
+  { s:'math', u:'4', t:'소수 곱셈 우주 탐사대 — 내 실력 맞춤 연습', f:'decimal-space-quest.html', tag:'NEW' },
+  { s:'math', u:'6', t:'고르게 만들기판 — 평균은 어디에 있을까?', f:'level-it-out.html', tag:'NEW' },
+  { s:'math', u:'6', t:'대표 선수를 뽑아라 — 합계일까, 평균일까', f:'pick-the-player.html', tag:'NEW' },
+  { s:'math', u:'6', t:'평균 금고 — 번호마다 다른 방탈출', f:'average-vault.html', tag:'NEW' },
+  { s:'math', u:'6', t:'회전판 공방 — 가능성을 말과 수로', f:'spinner-lab.html', tag:'NEW' },
 
   /* ── 음악 ── */
-  { s:'music', t:'왜 아까 그 가락이 또 나올까 — aba 형식', f:'aba-form.html' },
-  { s:'music', t:'늴리리야 — 경토리의 흥은 어디서 오나', f:'gyeongtori.html' },
-  { s:'music', t:'솔라도레미 작곡소 — 굿거리 위에 얹는 나만의 가락', f:'gyeongtori-compose.html', tag:'학생용' },
-  { s:'music', t:'칼림바 — 번호부터 시작합니다', f:'05 kalimba-basics.html' },
-  { s:'music', t:'바장조 음계와 화음 — 이 ♭ 하나가 하는 일', f:'f-major-chords.html' },
-  { s:'music', t:'의식 음악 — 중요한 자리에는 왜 늘 음악이 있을까', f:'ritual-music.html', tag:'NEW' },
-  { s:'music', t:'의식 음악 듣기 기록장 · 음악 보고서 (A4 2장)', f:'ritual-music-worksheet.html' },
-  { s:'music', t:'단소로 늴리리야 — 소리 내기부터 연주까지', f:'danso-nilliriya.html', tag:'NEW' },
-  { s:'music', t:'작곡소 — 장조·단조로 네 마디 노래 만들기', f:'major-minor-composer.html', tag:'학생용' },
-  { s:'music', t:'탈춤놀이 — 동작 카드 여섯 장 (장단에 맞춰 실제로 움직입니다)', f:'talchum-dance-cards.html', tag:'NEW' },
-  { s:'music', t:'탈 그리기 — 이것만 지키면 탈이 된다 (A4 1장)', f:'talchum-mask-guide.html', tag:'NEW' },
-  { s:'music', t:'탈춤놀이 모둠 배치판 — 정할 것은 네 칸 (A4 1장)', f:'talchum-group-plan.html', tag:'NEW' },
-  { s:'music', t:'지휘 — 두 박·세 박·네 박·여섯 박, 보면서 따라 하기', f:'conducting-basics.html', tag:'NEW' },
-  { s:'music', t:'변화하는 농악 — 마당에서 무대로, 농악과 사물놀이', f:'nongak-samulnori.html', tag:'NEW' },
-  { s:'music', t:'변화하는 농악 수행평가 학습지 (A4 1장)', f:'nongak-worksheet.html', tag:'NEW' },
-  { s:'music', t:'AB 형식 — 섬마을, 소문자 a 와 대문자 A 는 무엇이 다른가', f:'ab-form-seommaeul.html', tag:'NEW' },
-  { s:'music', t:'희망을 노래해 — 꿈꾸지 않으면, 수어로 따라 하고 핸드벨로 (화면 핸드벨 있음)', f:'sign-language-handbell.html', tag:'NEW' },
+  { s:'music', u:'3', t:'왜 아까 그 가락이 또 나올까 — aba 형식', f:'aba-form.html' },
+  { s:'music', u:'3', t:'늴리리야 — 경토리의 흥은 어디서 오나', f:'gyeongtori.html' },
+  { s:'music', u:'3', t:'솔라도레미 작곡소 — 굿거리 위에 얹는 나만의 가락', f:'gyeongtori-compose.html', tag:'학생용' },
+  { s:'music', u:'3', t:'칼림바 — 번호부터 시작합니다', f:'05 kalimba-basics.html' },
+  { s:'music', u:'3', t:'바장조 음계와 화음 — 이 ♭ 하나가 하는 일', f:'f-major-chords.html' },
+  { s:'music', u:'3', t:'의식 음악 — 중요한 자리에는 왜 늘 음악이 있을까', f:'ritual-music.html' },
+  { s:'music', u:'3', t:'의식 음악 듣기 기록장 · 음악 보고서 (A4 2장)', f:'ritual-music-worksheet.html' },
+  { s:'music', u:'3', t:'단소로 늴리리야 — 소리 내기부터 연주까지', f:'danso-nilliriya.html' },
+  { s:'music', u:'3', t:'작곡소 — 장조·단조로 네 마디 노래 만들기', f:'major-minor-composer.html', tag:'학생용' },
+  { s:'music', u:'4', t:'탈춤놀이 — 동작 카드 여섯 장 (장단에 맞춰 실제로 움직입니다)', f:'talchum-dance-cards.html' },
+  { s:'music', u:'4', t:'탈 그리기 — 이것만 지키면 탈이 된다 (A4 1장)', f:'talchum-mask-guide.html' },
+  { s:'music', u:'4', t:'탈춤놀이 모둠 배치판 — 정할 것은 네 칸 (A4 1장)', f:'talchum-group-plan.html' },
+  { s:'music', u:'4', t:'지휘 — 두 박·세 박·네 박·여섯 박, 보면서 따라 하기', f:'conducting-basics.html', tag:'NEW' },
+  { s:'music', u:'4', t:'변화하는 농악 — 마당에서 무대로, 농악과 사물놀이', f:'nongak-samulnori.html', tag:'NEW' },
+  { s:'music', u:'4', t:'변화하는 농악 수행평가 학습지 (A4 1장)', f:'nongak-worksheet.html', tag:'NEW' },
+  { s:'music', u:'4', t:'AB 형식 — 섬마을, 소문자 a 와 대문자 A 는 무엇이 다른가', f:'ab-form-seommaeul.html', tag:'NEW' },
+  { s:'music', u:'4', t:'희망을 노래해 — 꿈꾸지 않으면, 수어로 따라 하고 핸드벨로 (화면 핸드벨 있음)', f:'sign-language-handbell.html', tag:'NEW' },
 
   /* ── 미술 ── */
-  { s:'art', t:'시각 이미지로 소통하는 우리', f:'01 visual-image-communication.html' },
-  { s:'art', t:'픽토그램 퀴즈 — 그림으로 말하기', f:'pictogram-quiz.html' },
-  { s:'art', t:'우리 학교 픽토그램 만들기 — 학습지', f:'02 pictogram-worksheet.html' },
-  { s:'art', t:'이모티콘 만들기 — 움직이는 3컷', f:'emoji-maker.html' },
-  { s:'art', t:'요리조리 미술 탐험 ① 나란히 놓고 보기', f:'art-quest/compare-appreciation.html' },
-  { s:'art', t:'작품 추리 일곱 고개', f:'art-quest/art-detective.html' },
-  { s:'art', t:'비교 감상 학습지', f:'art-quest/compare-worksheet.html' },
-  { s:'art', t:'요리조리 미술 탐험 ② 우리가 여는 전시', f:'art-quest/online-exhibition.html' },
-  { s:'art', t:'온라인 전시장 만들기', f:'art-quest/gallery-builder.html', tag:'학생용' },
-  { s:'art', t:'전시 기획서', f:'art-quest/exhibition-plan.html' },
-  { s:'art', t:'먹과 색이 어우러진 우리 그림 — 감상', f:'ink-and-color/appreciation.html' },
-  { s:'art', t:'수묵담채 붓 연습', f:'ink-and-color/brush.html' },
-  { s:'art', t:'보고 그리기 ① 초급 — 수묵화·수묵담채화 8점', f:'ink-and-color/models-print.html', tag:'NEW' },
-  { s:'art', t:'보고 그리기 ② 중급 — 수묵화·수묵담채화 8점', f:'ink-and-color/models-print-advanced.html', tag:'NEW' },
-  { s:'art', t:'우주 연출 스튜디오 — 거리 마법 훈련소·우주 공간 연출·TV 무대', f:'space-art/space-studio.html', tag:'NEW' },
-  { s:'art', t:'무한 타일 공방 — 테셀레이션 훈련소·나만의 타일 만들기 (창의 공작소 2)', f:'tessellation/tessellation-workshop.html', tag:'NEW' },
-  { s:'art', t:'테셀레이션 학습지 — 한 점의 각·밀기/돌리기/뒤집기·오려 붙이기', f:'tessellation/tessellation-worksheet.html' },
+  { s:'art', u:'6', t:'시각 이미지로 소통하는 우리', f:'01 visual-image-communication.html' },
+  { s:'art', u:'6', t:'픽토그램 퀴즈 — 그림으로 말하기', f:'pictogram-quiz.html' },
+  { s:'art', u:'6', t:'우리 학교 픽토그램 만들기 — 학습지', f:'02 pictogram-worksheet.html' },
+  { s:'art', u:'6', t:'이모티콘 만들기 — 움직이는 3컷', f:'emoji-maker.html' },
+  { s:'art', u:'7', t:'먹과 색이 어우러진 우리 그림 — 감상', f:'ink-and-color/appreciation.html' },
+  { s:'art', u:'7', t:'수묵담채 붓 연습', f:'ink-and-color/brush.html' },
+  { s:'art', u:'7', t:'보고 그리기 ① 초급 — 수묵화·수묵담채화 8점', f:'ink-and-color/models-print.html' },
+  { s:'art', u:'7', t:'보고 그리기 ② 중급 — 수묵화·수묵담채화 8점', f:'ink-and-color/models-print-advanced.html' },
+  { s:'art', u:'8', t:'요리조리 미술 탐험 ① 나란히 놓고 보기', f:'art-quest/compare-appreciation.html' },
+  { s:'art', u:'8', t:'작품 추리 일곱 고개', f:'art-quest/art-detective.html' },
+  { s:'art', u:'8', t:'비교 감상 학습지', f:'art-quest/compare-worksheet.html' },
+  { s:'art', u:'8', t:'요리조리 미술 탐험 ② 우리가 여는 전시', f:'art-quest/online-exhibition.html' },
+  { s:'art', u:'8', t:'온라인 전시장 만들기', f:'art-quest/gallery-builder.html', tag:'학생용' },
+  { s:'art', u:'8', t:'전시 기획서', f:'art-quest/exhibition-plan.html' },
+  { s:'art', u:'9', t:'이 물건은 무엇을 포기했을까 — 디자인 요소 알아보기', f:'design-magic/design-elements.html' },
+  { s:'art', u:'9', t:'디자인 저울 — 무엇을 포기했을까', f:'design-magic/design-scale.html', tag:'학생용' },
+  { s:'art', u:'9', t:'디자인 저울 학습지', f:'design-magic/design-worksheet.html', tag:'학습지' },
+  { s:'art', u:'9', t:'더 나은 세상을 위한 디자인 — 한 사람을 위해 만들면 모두가 쓴다', f:'design-magic/universal-design.html' },
+  { s:'art', u:'9', t:'모두를 위한 디자인 시험대', f:'design-magic/design-test.html', tag:'학생용' },
+  { s:'art', u:'9', t:'모두를 위한 디자인 학습지', f:'design-magic/universal-worksheet.html', tag:'학습지' },
+  { s:'art', u:'10', t:'우주 연출 스튜디오 — 거리 마법 훈련소·우주 공간 연출·TV 무대', f:'space-art/space-studio.html', tag:'NEW' },
+  { s:'art', u:'c2', t:'무한 타일 공방 — 테셀레이션 훈련소·나만의 타일 만들기', f:'tessellation/tessellation-workshop.html', tag:'NEW' },
+  { s:'art', u:'c2', t:'테셀레이션 학습지 — 한 점의 각·밀기/돌리기/뒤집기·오려 붙이기', f:'tessellation/tessellation-worksheet.html' },
 
   /* ── 도덕 ── */
-  { s:'ethics', t:'인권 레이더 — 도덕 5단원 4차시', f:'human-rights-radar.html' },
-  { s:'ethics', t:'공동체를 정의롭게! — 도덕 6단원 4차시 전체', f:'ethics-6/' },
-  { s:'ethics', t:'어떻게 나누는 것이 정의로울까 — 도덕 6단원 4차시', f:'ethics-6/4-justice-sorter.html' },
+  { s:'ethics', u:'5', t:'인권 레이더 — 도덕 5단원 4차시', f:'human-rights-radar.html' },
+  { s:'ethics', u:'6', t:'공동체를 정의롭게! — 6단원 4차시 모아 보기', f:'ethics-6/', tag:'단원 모음' },
+  { s:'ethics', u:'6', t:'규칙이 없으면 어떻게 될까 — 1차시', f:'ethics-6/1-why-rules.html' },
+  { s:'ethics', u:'6', t:'공정한 규칙 만들기 — 2차시', f:'ethics-6/2-fair-rules.html' },
+  { s:'ethics', u:'6', t:'2차시 활동 카드 — 자리를 모르는 채로 규칙 만들기', f:'ethics-6/2-1-veil-cards.html' },
+  { s:'ethics', u:'6', t:'규칙은 완성되지 않는다 — 3차시', f:'ethics-6/3-rules-revised.html' },
+  { s:'ethics', u:'6', t:'3차시 활동 카드 — 우리 규칙 부수기 실험', f:'ethics-6/3-1-stress-cards.html' },
+  { s:'ethics', u:'6', t:'어떻게 나누는 것이 정의로울까 — 4차시', f:'ethics-6/4-justice-sorter.html' },
 
   /* ── 실과 ── */
-  { s:'practical', t:'친환경 에너지를 이용하는 수송 수단', f:'04 eco-transport-energy.html' },
-  { s:'practical', t:'롤러코스터에는 엔진이 없다', f:'05 roller-coaster-principle.html' },
-  { s:'practical', t:'수송 수단 부품 분류 게임', f:'parts-sorting-game.html', tag:'학생용' },
-  { s:'practical', t:'건설 기술과 건설 구조물 — 다리는 왜 안 무너질까', f:'07 construction-technology.html', tag:'NEW' },
-  { s:'practical', t:'우리 마을의 건설 구조물 찾기 (A4 1장)', f:'07-1 village-structure-hunt.html', tag:'NEW' },
-  { s:'practical', t:'태양으로 움직이는 건물 — 설계하기', f:'08 solar-building-design.html', tag:'NEW' },
-  { s:'practical', t:'태양 전지판에 무엇을 물릴까 — 부품 고르기', f:'08-1 solar-parts-guide.html', tag:'선생님용' },
-  { s:'practical', t:'친환경 건설 구조물 — 설계도와 제작 기록 (A4 3장)', f:'08-2 building-blueprint.html', tag:'NEW' },
-  { s:'practical', t:'초록 마을 건설단 — 친환경 건물 짓고 재난 이겨내기 (자투리·아침 활동, 2~3일)', f:'green-village-builder.html', tag:'학생용' },
-  { s:'practical', t:'다리 놓는 사람들 — 예산 안에서 다리를 놓고 차를 건너보낸다 (삼각형·아치·현수교 20판)', f:'bridge-builder.html', tag:'NEW' },
-  { s:'practical', t:'컴퓨터와 프로그래밍 — 실과 7단원 6차시 전체', f:'practical-7/', tag:'NEW' },
-  { s:'practical', t:'순서 설계실 — 블록으로 순서 짜기 (실과 7단원)', f:'practical-7/order-lab.html', tag:'학생용' },
-  { s:'practical', t:'나의 생활 자원 관리 — 실과 6단원 전체', f:'practical-6/', tag:'NEW' },
-  { s:'practical', t:'시간은 어디로 가는가 — 7칸이 6년 뒤 여는 문 (실과 6단원)', f:'practical-6/1-time-doors.html', tag:'학생용' },
-  { s:'practical', t:'일주일 살림꾼 — 시간·용돈·정돈을 직접 써 보는 7일 (실과 6단원)', f:'practical-6/2-week-steward.html', tag:'학생용' },
-  { s:'practical', t:'첫 집 설계실 — 예산으로 집을 꾸리고 한 달을 살아 보는 4단계 (실과 6단원)', f:'practical-6/3-first-home.html', tag:'학생용' },
-  { s:'practical', t:'내 돈의 시간표 — 몇 달 뒤에 살 수 있을까 (실과 6단원 용돈 학습지)', f:'practical-6/4-allowance-months.html', tag:'학습지' },
+  { s:'practical', u:'4', t:'친환경 에너지를 이용하는 수송 수단', f:'04 eco-transport-energy.html' },
+  { s:'practical', u:'4', t:'롤러코스터에는 엔진이 없다', f:'05 roller-coaster-principle.html' },
+  { s:'practical', u:'4', t:'수송 수단 부품 분류 게임', f:'parts-sorting-game.html', tag:'학생용' },
+  { s:'practical', u:'4', t:'4단원 마무리 — 생활과 수송', f:'06 transport-wrapup.html' },
+  { s:'practical', u:'4', t:'수송 레이스 — 4단원 마무리 게임', f:'transport-review-game.html', tag:'학생용' },
+  { s:'practical', u:'5', t:'건설 기술과 건설 구조물 — 다리는 왜 안 무너질까', f:'07 construction-technology.html' },
+  { s:'practical', u:'5', t:'우리 마을의 건설 구조물 찾기 (A4 1장)', f:'07-1 village-structure-hunt.html' },
+  { s:'practical', u:'5', t:'태양으로 움직이는 건물 — 설계하기', f:'08 solar-building-design.html' },
+  { s:'practical', u:'5', t:'태양 전지판에 무엇을 물릴까 — 부품 고르기', f:'08-1 solar-parts-guide.html', tag:'선생님용' },
+  { s:'practical', u:'5', t:'친환경 건설 구조물 — 설계도와 제작 기록 (A4 3장)', f:'08-2 building-blueprint.html' },
+  { s:'practical', u:'5', t:'초록 마을 건설단 — 친환경 건물 짓고 재난 이겨내기 (자투리·아침 활동, 2~3일)', f:'green-village-builder.html', tag:'학생용' },
+  { s:'practical', u:'5', t:'다리 놓는 사람들 — 예산 안에서 다리를 놓고 차를 건너보낸다 (삼각형·아치·현수교 20판)', f:'bridge-builder.html' },
+  { s:'practical', u:'6', t:'나의 생활 자원 관리 — 6단원 모아 보기', f:'practical-6/', tag:'단원 모음' },
+  { s:'practical', u:'6', t:'시간은 어디로 가는가 — 생활 자원의 가치 있는 사용 (1차시)', f:'practical-6/1-life-resource-intro.html' },
+  { s:'practical', u:'6', t:'시간은 어디로 가는가 — 7칸이 6년 뒤 여는 문', f:'practical-6/1-time-doors.html', tag:'학생용' },
+  { s:'practical', u:'6', t:'일주일 살림꾼 — 시간·용돈·정돈을 직접 써 보는 7일', f:'practical-6/2-week-steward.html', tag:'학생용' },
+  { s:'practical', u:'6', t:'첫 집 설계실 — 예산으로 집을 꾸리고 한 달을 살아 보는 4단계', f:'practical-6/3-first-home.html', tag:'학생용' },
+  { s:'practical', u:'6', t:'내 돈의 시간표 — 몇 달 뒤에 살 수 있을까 (용돈 학습지)', f:'practical-6/4-allowance-months.html', tag:'학습지' },
+  { s:'practical', u:'7', t:'컴퓨터와 프로그래밍 — 7단원 6차시 모아 보기', f:'practical-7/', tag:'단원 모음' },
+  { s:'practical', u:'7', t:'컴퓨터로 문제를 푼다는 것 — 1차시', f:'practical-7/1-computer-problem-solving.html' },
+  { s:'practical', u:'7', t:'알고리즘 — 순서를 남에게 전하는 법', f:'practical-7/2-algorithm-three-ways.html' },
+  { s:'practical', u:'7', t:'로봇과 프로그래머 놀이 — 명령어 적기', f:'practical-7/2-1-robot-command-cards.html' },
+  { s:'practical', u:'7', t:'순서 설계실 — 블록으로 순서 짜기', f:'practical-7/order-lab.html', tag:'학생용' },
+  { s:'practical', u:'7', t:'내 조각 설계 — 실과 7단원 평가 설계지', f:'practical-7/5-exam-design-sheet.html', tag:'학습지' },
+  { s:'practical', u:'7', t:'단원 마무리 — 앰비언트 컴퓨팅', f:'practical-7/6-unit-wrapup-ambient.html' },
 
   /* ── 창체 ── */
-  { s:'extra', t:'정답 없는 세 가지 질문 — 학급회의 딜레마 토의 (모둠 과제·생일 파티·반 대표 · 손 들기 집계)', f:'fairness-dilemma-meeting.html', tag:'NEW' },
-  { s:'extra', t:'정답 없는 세 가지 질문 — 학급회의 학습지 A4 1장 (입장·이유 적기)', f:'fairness-dilemma-worksheet.html', tag:'NEW' },
-  { s:'extra', t:'누구의 키에 맞춘 세상일까 — 장애이해교육 짧은 PPT 10~20분 (다르다·낮은 자리에서 설계·외치는 소리를 듣는 눈)', f:'who-is-the-standard.html', tag:'NEW' },
-  { s:'extra', t:'누구의 키에 맞춘 세상일까 — 장애이해교육 학습지 A4 1장 (학년 공통)', f:'who-is-the-standard-worksheet.html', tag:'NEW' },
-  { s:'extra', t:'독도, 무엇으로 답할까 — 독도교육주간 (증거를 모아 일본 친구에게 답장 쓰기)', f:'dokdo-evidence.html', tag:'NEW' },
-  { s:'extra', t:'독도 — 증거로 답하기 학습지 A4 1장 (5학년 · 어른께 여쭤보기)', f:'dokdo-worksheet.html', tag:'NEW' },
-  { s:'extra', t:'세종, 말을 배우러 오다 — 언어문화개선교육 (통역관이 되어 여섯 가지를 설명하기)', f:'sejong-interpreter.html', tag:'NEW' },
-  { s:'extra', t:'세종의 통역 수첩 — 언어문화개선 학습지 A4 1장 (5~6학년 공통)', f:'sejong-worksheet.html', tag:'NEW' },
-  { s:'extra', t:'119 소방학교 — 화재·지진 대피 훈련 (신고·연기탈출·소화기·최종시험 미션 6)', f:'safety-academy.html', tag:'NEW' },
-  { s:'extra', t:'우리 집·우리 교실 대피 계획 — 소방훈련 학습지 A4 2장 (3~6학년 공통)', f:'safety-worksheet.html', tag:'NEW' },
-  { s:'extra', t:'한가위 달 채우기 — 추석 계기교육 게임 (이름의 뜻·가배·차례상·송편·강강술래)', f:'chuseok-hangawi.html', tag:'NEW' },
-  { s:'extra', t:'우리 집 한가위 — 추석 학습지 A4 (3~6학년 공통 · 어른께 여쭤보기)', f:'chuseok-worksheet.html', tag:'NEW' },
-  { s:'extra', t:'친구사랑의 날 — 우정 공작소 (삼행시·그림편지·상장·게임 8가지)', f:'friend-love-day.html', tag:'NEW' },
-  { s:'extra', t:'9월인데 벌써 독감? — 독감이 뭐고, 무엇을 조심하고, 어떻게 대응할까', f:'flu-alert-2026.html', tag:'NEW' },
-  { s:'extra', t:'뽑기 기계의 비밀 — 도박예방교육 1~3학년 (뽑기 체험·기계 속·인형뽑기·괜찮을까 카드)', f:'gacha-machine-secret.html', tag:'NEW' },
-  { s:'extra', t:'한 판은 이긴다, 그런데 — 도박예방교육 4~6학년 (룰렛·30명 시뮬레이션·착각 넷·거절 연습)', f:'house-always-wins.html', tag:'NEW' },
-  { s:'extra', t:'한 판은 이긴다 — 도박예방교육 4~6학년 학습지 A4 (착각 가르기·세 마디 거절·첫 판 막기)', f:'house-always-wins-worksheet.html', tag:'NEW' },
-  { s:'extra', t:'2학기 동아리 부서 고르기', f:'02 club-catalog.html' },
-  { s:'extra', t:'동아리 부서 계획서', f:'02-1 club-plan-worksheet.html' }
+  { s:'extra', u:'club', t:'2학기 동아리 부서 고르기', f:'02 club-catalog.html' },
+  { s:'extra', u:'club', t:'동아리 부서 계획서', f:'02-1 club-plan-worksheet.html' },
+  { s:'extra', u:'friend', t:'친구사랑의 날 — 우정 공작소 (삼행시·그림편지·상장·게임 8가지)', f:'friend-love-day.html' },
+  { s:'extra', u:'health', t:'9월인데 벌써 독감? — 독감이 뭐고, 무엇을 조심하고, 어떻게 대응할까', f:'flu-alert-2026.html' },
+  { s:'extra', u:'lang', t:'세종, 말을 배우러 오다 — 언어문화개선교육 (통역관이 되어 여섯 가지를 설명하기)', f:'sejong-interpreter.html' },
+  { s:'extra', u:'lang', t:'세종의 통역 수첩 — 언어문화개선 학습지 A4 1장 (5~6학년 공통)', f:'sejong-worksheet.html' },
+  { s:'extra', u:'dokdo', t:'독도, 무엇으로 답할까 — 독도교육주간 (증거를 모아 일본 친구에게 답장 쓰기)', f:'dokdo-evidence.html' },
+  { s:'extra', u:'dokdo', t:'독도 — 증거로 답하기 학습지 A4 1장 (5학년 · 어른께 여쭤보기)', f:'dokdo-worksheet.html' },
+  { s:'extra', u:'safety', t:'119 소방학교 — 화재·지진 대피 훈련 (신고·연기탈출·소화기·최종시험 미션 6)', f:'safety-academy.html' },
+  { s:'extra', u:'safety', t:'우리 집·우리 교실 대피 계획 — 소방훈련 학습지 A4 2장 (3~6학년 공통)', f:'safety-worksheet.html' },
+  { s:'extra', u:'chuseok', t:'한가위 달 채우기 — 추석 계기교육 게임 (이름의 뜻·가배·차례상·송편·강강술래)', f:'chuseok-hangawi.html' },
+  { s:'extra', u:'chuseok', t:'우리 집 한가위 — 추석 학습지 A4 (3~6학년 공통 · 어른께 여쭤보기)', f:'chuseok-worksheet.html' },
+  { s:'extra', u:'disab', t:'누구의 키에 맞춘 세상일까 — 장애이해교육 짧은 PPT 10~20분 (다르다·낮은 자리에서 설계·외치는 소리를 듣는 눈)', f:'who-is-the-standard.html', tag:'NEW' },
+  { s:'extra', u:'disab', t:'누구의 키에 맞춘 세상일까 — 장애이해교육 학습지 A4 1장 (학년 공통)', f:'who-is-the-standard-worksheet.html', tag:'NEW' },
+  { s:'extra', u:'meeting', t:'정답 없는 세 가지 질문 — 학급회의 딜레마 토의 (모둠 과제·생일 파티·반 대표 · 손 들기 집계)', f:'fairness-dilemma-meeting.html', tag:'NEW' },
+  { s:'extra', u:'meeting', t:'정답 없는 세 가지 질문 — 학급회의 학습지 A4 1장 (입장·이유 적기)', f:'fairness-dilemma-worksheet.html', tag:'NEW' },
+  { s:'extra', u:'gamble', t:'뽑기 기계의 비밀 — 도박예방교육 1~3학년 (뽑기 체험·기계 속·인형뽑기·괜찮을까 카드)', f:'gacha-machine-secret.html', tag:'NEW' },
+  { s:'extra', u:'gamble', t:'한 판은 이긴다, 그런데 — 도박예방교육 4~6학년 (룰렛·30명 시뮬레이션·착각 넷·거절 연습)', f:'house-always-wins.html', tag:'NEW' },
+  { s:'extra', u:'gamble', t:'한 판은 이긴다 — 도박예방교육 4~6학년 학습지 A4 (착각 가르기·세 마디 거절·첫 판 막기)', f:'house-always-wins-worksheet.html', tag:'NEW' },
 ];
 
 const colorOf = k => (SUBJECTS.find(s => s.key === k) || {}).color || 'var(--extra)';
-const nameOf  = k => (SUBJECTS.find(s => s.key === k) || {}).name  || '기타';
 
-/* --- 최근 연 자료 --- */
-function readRecent(){
-  try { return JSON.parse(localStorage.getItem('toolbox-recent') || '[]'); }
-  catch(e){ return []; }
+/* ── 저장 (막혀 있어도 페이지는 그대로 돈다) ── */
+function load(key, def){
+  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : def; }
+  catch(e){ return def; }
 }
+function save(key, v){ try { localStorage.setItem(key, JSON.stringify(v)); } catch(e){} }
+
+const openSet = new Set(load('toolbox-open', []));
+const readRecent = () => load('toolbox-recent', []);
 function pushRecent(f){
-  try {
-    const r = readRecent().filter(x => x !== f);
-    r.unshift(f);
-    localStorage.setItem('toolbox-recent', JSON.stringify(r.slice(0, 4)));
-  } catch(e){}
+  save('toolbox-recent', [f].concat(readRecent().filter(x => x !== f)).slice(0, 4));
 }
 
-function card(it){
+/* ── 과목 → 단원 → 자료 로 묶는다 ── */
+function build(){
+  return SUBJECTS.map(sub => {
+    const rows = ITEMS.filter(it => it.s === sub.key);
+    const known = UNITS[sub.key] || [];
+    const units = [];
+    const loose = rows.filter(it => !it.u);
+    if (loose.length) units.push({ u:'_', n:'', name:'단원 미정 — 새로 올라온 자료', items: loose });
+    known.forEach(k => {
+      const items = rows.filter(it => it.u === k.u);
+      if (items.length) units.push(Object.assign({}, k, { items }));
+    });
+    /* UNITS 에 없는 단원 — 처음 나온 순서대로 뒤에 붙인다 */
+    const seen = new Set(known.map(k => k.u));
+    rows.forEach(it => {
+      if (!it.u || seen.has(it.u)) return;
+      seen.add(it.u);
+      const num = /^\d+$/.test(it.u);
+      units.push({ u: it.u, n: num ? it.u + '단원' : '', name: num ? '' : it.u,
+        items: rows.filter(x => x.u === it.u) });
+    });
+    return Object.assign({}, sub, { units, count: rows.length });
+  }).filter(s => s.count);
+}
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+function hi(text, q){
+  if (!q) return esc(text);
+  const i = text.toLowerCase().indexOf(q);
+  if (i < 0) return esc(text);
+  return esc(text.slice(0, i)) + '<mark>' + esc(text.slice(i, i + q.length)) + '</mark>' + esc(text.slice(i + q.length));
+}
+const hrefOf = f => './' + f.split('/').map(encodeURIComponent).join('/');
+
+const CARET = '<svg viewBox="0 0 10 10"><path d="M3 1.5 7.5 5 3 8.5z" fill="currentColor"/></svg>';
+const FOLDER = 'M1 3.5A1.5 1.5 0 0 1 2.5 2h5l2 2h10A1.5 1.5 0 0 1 21 5.5v10a1.5 1.5 0 0 1-1.5 1.5h-17A1.5 1.5 0 0 1 1 15.5z';
+const folderBig = c => '<svg width="22" height="18" viewBox="0 0 22 18"><path d="' + FOLDER + '" fill="' + c + '"/></svg>';
+const folderSm  = c => '<svg width="19" height="16" viewBox="0 0 22 18"><path d="' + FOLDER + '" fill="none" stroke="' + c + '" stroke-width="2"/></svg>';
+const DOC = '<svg width="15" height="18" viewBox="0 0 15 18"><path d="M1.5 1h8l4 4v11.5a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5z" fill="#fff" stroke="#9a978f" stroke-width="1.3"/><path d="M9.5 1v4h4" fill="none" stroke="#9a978f" stroke-width="1.3"/></svg>';
+
+let query = '';
+
+function itemRow(it, no, color, q){
   const a = document.createElement('a');
-  a.className = 'item';
-  a.href = './' + it.f.split('/').map(encodeURIComponent).join('/');
+  a.className = 'row lv2';
+  a.href = hrefOf(it.f);
   a.target = '_blank';
   a.rel = 'noopener';
-  a.style.borderLeftColor = colorOf(it.s);
-  a.innerHTML = '<div class="t">' + it.t +
-    (it.tag ? '<span class="badge" style="background:' + colorOf(it.s) + '">' + it.tag + '</span>' : '') +
-    '</div><div class="f">' + it.f + '</div>';
-  a.onclick = () => pushRecent(it.f);
+  const cut = it.t.indexOf(' — ');
+  const main = cut < 0 ? it.t : it.t.slice(0, cut);
+  const sub = cut < 0 ? '' : it.t.slice(cut);
+  let tag = '';
+  if (it.tag) tag = it.tag === 'NEW'
+    ? '<span class="tag new" style="background:' + color + ';border-color:' + color + '">NEW</span>'
+    : '<span class="tag" style="color:' + color + ';border-color:' + color + '">' + esc(it.tag) + '</span>';
+  a.innerHTML = '<span class="no">' + no + '</span><span class="body">' +
+    '<span class="ico">' + DOC + '</span>' +
+    '<span class="name"><b>' + hi(main, q) + '</b><span class="sub">' + hi(sub, q) + '</span>' +
+    '<span class="fn">' + esc(it.f) + '</span></span>' + tag + '</span>';
+  a.onclick = () => { pushRecent(it.f); setTimeout(renderRecent, 0); };
   return a;
 }
 
-let filter = 'all', query = '';
-
-function render(){
-  const list = document.getElementById('list');
-  list.innerHTML = '';
-  const q = query.trim().toLowerCase();
-  let shown = 0;
-
-  SUBJECTS.forEach(sub => {
-    if(filter !== 'all' && filter !== sub.key) return;
-    const rows = ITEMS.filter(it => it.s === sub.key &&
-      (!q || (it.t + ' ' + it.f + ' ' + sub.name).toLowerCase().includes(q)));
-    if(!rows.length) return;
-    shown += rows.length;
-    const sec = document.createElement('section');
-    sec.innerHTML = '<h2><span class="dot" style="background:' + sub.color + '"></span>' +
-      sub.name + ' <span class="n">' + rows.length + '</span></h2>';
-    const g = document.createElement('div');
-    g.className = 'grid';
-    rows.forEach(it => g.appendChild(card(it)));
-    sec.appendChild(g);
-    list.appendChild(sec);
-  });
-
-  document.getElementById('empty').style.display = shown ? 'none' : 'block';
-
-  /* 최근 연 자료 */
-  const rec = readRecent().map(f => ITEMS.find(i => i.f === f)).filter(Boolean);
-  const rsec = document.getElementById('recent');
-  const rgrid = document.getElementById('recentGrid');
-  if(rec.length && !q && filter === 'all'){
-    rgrid.innerHTML = '';
-    rec.forEach(it => rgrid.appendChild(card(it)));
-    rsec.hidden = false;
-  } else rsec.hidden = true;
+function groupRow(cls, id, no, icon, label, count){
+  const d = document.createElement('div');
+  d.className = 'row ' + cls + (query || openSet.has(id) ? ' open' : '');
+  d.setAttribute('role', 'button');
+  d.setAttribute('aria-expanded', d.classList.contains('open'));
+  d.tabIndex = 0;
+  d.innerHTML = '<span class="no">' + no + '</span><span class="body"><span class="caret">' + CARET + '</span>' +
+    '<span class="ico">' + icon + '</span><span class="name">' + label + '</span><span class="cnt">' + count + '</span></span>';
+  const toggle = () => {
+    if (query) return;
+    const on = d.classList.toggle('open');
+    d.setAttribute('aria-expanded', on);
+    on ? openSet.add(id) : openSet.delete(id);
+    save('toolbox-open', [...openSet]);
+  };
+  d.onclick = toggle;
+  d.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } };
+  return d;
 }
 
-/* 과목 칩 */
-const chips = document.getElementById('chips');
-[{ key:'all', name:'전체' }].concat(SUBJECTS).forEach(s => {
-  const b = document.createElement('button');
-  b.className = 'chip' + (s.key === 'all' ? ' on' : '');
-  b.textContent = s.name;
-  b.onclick = () => {
-    filter = s.key;
-    [...chips.children].forEach(c => c.classList.toggle('on', c === b));
-    render();
-  };
-  chips.appendChild(b);
-});
+function render(){
+  const tree = document.getElementById('tree');
+  tree.innerHTML = '';
+  const q = query.trim().toLowerCase();
+  tree.classList.toggle('searching', !!q);
+  let shown = 0;
 
+  build().forEach((sub, si) => {
+    const units = sub.units.map(u => Object.assign({}, u, {
+      items: q ? u.items.filter(it => (it.t + ' ' + it.f + ' ' + sub.name + ' ' + u.n + ' ' + u.name).toLowerCase().includes(q)) : u.items
+    })).filter(u => u.items.length);
+    if (!units.length) return;
+    const total = units.reduce((n, u) => n + u.items.length, 0);
+    shown += total;
+
+    const sNo = String(si + 1);
+    tree.appendChild(groupRow('lv0', sub.key, sNo, folderBig(sub.color), esc(sub.name), total));
+    const sKids = document.createElement('div');
+    sKids.className = 'kids';
+
+    units.forEach((u, ui) => {
+      const uNo = sNo + '.' + (ui + 1);
+      const label = (u.n ? '<span class="un">' + esc(u.n) + '</span>' : '') + hi(u.name, q);
+      sKids.appendChild(groupRow('lv1', sub.key + ':' + u.u, uNo, folderSm(sub.color), label, u.items.length));
+      const uKids = document.createElement('div');
+      uKids.className = 'kids';
+      u.items.forEach((it, ii) => uKids.appendChild(itemRow(it, uNo + '.' + (ii + 1), sub.color, q)));
+      sKids.appendChild(uKids);
+    });
+    tree.appendChild(sKids);
+  });
+
+  tree.style.display = shown ? '' : 'none';
+  document.getElementById('empty').style.display = shown ? 'none' : 'block';
+  document.getElementById('total').textContent = q ? shown + '개 찾음' : '자료 ' + ITEMS.length + '개';
+  renderRecent();
+}
+
+function renderRecent(){
+  const box = document.getElementById('recent');
+  const rec = readRecent().map(f => ITEMS.find(i => i.f === f)).filter(Boolean);
+  if (!rec.length || query.trim()) { box.hidden = true; return; }
+  box.innerHTML = '<span class="lab">최근에 연 자료</span>';
+  rec.forEach(it => {
+    const a = document.createElement('a');
+    a.href = hrefOf(it.f);
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.style.borderLeftColor = colorOf(it.s);
+    a.textContent = it.t.split(' — ')[0];
+    a.title = it.t;
+    a.onclick = () => { pushRecent(it.f); setTimeout(renderRecent, 0); };
+    box.appendChild(a);
+  });
+  box.hidden = false;
+}
+
+document.getElementById('openAll').onclick = () => {
+  build().forEach(s => { openSet.add(s.key); s.units.forEach(u => openSet.add(s.key + ':' + u.u)); });
+  save('toolbox-open', [...openSet]);
+  render();
+};
+document.getElementById('closeAll').onclick = () => {
+  openSet.clear();
+  save('toolbox-open', []);
+  render();
+};
 document.getElementById('q').addEventListener('input', e => { query = e.target.value; render(); });
 render();
 </script>

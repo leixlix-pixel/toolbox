@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>고려 사건 고리 카드</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{--ink:#1a1a1a;--line:#c9cdd4;--muted:#71767e;--navy:#0f1b2d;--acc:#9c4221}
+html,body{margin:0;padding:0}
+body{font-family:'Noto Sans KR',sans-serif;background:#e8eaee;color:var(--ink);
+     -webkit-print-color-adjust:exact;print-color-adjust:exact}
+
+.bar{position:sticky;top:0;z-index:50;background:var(--navy);color:#fff;
+     padding:10px 16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;
+     font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.bar b{font-size:15px}
+.bar .sp{flex:1}
+.bar label{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.12);
+           padding:8px 12px;border-radius:8px;min-height:40px;cursor:pointer}
+.bar input{width:18px;height:18px}
+.bar button{font-family:inherit;font-size:14px;font-weight:700;min-height:40px;
+            padding:9px 16px;border:none;border-radius:8px;background:#ffd34d;color:#1a1a1a;cursor:pointer}
+.bar .hint{width:100%;font-size:12.5px;color:#b9c4d4;line-height:1.5}
+
+@page{size:A4;margin:0}
+.page{width:210mm;height:297mm;padding:10mm 11mm;background:#fff;margin:16px auto;
+      box-shadow:0 3px 14px rgba(0,0,0,.18);display:flex;flex-direction:column;overflow:hidden;position:relative}
+.page.hide{display:none !important}
+.ph{display:flex;align-items:flex-end;gap:10px;border-bottom:2.5px solid var(--navy);padding-bottom:5px;flex:none}
+.ph h1{margin:0;font-size:19px;font-weight:900;letter-spacing:-.6px;color:var(--navy)}
+.ph .d{flex:1;font-size:11px;color:var(--muted)}
+.ph .nm{font-size:11.5px;white-space:nowrap}
+.ph .nm u{text-decoration:none;border-bottom:1px solid #999;display:inline-block;min-width:44px}
+
+/* ── 사건 카드 (2 × 5) ───────────────── */
+.cards{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(5,1fr);
+       gap:0;margin-top:5mm}
+.card{position:relative;padding:5mm 6mm 4mm;display:flex;flex-direction:column;min-height:0}
+.card > svg.cut{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.card .top{display:flex;align-items:center;gap:8px;flex:none}
+.card .lt{width:34px;height:34px;border-radius:50%;background:var(--navy);color:#fff;
+          font-size:20px;font-weight:900;display:flex;align-items:center;justify-content:center;flex:none}
+.card .tt{flex:1;font-size:20px;font-weight:900;letter-spacing:-.6px;line-height:1.2}
+.card .ch{flex:none;font-size:10.5px;font-weight:700;border-radius:4px;padding:2px 6px;color:#fff}
+body.nochap .card .ch{display:none}
+.card .tx{margin-top:9px;font-size:16.5px;line-height:1.6;letter-spacing:-.2px;flex:1}
+.card .tx b{font-weight:900}
+.card.blank .tx{border-bottom:1px dotted #aaa}
+.card.blank .lines{flex:1;display:flex;flex-direction:column;justify-content:space-evenly}
+.card.blank .lines span{border-bottom:1px dotted #9aa0a8;display:block;height:1px}
+
+/* ── 고리(화살표) 띠 ────────────────── */
+.strips{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(9,1fr);margin-top:5mm}
+.strip{position:relative;display:flex;align-items:center;gap:8px;padding:0 5mm}
+.strip > svg.cut{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.strip .ar{flex:none;width:58px;height:34px}
+.strip .lab{flex:none;font-size:13px;font-weight:900;color:var(--acc);width:56px;line-height:1.2}
+.strip .ln{flex:1;border-bottom:1px dotted #9aa0a8;height:22px}
+.strip.gap .lab{color:var(--muted)}
+.strip.gap .gtx{flex:1;font-size:13px;color:var(--muted);font-weight:700;letter-spacing:1px;text-align:center}
+
+/* ── 기록지 ───────────────────────── */
+.pbody{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:space-between;gap:12px;padding-top:10px}
+.sec{display:flex;flex-direction:column;min-height:0}
+.grow{flex-grow:var(--g,.5);min-height:0}
+.st{font-size:14px;font-weight:900;color:var(--navy);margin:0 0 6px;display:flex;gap:6px;align-items:center;flex:none}
+.st .num{background:var(--navy);color:#fff;width:20px;height:20px;border-radius:50%;font-size:12px;
+         display:flex;align-items:center;justify-content:center;flex:none}
+.st .tip{font-size:11.5px;font-weight:500;color:var(--muted)}
+.seq{display:block;width:100%;height:auto;flex:none}
+.pairs{flex:1;min-height:0;display:flex;flex-direction:column;gap:8px}
+.pair{flex:1;min-height:0;border:1.5px solid var(--line);border-radius:8px;padding:7px 10px;display:flex;flex-direction:column}
+.pair .row{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;flex:none}
+.pair .bx{width:34px;height:30px;border:2px solid var(--navy);border-radius:6px;flex:none}
+.pair .row .w{color:var(--muted);font-weight:500}
+.wr{position:relative;flex:1 1 0;min-height:26px}
+.wr svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.wr svg line{stroke:var(--line);stroke-width:1}
+.qline{font-size:12.5px;line-height:1.5;margin:0 0 4px;flex:none}
+
+/* ── 교사용 ───────────────────────── */
+.key{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+.key th,.key td{border:1px solid #d5d9df;padding:4px 6px;text-align:left;vertical-align:top;line-height:1.4}
+.key th{background:#f1f3f6;font-size:11.5px}
+.key td.l{font-weight:900;text-align:center;width:28px}
+.key td.y{white-space:nowrap;width:74px}
+.chains{margin-top:10px;font-size:12px;line-height:1.6}
+.chains h3{margin:0 0 3px;font-size:13.5px;color:var(--navy)}
+.chains ul{margin:0 0 8px;padding-left:18px}
+.chains b{color:var(--acc)}
+
+@media print{
+  body{background:#fff}
+  .no-print{display:none !important}
+  .page{margin:0;box-shadow:none;page-break-after:always}
+  .page:last-of-type{page-break-after:auto}
+}
+</style>
+</head>
+<body>
+
+<div class="bar no-print">
+  <b>고려 사건 고리 카드</b>
+  <span class="sp"></span>
+  <label><input type="checkbox" id="chap" checked onchange="document.body.classList.toggle('nochap',!this.checked)">카드에 장 표시</label>
+  <label><input type="checkbox" id="tch" checked onchange="toggleTeacher()">교사용 정답 포함</label>
+  <button onclick="window.print()">🖨 인쇄</button>
+  <div class="hint">카드 2장 + 고리 띠 1장 + 기록지 1장(+ 교사용 1장). 모둠마다 카드·띠 한 벌, 기록지는 한 장.
+  <b>중간에 쓸 때</b>는 배운 장의 카드만 잘라 주면 되고(장 표시를 켜 두면 가르기 쉽다), <b>다 배운 뒤</b>에 18장을 한꺼번에 섞을 때는 장 표시를 끄고 인쇄한다 — 켜 두면 네 덩어리로 먼저 갈라 버려 쉬워진다.</div>
+</div>
+
+<div id="out"></div>
+
+<script>
+/* 사건은 일어난 순서대로 적는다. 카드에는 연도를 싣지 않고 글자(L)만 싣는다 —
+   글자는 순서와 무관하게 흩어 두었다. 카드는 글자 순으로 인쇄되므로
+   종이 위 배치도 순서를 흘리지 않는다. 연도는 교사용 장에만 나온다. */
+const CH = {
+  A:{n:'세우기',c:'#1f4e79'},
+  B:{n:'북쪽 이웃',c:'#7b2d6b'},
+  C:{n:'무신과 몽골',c:'#9c4221'},
+  D:{n:'저무는 고려',c:'#4a3a8c'}
+};
+const EV = [
+ {L:'K',ch:'A',y:'918',t:'고려를 세우다',
+  x:'궁예의 신하였던 <b>왕건</b>이 장군들과 함께 궁예를 몰아내고, 고구려를 잇는다는 뜻으로 나라 이름을 <b>「고려」</b>라 짓는다.'},
+ {L:'D',ch:'A',y:'926',t:'발해가 무너지다',
+  x:'북쪽의 <b>거란</b>이 발해를 무너뜨린다. 발해의 왕자와 백성 수만 명이 <b>고려로 넘어오고</b>, 고려는 이들을 받아들인다.'},
+ {L:'P',ch:'A',y:'935',t:'신라가 나라를 넘기다',
+  x:'신라 <b>경순왕</b>이 「더는 나라를 지킬 힘이 없다」며 싸우지 않고 신라를 <b>고려에 넘긴다.</b>'},
+ {L:'G',ch:'A',y:'936',t:'셋이 하나로',
+  x:'고려가 <b>후백제</b>를 무너뜨린다. 셋으로 갈라졌던 땅이 드디어 <b>한 나라</b>가 된다.'},
+ {L:'A',ch:'B',y:'993',t:'말로 얻은 땅',
+  x:'거란 장수가 「고구려 땅은 우리 것」이라며 쳐들어온다. <b>서희</b>가 「우리는 고구려를 이은 나라」라고 맞서 오히려 <b>강동 6주</b>를 얻는다.'},
+ {L:'N',ch:'B',y:'1019',t:'귀주에서 크게 이기다',
+  x:'거란이 「<b>강동 6주를 내놓아라</b>」며 다시 쳐들어온다. <b>강감찬</b>이 귀주에서 거란군을 크게 무찌른다.'},
+ {L:'R',ch:'B',y:'1033~1044',t:'긴 성을 쌓다',
+  x:'여러 번 쳐들어온 <b>거란</b>과 북쪽의 여진을 막으려고, 압록강 어귀에서 동해안까지 <b>천리장성</b>을 쌓는다.'},
+ {L:'E',ch:'B',y:'1107',t:'여진을 몰아내다',
+  x:'<b>윤관</b>이 말 탄 군사·스님 군사를 모은 <b>별무반</b>을 이끌고 여진을 몰아낸 뒤, 그 땅에 성 <b>아홉 개</b>를 쌓는다.'},
+ {L:'J',ch:'C',y:'1170',t:'무신이 들고일어나다',
+  x:'오랫동안 문신에게 업신여김을 받던 <b>무신(군인)</b>들이 들고일어나 문신들을 몰아내고 <b>나라의 권력을 쥔다.</b>'},
+ {L:'B',ch:'C',y:'1231',t:'몽골이 쳐들어오다',
+  x:'고려에 왔던 몽골 사신이 돌아가는 길에 죽는다. 몽골은 이 일을 <b>핑계 삼아</b> 고려로 쳐들어온다.'},
+ {L:'Q',ch:'C',y:'1232',t:'섬으로 옮긴 수도',
+  x:'권력을 쥐고 있던 무신 <b>최우</b>가 왕과 조정을 이끌고 수도를 <b>강화도</b>로 옮긴다. 바다에 약한 몽골군은 건너오지 못한다.'},
+ {L:'F',ch:'C',y:'1236',t:'다시 새기는 대장경',
+  x:'몽골군이 불태운 대장경을 다시 새기기 시작한다. <b>부처의 힘</b>으로 적을 물리치려는 바람이 담겼다. 16년 뒤 <b>8만 장이 넘는 경판</b>이 완성된다.'},
+ {L:'L',ch:'C',y:'1270',t:'개경으로 돌아가다',
+  x:'오래 이어지던 <b>무신 정권이 무너진다.</b> 왕은 몽골과 화해하고, 40년 가까이 떠나 있던 <b>개경</b>으로 돌아간다.'},
+ {L:'C',ch:'C',y:'1270~1273',t:'끝까지 싸운 군대',
+  x:'무신 정권을 지키던 부대 <b>삼별초</b>가 「개경으로 갈 수 없다」며 따르지 않고 <b>진도</b>로, 다시 <b>제주</b>로 옮겨 가며 싸운다.'},
+ {L:'H',ch:'D',y:'1356',t:'되찾으려는 왕',
+  x:'원(몽골)이 약해진 틈에 <b>공민왕</b>이 원의 편에 서서 힘을 휘두르던 세력을 몰아내고, <b>빼앗겼던 북쪽 땅</b>을 되찾는다.'},
+ {L:'O',ch:'D',y:'1380',t:'바다 도적을 막다',
+  x:'바닷가 마을을 휩쓸던 <b>왜구</b>를 최무선의 <b>화포</b>와 <b>이성계</b>의 군대가 크게 무찌른다. 이성계의 이름이 널리 알려진다.'},
+ {L:'M',ch:'D',y:'1388',t:'군대를 돌리다',
+  x:'명나라 땅 요동을 치러 가던 <b>이성계</b>가 압록강의 섬 <b>위화도</b>에서 군대를 돌려 개경으로 돌아와 권력을 잡는다.'},
+ {L:'I',ch:'D',y:'1392',t:'새 나라',
+  x:'<b>이성계</b>가 왕위에 오르고, 474년을 이어 온 고려가 끝난다. 새 나라의 이름은 곧 <b>조선</b>으로 정해진다.'}
+];
+
+/* 카드 테두리(자르는 선)는 SVG 로 — 인쇄에서 사라지지 않게 */
+const cut = '<svg class="cut" preserveAspectRatio="none"><rect x="1" y="1" width="99%" height="99%" rx="0" fill="none" stroke="#9aa0a8" stroke-width="1" stroke-dasharray="6 4"/></svg>';
+
+function cardHTML(e){
+  const c = CH[e.ch];
+  return `<div class="card">${cut}
+    <div class="top"><div class="lt">${e.L}</div><div class="tt">${e.t}</div>
+      <div class="ch" style="background:${c.c}">${c.n}</div></div>
+    <div class="tx">${e.x}</div></div>`;
+}
+const blankCard = `<div class="card blank">${cut}
+    <div class="top"><div class="lt" style="background:#fff;color:var(--navy);border:2px solid var(--navy)">?</div>
+      <div class="tt" style="color:var(--muted);font-size:15px">우리가 넣고 싶은 사건</div></div>
+    <div class="lines"><span></span><span></span><span></span></div></div>`;
+
+const byLetter = [...EV].sort((a,b)=>a.L.localeCompare(b.L));
+const cardsPage = (list, extra, i) => `
+<article class="page">
+  <div class="ph"><h1>고려 사건 고리 카드 ${i}/2</h1>
+    <div class="d">점선을 따라 자른다. 카드에는 연도가 없다 — <b>카드에 적힌 말</b>이 단서다.</div>
+    <div class="nm"><u></u>모둠</div></div>
+  <div class="cards">${list.map(cardHTML).join('')}${extra}</div>
+</article>`;
+
+/* 고리 띠: 「그래서」 14장 + 「시간이 흘러」 4장 */
+const arrow = c => `<svg class="ar" viewBox="0 0 58 34"><path d="M2 11h36V3l18 14-18 14v-8H2z" fill="none" stroke="${c}" stroke-width="2.4" stroke-linejoin="round"/></svg>`;
+const strip = `<div class="strip">${cut}${arrow('#9c4221')}<div class="lab">그래서<br><span style="font-weight:500;font-size:11px;color:#71767e">까닭:</span></div><div class="ln"></div></div>`;
+const gapStrip = `<div class="strip gap">${cut}${arrow('#9aa0a8')}<div class="gtx">⋯ 시간이 흘러 ⋯</div></div>`;
+const stripsPage = `
+<article class="page">
+  <div class="ph"><h1>고리 띠</h1>
+    <div class="d">카드와 카드 사이에 놓는다. <b>「그래서」</b> 띠에는 앞 사건이 뒤 사건을 어떻게 불렀는지 적고,
+      원인과 결과로 이어지지 않는 곳에는 <b>「시간이 흘러」</b> 띠를 놓는다.</div>
+    <div class="nm"><u></u>모둠</div></div>
+  <div class="strips">${Array(14).fill(strip).join('')}${Array(4).fill(gapStrip).join('')}</div>
+</article>`;
+
+/* 기록지: 순서 칸 18개는 SVG 로 */
+function seqSVG(){
+  const n=18, w=720, box=36, gap=(w-box*n)/(n-1), h=58;
+  let s=`<svg class="seq" viewBox="0 0 ${w} ${h}">`;
+  for(let i=0;i<n;i++){
+    const x=i*(box+gap);
+    s+=`<rect x="${x+1}" y="14" width="${box-2}" height="${box}" rx="5" fill="none" stroke="#0f1b2d" stroke-width="1.6"/>`;
+    s+=`<text x="${x+box/2}" y="10" font-size="10" text-anchor="middle" fill="#71767e">${i+1}</text>`;
+  }
+  s+=`<text x="0" y="${h-1}" font-size="10" fill="#71767e">먼저 ←</text><text x="${w}" y="${h-1}" font-size="10" text-anchor="end" fill="#71767e">→ 나중</text></svg>`;
+  return s;
+}
+const pairBox = n => `
+  <div class="pair">
+    <div class="row"><span class="bx"></span><span class="w">때문에</span><span style="font-size:18px">➜</span><span class="bx"></span><span class="w">가 일어났다.</span>
+      <span class="w" style="margin-left:auto;font-size:11.5px">고리 ${n}</span></div>
+    <div class="wr"><svg class="rules" data-pitch="26"></svg></div>
+  </div>`;
+const recordPage = `
+<article class="page">
+  <div class="ph"><h1>사건 고리 기록지</h1>
+    <div class="d">카드를 다 놓은 뒤, 모둠이 함께 쓴다.</div>
+    <div class="nm"><u></u>모둠 · 이름 <u style="min-width:120px"></u></div></div>
+  <div class="pbody">
+    <div class="sec">
+      <p class="st"><span class="num">1</span>우리가 놓은 순서 <span class="tip">— 카드의 글자를 적는다. 빈 카드를 넣었으면 그 자리에 「?」</span></p>
+      ${seqSVG()}
+    </div>
+    <div class="sec grow" style="--g:.5">
+      <p class="st"><span class="num">2</span>가장 자신 있는 고리 셋 <span class="tip">— 앞 사건이 <b>없었다면</b> 뒤 사건도 없었을 것 같은 두 장</span></p>
+      <div class="pairs">${pairBox(1)}${pairBox(2)}${pairBox(3)}</div>
+    </div>
+    <div class="sec grow" style="--g:.15">
+      <p class="st"><span class="num">3</span>여러 갈래로 뻗은 카드</p>
+      <p class="qline">한 사건이 <b>두 개 넘는</b> 뒤 사건의 원인이 된 카드가 있나? 그 카드의 글자와, 이어진 카드들을 적어라.</p>
+      <div class="wr"><svg class="rules" data-pitch="26"></svg></div>
+    </div>
+    <div class="sec grow" style="--g:.15">
+      <p class="st"><span class="num">4</span>순서를 정하기 가장 어려웠던 두 장</p>
+      <p class="qline">어느 두 장이었고, 카드의 <b>어떤 말</b>을 보고 순서를 정했나?</p>
+      <div class="wr"><svg class="rules" data-pitch="26"></svg></div>
+    </div>
+  </div>
+</article>`;
+
+/* 교사용 */
+const LINKS = [
+ ['D 발해 멸망','A 서희 담판','고려는 발해를 무너뜨린 거란을 멀리하고 송과 가까이 지냈다. 거란이 먼저 고려를 누르려 한 배경이다.'],
+ ['K 고려 건국 · P 신라 · G 후백제','통일','P와 G는 둘 다 통일로 모이지만 방법이 다르다(스스로 넘김 / 싸워서).'],
+ ['A 강동 6주','N 귀주대첩','카드 N 의 「강동 6주를 내놓아라」가 A 를 가리킨다 — 가장 찾기 쉬운 고리.'],
+ ['A · N 거란 침입','R 천리장성','R 의 「여러 번 쳐들어온 거란」.'],
+ ['J 무신정변','Q 강화 천도','Q 의 「무신 최우」가 J 를 가리킨다. 60년 떨어져 있어도 이어진다.'],
+ ['B 몽골 침입','Q 강화 천도 · F 대장경','B 는 두 갈래로 뻗는다 — ③번 칸의 대표 답.'],
+ ['J 무신정변','L 개경 환도 · C 삼별초','L 「무신 정권이 무너진다」, C 「무신 정권을 지키던 부대」. J 도 여러 갈래로 뻗는다.'],
+ ['L 개경 환도','C 삼별초','C 의 「개경으로 갈 수 없다」 — 같은 해라서 글로만 순서를 정할 수 있다.'],
+ ['O 왜구 격퇴','M 위화도','O 의 「이성계의 이름이 널리 알려진다」 → 군대를 맡게 된다.'],
+ ['M 위화도','I 조선 건국','「권력을 잡는다」 → 왕위에 오른다.']
+];
+const teacherPage = `
+<article class="page teacher">
+  <div class="ph"><h1>교사용 — 정답과 고리</h1><div class="d">학생에게 나눠 주지 않는다.</div></div>
+  <table class="key">
+    <tr><th>순서</th><th>글자</th><th>때</th><th>사건</th><th>장</th></tr>
+    ${EV.map((e,i)=>`<tr><td style="text-align:center">${i+1}</td><td class="l">${e.L}</td><td class="y">${e.y}</td><td>${e.t}</td><td>${CH[e.ch].n}</td></tr>`).join('')}
+  </table>
+  <div class="chains">
+    <h3>순서 줄 (글자)</h3>
+    <div style="font-size:15px;font-weight:900;letter-spacing:3px">${EV.map(e=>e.L).join(' ')}</div>
+    <h3 style="margin-top:8px">대표 고리 — 카드 안의 말이 서로를 가리킨다</h3>
+    <ul>${LINKS.map(l=>`<li><b>${l[0]}</b> ➜ <b>${l[1]}</b> : ${l[2]}</li>`).join('')}</ul>
+    <h3>「시간이 흘러」 띠가 어울리는 곳</h3>
+    <ul>
+      <li><b>E 윤관 ➜ J 무신정변</b>(63년) · <b>C 삼별초 ➜ H 공민왕</b>(80여 년) — 직접 원인이 아니다. 여기를 「그래서」로 이어 놓았으면 까닭을 되물을 것.</li>
+      <li><b>G 통일 ➜ A 서희</b>는 57년 떨어졌지만 <b>D 발해</b>를 거치면 이어진다 — 아이들이 D 를 어디에 두었는지 보면 이해도가 드러난다.</li>
+    </ul>
+  </div>
+</article>`;
+
+document.getElementById('out').innerHTML =
+  cardsPage(byLetter.slice(0,10),'',1) +
+  cardsPage(byLetter.slice(10),blankCard+blankCard,2) +
+  stripsPage + recordPage + teacherPage;
+
+function toggleTeacher(){
+  document.querySelector('.teacher').classList.toggle('hide', !document.getElementById('tch').checked);
+}
+
+function draw(){
+  document.querySelectorAll('svg.rules').forEach(svg=>{
+    const w = svg.clientWidth, h = svg.clientHeight;
+    if(!w || !h) return;
+    const pitch = parseFloat(svg.dataset.pitch) || 26;
+    const n = Math.max(1, Math.round(h / pitch));
+    const gap = h / n;
+    let s = '';
+    for(let i=1;i<=n;i++){
+      const y = Math.round(gap*i) - 1.5;
+      s += `<line x1="1" y1="${y}" x2="${w-1}" y2="${y}"/>`;
+    }
+    svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+    svg.setAttribute('preserveAspectRatio','none');
+    svg.innerHTML = s;
+  });
+}
+draw();
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
+window.addEventListener('load', draw);
+window.addEventListener('resize', draw);
+window.addEventListener('beforeprint', draw);
+</script>
+</body>
+</html>

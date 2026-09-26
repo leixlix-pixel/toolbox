@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>고려 모둠 조사 학습지</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --ink:#1a1a1a; --line:#c9cdd4; --muted:#71767e; --paper:#fff;
+  --warn:#c0392b; --soft:#f4f6f9;
+}
+html,body{margin:0;padding:0}
+body{font-family:'Noto Sans KR',sans-serif;background:#e8eaee;color:var(--ink);
+     -webkit-print-color-adjust:exact;print-color-adjust:exact}
+
+/* ── 화면 전용 조작 바 ─────────────────────────── */
+.bar{position:sticky;top:0;z-index:50;background:#0f1b2d;color:#fff;
+     padding:10px 16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;
+     font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.bar b{font-size:15px;letter-spacing:-.3px}
+.bar .sp{flex:1}
+.bar select{font-family:inherit;font-size:14px;padding:9px 10px;border-radius:8px;
+            border:none;min-height:40px;max-width:260px}
+.bar button{font-family:inherit;font-size:14px;font-weight:700;min-height:40px;
+            padding:9px 16px;border:none;border-radius:8px;background:#ffd34d;color:#1a1a1a;
+            cursor:pointer;touch-action:manipulation}
+.bar button.ghost{background:rgba(255,255,255,.16);color:#fff}
+.bar .hint{width:100%;font-size:12.5px;color:#b9c4d4;line-height:1.5}
+
+/* ── A4 ────────────────────────────────────────── */
+@page{size:A4;margin:0}
+.page{
+  width:210mm;height:297mm;padding:12mm 13mm 12mm;background:var(--paper);
+  margin:16px auto;box-shadow:0 3px 14px rgba(0,0,0,.18);
+  display:flex;flex-direction:column;overflow:hidden;position:relative;
+  --acc:#1f4e79;
+}
+.page.hide{display:none !important}
+
+/* 머리 */
+.head{display:flex;align-items:flex-end;gap:12px;border-bottom:3px solid var(--acc);
+      padding-bottom:7px;flex:none}
+.badge{background:var(--acc);color:#fff;border-radius:8px;padding:5px 11px;
+       font-size:15px;font-weight:900;line-height:1.1;text-align:center;flex:none}
+.badge small{display:block;font-size:10.5px;font-weight:500;opacity:.85;margin-top:2px}
+.who{flex:1;min-width:0}
+.who .eyebrow{font-size:11.5px;color:var(--muted);letter-spacing:.5px;font-weight:700}
+.who h1{margin:0;font-size:29px;font-weight:900;letter-spacing:-1.3px;line-height:1.15;color:var(--acc)}
+.name-in{flex:none;font-size:12px;color:#333;text-align:right;line-height:2.1;white-space:nowrap}
+.name-in u{text-decoration:none;border-bottom:1px solid #999;display:inline-block;min-width:52px}
+
+/* 본문: 남는 높이를 쓰는 칸과 여백에 나눠 준다 */
+.pbody{flex:1;min-height:0;display:flex;flex-direction:column;
+       justify-content:space-between;gap:9px;padding-top:9px}
+.sec{display:flex;flex-direction:column;min-height:0}
+.grow{flex-grow:var(--g,.5);min-height:0}
+.st{font-size:13.5px;font-weight:900;color:var(--acc);margin:0 0 5px;
+    display:flex;align-items:center;gap:6px;flex:none}
+.st .num{background:var(--acc);color:#fff;width:19px;height:19px;border-radius:50%;
+         font-size:12px;display:flex;align-items:center;justify-content:center;flex:none}
+.st .tip{font-size:11px;font-weight:500;color:var(--muted);letter-spacing:-.2px}
+
+/* 쓰는 줄 (SVG 로 긋는다 — 인쇄에서 사라지지 않게) */
+.wr{position:relative;flex:1 1 0;min-height:0}
+.wr svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.wr svg line{stroke:var(--line);stroke-width:1}
+
+/* ① 언제·어디 */
+.when{display:flex;gap:8px;flex:none}
+.when .cell{flex:1;border:1.5px solid var(--line);border-radius:6px;padding:5px 8px 0;height:46px}
+.when .cell span{font-size:11px;color:var(--muted);font-weight:700}
+.when .cell .blank{border-bottom:1px dotted #b9bec6;height:20px;margin-top:3px}
+
+/* ② 찾아올 것 3가지 */
+.qs{flex:1;min-height:0;display:flex;flex-direction:column;gap:7px}
+.q{flex:1;min-height:0;display:flex;flex-direction:column;
+   border-left:4px solid var(--acc);padding-left:8px}
+.q .qt{font-size:12.5px;font-weight:700;line-height:1.35;margin-bottom:2px;flex:none}
+.q .qt i{font-style:normal;color:var(--acc);font-weight:900;margin-right:4px}
+
+/* ③ 그림 */
+.draw{flex:1 1 0;min-height:0;border:2px dashed #b9bec6;border-radius:8px;
+      position:relative;background:#fcfcfd}
+.draw .cap{position:absolute;left:10px;top:8px;font-size:11.5px;color:var(--muted)}
+.drawname{font-size:12px;margin-bottom:5px;flex:none}
+.drawname u{text-decoration:none;border-bottom:1px solid #aaa;display:inline-block;min-width:200px}
+
+/* ④ 이어 보기 */
+.link{font-size:11.5px;color:#333;margin:-2px 0 4px;flex:none;line-height:1.45}
+.link b{color:var(--acc)}
+
+/* ⑤ 전시 문제 */
+.quiz{flex:none;border:2px solid var(--acc);border-radius:8px;padding:6px 10px 8px;
+      display:flex;gap:10px;align-items:stretch}
+.quiz .qh{flex:none;font-size:12.5px;font-weight:900;color:var(--acc);line-height:1.35;width:92px}
+.quiz .qh small{display:block;font-size:10.5px;font-weight:500;color:var(--muted);margin-top:2px}
+.quiz .ql{flex:1;display:flex;flex-direction:column;justify-content:space-around;gap:10px;padding-top:4px}
+.quiz .ql span{border-bottom:1px dotted #9aa0a8;height:18px;display:block}
+
+/* 각주 */
+.foot{flex:none;border-top:1.5px solid #dde1e6;padding-top:7px;margin-top:9px}
+.warn{background:#fdf0ee;border-left:4px solid var(--warn);border-radius:0 6px 6px 0;
+      padding:6px 9px;font-size:11.5px;line-height:1.45}
+.warn b{color:var(--warn)}
+.keys{font-size:11.5px;color:#333;margin-top:6px;line-height:1.5}
+.keys b{color:var(--acc)}
+.keys .kw{background:var(--soft);border:1px solid #e1e5ea;border-radius:4px;
+          padding:1px 6px;margin-right:4px;display:inline-block;font-weight:700}
+.src{display:flex;align-items:flex-end;gap:6px;font-size:11.5px;color:#333;margin-top:6px}
+.src .l{flex:1;border-bottom:1px dotted #b9bec6;height:15px}
+
+/* ── 배정표(교사용 첫 장) ─────────────────────── */
+.cover{--acc:#0f1b2d}
+.cover h1{margin:0;font-size:30px;font-weight:900;letter-spacing:-1.2px}
+.cover .sub{font-size:13px;color:var(--muted);margin-top:3px}
+.grid6{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.gcard{border:2px solid var(--c);border-radius:9px;overflow:hidden}
+.gcard .gt{background:var(--c);color:#fff;padding:6px 10px;font-weight:900;font-size:14.5px;letter-spacing:-.4px}
+.gcard .gt small{font-weight:500;font-size:11px;opacity:.9;margin-left:4px}
+.gcard ol{margin:0;padding:6px 10px 7px 28px;font-size:12.5px;line-height:1.75}
+.gcard ol li::marker{font-weight:900;color:var(--c)}
+.gcard .who2{display:inline-block;min-width:54px;border-bottom:1px solid #bbb;margin-left:4px;height:14px;vertical-align:middle}
+.steps{border:1.5px solid #dde1e6;border-radius:9px;padding:9px 12px;font-size:12.5px;line-height:1.65;background:#fafbfc}
+.steps h3{margin:0 0 4px;font-size:14px;color:#0f1b2d}
+.steps ol{margin:0;padding-left:20px}
+.steps b{color:#0f1b2d}
+.steps .note{margin-top:6px;font-size:11.5px;color:var(--muted)}
+
+@media print{
+  body{background:#fff}
+  .no-print{display:none !important}
+  .page{margin:0;box-shadow:none;page-break-after:always}
+  .page:last-of-type{page-break-after:auto}
+}
+</style>
+</head>
+<body>
+
+<div class="bar no-print">
+  <b>고려 모둠 조사 학습지</b>
+  <span class="sp"></span>
+  <select id="pick" onchange="only(this.value)"></select>
+  <button class="ghost" onclick="only('')">전체 보기</button>
+  <button onclick="window.print()">🖨 인쇄</button>
+  <div class="hint">첫 장은 교사용 배정표, 그 뒤로 6모둠 × 4명 = 24장. 한 모둠만 뽑으려면 위에서 고른 뒤 인쇄 — 보이는 쪽만 나온다.</div>
+</div>
+
+<div id="out"></div>
+
+<script>
+/* 모둠 여섯, 한 모둠에 네 항목. 모둠 안의 네 항목은 시간 순서로 이어진다 —
+   ④ 「이어 보기」가 앞 친구의 항목을 가리키므로 순서를 바꾸면 그 칸도 같이 바꿀 것. */
+const GROUPS = [
+{g:1,title:'고려의 탄생',sub:'왕건과 후삼국 통일',c:'#1f4e79',items:[
+ {name:'견훤과 궁예 — 나라가 셋으로 쪼개지다',
+  q:['신라 끝 무렵, 나라가 왜 셋으로 쪼개졌나? (그때 지방에서 힘을 키운 사람들을 무엇이라 부르나?)',
+     '견훤은 언제, 어디에, 무슨 나라를 세웠나?',
+     '궁예는 어디에 무슨 나라를 세웠고, 나라 이름을 몇 번 바꿨나?'],
+  draw:'후삼국 지도 (세 나라의 자리)',
+  warn:'궁예가 스스로 「미륵」이라 부르며 사람들을 괴롭혔다는 기록은 <b>궁예를 몰아낸 고려 쪽이 남긴 것</b>이다. 나쁘게 쓰였을 수 있다.',
+  keys:['후삼국 시대','호족','견훤 후백제','궁예 태봉']},
+ {name:'왕건 — 궁예의 신하에서 왕으로',
+  q:['왕건은 어느 지방의, 어떤 집안 사람이었나? (그 집안은 무엇으로 부자가 되었나?)',
+     '궁예 밑에서 어떤 공을 세웠나? (배를 타고 어디를 차지했나?)',
+     '918년에 무슨 일이 있었나? 나라 이름을 왜 「고려」라고 지었나?'],
+  draw:'왕건 청동상 또는 고려를 세우는 장면',
+  warn:'왕건 혼자 궁예를 몰아낸 것이 아니다. <b>왕건을 왕으로 밀어 올린 장군 네 명</b>의 이름도 찾아라.',
+  keys:['왕건 고려 건국','송악 호족','왕건 나주','왕건 청동상']},
+ {name:'후삼국 통일 — 누가, 어떻게 합쳐졌나',
+  q:['공산 전투(927)에서 왕건은 어떻게 되었나? 신숭겸은 무엇을 했나?',
+     '신라 경순왕은 왜 싸우지도 않고 나라를 고려에 넘겼나?',
+     '견훤은 왜 자기 나라를 버리고 적이던 왕건에게 왔나?'],
+  draw:'후삼국이 하나로 합쳐지는 순서 (화살표로)',
+  warn:'고려는 <b>두 나라를 서로 다른 방법으로</b> 합쳤다. 신라와 후백제가 어떻게 달랐는지 비교해서 적어라.',
+  keys:['공산 전투 신숭겸','경순왕 고려','견훤 금산사','일리천 전투']},
+ {name:'왕건의 나라 다스리기',
+  q:['왕건은 왜 부인이 스물아홉 명이나 되었나?',
+     '호족들에게 「왕」씨 성을 준 까닭은 무엇인가?',
+     '왕건이 자손에게 남긴 「훈요 10조」에는 무엇이 적혀 있나? (두 가지)'],
+  draw:'훈요 10조 가운데 하나를 내 말로 옮긴 두루마리',
+  warn:'부인 수를 우스갯거리로 쓰지 말고, <b>왜 그렇게 해야 했는지</b>에 집중하라. 북쪽 땅을 되찾으려 한 「북진 정책」도 함께 찾아라.',
+  keys:['왕건 혼인 정책','사성 정책','훈요 10조','북진 정책']}
+]},
+{g:2,title:'북쪽의 이웃',sub:'거란과 여진',c:'#7b2d6b',items:[
+ {name:'서희 — 말로 땅을 얻다',
+  q:['쳐들어온 거란 장수 소손녕은 고려에게 무엇을 내놓으라고 했나? (두 가지)',
+     '서희는 무엇이라고 맞받았나? 「고려」라는 나라 이름을 어떻게 썼나?',
+     '담판이 끝나고 고려가 얻은 땅은 어디인가?'],
+  draw:'강동 6주 지도',
+  warn:'거란이 말한 「80만 대군」은 <b>겁주려고 부풀린 수</b>일 수 있다. 서희도 그걸 알아챘다.',
+  keys:['서희 외교 담판','소손녕','강동 6주']},
+ {name:'강감찬 — 귀주에서 크게 이기다',
+  q:['거란은 왜 또 쳐들어왔나? (서희 때 얻은 땅과 무슨 관계가 있나?)',
+     '흥화진에서 소가죽으로 강물을 막았다가 터뜨린 작전을 설명하라.',
+     '귀주에서 살아 돌아간 거란군은 몇 명쯤이었나?'],
+  draw:'흥화진 물막이 작전 장면',
+  warn:'강감찬이 태어날 때 별이 떨어졌다는 「낙성대」 이야기는 <b>전설</b>이다. 기록과 이야기를 나눠 적어라.',
+  keys:['귀주대첩','흥화진 소가죽','강감찬 낙성대']},
+ {name:'천리장성과 개경의 성벽',
+  q:['천리장성은 어디부터 어디까지 쌓았나?',
+     '쌓는 데 몇 년이 걸렸나? 왜 이때 쌓기로 했나?',
+     '수도 개경 둘레에도 성(나성)을 쌓았다. 왜 수도에까지 성이 필요했나?'],
+  draw:'천리장성 지도',
+  warn:'<b>고구려에도 천리장성이 있었다 — 다른 성이다.</b> 중국의 만리장성과도 헷갈리지 말 것. 「고려 천리장성」으로 찾아라.',
+  keys:['고려 천리장성','개경 나성','거란 침입 이후']},
+ {name:'윤관 — 여진을 몰아내고 9성을 쌓다',
+  q:['여진과 싸우려고 만든 「별무반」은 어떤 사람들로 꾸린 부대인가? (세 갈래)',
+     '동북 9성은 어디에 쌓았나?',
+     '어렵게 얻은 9성을 왜 1년 반 만에 여진에게 돌려주었나?'],
+  draw:'척경입비도 (윤관이 비석을 세우는 그림)',
+  warn:'9성을 돌려받은 여진은 뒤에 <b>금나라</b>를 세우고, 고려에게 「우리를 형님 나라로 모셔라」고 한다. 그 뒷이야기도 한 줄 적어라.',
+  keys:['별무반','동북 9성','척경입비도','여진 금나라']}
+]},
+{g:3,title:'몽골과 40년',sub:'버티고 싸우고 달라지다',c:'#9c4221',items:[
+ {name:'몽골이 오다 — 강화도로 옮긴 수도',
+  q:['몽골이 쳐들어온 계기가 된 「저고여 사건」은 무엇인가?',
+     '1232년 수도를 강화도로 옮기자고 한 사람은 누구인가?',
+     '왜 하필 강화도였나? (섬 둘레의 바다와 몽골군의 약점을 생각해 보라)'],
+  draw:'강화도 지도 또는 강화 고려궁지',
+  warn:'왕과 귀족은 섬으로 갔지만 <b>육지의 백성은 남았다.</b> 섬 안과 섬 밖, 두 쪽 모습을 다 적어라.',
+  keys:['저고여','강화 천도 최우','강화 고려궁지']},
+ {name:'김윤후 — 처인성과 충주성',
+  q:['처인성에서 무슨 일이 있었나? (몽골 장수 누가 어떻게 되었나?)',
+     '처인성은 어떤 사람들이 사는 곳이었나? (「부곡」이 무엇인지 찾아라)',
+     '충주성에서 김윤후가 노비 문서를 불태운 까닭은 무엇인가?'],
+  draw:'노비 문서를 불태우는 장면',
+  warn:'살리타를 쏜 사람이 김윤후인지는 <b>확실하지 않다.</b> 김윤후 스스로 상을 사양하며 한 말을 찾아라.',
+  keys:['처인성 전투','처인부곡','충주성 노비 문서','김윤후']},
+ {name:'삼별초 — 끝까지 싸운 군대',
+  q:['삼별초는 원래 어떤 부대였나? (이름에 든 「셋」은 무엇인가?)',
+     '고려 조정이 개경으로 돌아가기로 하자, 삼별초는 왜 따르지 않았나?',
+     '강화도 → ○○ → ○○, 삼별초가 옮겨 간 곳과 마지막을 적어라.'],
+  draw:'삼별초가 옮겨 간 길 지도',
+  warn:'삼별초를 「나라를 지킨 영웅」으로 보는 사람도, 「무신 정권을 지키던 군대」로 보는 사람도 있다. <b>두 생각을 다 적어라.</b>',
+  keys:['삼별초','진도 용장성','제주 항파두리']},
+ {name:'전쟁이 끝난 뒤 — 몽골풍과 고려양',
+  q:['전쟁 뒤 고려 왕은 누구와 결혼했나? 왕 이름에 「충」 자가 붙은 까닭은?',
+     '「몽골풍」 — 몽골에서 고려로 들어와 지금까지 남은 말이나 풍습 두 가지',
+     '「고려양」 — 거꾸로 고려에서 원나라로 퍼진 것은 무엇인가?'],
+  draw:'족두리·연지곤지, 또는 고려양으로 퍼진 것',
+  warn:'몽골풍이라고 알려진 것 가운데 <b>확실하지 않은 것도 섞여 있다.</b> 어디서 본 내용인지 꼭 적어라.',
+  keys:['원 간섭기','몽골풍','고려양','충렬왕']}
+]},
+{g:4,title:'고려의 손끝',sub:'청자 · 대장경 · 금속활자',c:'#0f766e',items:[
+ {name:'고려청자 — 비색과 상감',
+  q:['「비색」은 무슨 뜻인가? 고려청자를 「천하제일」이라 칭찬한 사람은 누구인가?',
+     '상감 기법은 어떻게 하는 것인가? 순서대로 세 단계로 적어라.',
+     '청자를 굽던 가마터가 남은 곳은 어디인가? (두 곳)'],
+  draw:'청자 상감운학문 매병',
+  warn:'「비색」이라고 쓴 사람(서긍)과 「천하제일」이라고 쓴 사람은 <b>다른 사람</b>이다. 헷갈리지 말 것.',
+  keys:['고려청자 비색','상감 기법','강진 청자 가마터','부안 청자']},
+ {name:'팔만대장경 — 왜, 어떻게 새겼나',
+  q:['전쟁 중에 왜 대장경을 새겼나? (그 전에 있던 대장경은 어떻게 되었나?)',
+     '경판은 모두 몇 장인가? 새기는 데 몇 년이 걸렸나?',
+     '나무판이 뒤틀리지 않게 어떻게 다듬었나?'],
+  draw:'경판 한 장 (글자가 뒤집혀 있다!)',
+  warn:'경판 수는 <b>자료마다 조금씩 다르다.</b> 어느 자료에 나온 수인지 함께 적어라.',
+  keys:['팔만대장경','초조대장경','대장도감','경판 제작 과정']},
+ {name:'해인사 장경판전 — 750년을 버틴 비밀',
+  q:['장경판전의 창문은 앞과 뒤, 위와 아래의 크기가 다르다. 왜 그렇게 만들었나?',
+     '흙바닥 속에 무엇을 넣었고, 그것은 무슨 일을 하나?',
+     '1970년대에 경판을 최신식 새 건물로 옮기려다 그만두었다. 무슨 일이 있었나?'],
+  draw:'장경판전 창문 (앞쪽·뒤쪽)',
+  warn:'옛사람들이 과학 원리를 알고 만든 걸까, 오랜 경험으로 만든 걸까? <b>내 생각과 까닭</b>을 한 줄 덧붙여라.',
+  keys:['해인사 장경판전','장경판전 창문','장경판전 바닥']},
+ {name:'금속활자와 직지',
+  q:['『직지』는 언제, 어느 절에서 찍었나?',
+     '독일 구텐베르크의 금속활자 인쇄보다 몇 년쯤 앞섰나?',
+     '『직지』는 왜 지금 프랑스에 있나? 그것을 찾아낸 사람은 누구인가?'],
+  draw:'금속활자 한 개 (글자가 뒤집혀 있다!)',
+  warn:'『직지』보다 <b>더 앞선 금속활자 책의 기록</b>(『상정고금예문』)도 있지만, 책은 남아 있지 않다. 「가장 오래된」이 무엇을 뜻하는지 조심해서 써라.',
+  keys:['직지 흥덕사','박병선','구텐베르크','상정고금예문']}
+]},
+{g:5,title:'고려 사람들의 하루',sub:'신분과 생활',c:'#a8751a',items:[
+ {name:'고려의 신분 — 네 층의 사람들',
+  q:['고려 사람들은 어떤 신분으로 나뉘었나? (네 가지와 각각 누구인가)',
+     '「향 · 부곡 · 소」는 어떤 곳이었나?',
+     '노비는 어떻게 살았나? 부모 중 한쪽만 노비라면 자식은 어떻게 되었나?'],
+  draw:'고려 신분 피라미드',
+  warn:'노비 만적이 「장군과 재상의 씨가 따로 있느냐」며 들고일어나려 한 일이 있다(1198). <b>그 뒤 어떻게 되었는지</b>도 찾아라.',
+  keys:['고려 신분 제도','향 부곡 소','만적의 난']},
+ {name:'관리가 되는 두 길 — 과거와 음서',
+  q:['고려에서 과거 시험은 언제, 어느 왕이 처음 열었나? 누가 하자고 했나?',
+     '「음서」는 무엇인가? 과거와 무엇이 다른가?',
+     '같은 왕이 만든 「노비안검법」은 무엇이고, 호족들은 왜 싫어했나?'],
+  draw:'과거 합격증(홍패) 또는 시험장',
+  warn:'과거를 하자고 한 쌍기는 <b>중국(후주)에서 온 사람</b>이다. 외국 사람이 고려 관리가 된 것도 눈여겨보라.',
+  keys:['광종 과거제','쌍기','음서','노비안검법']},
+ {name:'고려의 여성',
+  q:['부모의 재산을 아들과 딸이 어떻게 나눠 받았나?',
+     '집안 호적(가족 기록)에 아들딸을 어떤 순서로 적었나?',
+     '결혼한 뒤 누구 집에서 살았나? 여성이 다시 결혼할 수 있었나?'],
+  draw:'태어난 순서대로 적은 고려 호적 한 장',
+  warn:'「고려 여성은 남성과 완전히 똑같았다」고 쓰지는 마라. <b>여성이 할 수 없던 일</b>도 하나 찾아라.',
+  keys:['고려 여성 지위','고려 재산 상속','고려 호적']},
+ {name:'연등회와 팔관회 — 나라의 큰 잔치',
+  q:['연등회는 언제 열렸고, 사람들은 무엇을 했나?',
+     '팔관회는 어디서 열렸고, 다른 나라에서 누가 찾아왔나?',
+     '연등회는 지금도 이어진다. 2020년에 무엇으로 이름을 올렸나?'],
+  draw:'연등 또는 팔관회 모습',
+  warn:'팔관회는 부처님만 모신 행사가 아니다. <b>하늘·산·강의 신</b>도 함께 모셨다.',
+  keys:['고려 연등회','팔관회','연등회 유네스코']}
+]},
+{g:6,title:'바다 너머 고려',sub:'교류와 무역',c:'#4a3a8c',items:[
+ {name:'벽란도 — 고려의 국제 항구',
+  q:['벽란도는 어느 강에 있었나? 수도 개경과 얼마나 가까웠나?',
+     '어느 나라 상인들이 벽란도에 왔나?',
+     '고려는 무엇을 팔고, 무엇을 사들였나?'],
+  draw:'배들이 드나드는 벽란도',
+  warn:'벽란도는 지금 <b>북한 땅</b>이라 가 볼 수 없다. 남은 기록과 그림으로만 알 수 있다.',
+  keys:['벽란도','예성강','고려 무역품']},
+ {name:'아라비아 상인과 「코리아」',
+  q:['아라비아(대식국) 상인이 고려에 왔다는 기록은 언제 처음 나오나?',
+     '아라비아 상인은 무엇을 가지고 왔나?',
+     '「고려」가 어떻게 「코리아」가 되었을까?'],
+  draw:'고려에 온 아라비아 상인의 배',
+  warn:'「코리아」가 고려에서 온 말인 것은 맞지만, <b>누가 퍼뜨렸는지는 여러 설</b>이 있다. 한 가지만 정답처럼 쓰지 마라.',
+  keys:['대식국 상인 고려','고려 아라비아','코리아 이름 유래']},
+ {name:'송나라 사신이 본 고려 — 『고려도경』',
+  q:['서긍은 언제, 무슨 일로 고려에 왔나?',
+     '『고려도경』에 적힌 고려의 모습 두 가지를 찾아라.',
+     '이 책에는 원래 그림이 있었다. 지금은 왜 글만 남았나?'],
+  draw:'서긍의 눈으로 본 고려의 한 장면',
+  warn:'서긍은 고려에 <b>한 달쯤</b> 머물렀다. 짧게 본 외국 사람이 잘못 적은 것도 있을 수 있다.',
+  keys:['서긍 고려도경','선화봉사고려도경']},
+ {name:'문익점과 목화 — 옷이 바뀌다',
+  q:['문익점은 언제, 어느 나라에 갔다가 목화씨를 가지고 왔나?',
+     '장인 정천익과 함께 무엇을 했나? (씨를 심은 뒤 어떻게 되었나?)',
+     '목화가 퍼진 뒤 사람들의 옷과 이불은 어떻게 달라졌나?'],
+  draw:'목화 또는 물레',
+  warn:'「붓두껍에 몰래 숨겨 왔다」는 이야기는 <b>나중에 덧붙은 것</b>일 수 있다. 옛 기록에는 어떻게 적혀 있는지 찾아라.',
+  keys:['문익점 목화','정천익','무명','물레']}
+]}
+];
+
+/* 배정표 */
+const cover = `
+<article class="page cover" data-n="0">
+  <div class="head">
+    <div class="who">
+      <div class="eyebrow">교사용 · 칠판에 붙이거나 모둠에 한 장씩</div>
+      <h1>고려 모둠 조사 — 누가 무엇을 맡나</h1>
+      <div class="sub">6모둠 × 4명. 모둠 안의 네 항목은 <b>시간 순서로 이어진다</b> — 발표도 1번부터.</div>
+    </div>
+  </div>
+  <div class="pbody">
+    <div class="grid6">
+      ${GROUPS.map(G=>`
+      <div class="gcard" style="--c:${G.c}">
+        <div class="gt">${G.g}모둠 · ${G.title}<small>${G.sub}</small></div>
+        <ol>${G.items.map(it=>`<li>${it.name.split(' — ')[0]}<span class="who2"></span></li>`).join('')}</ol>
+      </div>`).join('')}
+    </div>
+    <div class="steps">
+      <h3>이렇게 한다</h3>
+      <ol>
+        <li><b>조사</b> — 자기 학습지의 「꼭 찾아올 것 3가지」부터. 다 찾은 사람만 그림으로 간다.</li>
+        <li><b>이어 보기</b> — ④번 칸은 <b>앞 친구와 말을 맞춰야</b> 쓸 수 있다. 모둠 안에서 조용히 바꿔 읽는다.</li>
+        <li><b>전시 문제</b> — ⑤번에 친구들이 내 학습지를 <b>읽어야만</b> 풀 수 있는 문제를 하나 낸다. (정답은 학습지 뒤에)</li>
+        <li><b>발표</b> — 모둠이 나와서 1번→4번 순서로, 한 사람에 1분.</li>
+        <li><b>전시 · 돌아보기</b> — 모둠 넷 장을 순서대로 붙인다. 다른 모둠 전시 앞에서 <b>말없이</b> 읽고, 전시 문제의 답을 붙임쪽지에 써서 붙인다.</li>
+      </ol>
+      <div class="note">자료가 적게 나오는 항목(6-3 『고려도경』, 1-4 훈요 10조)은 읽기를 잘하는 아이에게. 그림 칸이 넓은 항목(4-1 청자, 4-3 장경판전)은 그리기를 좋아하는 아이에게.</div>
+    </div>
+  </div>
+</article>`;
+
+const pages = [];
+GROUPS.forEach(G=>G.items.forEach((f,i)=>{
+  const k = i+1;
+  const prev = i>0 ? G.items[i-1].name.split(' — ')[0] : null;
+  const next = i<3 ? G.items[i+1].name.split(' — ')[0] : null;
+  const link = prev
+    ? `<b>${G.g}-${k-1} ${prev}</b>에서 무슨 일이 있었기에 내 이야기가 일어났나? 앞 친구에게 물어보고 한두 줄로 이어 써라.`
+    : `내가 조사한 일 <b>때문에</b> 다음에 무슨 일이 일어났나? <b>${G.g}-2 ${next}</b> 친구와 이야기해 보고 한두 줄로 써라.`;
+  pages.push(`
+<article class="page" data-n="${G.g}" style="--acc:${G.c}">
+  <div class="head">
+    <div class="badge">${G.g}-${k}<small>${G.g}모둠</small></div>
+    <div class="who">
+      <div class="eyebrow">${G.g}모둠 · ${G.title} — ${G.sub}</div>
+      <h1>${f.name}</h1>
+    </div>
+    <div class="name-in">5학년 <u></u>반<br>이름 <u style="min-width:84px"></u></div>
+  </div>
+
+  <div class="pbody">
+
+    <div class="sec">
+      <p class="st"><span class="num">1</span>언제, 어디서?</p>
+      <div class="when">
+        <div class="cell"><span>때 (몇 년쯤 · 어느 왕 때)</span><div class="blank"></div></div>
+        <div class="cell"><span>곳 (어디에서)</span><div class="blank"></div></div>
+      </div>
+    </div>
+
+    <div class="sec grow" style="--g:.40">
+      <p class="st"><span class="num">2</span>꼭 찾아올 것 3가지 <span class="tip">— 이것부터 다 찾은 뒤에 그림으로 간다</span></p>
+      <div class="qs">
+        ${f.q.map((t,j)=>`
+        <div class="q">
+          <div class="qt"><i>${'①②③'[j]}</i>${t}</div>
+          <div class="wr"><svg class="rules" data-pitch="26"></svg></div>
+        </div>`).join('')}
+      </div>
+    </div>
+
+    <div class="sec grow" style="--g:.28">
+      <p class="st"><span class="num">3</span>그림이나 사진으로 보여 주자</p>
+      <div class="drawname">그린 것의 이름 : <u></u> <span style="color:#71767e;font-size:11px">(보기 : ${f.draw})</span></div>
+      <div class="draw"><div class="cap">그림 아래에 한 줄 설명을 덧붙여도 좋다</div></div>
+    </div>
+
+    <div class="sec grow" style="--g:.10">
+      <p class="st"><span class="num">4</span>모둠 안에서 이어 보기</p>
+      <div class="link">${link}</div>
+      <div class="wr" style="min-height:44px"><svg class="rules" data-pitch="26"></svg></div>
+    </div>
+
+    <div class="sec">
+      <div class="quiz">
+        <div class="qh">⑤ 전시 문제<small>내 학습지를 읽어야 풀 수 있게. 정답은 뒷면에!</small></div>
+        <div class="ql"><span></span><span></span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="foot">
+    <div class="warn"><b>조심!</b> ${f.warn}</div>
+    <div class="keys"><b>이 말로 찾아보자 :</b> ${f.keys.map(k=>`<span class="kw">${k}</span>`).join('')}</div>
+    <div class="src"><span>찾아본 곳(책 이름 · 누리집) :</span><span class="l"></span></div>
+  </div>
+</article>`);
+}));
+
+document.getElementById('out').innerHTML = cover + pages.join('');
+
+/* 모둠 고르기 */
+const pick = document.getElementById('pick');
+pick.innerHTML = '<option value="">— 전체 (배정표 + 24장) —</option><option value="0">배정표만</option>' +
+  GROUPS.map(G=>`<option value="${G.g}">${G.g}모둠 · ${G.title} (4장)</option>`).join('');
+
+function only(n){
+  document.querySelectorAll('.page').forEach(p=>{
+    p.classList.toggle('hide', n!=='' && n!=null && p.dataset.n !== String(n));
+  });
+  pick.value = n==null ? '' : n;
+  window.scrollTo(0,0);
+  draw();
+}
+
+/* 쓰는 줄은 SVG 로 긋는다 — 줄 수가 아니라 줄 간격을 고정한다 */
+function draw(){
+  document.querySelectorAll('svg.rules').forEach(svg=>{
+    const w = svg.clientWidth, h = svg.clientHeight;
+    if(!w || !h) return;
+    const pitch = parseFloat(svg.dataset.pitch) || 26;
+    const n = Math.max(1, Math.round(h / pitch));
+    const gap = h / n;
+    let s = '';
+    for(let i=1;i<=n;i++){
+      const y = Math.round(gap*i) - 1.5;
+      s += `<line x1="1" y1="${y}" x2="${w-1}" y2="${y}"/>`;
+    }
+    svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+    svg.setAttribute('preserveAspectRatio','none');
+    svg.innerHTML = s;
+  });
+}
+draw();
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
+window.addEventListener('load', draw);
+window.addEventListener('resize', draw);
+window.addEventListener('beforeprint', draw);
+</script>
+</body>
+</html>

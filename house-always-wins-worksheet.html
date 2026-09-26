@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>한 판은 이긴다, 그런데 — 학습지 (도박예방교육 4~6학년)</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+@page{size:A4;margin:0}
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--ink:#1d2433;--navy:#1f3a5f;--red:#c0392b;--gold:#e0a526;--green:#2e7d4f;
+      --paper:#fbf8f2;--line:#c9ccd3;--muted:#6b7280;--soft:#eef2f7}
+body{font-family:'Noto Sans KR',sans-serif;color:var(--ink);background:#d9dde3;
+     -webkit-print-color-adjust:exact;print-color-adjust:exact}
+
+/* 화면용 안내 바 */
+.tbar{max-width:210mm;margin:14px auto 10px;background:#fff;border-radius:10px;padding:12px 16px;
+      font-size:14px;line-height:1.6;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.tbar button{font:inherit;font-weight:700;border:0;border-radius:8px;padding:9px 16px;cursor:pointer;
+      background:var(--navy);color:#fff;margin-right:6px;min-height:44px}
+.tbar button.sub{background:#e5e7eb;color:var(--ink)}
+.tbar .key{display:none;margin-top:10px;padding:10px 12px;background:var(--soft);border-radius:8px}
+.tbar .key.on{display:block}
+.tbar .key b{color:var(--red)}
+
+.page{width:210mm;height:297mm;margin:0 auto 20px;background:#fff;overflow:hidden;
+      padding:11mm 13mm 12mm;display:flex;flex-direction:column;box-shadow:0 2px 12px rgba(0,0,0,.12)}
+
+/* 머리 */
+.head{display:flex;justify-content:space-between;align-items:flex-end;
+      border-bottom:3px solid var(--navy);padding-bottom:7px}
+.eyebrow{font-size:12.5px;font-weight:700;color:var(--red);letter-spacing:.5px}
+.head h1{font-size:25px;font-weight:900;color:var(--navy);line-height:1.2;margin-top:2px}
+.head h1 small{font-size:16px;font-weight:500;color:var(--muted);margin-left:6px}
+.who{font-size:14.5px;white-space:nowrap}
+.who span{display:inline-block;border-bottom:1.2px solid var(--ink);width:34px;margin:0 3px}
+.who span.nm{width:92px}
+
+.pbody{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:space-between;
+       gap:10px;padding-top:10px}
+.grow{flex-grow:var(--g,.5);min-height:0;display:flex;flex-direction:column}
+
+.sec h2{font-size:17.5px;font-weight:900;color:var(--navy);display:flex;align-items:center;gap:8px}
+.sec h2 .n{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;
+      border-radius:50%;background:var(--navy);color:#fff;font-size:15px}
+.sec .how{font-size:14px;color:#374151;margin:3px 0 6px;line-height:1.5}
+.sec .how b{color:var(--red)}
+
+/* 1. 착각 가르기 */
+.legend{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-bottom:8px}
+.legend div{background:var(--soft);border-radius:7px;padding:5px 7px;font-size:12.5px;line-height:1.35}
+.legend div b{display:block;font-size:14px;color:var(--navy)}
+.legend div.fact{background:#eaf5ee}
+.legend div.fact b{color:var(--green)}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px}
+.card{display:flex;align-items:center;gap:7px;border:1.3px solid var(--line);border-radius:9px;padding:5px 9px;min-height:50px}
+.card .k{font-size:13px;font-weight:900;color:var(--muted);width:14px}
+.card svg{flex:0 0 30px;width:30px;height:30px}
+.card .t{font-size:14.5px;line-height:1.42}
+.card .t i{font-style:normal;font-size:12px;color:var(--muted);display:block}
+
+/* 2. 거절 세 마디 */
+.scenes{display:grid;grid-template-columns:1fr 1fr;gap:12px;flex:1;min-height:0}
+.scene{border:1.5px solid var(--line);border-radius:10px;padding:9px 11px;display:flex;flex-direction:column}
+.bubble{background:#fff4e0;border-radius:10px 10px 10px 2px;padding:5px 10px;font-size:14.5px;line-height:1.5;margin-bottom:6px}
+.bubble i{font-style:normal;font-size:12px;color:#9a6a12;display:block;font-weight:700}
+.rows{flex:1;display:flex;flex-direction:column;min-height:0}
+.row{flex:1;display:flex;align-items:flex-end;gap:6px;min-height:31px;border-bottom:1.2px solid #9aa0aa;padding-bottom:3px}
+.row .lab{font-size:12.5px;font-weight:700;color:var(--navy);white-space:nowrap;align-self:flex-end}
+
+/* 3. 내 문 닫기 */
+.two{display:grid;grid-template-columns:1fr 1.5fr;gap:12px;flex:1;min-height:0}
+.box{border:1.5px solid var(--line);border-radius:10px;padding:9px 11px;display:flex;flex-direction:column}
+.box .q{font-size:14.5px;font-weight:700;line-height:1.45}
+.box .ex{font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.45}
+.lines{flex:1 1 0;min-height:30px;width:100%;display:block;margin-top:2px}
+.fill{font-size:15px;line-height:1.5;margin-top:4px}
+
+.foot{display:flex;justify-content:space-between;align-items:center;gap:10px;
+      border-top:1.5px solid var(--line);padding-top:7px;font-size:12.5px;color:#374151;line-height:1.45}
+.foot .tel{white-space:nowrap;font-weight:700;color:var(--navy)}
+.foot .tel b{color:var(--red);font-size:15px}
+
+@media print{
+  body{background:#fff}
+  .no-print{display:none!important}
+  .page{margin:0;box-shadow:none}
+}
+</style>
+</head>
+<body>
+
+<div class="tbar no-print">
+  <button onclick="window.print()">🖨️ 인쇄하기</button>
+  <button class="sub" onclick="document.getElementById('key').classList.toggle('on')">🔑 1번 답 보기</button>
+  <div style="margin-top:8px">슬라이드 <b>「한 판은 이긴다, 그런데」</b>를 마친 뒤 10분. A4 한 장 · 인쇄할 때 <b>여백 없음</b>, <b>배경 그래픽</b> 켜기.
+  1번은 착각 넷을 <b>다시 떠올리는</b> 자리라 짝과 같이 풀어도 좋다. 2·3번이 이 학습지의 본론이다 — 거절은 머리로 아는 것과 입으로 해 본 것이 다르다.</div>
+  <div class="key" id="key">
+    가: <b>①</b> · 나: <b>④</b> · 다: <b>③</b> · 라: <b>○</b> · 마: <b>②</b> ·
+    바: <b>①</b> · 사: <b>④</b> · 아: <b>○</b> · 자: <b>②</b> · 차: <b>③</b><br>
+    <span style="color:#6b7280">마(인형)는 ③으로 답하는 아이도 있다 — "감 잡았다"를 근거로 대면 인정해 주고, 슬롯의 「기계 속」 이야기로 돌아가면 된다.</span>
+  </div>
+</div>
+
+<div class="page">
+  <div class="head">
+    <div>
+      <div class="eyebrow">도박예방교육 · 4~6학년 학습지</div>
+      <h1>한 판은 이긴다, 그런데<small>— 첫 판을 열지 않는 법</small></h1>
+    </div>
+    <div class="who"><span></span>학년 <span></span>반 이름 <span class="nm"></span></div>
+  </div>
+
+  <div class="pbody">
+
+    <!-- 1 -->
+    <div class="sec">
+      <h2><span class="n">1</span>이 말은 어떤 착각일까?</h2>
+      <p class="how">친구들이 한 말이다. 오늘 본 착각 가운데 어느 것인지 <b>동그라미 안에 번호</b>를 쓰자. 착각이 아니라 맞는 말이면 <b>○</b>.</p>
+      <div class="legend">
+        <div><b>①</b>“이번엔 나올 차례야”</div>
+        <div><b>②</b>“아깝다! 거의 됐는데”</div>
+        <div><b>③</b>“내가 고르면 잘 맞아”</div>
+        <div><b>④</b>“잃은 것만 찾고 그만”</div>
+        <div class="fact"><b>○</b>착각이 아니다 (사실)</div>
+      </div>
+      <div class="cards">
+        <div class="card"><span class="k">가</span><svg viewBox="0 0 34 34"><circle cx="17" cy="17" r="15" fill="none" stroke="#1f3a5f" stroke-width="1.6"/></svg>
+          <div class="t">빨강이 다섯 번이나 나왔으니까 이번엔 무조건 검정이야.</div></div>
+        <div class="card"><span class="k">나</span><svg viewBox="0 0 34 34"><circle cx="17" cy="17" r="15" fill="none" stroke="#1f3a5f" stroke-width="1.6"/></svg>
+          <div class="t">오늘 잃은 3천 원만 찾으면 진짜 딱 그만할게.</div></div>
+        <div class="card"><span class="k">다</span><svg viewBox="0 0 34 34"><circle cx="17" cy="17" r="15" fill="none" stroke="#1f3a5f" stroke-width="1.6"/></svg>
+          <div class="t">내 생일 번호로 사면 자동보다 잘 맞을 것 같아.</div></div>
+        <div class="card"><span class="k">라</span><svg viewBox="0 0 34 34"><circle cx="17" cy="17" r="15" fill="none" stroke="#1f3a5f" stroke-width="1.6"/></svg>
+          <div class="t">룰렛 공은 앞에서 무엇이 나왔는지 기억하지 못한다.</div></div>
+        <div class="card"><span class="k">마</span><svg viewBox="0 0 34 34"><circle cx="17" cy="17" r="15" fill="none" stroke="#1f3a5f" stroke-width="1.6"/></svg>
+          <div class="t">인형이 입구 바로 앞에서 떨어졌어. 아까워서 못 그만두겠어.</div></div>
+        <div class="card"><span class="k">바</span><svg viewBox="0 0 34 34"><circle cx="17" cy="17" r="15" fill="none" stroke="#1f3a5f" stroke-width="1.6"/></svg>
+          <div class="t">뽑기 열 번이 전부 꽝이었어. 이제 전설 나올 때 됐지.</div></div>
+        <div class="card"><span class="k">사</span><svg viewBox="0 0 34 34"><circle cx="17" cy="17" r="15" fill="none" stroke="#1f3a5f" stroke-width="1.6"/></svg>
+          <div class="t">지면 두 배로 걸면 돼. 한 번만 이기면 다 찾잖아.</div></div>
+        <div class="card"><span class="k">아</span><svg viewBox="0 0 34 34"><circle cx="17" cy="17" r="15" fill="none" stroke="#1f3a5f" stroke-width="1.6"/></svg>
+          <div class="t">규칙을 만든 쪽은 오래, 많이 할수록 더 확실하게 번다.</div></div>
+        <div class="card"><span class="k">자</span><svg viewBox="0 0 34 34"><circle cx="17" cy="17" r="15" fill="none" stroke="#1f3a5f" stroke-width="1.6"/></svg>
+          <div class="t">7이 두 개나 떴어! 거의 다 됐으니까 한 번만 더.</div></div>
+        <div class="card"><span class="k">차</span><svg viewBox="0 0 34 34"><circle cx="17" cy="17" r="15" fill="none" stroke="#1f3a5f" stroke-width="1.6"/></svg>
+          <div class="t">내가 직접 버튼을 누르면 더 잘 나오는 것 같아.</div></div>
+      </div>
+    </div>
+
+    <!-- 2 -->
+    <div class="sec grow" style="--g:.45">
+      <h2><span class="n">2</span>친구가 권하면, 세 마디로</h2>
+      <p class="how">두 장면에서 거절하는 말을 <b>내 말투로</b> 써 보자. 길게 설명하지 않는다 — 설득하려 들면 말려든다.</p>
+      <div class="scenes">
+        <div class="scene">
+          <div class="bubble"><i>🔗 단톡방에서</i>“이 사이트 축구 경기 맞히기, 만 원 넣으면 3만 원 된대. 너도 같이 하자.”</div>
+          <div class="rows">
+            <div class="row"><span class="lab">① 딱 잘라</span></div>
+            <div class="row"><span class="lab">② 이유 하나</span></div>
+            <div class="row"><span class="lab">③ 다른 제안</span></div>
+          </div>
+        </div>
+        <div class="scene">
+          <div class="bubble"><i>🎁 게임하다가</i>“랜덤박스 같이 사자. 5천 원씩 모아서 전설 나오면 나눠 갖자.”</div>
+          <div class="rows">
+            <div class="row"><span class="lab">① 딱 잘라</span></div>
+            <div class="row"><span class="lab">② 이유 하나</span></div>
+            <div class="row"><span class="lab">③ 다른 제안</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3 -->
+    <div class="sec grow" style="--g:.35">
+      <h2><span class="n">3</span>의지 말고, 문을 닫자</h2>
+      <p class="how">과자를 참는 제일 쉬운 방법은 집에 과자를 안 두는 것이다. <b>나한테 맞는 문</b>을 골라 보자.</p>
+      <div class="two">
+        <div class="box">
+          <div class="q">내 손이 가장 먼저 흔들릴 것 같은 순간은?</div>
+          <div class="ex">예) 친구가 “딱 한 번만” 할 때</div>
+          <svg class="lines" data-lines></svg>
+        </div>
+        <div class="box">
+          <div class="q">나는 이렇게 해서 첫 판을 막겠다.</div>
+          <div class="ex">예) 모르는 링크는 바로 지운다 · 결제 비밀번호는 부모님이 갖고 계신다</div>
+          <div class="fill">나는 <span style="display:inline-block;width:78%;border-bottom:1.2px solid #9aa0aa">&nbsp;</span></div>
+          <svg class="lines" data-lines></svg>
+          <div class="fill" style="text-align:right">해서 <b>첫 판을 열지 않겠다.</b></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="foot">
+    <div>이미 해 봤다면 — <b>혼날까 봐 숨기는 것이 가장 위험하다.</b> 빨리 말할수록 작게 끝난다.</div>
+    <div class="tel">도박 문제 ☎ <b>1336</b> · 청소년 ☎ <b>1388</b></div>
+  </div>
+</div>
+
+<script>
+// 줄 수를 고정하지 않고 줄 간격(30px)을 고정한다 — 칸이 커지면 줄이 늘어난다.
+function drawLines(){
+  document.querySelectorAll('svg[data-lines]').forEach(s=>{
+    s.innerHTML='';
+    const r=s.getBoundingClientRect(), w=r.width, h=r.height;
+    if(!w||!h) return;
+    s.setAttribute('viewBox',`0 0 ${w} ${h}`);
+    const n=Math.max(1,Math.round(h/30)), p=h/n;
+    let out='';
+    for(let i=1;i<=n;i++){const y=(i*p-1).toFixed(1);
+      out+=`<line x1="0" y1="${y}" x2="${w}" y2="${y}" stroke="#9aa0aa" stroke-width="1.1"/>`;}
+    s.innerHTML=out;
+  });
+}
+document.fonts.ready.then(drawLines);
+addEventListener('load',drawLines);
+addEventListener('resize',drawLines);
+addEventListener('beforeprint',drawLines);
+</script>
+</body>
+</html>
